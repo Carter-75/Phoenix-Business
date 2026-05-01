@@ -15,7 +15,8 @@ router.post('/register', async (req, res) => {
       email: email.toLowerCase(),
       password,
       firstName,
-      lastName
+      lastName,
+      hasFinalizedProfile: true
     });
 
     await user.save();
@@ -49,8 +50,12 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
+    // Check if user has finalized their profile (names confirmed)
+    if (!req.user.hasFinalizedProfile) {
+      return res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/complete-profile`);
+    }
     // Successful authentication, redirect home.
-    res.redirect(process.env.PROD_FRONTEND_URL || 'http://localhost:4200');
+    res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard`);
   }
 );
 
@@ -60,6 +65,22 @@ router.get('/user', (req, res) => {
     res.json(req.user);
   } else {
     res.status(401).json({ message: 'Not authenticated' });
+  }
+});
+
+// @route   POST /auth/update-profile
+router.post('/update-profile', async (req, res) => {
+  if (!req.isAuthenticated()) return res.status(401).json({ message: 'Not authenticated' });
+  try {
+    const { firstName, lastName } = req.body;
+    const user = await User.findById(req.user._id);
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.hasFinalizedProfile = true;
+    await user.save();
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

@@ -22,6 +22,17 @@ import { CommonModule } from '@angular/common';
 
         <div class="premium-card !p-10 space-y-8">
           <div class="space-y-6">
+            <button (click)="loginWithGoogle()" 
+                    class="w-full h-[60px] flex items-center justify-center gap-3 rounded-xl border border-white/10 hover:bg-white/5 text-white font-bold tracking-widest text-[10px] uppercase transition-all">
+              <img src="https://www.google.com/favicon.ico" class="w-4 h-4" alt="Google">
+              Continue with Google
+            </button>
+
+            <div class="relative flex items-center justify-center py-2">
+              <div class="border-t border-white/5 w-full"></div>
+              <span class="bg-slate-900 px-4 text-slate-500 text-[10px] font-black uppercase tracking-widest absolute">or secure email</span>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
                 <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">First Name</label>
@@ -73,6 +84,10 @@ export class RegisterComponent {
   email = '';
   password = '';
   loading = signal(false);
+
+  loginWithGoogle() {
+    this.api.loginWithGoogle();
+  }
 
   register() {
     if (!this.email || !this.password || !this.firstName || !this.lastName) return;
