@@ -130,7 +130,10 @@ const sessionConfig = {
 };
 
 if (process.env.MONGODB_URI) {
-  // Ultra-robust MongoStore initialization
+  // Handle connect-mongo v4+ export which can be the class itself or .default
+  let ActualMongoStore = MongoStore;
+  if (MongoStore.default) ActualMongoStore = MongoStore.default;
+
   const storeOptions = {
     mongoUrl: process.env.MONGODB_URI.replace(/^["']|["']$/g, ''),
     ttl: 14 * 24 * 60 * 60,
@@ -138,12 +141,12 @@ if (process.env.MONGODB_URI) {
   };
 
   try {
-    if (typeof MongoStore.create === 'function') {
-      sessionConfig.store = MongoStore.create(storeOptions);
-    } else if (typeof MongoStore === 'function') {
-      sessionConfig.store = new MongoStore(storeOptions);
-    } else if (MongoStore.default && typeof MongoStore.default.create === 'function') {
-      sessionConfig.store = MongoStore.default.create(storeOptions);
+    if (typeof ActualMongoStore.create === 'function') {
+      sessionConfig.store = ActualMongoStore.create(storeOptions);
+      console.log('OK: Session Store initialized with MongoStore.create');
+    } else {
+      sessionConfig.store = new ActualMongoStore(storeOptions);
+      console.log('OK: Session Store initialized with new MongoStore (fallback)');
     }
   } catch (err) {
     console.error('CRITICAL: Failed to initialize Session Store:', err.message);
