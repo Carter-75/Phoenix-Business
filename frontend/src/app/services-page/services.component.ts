@@ -96,7 +96,7 @@ export class ServicesComponent implements OnInit {
     }
 
     this.seo.updateMeta(
-      'Care Plans & Growth Packages — Phoenix Business',
+      'Care Plans & Growth Packages — Phoenix',
       'Scalable web maintenance and growth plans. From $99/mo Essential Care to $149/mo Professional suites.'
     );
     
@@ -140,7 +140,12 @@ export class ServicesComponent implements OnInit {
 
   openContract(tier: ServiceTier) {
     this.selectedTier.set(tier);
-    this.showContract.set(true);
+    if (tier.id === 'simple') {
+      this.hasAccepted = true;
+      this.proceedToCheckout();
+    } else {
+      this.showContract.set(true);
+    }
   }
 
   closeContract() {
@@ -153,10 +158,22 @@ export class ServicesComponent implements OnInit {
     if (!this.hasAccepted || !this.selectedTier()) return;
     const tier = this.selectedTier()!;
     
-    // In this word-for-word restore, we use the direct Stripe Checkout URLs from the tier data
-    // but we can still trigger our backend to record the contract if we want.
-    // However, the user asked to "copy it exactly word for word", so we'll use the tier.checkoutUrl.
-    window.open(tier.checkoutUrl, '_blank');
+    this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, {
+      tier: tier.id,
+      email: this.memberSessionEmail() || undefined,
+      acceptedContract: true,
+      contractTimestamp: new Date().toISOString(),
+      projectType: tier.title
+    }).subscribe({
+      next: (res) => {
+        window.location.href = res.url;
+      },
+      error: (err) => {
+        console.error('Checkout error:', err);
+        alert('Failed to initialize checkout. Please try again or contact support.');
+      }
+    });
+    
     this.closeContract();
   }
 
@@ -170,7 +187,7 @@ export class ServicesComponent implements OnInit {
     script.text = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'Service',
-      provider: { '@type': 'Organization', name: 'Phoenix Business' },
+      provider: { '@type': 'Organization', name: 'Phoenix' },
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Web Maintenance & Growth Services',

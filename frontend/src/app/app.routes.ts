@@ -6,6 +6,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { TermsComponent } from './legal/terms-of-service.component';
 import { RefundPolicyComponent } from './legal/refund-policy.component';
+import { PrivacyPolicyComponent } from './legal/privacy-policy.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'services', component: ServicesComponent },
   { path: 'terms', component: TermsComponent },
   { path: 'refunds', component: RefundPolicyComponent },
+  { path: 'privacy', component: PrivacyPolicyComponent },
   
   // Hidden utility routes (not in navigation)
   { path: 'login', component: LoginComponent },

@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, OnDestroy, ViewChild, NgZone } from '@an
 import * as THREE from 'three';
 
 @Component({
-  selector: 'app-background-animation',
+  selector: 'app-background',
   standalone: true,
   template: `<canvas #bgCanvas id="bg-canvas"></canvas>`,
   styles: [`
@@ -19,7 +19,7 @@ import * as THREE from 'three';
     }
   `]
 })
-export class BackgroundAnimationComponent implements OnInit, OnDestroy {
+export class BackgroundComponent implements OnInit, OnDestroy {
   @ViewChild('bgCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   
   private renderer!: THREE.WebGLRenderer;
@@ -62,28 +62,23 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
 
   private createParticles() {
     const geometry = new THREE.BufferGeometry();
-    const count = 5000;
+    const count = 3000;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
 
-    for (let i = 0; i < count * 3; i += 3) {
+    for (let i = 0; i < count * 3; i++) {
       positions[i] = (Math.random() - 0.5) * 20;
-      positions[i+1] = (Math.random() - 0.5) * 20;
-      positions[i+2] = (Math.random() - 0.5) * 20;
-      
       colors[i] = Math.random();
-      colors[i+1] = Math.random() * 0.5 + 0.5; // More blueish/white
-      colors[i+2] = 1;
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.015,
+      size: 0.02,
       vertexColors: true,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending
     });
 
@@ -94,7 +89,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private animate() {
     this.ngZone.runOutsideAngular(() => {
       const render = () => {
-        this.particles.rotation.y += 0.0003;
+        this.particles.rotation.y += 0.0002;
         this.particles.rotation.x += 0.0001;
         
         this.renderer.render(this.scene, this.camera);
@@ -110,4 +105,3 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 }
-

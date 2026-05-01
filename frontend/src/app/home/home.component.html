@@ -107,13 +107,102 @@
         </button>
       </div>
       <p *ngIf="leadFeedback()" class="mt-8 fluid-tiny font-black uppercase tracking-[0.2em] text-[#D4AF37]">
-        {{ leadFeedback() }}
-      </p>
+          <div class="flex flex-wrap gap-8">
+            <button routerLink="/services" class="premium-btn">Explore Infrastructure</button>
+            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-[#D4AF37] transition-all border-b border-white/10">Inquire</button>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex justify-end hero-reveal">
+          <div class="text-right">
+            <div class="text-[clamp(4rem,8vw,10rem)] font-black leading-none text-white/5 tracking-tighter uppercase">Est. 2024</div>
+            <div class="text-xs font-black uppercase tracking-[0.5em] text-[#D4AF37]/50 mt-4">Silicon Prairie Operations</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Core Pillars -->
+  <section class="section-padding bg-white/[0.01] border-y border-white/[0.05]">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="grid md:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05]">
+        <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">01 / Logic</span>
+          <h3 class="fluid-h3 mb-6">Autonomous<br>Engines</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Self-healing pipelines and automated outreach systems that scale without friction.</p>
+        </div>
+        <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">02 / Design</span>
+          <h3 class="fluid-h3 mb-6">Elite<br>Aesthetics</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Visual interfaces that command authority and reflect the technical caliber of your brand.</p>
+        </div>
+        <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">03 / Scale</span>
+          <h3 class="fluid-h3 mb-6">Structural<br>Integrity</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Cloud-native architecture designed to handle peak loads while maintaining zero-latency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Capture Section -->
+  <section class="section-padding relative" id="audit">
+    <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#D4AF37]/5"></div>
+    <div class="max-w-[1000px] mx-auto text-center">
+      <div class="mb-20" appScrollReveal>
+        <h2 class="fluid-h2 mb-8">Ready to <span class="text-white/20">Evolve?</span></h2>
+        <p class="fluid-p max-w-2xl mx-auto">Request a technical audit of your current stack or start a new architectural engagement.</p>
+      </div>
+
+      <div class="glass-card !p-12 sm:!p-24" appScrollReveal>
+        <form (submit)="onSubmitLead($event)" class="grid sm:grid-cols-2 gap-8 text-left">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Legal Name</label>
+            <input name="name" type="text" placeholder="ALEX RIVERA" required 
+                   class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-[#D4AF37] outline-none transition-all">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Corporate Email</label>
+            <input name="email" type="email" placeholder="ALEX@COMPANY.COM" required 
+                   class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-[#D4AF37] outline-none transition-all">
+          </div>
+          <div class="sm:col-span-2 space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Project Requirements</label>
+            <textarea name="requirements" placeholder="DESCRIBE YOUR VISION..." rows="4"
+                      class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-medium focus:border-[#D4AF37] outline-none transition-all resize-none"></textarea>
+          </div>
+          <div class="sm:col-span-2 mt-8">
+            <button type="submit" [disabled]="submitting()" 
+                    class="premium-btn w-full !py-8 flex items-center justify-center gap-4">
+              <span *ngIf="!submitting()">Initiate Audit</span>
+              <span *ngIf="submitting()" class="animate-pulse">Processing...</span>
+            </button>
+          </div>
+        </form>
+        
+        <p *ngIf="success()" class="mt-8 text-[#D4AF37] text-xs font-black uppercase tracking-[0.4em] animate-bounce">
+          Transmission Received. We will contact you shortly.
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- Footer -->
-  <div class="py-24 px-6 border-t border-white/[0.03] text-center">
-    <p class="fluid-tiny font-black uppercase tracking-[1em] text-white/20">Phoenix Business Operations</p>
-  </div>
-</section>
+  <footer class="py-20 px-8 sm:px-16 lg:px-32 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-12">
+    <div class="flex items-center gap-4">
+      <div class="w-8 h-[1px] bg-[#D4AF37]"></div>
+      <span class="text-white font-black uppercase tracking-[0.8em] text-xs">Phoenix</span>
+    </div>
+    
+    <div class="flex gap-12 text-[10px] font-black uppercase tracking-[0.4em] text-white/30">
+      <a routerLink="/terms" class="hover:text-white transition-colors">Terms</a>
+      <a routerLink="/privacy" class="hover:text-white transition-colors">Privacy</a>
+      <a routerLink="/refunds" class="hover:text-white transition-colors">Refunds</a>
+    </div>
+
+    <div class="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
+      © 2026 PHOENIX OPERATIONS
+    </div>
+  </footer>
+</div>

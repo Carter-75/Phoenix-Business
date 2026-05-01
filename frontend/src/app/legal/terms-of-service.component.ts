@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-terms',
   standalone: true,
+  imports: [RouterLink],
   template: `
     <section class="min-h-screen pt-48 pb-24 px-6 bg-slate-950 relative overflow-hidden">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%]"></div>
@@ -45,8 +47,9 @@ import { Component } from '@angular/core';
           </div>
         </div>
 
-        <div class="mt-24 pt-12 border-t border-white/5 text-slate-600 text-[10px] font-black uppercase tracking-widest">
-          Last Updated: May 1, 2026 • Phoenix Digital Infrastructure
+        <div class="mt-24 pt-12 border-t border-white/5 flex flex-col sm:flex-row justify-between gap-4 text-slate-600 text-[10px] font-black uppercase tracking-widest">
+          <span>Last Updated: May 1, 2026 • Phoenix Digital Infrastructure</span>
+          <a routerLink="/privacy" class="hover:text-orange-500 transition-colors">Privacy Policy</a>
         </div>
       </div>
     </section>

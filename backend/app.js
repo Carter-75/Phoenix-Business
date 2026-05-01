@@ -50,7 +50,13 @@ app.use(cors({
 }));
 
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    if (req.originalUrl.includes('/webhook')) {
+      req.rawBody = buf;
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 

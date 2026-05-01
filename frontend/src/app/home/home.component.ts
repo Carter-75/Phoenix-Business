@@ -18,9 +18,8 @@ gsap.registerPlugin(ScrollTrigger);
 export class HomeComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
   
-  leadEmail = '';
-  leadLoading = signal(false);
-  leadFeedback = signal<string | null>(null);
+  submitting = signal(false);
+  success = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -35,22 +34,36 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  captureLead() {
-    if (!this.leadEmail) return;
-    this.leadLoading.set(true);
-    this.leadFeedback.set(null);
-    this.api.post('leads/capture', { email: this.leadEmail, guideType: 'Audit Request' }).subscribe({
+  onSubmitLead(event: Event) {
+    event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const payload = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      businessName: formData.get('businessName'),
+      message: formData.get('requirements'),
+      guideType: 'Technical Audit Request'
+    };
+
+    this.submitting.set(true);
+    this.api.post('leads/capture', payload).subscribe({
       next: () => {
-        this.leadLoading.set(false);
-        this.leadEmail = '';
-        this.leadFeedback.set('Audit request received.');
-        setTimeout(() => this.leadFeedback.set(null), 5000);
+        this.submitting.set(false);
+        this.success.set(true);
+        form.reset();
+        setTimeout(() => this.success.set(false), 5000);
       },
       error: (err) => {
-        this.leadLoading.set(false);
-        this.leadFeedback.set('Error. Please try again.');
+        this.submitting.set(false);
+        alert('Failed to send request. Please check your connection.');
       }
     });
+  }
+
+  scrollToAudit() {
+    document.getElementById('audit')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   ngOnDestroy() {
@@ -58,22 +71,31 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private initAnimations() {
-    gsap.from('.reveal-text', {
-      y: 100,
+    // Hero Reveal
+    gsap.from('.hero-reveal', {
+      y: 60,
       opacity: 0,
-      duration: 2,
+      duration: 1.5,
       ease: 'power4.out',
-      stagger: 0.2
+      stagger: 0.15,
+      delay: 0.5
     });
 
-    gsap.from('.about-section', {
-      opacity: 0,
-      y: 50,
-      duration: 1.5,
-      scrollTrigger: {
-        trigger: '.about-section',
-        start: 'top 80%'
-      }
+    // Scroll Reveal Utility
+    const reveals = document.querySelectorAll('[appScrollReveal]');
+    reveals.forEach(el => {
+      gsap.from(el, {
+        y: 40,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
+      });
     });
   }
 }
+

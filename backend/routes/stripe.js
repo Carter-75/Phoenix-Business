@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || process.env.NG_APP_STRIPE_SECRET_KEY;
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecretKey);
 const User = require('../models/user');
 const Contract = require('../models/Contract');
@@ -153,11 +153,12 @@ router.get('/subscriptions/:email', verifyStripe, async (req, res) => {
 /**
  * Webhook handler to record contracts
  */
-router.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+router.post('/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
     let event;
     try {
-        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+        // Use the raw body captured in app.js
+        event = stripe.webhooks.constructEvent(req.rawBody || req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
@@ -166,7 +167,7 @@ router.post('/webhook', express.raw({type: 'application/json'}), async (req, res
         const session = event.data.object;
         const { userId, tier, acceptedContract, contractTimestamp } = session.metadata;
 
-        if (acceptedContract === 'true' && userId !== 'guest') {
+        if (acceptedContract === 'true' && userId !== 'guest' && tier !== 'simple') {
             const user = await User.findById(userId);
             if (user) {
                 user.hasAcceptedContract = true;
@@ -183,6 +184,14 @@ router.post('/webhook', express.raw({type: 'application/json'}), async (req, res
                     expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
                 });
                 await newContract.save();
+            }
+        } else if (tier === 'simple' && userId !== 'guest') {
+            // Just update subscription status for one-time build
+            const user = await User.findById(userId);
+            if (user) {
+                user.subscriptionStatus = 'simple-build';
+                user.stripeCustomerId = session.customer;
+                await user.save();
             }
         }
     }
