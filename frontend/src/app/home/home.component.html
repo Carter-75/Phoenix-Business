@@ -7,29 +7,29 @@
       <header class="mb-12">
         <div class="flex items-center gap-4 mb-8 hero-reveal">
           <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-          <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Architectural Engineering</span>
+          <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Modern Web Design</span>
         </div>
         <h1 class="fluid-h1 font-black hero-reveal">
           PHOENIX<br>
-          <span class="text-white/20">SYSTEMS</span>
+          <span class="text-white/20">STUDIO</span>
         </h1>
       </header>
 
       <div class="grid lg:grid-cols-2 gap-20 items-end">
         <div class="hero-reveal">
           <p class="fluid-p max-w-xl mb-12">
-            We build resilient digital infrastructure for high-concurrency applications. Engineering precision meets aesthetic excellence.
+            We build fast, reliable websites and tools for growing businesses. Beautiful design meets powerful technology.
           </p>
           <div class="flex flex-wrap gap-8">
-            <button routerLink="/services" class="premium-btn">Explore Infrastructure</button>
-            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-[#D4AF37] transition-all border-b border-white/10">Inquire</button>
+            <button routerLink="/services" class="premium-btn">See Pricing</button>
+            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-[#D4AF37] transition-all border-b border-white/10">Get in Touch</button>
           </div>
         </div>
 
         <div class="hidden lg:flex justify-end hero-reveal">
           <div class="text-right">
             <div class="text-[clamp(4rem,8vw,10rem)] font-black leading-none text-white/5 tracking-tighter uppercase">Est. 2024</div>
-            <div class="text-xs font-black uppercase tracking-[0.5em] text-[#D4AF37]/50 mt-4">Silicon Prairie Operations</div>
+            <div class="text-xs font-black uppercase tracking-[0.5em] text-[#D4AF37]/50 mt-4">Based in Washington D.C.</div>
           </div>
         </div>
       </div>
@@ -42,18 +42,18 @@
       <div class="grid md:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05]">
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">01 / Logic</span>
-          <h3 class="fluid-h3 mb-6">Autonomous<br>Engines</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Self-healing pipelines and automated outreach systems that scale without friction.</p>
+          <h3 class="fluid-h3 mb-6">Smart<br>Systems</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Automated tools and lead generation that work for you 24/7.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">02 / Design</span>
-          <h3 class="fluid-h3 mb-6">Elite<br>Aesthetics</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Visual interfaces that command authority and reflect the technical caliber of your brand.</p>
+          <h3 class="fluid-h3 mb-6">Modern<br>Aesthetics</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Websites that look professional and help your brand stand out.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">03 / Scale</span>
-          <h3 class="fluid-h3 mb-6">Structural<br>Integrity</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Cloud-native architecture designed to handle peak loads while maintaining zero-latency.</p>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">03 / Tech</span>
+          <h3 class="fluid-h3 mb-6">Reliable<br>Builds</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Safe, fast, and secure websites designed to grow with your business.</p>
         </div>
       </div>
     </div>
@@ -64,38 +64,38 @@
     <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#D4AF37]/5"></div>
     <div class="max-w-[1000px] mx-auto text-center">
       <div class="mb-20" appScrollReveal>
-        <h2 class="fluid-h2 mb-8">Ready to <span class="text-white/20">Evolve?</span></h2>
-        <p class="fluid-p max-w-2xl mx-auto">Request a technical audit of your current stack or start a new architectural engagement.</p>
+        <h2 class="fluid-h2 mb-8">Ready to <span class="text-white/20">Start?</span></h2>
+        <p class="fluid-p max-w-2xl mx-auto">Get a free checkup of your current website or start a new project with us.</p>
       </div>
 
       <div class="glass-card !p-12 sm:!p-24" appScrollReveal>
         <form (submit)="onSubmitLead($event)" class="grid sm:grid-cols-2 gap-8 text-left">
           <div class="space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Legal Name</label>
-            <input name="name" type="text" placeholder="ALEX RIVERA" required 
+            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Your Name</label>
+            <input name="name" type="text" placeholder="John Doe" required 
                    class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-[#D4AF37] outline-none transition-all">
           </div>
           <div class="space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Corporate Email</label>
-            <input name="email" type="email" placeholder="ALEX@COMPANY.COM" required 
+            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Email Address</label>
+            <input name="email" type="email" placeholder="john@email.com" required 
                    class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-[#D4AF37] outline-none transition-all">
           </div>
           <div class="sm:col-span-2 space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Project Requirements</label>
-            <textarea name="requirements" placeholder="DESCRIBE YOUR VISION..." rows="4"
+            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Project Details</label>
+            <textarea name="requirements" placeholder="Tell us about your project..." rows="4"
                       class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-medium focus:border-[#D4AF37] outline-none transition-all resize-none"></textarea>
           </div>
           <div class="sm:col-span-2 mt-8">
             <button type="submit" [disabled]="submitting()" 
                     class="premium-btn w-full !py-8 flex items-center justify-center gap-4">
-              <span *ngIf="!submitting()">Initiate Audit</span>
-              <span *ngIf="submitting()" class="animate-pulse">Processing...</span>
+              <span *ngIf="!submitting()">Send Message</span>
+              <span *ngIf="submitting()" class="animate-pulse">Sending...</span>
             </button>
           </div>
         </form>
         
         <p *ngIf="success()" class="mt-8 text-[#D4AF37] text-xs font-black uppercase tracking-[0.4em] animate-bounce">
-          Transmission Received. We will contact you shortly.
+          Message Sent. We will get back to you soon.
         </p>
       </div>
     </div>

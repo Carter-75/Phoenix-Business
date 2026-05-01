@@ -3,14 +3,14 @@
     <header class="mb-32 max-w-4xl" appScrollReveal>
       <div class="flex items-center gap-4 mb-8">
         <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-        <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Engagement Models</span>
+        <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Our Services</span>
       </div>
       <h1 class="fluid-h1 font-black mb-12">
-        SCALABLE<br>
-        <span class="text-white/20">INFRASTRUCTURE</span>
+        WEBSITES &<br>
+        <span class="text-white/20">GROWTH PLANS</span>
       </h1>
       <p class="fluid-p">
-        Choose the architectural foundation that aligns with your operational complexity. All subscription tiers include a mandatory 12-month commitment to ensure long-term structural stability.
+        Choose the plan that fits your business needs. All monthly plans include a 12-month commitment to keep your site running perfectly.
       </p>
     </header>
 
@@ -45,7 +45,7 @@
 
         <button (click)="openContract(tier)" 
                 class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-[#D4AF37] group-hover:text-white">
-          Initialize Engagement
+          Get Started
         </button>
       </div>
     </div>
@@ -56,14 +56,14 @@
       <div class="glass-card !bg-[#050505] max-w-[800px] w-full max-h-[90vh] overflow-y-auto z-10 p-12 sm:p-24 border-[#D4AF37]/20">
         <header class="mb-12">
           <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">Service Agreement</h2>
-          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37]">Mandatory 12-Month Commitment</p>
+          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37]">12-Month Commitment</p>
         </header>
 
         <div class="space-y-8 text-white/50 text-sm leading-relaxed font-medium mb-16 pr-4">
-          <p>By proceeding, you acknowledge that the <b>{{selectedTier()?.title}}</b> subscription requires a minimum commitment of 12 consecutive months.</p>
-          <p>This ensures the stability of the dedicated resources and architectural overhead required to maintain your infrastructure at peak performance.</p>
+          <p>By clicking accept, you agree to keep the <b>{{selectedTier()?.title}}</b> plan for at least 12 months.</p>
+          <p>This helps us cover the cost of setting up and managing your website's technology and performance.</p>
           <div class="p-8 bg-[#D4AF37]/5 border border-[#D4AF37]/10 rounded-xl text-[#D4AF37]/80 italic">
-            "Early termination of this agreement results in liquidated damages equal to 50% of the remaining contract value."
+            "Canceling early will require a payment of 50% of the remaining months left in the year."
           </div>
         </div>
 
@@ -81,8 +81,8 @@
 
     <!-- Management Portal Trigger -->
     <div class="glass-card text-center py-24" appScrollReveal>
-      <h2 class="text-2xl font-black uppercase tracking-widest mb-8">Client Infrastructure Portal</h2>
-      <p class="text-white/40 text-sm mb-12 max-w-xl mx-auto">Already an active partner? Access your billing dashboard and subscription management console.</p>
+      <h2 class="text-2xl font-black uppercase tracking-widest mb-8">Client Portal</h2>
+      <p class="text-white/40 text-sm mb-12 max-w-xl mx-auto">Already working with us? Log in to manage your plan and billing.</p>
       
       <div class="flex max-w-md mx-auto gap-4">
         <input type="email" #portalEmail placeholder="EMAIL ADDRESS" 

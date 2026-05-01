@@ -13,24 +13,24 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
         <header class="mb-32 max-w-4xl" appScrollReveal>
           <div class="flex items-center gap-4 mb-8">
             <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-            <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Structural Philosophy</span>
+            <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Our Approach</span>
           </div>
           <h1 class="fluid-h1 font-black mb-12">
-            THE<br>
-            <span class="text-white/20">FOUNDATIONS</span>
+            OUR<br>
+            <span class="text-white/20">APPROACH</span>
           </h1>
           <p class="fluid-p">
-            Phoenix was established as a direct response to the fragility of modern web infrastructure. We believe that digital platforms should be as structural and resilient as physical architecture.
+            We started Phoenix because we saw how many websites were breaking or slow. We believe your online home should be as strong and reliable as a real building.
           </p>
         </header>
 
         <div class="grid lg:grid-cols-2 gap-32 items-start border-t border-white/5 pt-32">
           <div class="space-y-12 fluid-p text-white/60" appScrollReveal>
             <p>
-              Our approach is rooted in **Zero-Latency Engineering** and **AI-First Integration**. We don't just build websites; we engineer autonomous digital ecosystems that scale with the speed of your business.
+              We focus on **speed** and **ease of use**. We don't just build sites; we create tools that help your business grow automatically.
             </p>
             <p>
-              Every line of code we deploy is a commitment to stability. From high-performance boutique builds to enterprise-scale automation suites, we ensure your infrastructure never burns out.
+              Every bit of work we do is meant to last. From custom-built websites to smart automation, we make sure your tech always works perfectly.
             </p>
             <div class="flex gap-12 mt-20 pt-20 border-t border-white/5">
               <div>
@@ -46,11 +46,11 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           
           <div class="space-y-12" appScrollReveal [delay]="0.2">
             <div class="glass-card !p-12 border-white/5">
-              <h3 class="fluid-h3 text-white mb-8 uppercase tracking-tighter">The Standard</h3>
+              <h3 class="fluid-h3 text-white mb-8 uppercase tracking-tighter">Our Promise</h3>
               <ul class="space-y-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/40">
-                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Sub-Second Edge Delivery</li>
-                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Autonomous LLM Pipelines</li>
-                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> High-Concurrency Resilience</li>
+                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Fast loading for every visitor</li>
+                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Smart tools that save you time</li>
+                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> 100% reliability you can trust</li>
               </ul>
             </div>
             <div class="aspect-video bg-white/[0.01] border border-white/5 flex items-center justify-center group relative overflow-hidden">
