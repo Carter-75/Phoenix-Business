@@ -3,9 +3,18 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/user');
 
 module.exports = function(passport) {
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user, done) => {
+    if (user.isPending) {
+      // For pending users, serialize the whole object (or a flag)
+      return done(null, { isPending: true, data: user });
+    }
+    done(null, user.id);
+  });
   passport.deserializeUser(async (id, done) => {
     try {
+      if (id && id.isPending) {
+        return done(null, id.data);
+      }
       const user = await User.findById(id);
       done(null, user);
     } catch (err) {
@@ -45,12 +54,14 @@ module.exports = function(passport) {
           if (!user) user = await User.findOne({ email: profile.emails[0].value });
           
           if (!user) {
-            user = await User.create({
+            // Return an "unregistered" user object (no _id)
+            return done(null, {
               googleId: profile.id,
               email: profile.emails[0].value,
               displayName: profile.displayName,
               firstName: profile.name.givenName,
-              lastName: profile.name.familyName
+              lastName: profile.name.familyName,
+              isPending: true
             });
           } else if (!user.googleId) {
             user.googleId = profile.id;

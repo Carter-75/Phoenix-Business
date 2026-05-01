@@ -50,8 +50,8 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    // Check if user has finalized their profile (names confirmed)
-    if (!req.user.hasFinalizedProfile) {
+    // Check if user is pending registration (Google info received but not yet in DB)
+    if (req.user && req.user.isPending) {
       return res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/complete-profile`);
     }
     // Successful authentication, redirect home.
@@ -79,6 +79,38 @@ router.post('/update-profile', async (req, res) => {
     user.hasFinalizedProfile = true;
     await user.save();
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @route   POST /auth/complete-google-registration
+router.post('/complete-google-registration', async (req, res) => {
+  if (!req.isAuthenticated() || !req.user.isPending) {
+    return res.status(401).json({ message: 'No pending registration found' });
+  }
+
+  try {
+    const { firstName, lastName } = req.body;
+    const { email, googleId } = req.user;
+
+    // Create the user now
+    const newUser = new User({
+      email: email.toLowerCase(),
+      googleId,
+      firstName,
+      lastName,
+      hasFinalizedProfile: true
+    });
+
+    await newUser.save();
+
+    // Log in as the NEW user (clear the pending state)
+    req.login(newUser, (err) => {
+      if (err) return res.status(500).json({ message: 'Error logging in new user' });
+      res.json(newUser);
+    });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

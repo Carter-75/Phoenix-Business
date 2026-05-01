@@ -53,8 +53,8 @@ export class CompleteProfileComponent implements OnInit {
   ngOnInit() {
     // Pre-populate if possible
     this.api.get('auth/user').subscribe((user: any) => {
-      if (user.hasFinalizedProfile) {
-        // If already complete, skip to dashboard
+      if (user && !user.isPending && user.hasFinalizedProfile) {
+        // If already complete and NOT pending, skip to dashboard
         this.router.navigate(['/dashboard']);
       }
       this.firstName = user.firstName || '';
@@ -64,14 +64,15 @@ export class CompleteProfileComponent implements OnInit {
 
   saveProfile() {
     this.loading.set(true);
-    this.api.post('auth/update-profile', { 
+    // Use the specific endpoint for pending Google registrations
+    this.api.post('auth/complete-google-registration', { 
       firstName: this.firstName, 
       lastName: this.lastName 
     }).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
         this.loading.set(false);
-        alert('Failed to update profile');
+        alert(err.error?.message || 'Failed to update profile');
       }
     });
   }
