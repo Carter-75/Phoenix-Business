@@ -55,7 +55,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             </div>
             <div class="aspect-video bg-white/[0.01] border border-white/5 flex items-center justify-center group relative overflow-hidden">
                <div class="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-               <span class="fluid-tiny font-black uppercase tracking-[1em] text-white/10 group-hover:text-[#D4AF37]/20 transition-colors">MMXXIV Protocol</span>
+               <span class="fluid-tiny font-black uppercase tracking-[1em] text-white/10 group-hover:text-[#D4AF37]/20 transition-colors">Phoenix Protocol</span>
             </div>
           </div>
         </div>
