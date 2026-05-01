@@ -24,7 +24,10 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+let MongoStore = require('connect-mongo');
+if (MongoStore.default) {
+  MongoStore = MongoStore.default;
+}
 const passport = require('passport');
 
 const app = express();
@@ -143,7 +146,7 @@ const sessionConfig = {
 if (process.env.MONGODB_URI) {
   sessionConfig.store = MongoStore.create({
     mongoUrl: process.env.MONGODB_URI.replace(/^["']|["']$/g, ''),
-    ttl: 14 * 24 * 60 * 60 // 14 days
+    ttl: 14 * 24 * 60 * 60
   });
 }
 
