@@ -22,22 +22,34 @@ export class ScrollRevealDirective implements AfterViewInit, OnDestroy {
 
     this.observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) return;
-        gsap.to(this.el.nativeElement, {
-          opacity: 1,
-          y: 0,
-          x: 0,
-          duration: this.srDuration,
-          delay: this.srDelay,
-          ease: 'power3.out',
-          onComplete: () => gsap.set(this.el.nativeElement, { clearProps: 'y,x' })
-        });
-        this.observer.unobserve(this.el.nativeElement);
+        if (entry.isIntersecting) {
+          this.reveal();
+          this.observer.unobserve(this.el.nativeElement);
+        }
       },
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.01, rootMargin: '0px 0px -10% 0px' }
     );
 
     this.observer.observe(this.el.nativeElement);
+
+    // Safety fallback
+    setTimeout(() => {
+      if (gsap.getProperty(this.el.nativeElement, 'opacity') === 0) {
+        this.reveal();
+      }
+    }, 2000);
+  }
+
+  private reveal() {
+    gsap.to(this.el.nativeElement, {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      duration: this.srDuration,
+      delay: this.srDelay,
+      ease: 'power3.out',
+      onComplete: () => gsap.set(this.el.nativeElement, { clearProps: 'y,x' })
+    });
   }
 
   ngOnDestroy() {

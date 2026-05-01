@@ -24,14 +24,37 @@ export class HomeComponent implements OnInit, OnDestroy {
   success = signal(false);
 
   clients = [
-    {name: 'Artisan Ice Cream', type: 'Boutique', url: 'https://example1-icecream.vercel.app/'},
-    {name: 'Premium Cookies', type: 'Retail', url: 'https://example2-cookies.vercel.app/'},
-    {name: 'Craft Coffee', type: 'Subscription', url: 'https://example3-coffee.vercel.app/'}
+    {
+      name: 'Artisan Ice Cream', 
+      type: 'E-commerce & Brand', 
+      url: 'https://example1-icecream.vercel.app/',
+      desc: 'Custom boutique shop with smooth animations and integrated checkout.'
+    },
+    {
+      name: 'Premium Cookies', 
+      type: 'Retail Experience', 
+      url: 'https://example2-cookies.vercel.app/',
+      desc: 'High-performance retail site designed for maximum conversion.'
+    },
+    {
+      name: 'Craft Coffee', 
+      type: 'Subscription Model', 
+      url: 'https://example3-coffee.vercel.app/',
+      desc: 'Recurring revenue platform with customer management portal.'
+    }
   ];
 
   testimonials = [
-    {text: 'The tools Phoenix built for us have completely changed how we find new customers.', author: 'Elena Vance', role: 'Growth Director'},
-    {text: 'Our website is faster and more reliable than ever. A perfect partner for our tech needs.', author: 'Marcus Thorne', role: 'CTO, OmniStream'}
+    {
+      text: "We needed a site that didn't just look good but actually handled our traffic during launches. Phoenix delivered a rock-solid platform that has significantly increased our sales conversion rate.", 
+      author: 'Elena Vance', 
+      role: 'Head of Growth at Artisan Boutique'
+    },
+    {
+      text: 'Working with Phoenix was the best decision for our rebranding. The technical precision and attention to detail they brought to our subscription platform is unmatched in the industry.', 
+      author: 'Marcus Thorne', 
+      role: 'CTO, OmniStream Technologies'
+    }
   ];
 
   constructor() {
