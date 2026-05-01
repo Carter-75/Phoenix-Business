@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { SeoService } from '../services/seo.service';
-import { RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { environment } from '../../environments/environment';
 import { ApiService } from '../services/api.service';
@@ -25,7 +24,7 @@ interface ServiceTier {
   selector: 'app-services',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, ScrollRevealDirective, FormsModule, SafePipe],
+  imports: [CommonModule, ScrollRevealDirective, FormsModule, SafePipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './services.component.html'
 })
