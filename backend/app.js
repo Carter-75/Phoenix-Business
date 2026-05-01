@@ -31,7 +31,6 @@ const app = express();
 
 // --- Configuration ---
 const isProd = process.env.PRODUCTION === 'true' || process.env.VERCEL === '1';
-const prodUrl = process.env.PROD_FRONTEND_URL;
 const PROJECT_NAME = process.env.PROJECT_NAME || 'Phoenix-Business';
 
 // Trust proxy for secure cookies on Vercel
@@ -39,24 +38,31 @@ if (isProd) {
   app.set('trust proxy', 1);
 }
 
-// --- Models & Passport Config ---
-require('./config/passport')(passport);
+// --- Middlewares (Basics) ---
+app.use(helmet({
+  frameguard: false,
+  contentSecurityPolicy: false
+}));
 
-// --- Routers ---
-const indexRouter = require('./routes/index');
-const authRouter = require('./routes/auth');
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
-// --- MongoDB Setup ---
-const mongoURI = process.env.MONGODB_URI;
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+// --- MongoDB Connection Logic ---
+const mongoURI = process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/^["']|["']$/g, '') : null;
 
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
-
   if (!mongoURI) {
     console.warn('WARN: No MONGODB_URI found in environment!');
     return;
   }
-
   try {
     console.log('INFO: Connecting to MongoDB...');
     await mongoose.connect(mongoURI, {
@@ -72,9 +78,48 @@ const connectDB = async () => {
 // Initial connection
 connectDB();
 
-// --- Middlewares ---
+// --- Session & Passport Setup ---
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
+  }
+};
 
-// Wait for DB middleware
+if (mongoURI) {
+  let ActualMongoStore = MongoStore;
+  if (MongoStore.default) ActualMongoStore = MongoStore.default;
+
+  const storeOptions = {
+    mongoUrl: mongoURI,
+    ttl: 14 * 24 * 60 * 60,
+    autoRemove: 'native'
+  };
+
+  try {
+    if (typeof ActualMongoStore.create === 'function') {
+      sessionConfig.store = ActualMongoStore.create(storeOptions);
+      console.log('OK: Session Store initialized with MongoStore.create');
+    } else {
+      sessionConfig.store = new ActualMongoStore(storeOptions);
+      console.log('OK: Session Store initialized with new MongoStore (fallback)');
+    }
+  } catch (err) {
+    console.error('CRITICAL: Failed to initialize Session Store:', err.message);
+  }
+}
+
+app.use(session(sessionConfig));
+
+// Passport Initialization
+require('./config/passport')(passport);
+app.use(passport.initialize());
+app.use(passport.session());
+
+// --- DB Wait Middleware ---
 const dbCheck = async (req, res, next) => {
   if (mongoose.connection.readyState === 1) return next();
   if (mongoose.connection.readyState === 0) await connectDB();
@@ -95,69 +140,9 @@ const dbCheck = async (req, res, next) => {
   }, 100);
 };
 
-app.use(helmet({
-  frameguard: false,
-  contentSecurityPolicy: false
-}));
-
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
-// Apply DB check to all /api routes
-app.use('/api', dbCheck);
-
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
-// Sessions
-const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax'
-  }
-};
-
-if (process.env.MONGODB_URI) {
-  // Handle connect-mongo v4+ export which can be the class itself or .default
-  let ActualMongoStore = MongoStore;
-  if (MongoStore.default) ActualMongoStore = MongoStore.default;
-
-  const storeOptions = {
-    mongoUrl: process.env.MONGODB_URI.replace(/^["']|["']$/g, ''),
-    ttl: 14 * 24 * 60 * 60,
-    autoRemove: 'native'
-  };
-
-  try {
-    if (typeof ActualMongoStore.create === 'function') {
-      sessionConfig.store = ActualMongoStore.create(storeOptions);
-      console.log('OK: Session Store initialized with MongoStore.create');
-    } else {
-      sessionConfig.store = new ActualMongoStore(storeOptions);
-      console.log('OK: Session Store initialized with new MongoStore (fallback)');
-    }
-  } catch (err) {
-    console.error('CRITICAL: Failed to initialize Session Store:', err.message);
-  }
-}
-
-app.use(session(sessionConfig));
-
 // --- Routes ---
 
-// Diagnostic Routes (After DB Check)
+// 1. Health/Diagnostics (No DB Check required to allow status reporting)
 const healthHandler = async (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
   res.json({
@@ -167,39 +152,44 @@ const healthHandler = async (req, res) => {
     timestamp: new Date().toISOString()
   });
 };
+app.get(['/health', '/api/health'], healthHandler);
 
-// Mount diagnostics at both paths to handle Vercel prefix stripping
-app.get('/health', healthHandler);
-app.get('/api/health', healthHandler);
-
-// Feature Routes
+// 2. Feature Routes (Apply DB check to these)
+const authRouter = require('./routes/auth');
 const leadsRouter = require('./routes/leads');
-app.use('/leads', leadsRouter);
-app.use('/api/leads', leadsRouter);
+const indexRouter = require('./routes/index');
 
-app.use('/auth', authRouter);
-app.use('/api/auth', authRouter);
+// Mount routes at both /api and root to handle Vercel routing flexibility
+const featureRoutes = [
+  { path: '/auth', router: authRouter },
+  { path: '/leads', router: leadsRouter },
+  { path: '/', router: indexRouter }
+];
 
-app.use('/api', indexRouter);
-app.use('/', indexRouter);
+featureRoutes.forEach(route => {
+  // Mount with /api prefix and DB check
+  app.use(`/api${route.path}`, dbCheck, route.router);
+  // Mount at root as fallback
+  app.use(route.path, dbCheck, route.router);
+});
 
-// Passport
-app.use(passport.initialize());
-app.use(passport.session());
+// --- Final Handling ---
 
+// Root welcome
 app.get('/', (req, res) => {
   res.send(`API for ${PROJECT_NAME} is running`);
 });
 
-// Mount at both /api and root to handle Vercel Service prefix stripping
-app.use('/api', indexRouter);
-app.use('/', indexRouter);
+// 404 Handler
+app.use((req, res, next) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+});
 
-app.use('/api/auth', authRouter);
-app.use('/auth', authRouter);
-
-// Error handler
+// Global Error Handler
 app.use((err, req, res, next) => {
+  console.error(`[ERROR] ${req.method} ${req.url}:`, err.message);
+  if (!isProd) console.error(err.stack);
+  
   res.status(err.status || 500).json({
     message: err.message,
     error: isProd ? {} : err

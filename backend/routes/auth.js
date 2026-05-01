@@ -61,6 +61,7 @@ router.get('/google/callback',
 
 // @route   GET /auth/user
 router.get('/user', (req, res) => {
+  console.log(`[DEBUG] /auth/user check - Authenticated: ${req.isAuthenticated()}`);
   if (req.isAuthenticated()) {
     res.json(req.user);
   } else {
