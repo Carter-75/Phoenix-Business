@@ -54,6 +54,25 @@ export class ServicesComponent implements OnInit {
   selectedTier = signal<ServiceTier | null>(null);
   hasAccepted = false;
 
+  // New Form State
+  firstName = signal('');
+  lastName = signal('');
+  userEmail = signal('');
+  acceptedTerms = signal(false);
+  acceptedPrivacy = signal(false);
+  acceptedRefunds = signal(false);
+
+  constructor() {
+    this.api.checkStatus().subscribe();
+  }
+
+  isFormValid() {
+    const isNameValid = this.firstName().length > 0 && this.lastName().length > 0;
+    const isEmailValid = this.api.currentUser() || (this.userEmail().includes('@') && this.userEmail().length > 5);
+    const policiesAccepted = this.acceptedTerms() && this.acceptedPrivacy() && this.acceptedRefunds();
+    return isNameValid && isEmailValid && policiesAccepted;
+  }
+
   readonly tiers: ServiceTier[] = [
     {
       id: 'simple',
@@ -155,16 +174,23 @@ export class ServicesComponent implements OnInit {
   }
 
   proceedToCheckout() {
-    if (!this.hasAccepted || !this.selectedTier()) return;
+    if (!this.isFormValid() || !this.selectedTier()) return;
     const tier = this.selectedTier()!;
     
-    this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, {
+    const payload = {
       tier: tier.id,
-      email: this.memberSessionEmail() || undefined,
+      email: this.api.currentUser()?.email || this.userEmail(),
+      firstName: this.firstName(),
+      lastName: this.lastName(),
       acceptedContract: true,
+      acceptedTerms: this.acceptedTerms(),
+      acceptedPrivacy: this.acceptedPrivacy(),
+      acceptedRefunds: this.acceptedRefunds(),
       contractTimestamp: new Date().toISOString(),
       projectType: tier.title
-    }).subscribe({
+    };
+
+    this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, payload).subscribe({
       next: (res) => {
         window.location.href = res.url;
       },
@@ -175,6 +201,10 @@ export class ServicesComponent implements OnInit {
     });
     
     this.closeContract();
+  }
+
+  loginWithGoogle() {
+    this.api.loginWithGoogle();
   }
 
   getStagger(i: number): number {
