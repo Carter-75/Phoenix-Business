@@ -9,10 +9,12 @@ import { SafePipe } from '../shared/pipes/safe.pipe';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, FormsModule, CommonModule, SafePipe],
+  imports: [RouterLink, FormsModule, CommonModule, ScrollRevealDirective],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {

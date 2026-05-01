@@ -2,14 +2,14 @@ import { Directive, ElementRef, Input, AfterViewInit, OnDestroy, inject } from '
 import gsap from 'gsap';
 
 @Directive({
-  selector: '[scrollReveal]',
+  selector: '[appScrollReveal]',
   standalone: true
 })
 export class ScrollRevealDirective implements AfterViewInit, OnDestroy {
-  @Input() srY = 40;
-  @Input() srX = 0;
-  @Input() srDelay = 0;
-  @Input() srDuration = 0.75;
+  @Input('y') srY = 40;
+  @Input('x') srX = 0;
+  @Input('delay') srDelay = 0;
+  @Input('duration') srDuration = 1.2;
 
   private el = inject(ElementRef<HTMLElement>);
   private observer!: IntersectionObserver;
