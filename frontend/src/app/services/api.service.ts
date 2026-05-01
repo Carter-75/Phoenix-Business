@@ -18,12 +18,12 @@ export class ApiService {
     return '/api';
   }
 
-  getData<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`);
+  get<T>(endpoint: string): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { withCredentials: true });
   }
 
-  postData<T>(endpoint: string, body: any): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body);
+  post<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, { withCredentials: true });
   }
 
   // --- Auth Methods ---
@@ -39,7 +39,7 @@ export class ApiService {
   }
 
   checkStatus(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/auth/user`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/auth/user`, { withCredentials: true }).pipe(
       tap({
         next: user => this.currentUser.set(user),
         error: () => this.currentUser.set(null)

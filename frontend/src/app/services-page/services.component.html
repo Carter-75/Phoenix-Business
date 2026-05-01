@@ -1,0 +1,115 @@
+<section class="relative min-h-screen bg-slate-950 pt-32 pb-24 overflow-hidden">
+  <!-- Background Glows -->
+  <div class="blur-glow w-[500px] h-[500px] bg-orange-600/10 -top-24 -right-24"></div>
+  <div class="blur-glow w-[500px] h-[500px] bg-red-600/5 -bottom-24 -left-24"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-6">
+    <div class="text-center space-y-6 mb-24">
+      <div class="inline-block px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-widest">
+        Elite Architecture
+      </div>
+      <h1 class="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase">
+        Services & <span class="gradient-text from-orange-400 to-red-500">Engagements</span>
+      </h1>
+      <p class="max-w-2xl mx-auto text-slate-400 text-lg font-medium">
+        Precision engineering for high-stakes digital environments. All service tiers include a 12-month commitment to ensure long-term scalability.
+      </p>
+    </div>
+
+    <!-- Pricing Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (tier of tiers; track tier.id) {
+        <div class="premium-card flex flex-col group relative" [class.border-orange-500/30]="tier.featured">
+          @if (tier.featured) {
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 px-6 py-2 bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full shadow-xl">
+              Most Popular
+            </div>
+          }
+
+          <div class="mb-8">
+            <h3 class="text-3xl font-black text-white mb-2 group-hover:text-orange-500 transition-colors">{{ tier.title }}</h3>
+            <p class="text-slate-500 font-medium text-sm">{{ tier.description }}</p>
+          </div>
+
+          <div class="mb-8 pb-8 border-b border-white/5">
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-black text-orange-500">$</span>
+              <span class="text-6xl font-black text-white tracking-tighter">{{ tier.cost }}</span>
+              @if (tier.isSubscription) {
+                <span class="text-slate-500 text-xs font-black uppercase tracking-widest">/ month</span>
+              } @else {
+                <span class="text-slate-500 text-xs font-black uppercase tracking-widest">one-time</span>
+              }
+            </div>
+            @if (tier.isSubscription) {
+              <p class="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                Billed Yearly • Mandatory 12-Month Contract
+              </p>
+            }
+          </div>
+
+          <ul class="space-y-4 mb-12 flex-1">
+            @for (feature of tier.features; track feature) {
+              <li class="flex items-center gap-3 text-sm font-medium text-slate-300 group/item">
+                <div class="w-1.5 h-1.5 rounded-full bg-orange-500/30 group-hover/item:bg-orange-500 transition-colors"></div>
+                {{ feature }}
+              </li>
+            }
+          </ul>
+
+          <button (click)="openContract(tier)" 
+                  class="primary-btn w-full !py-5 !bg-white/5 hover:!bg-orange-600 hover:!text-white !text-white border border-white/10 hover:border-orange-500/50">
+            Get Started
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Contract Modal -->
+  @if (showContract()) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-6">
+      <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" (click)="closeContract()"></div>
+      
+      <div class="relative w-full max-w-2xl glass-effect p-8 md:p-12 rounded-[2.5rem] border-orange-500/20 shadow-2xl">
+        <div class="mb-8 text-center">
+          <h2 class="text-3xl font-black text-white mb-4 tracking-tighter uppercase">Service Agreement</h2>
+          <p class="text-slate-400 text-sm font-medium">Please review and accept the terms for the <span class="text-orange-500 font-bold">{{ selectedTier()?.title }}</span> tier.</p>
+        </div>
+
+        <div class="h-64 overflow-y-auto bg-slate-950/50 rounded-2xl p-6 border border-white/5 text-sm text-slate-400 space-y-4 mb-8 custom-scrollbar">
+          <h4 class="text-white font-bold uppercase tracking-widest text-xs">1. Contract Duration</h4>
+          <p>This agreement is for a mandatory twelve (12) month term starting from the date of initial payment. The contract will automatically renew for subsequent twelve-month periods unless written notice of non-renewal is provided at least 30 days prior to the expiration date.</p>
+          
+          <h4 class="text-white font-bold uppercase tracking-widest text-xs">2. Refund Policy</h4>
+          <p>Due to the immediate allocation of architectural resources and infrastructure setup, all payments are strictly non-refundable once the service period has commenced.</p>
+          
+          <h4 class="text-white font-bold uppercase tracking-widest text-xs">3. Early Termination & Breach</h4>
+          <p>In the event of early termination by the client for convenience, the client agrees to pay a Liquidated Damages fee equal to 50% of the remaining contract value. This fee compensates Phoenix for lost opportunities and non-recoverable setup costs.</p>
+          
+          <h4 class="text-white font-bold uppercase tracking-widest text-xs">4. Service Scope</h4>
+          <p>Phoenix provides high-performance digital infrastructure as specified in the tier description. Any custom development outside this scope will be subject to a separate engagement agreement.</p>
+        </div>
+
+        <div class="space-y-6">
+          <label class="flex items-center gap-4 cursor-pointer group">
+            <input type="checkbox" [(ngModel)]="hasAccepted" class="w-6 h-6 rounded bg-slate-900 border-white/10 text-orange-600 focus:ring-orange-500">
+            <span class="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">
+              I acknowledge that I have read and agree to the 12-month commitment and the non-refundable policy.
+            </span>
+          </label>
+
+          <div class="flex gap-4">
+            <button (click)="proceedToCheckout()" [disabled]="!hasAccepted"
+                    class="primary-btn flex-1 !py-5 disabled:opacity-30 disabled:cursor-not-allowed">
+              Accept & Checkout
+            </button>
+            <button (click)="closeContract()" class="px-8 py-5 rounded-2xl border border-white/10 text-slate-500 font-bold uppercase tracking-widest text-[10px] hover:text-white transition-colors">
+              Decline
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</section>

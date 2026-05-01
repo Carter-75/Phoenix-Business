@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema({
   googleId: { type: String },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
+  hasAcceptedContract: { type: Boolean, default: false },
+  contractAcceptedAt: { type: Date },
+  stripeCustomerId: { type: String },
+  subscriptionStatus: { type: String, default: 'none' },
   createdAt: { type: Date, default: Date.now }
 });
 

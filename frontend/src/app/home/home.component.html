@@ -1,27 +1,77 @@
-<main class="max-w-4xl mx-auto p-4 flex items-center justify-center min-h-screen">
-  <div #card class="p-8 bg-white rounded-xl shadow-2xl border border-gray-100 glass text-center">
-    <div class="glass-orb absolute -top-20 -left-20 w-40 h-40 bg-blue-400/20 blur-3xl rounded-full"></div>
-    <div class="glass-orb absolute -bottom-20 -right-20 w-40 h-40 bg-purple-400/20 blur-3xl rounded-full"></div>
-    
-    <p class="text-xs uppercase tracking-widest text-gray-400 mb-2 font-medium">Portfolio Showcase</p>
-    <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-      Phoenix-Business
-    </h1>
-    <p class="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-      A high-performance MEAN application featuring standalone components, Signals, and premium interactive elements.
-    </p>
-    
-    <div class="flex gap-4 justify-center mb-10">
-      <button class="px-6 py-3 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-        Get Started
-      </button>
-      <button class="px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-full font-semibold hover:bg-gray-50 transition-all">
-        View Source
-      </button>
+<section class="relative min-h-screen overflow-hidden bg-slate-950 selection:bg-orange-500/30">
+  <!-- Interactive Physics Background -->
+  <div #scene class="absolute inset-0 pointer-events-none z-0 opacity-40"></div>
+
+  <!-- Hero Content -->
+  <div class="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-24 lg:pt-48 lg:pb-32">
+    <div class="text-center space-y-8 mb-24">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-widest animate-pulse">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+        </span>
+        Next-Gen Digital Infrastructure
+      </div>
+      
+      <h1 class="text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-[0.85] uppercase">
+        Phoenix <br> 
+        <span class="gradient-text from-orange-400 via-red-500 to-purple-600">Rising</span>
+      </h1>
+      
+      <p class="max-w-2xl mx-auto text-slate-400 text-lg md:text-xl font-medium leading-relaxed">
+        High-performance web architecture and AI-driven systems designed for businesses that refuse to compromise on speed and stability.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
+        <button routerLink="/services" class="primary-btn !bg-orange-600 hover:!bg-orange-500 group">
+          View Services
+          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </button>
+        <button routerLink="/login" class="px-8 py-5 rounded-2xl border border-white/10 text-white font-bold uppercase tracking-widest text-xs hover:bg-white/5 transition-all">
+          Client Portal
+        </button>
+      </div>
     </div>
 
-    <div #scene class="mt-4 border rounded-lg bg-gray-50 h-[220px] transform hover:scale-[1.01] transition-transform cursor-pointer">
-      <!-- Interactive Scene -->
+    <!-- Features Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div #card class="premium-card md:col-span-2 group">
+        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-orange-500/20 to-purple-600/20 border border-white/5 flex items-center justify-center">
+           <span class="text-6xl group-hover:scale-110 transition-transform duration-700">🚀</span>
+        </div>
+        <h3 class="text-3xl font-black text-white mb-4">Zero-Latency Deployment</h3>
+        <p class="text-slate-400 font-medium">Global CDN edge networks ensure your application is alive and responsive within milliseconds of the first click.</p>
+      </div>
+
+      <div class="premium-card group">
+        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-600/20 border border-white/5 flex items-center justify-center">
+           <span class="text-6xl group-hover:rotate-12 transition-transform duration-700">🤖</span>
+        </div>
+        <h3 class="text-3xl font-black text-white mb-4">AI Integration</h3>
+        <p class="text-slate-400 font-medium">Bespoke LLM pipelines designed to automate your workflows and engage your customers 24/7.</p>
+      </div>
+
+      <div class="premium-card group">
+        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-green-500/20 to-emerald-600/20 border border-white/5 flex items-center justify-center">
+           <span class="text-6xl group-hover:-translate-y-2 transition-transform duration-700">🔒</span>
+        </div>
+        <h3 class="text-3xl font-black text-white mb-4">Secure Contracts</h3>
+        <p class="text-slate-400 font-medium">Enterprise-grade legal and technical protection. Yearly commitments that ensure long-term stability.</p>
+      </div>
+
+      <div class="premium-card md:col-span-2 group">
+        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-red-500/20 to-orange-600/20 border border-white/5 flex items-center justify-center">
+           <span class="text-6xl group-hover:scale-95 transition-transform duration-700">🔥</span>
+        </div>
+        <h3 class="text-3xl font-black text-white mb-4">Phoenix Support</h3>
+        <p class="text-slate-400 font-medium">Our elite engineering team is on standby to ensure your infrastructure never burns out. We rise to every challenge.</p>
+      </div>
     </div>
   </div>
-</main>
+
+  <!-- Decorative Glows -->
+  <div class="blur-glow w-[600px] h-[600px] bg-orange-600/20 -top-48 -left-48"></div>
+  <div class="blur-glow w-[600px] h-[600px] bg-purple-600/20 -bottom-48 -right-48"></div>
+</section>

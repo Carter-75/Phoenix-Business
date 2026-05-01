@@ -1,0 +1,327 @@
+<!-- ─── Hero ─────────────────────────────────────────────────────────────── -->
+<section class="relative min-h-[calc(100svh-5rem)] flex items-center overflow-hidden">
+
+  <!-- Background glows — opacity animated by GSAP from 0 -->
+  <div class="hero-glow-1 absolute -z-10 w-[700px] h-[700px] rounded-full blur-[150px] opacity-0 bg-blue-600/20 -top-32 -left-32 pointer-events-none will-change-transform"></div>
+  <div class="hero-glow-2 absolute -z-10 w-[500px] h-[500px] rounded-full blur-[120px] opacity-0 bg-blue-500/20 bottom-0 right-0 pointer-events-none will-change-transform"></div>
+
+  <div class="max-w-7xl mx-auto w-full px-6 sm:px-12 lg:px-24 py-20
+              grid lg:grid-cols-[1fr_440px] xl:grid-cols-[1fr_500px] gap-16 items-center">
+
+    <!-- Left: Copy -->
+    <div class="text-center md:text-left">
+
+      <!-- Availability badge -->
+      <div class="hero-label inline-flex items-center gap-2.5 mb-8 px-4 py-2
+                  rounded-full bg-blue-950/60 border border-blue-800/40 backdrop-blur-xl">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+        <span class="text-green-400 text-xs font-black uppercase tracking-[0.25em]">Available for Projects</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="hero-h1 fluid-h1 font-black mb-6 tracking-tighter">
+        I Build Fast,<br>
+        <span class="gradient-text">Intelligent</span><br>
+        Web Apps.
+      </h1>
+
+      <!-- Sub-headline -->
+      <p class="hero-sub fluid-p text-slate-400 mb-12 max-w-lg mx-auto md:mx-0 font-medium leading-relaxed">
+        I build scalable, AI-powered systems that turn complex business problems into 
+        <strong class="text-slate-200 font-bold">automated revenue engines.</strong> 
+        Fixed-price delivery. Production-grade performance. No agency overhead.
+      </p>
+
+      <!-- CTAs — one primary, one ghost -->
+      <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+        <a routerLink="/services"
+           class="primary-btn inline-flex items-center justify-center gap-2.5 min-h-[52px]"
+           aria-label="View pricing and service plans">
+          View Pricing & Plans
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+          </svg>
+        </a>
+        <a routerLink="/contact"
+           class="inline-flex items-center justify-center px-8 rounded-2xl border border-white/10
+                  hover:border-blue-500/40 text-white font-black uppercase tracking-[0.2em] text-xs
+                  transition-all duration-300 hover:bg-white/5 min-h-[52px]"
+           aria-label="Send a message to get started">
+          Get Started
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: Proof / Stats Visual (desktop only) -->
+    <div class="hero-visual hidden lg:block" aria-hidden="true">
+      <div class="relative">
+
+        <!-- Main card -->
+        <div class="glass-effect rounded-[2rem] p-8"
+             style="box-shadow: 0 35px 100px -15px rgba(30, 58, 138, 0.25);">
+
+          <!-- Open to work pulse -->
+          <div class="flex items-center gap-2.5 mb-8">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            </span>
+            <span class="text-slate-400 text-xs font-black uppercase tracking-[0.3em]">Open to Opportunities</span>
+          </div>
+
+          <!-- Stats 2 × 2 grid -->
+          <div class="grid grid-cols-2 gap-3 mb-8">
+            @for (stat of stats; track stat.label) {
+              <div class="bg-slate-950/70 rounded-2xl p-5 border border-white/5
+                          hover:border-blue-500/20 transition-all duration-500 group">
+                <div class="text-3xl xl:text-4xl font-black mb-1.5 transition-colors duration-300"
+                     [class]="stat.gradient ? 'gradient-text' : 'text-white group-hover:text-blue-100'">
+                  {{ stat.value }}
+                </div>
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-wider">{{ stat.label }}</div>
+              </div>
+            }
+          </div>
+
+          <!-- Tech stack pills -->
+          <div class="border-t border-white/5 pt-6">
+            <p class="text-slate-600 text-[10px] font-black uppercase tracking-[0.35em] mb-4">Core Stack</p>
+            <div class="flex flex-wrap gap-2">
+              @for (tech of techStack; track tech) {
+                <span class="px-3 py-1.5 rounded-lg bg-slate-900/80 border border-white/5
+                             text-slate-400 text-xs font-bold hover:text-blue-400 hover:border-blue-500/30
+                             transition-all duration-300 cursor-default select-none">
+                  {{ tech }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating accent: degree -->
+        <div class="absolute -bottom-4 -left-6 px-5 py-3 rounded-xl glass-effect border border-white/10 shadow-2xl">
+          <div class="text-xs font-black text-white uppercase tracking-wider leading-tight">BS → MS</div>
+          <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-0.5">UW-La Crosse · 2026</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── AI Strategy Simulator (Interactive Proof) ────────────────────── -->
+<section class="section-spacing relative overflow-hidden">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 scrollReveal class="fluid-h2 font-black text-white mb-6 tracking-tighter">AI Strategy <span class="gradient-text">Simulator</span></h2>
+      <p scrollReveal [srDelay]="0.1" class="text-slate-400 text-lg font-medium">Select a business goal to see how my AI infrastructure architectures solve it.</p>
+    </div>
+
+    <div class="premium-card p-12 rounded-[3rem] border-blue-500/20 bg-slate-900/40 backdrop-blur-3xl relative overflow-hidden">
+      <!-- Step 1: Selection -->
+      @if (simulatorStep() === 1) {
+        <div class="grid sm:grid-cols-3 gap-6">
+          @for (goal of goals; track goal.id) {
+            <button (click)="startSimulation(goal.id)"
+                    class="p-8 rounded-2xl bg-slate-950 border border-white/5 hover:border-blue-500/40 transition-all group text-center">
+              <div class="text-4xl mb-4 group-hover:scale-125 transition-transform">{{ goal.icon }}</div>
+              <div class="text-white font-black text-sm uppercase tracking-widest">{{ goal.label }}</div>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Step 2: Result -->
+      @if (simulatorStep() === 2) {
+        <div class="text-center py-8">
+          @if (isSimulating()) {
+            <div class="flex flex-col items-center gap-6">
+              <div class="w-12 h-12 rounded-full border-4 border-blue-600/20 border-t-blue-600 animate-spin"></div>
+              <p class="text-blue-500 font-black uppercase tracking-[0.3em] animate-pulse">Architecting Solution...</p>
+            </div>
+          } @else {
+            <div scrollReveal class="space-y-8">
+              <div class="inline-block px-4 py-1 rounded-full bg-blue-600/10 border border-blue-500/30 text-blue-500 text-[10px] font-black uppercase tracking-widest">Optimized Result</div>
+              <p class="text-white text-xl sm:text-2xl font-medium leading-relaxed max-w-2xl mx-auto">
+                "{{ simResult() }}"
+              </p>
+              <button (click)="resetSimulator()" class="text-slate-500 hover:text-white text-xs font-black uppercase tracking-[0.2em] transition-colors underline underline-offset-8">Try Another Goal</button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Background decorative glow -->
+      <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── The Problem & Solution ─────────────────────────────────────────── -->
+<section class="section-spacing relative overflow-hidden bg-slate-950/40">
+  <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 relative z-10">
+    <div class="grid lg:grid-cols-2 gap-24 items-center">
+      <div scrollReveal [srX]="-30">
+        <h4 class="fluid-tiny font-black text-blue-500 uppercase tracking-[0.4em] mb-6">The Challenge</h4>
+        <h2 class="fluid-h2 font-black text-white mb-8 tracking-tighter">Most websites are <span class="text-red-500/80">cost centers</span>, not revenue engines.</h2>
+        <p class="text-slate-400 text-lg sm:text-xl font-medium leading-relaxed mb-8">
+          Slow load times, generic templates, and zero AI automation are costing you leads every single day. 
+          You don't need a "web developer"—you need an infrastructure that works for you while you sleep.
+        </p>
+      </div>
+      <div scrollReveal [srX]="30" class="glass-effect p-12 rounded-[3rem] border-blue-500/20 bg-blue-600/5 shadow-2xl">
+        <h4 class="fluid-tiny font-black text-blue-500 uppercase tracking-[0.4em] mb-6">The Solution</h4>
+        <ul class="space-y-6">
+          <li class="flex gap-4">
+            <span class="text-blue-500 font-black text-xl">✓</span>
+            <div>
+              <p class="text-white font-black text-lg leading-tight mb-1">Elite Speed & Performance</p>
+              <p class="text-slate-500 text-sm font-medium">99+ Lighthouse scores for maximum SEO ranking.</p>
+            </div>
+          </li>
+          <li class="flex gap-4">
+            <span class="text-blue-500 font-black text-xl">✓</span>
+            <div>
+              <p class="text-white font-black text-lg leading-tight mb-1">Intelligent AI Agents</p>
+              <p class="text-slate-500 text-sm font-medium">Automate lead capture and support with GPT-4.</p>
+            </div>
+          </li>
+          <li class="flex gap-4">
+            <span class="text-blue-500 font-black text-xl">✓</span>
+            <div>
+              <p class="text-white font-black text-lg leading-tight mb-1">Fixed-Price Delivery</p>
+              <p class="text-slate-500 text-sm font-medium">Clear milestones. No hidden fees. Production-ready.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── The 3-Step Process ─────────────────────────────────────────────── -->
+<section class="section-spacing relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
+    <div class="text-center mb-24">
+      <h2 scrollReveal class="fluid-h2 font-black text-white mb-6 tracking-tighter">Your Path to Results</h2>
+      <p scrollReveal [srDelay]="0.1" class="text-slate-400 text-lg font-medium max-w-2xl mx-auto">
+        Building high-performance software doesn't have to be complicated. Here is how we get started.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-12 sm:gap-16">
+      <!-- Step 1 -->
+      <div scrollReveal [srDelay]="0" class="relative group">
+        <div class="text-8xl font-black text-blue-600/10 absolute -top-12 -left-4 group-hover:text-blue-600/20 transition-colors">01</div>
+        <div class="relative z-10">
+          <h3 class="text-2xl font-black text-white mb-4 tracking-tight">System Strategy</h3>
+          <p class="text-slate-400 font-medium leading-relaxed">
+            We map out your business goals, identify automation opportunities, and define the technical roadmap.
+          </p>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div scrollReveal [srDelay]="0.1" class="relative group">
+        <div class="text-8xl font-black text-blue-600/10 absolute -top-12 -left-4 group-hover:text-blue-600/20 transition-colors">02</div>
+        <div class="relative z-10">
+          <h3 class="text-2xl font-black text-white mb-4 tracking-tight">Rapid Implementation</h3>
+          <p class="text-slate-400 font-medium leading-relaxed">
+            I build your infrastructure using the modern MEAN stack, integrating custom AI agents for immediate utility.
+          </p>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div scrollReveal [srDelay]="0.2" class="relative group">
+        <div class="text-8xl font-black text-blue-600/10 absolute -top-12 -left-4 group-hover:text-blue-600/20 transition-colors">03</div>
+        <div class="relative z-10">
+          <h3 class="text-2xl font-black text-white mb-4 tracking-tight">Scale & Optimize</h3>
+          <p class="text-slate-400 font-medium leading-relaxed">
+            We launch, monitor performance, and iterate to ensure your systems are driving measurable business growth.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div scrollReveal [srDelay]="0.3" class="mt-24 text-center">
+      @if (!leadSubmitted()) {
+        <div class="max-w-xl mx-auto glass-effect p-12 rounded-[2.5rem] border-blue-500/10">
+          <h3 class="text-2xl font-black text-white mb-4 tracking-tight">Get My AI Implementation Guide</h3>
+          <p class="text-slate-500 text-sm font-medium mb-8">Receive a free technical checklist for scaling your next SaaS or AI-driven system.</p>
+          <div class="flex flex-col gap-4">
+            <input type="text" [(ngModel)]="leadName" name="name" placeholder="Your Name" 
+                   class="w-full bg-slate-950 border border-white/10 rounded-xl px-6 py-4 text-white focus:border-blue-500/50 outline-none transition-all">
+            <input type="email" [(ngModel)]="leadEmail" name="email" placeholder="Your Business Email" 
+                   class="w-full bg-slate-950 border border-white/10 rounded-xl px-6 py-4 text-white focus:border-blue-500/50 outline-none transition-all">
+            <button (click)="submitLead()" [disabled]="isSubmittingLead()"
+                    class="primary-btn w-full flex items-center justify-center gap-3">
+              {{ isSubmittingLead() ? 'Sending...' : 'Send Me The Guide' }}
+              <svg *ngIf="!isSubmittingLead()" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div scrollReveal class="max-w-xl mx-auto glass-effect p-12 rounded-[2.5rem] border-green-500/20 bg-green-500/5">
+          <div class="text-4xl mb-4">📩</div>
+          <h3 class="text-2xl font-black text-white mb-2 tracking-tight">Guide Sent!</h3>
+          <p class="text-slate-400 font-medium">Check your inbox for the AI Implementation Checklist. I'll be in touch soon.</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ─── Content Depth ───────────────────────────────────────────────────────── -->
+<section class="section-spacing bg-slate-950/50 relative overflow-hidden">
+  <div class="max-w-4xl mx-auto px-6 relative z-10">
+    <h2 scrollReveal class="fluid-h2 mb-12 tracking-tight">Strategic Engineering for <span class="gradient-text">Modern Growth</span></h2>
+    
+    <div scrollReveal [srDelay]="0.1" class="prose prose-invert prose-lg text-slate-400 space-y-8 font-medium leading-relaxed">
+      <p>
+        In an era where digital presence defines business success, a generic website is no longer sufficient. I specialize in architecting 
+        <strong class="text-white">high-performance web applications</strong> that bridge the gap between complex technical requirements and 
+        intuitive user experiences. By leveraging the power of the <strong class="text-blue-400">MEAN stack</strong> and 
+        <strong class="text-blue-400">Next.js</strong>, I deliver solutions that are not only visually stunning but technically superior.
+      </p>
+      
+      <p>
+        My approach to <strong class="text-white">AI integration</strong> goes beyond simple API calls. I build intelligent systems 
+        utilizing <strong class="text-blue-400">GPT-4</strong> and agentic workflows to automate repetitive tasks, enhance data processing, 
+        and provide users with personalized interactions that drive conversion. Whether you're looking for a 
+        <a routerLink="/services" class="text-blue-500 hover:text-blue-400 transition-colors border-b border-blue-500/30">custom SaaS platform</a> 
+         or an automated lead-generation funnel, my focus is on delivering measurable ROI.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-16 not-prose">
+        <div>
+          <h4 class="text-white font-black uppercase tracking-widest text-sm mb-4">Technical Excellence</h4>
+          <p class="text-slate-500 text-sm leading-loose">
+            From type-safe TypeScript architectures to reactive state management with Angular Signals, every line of code is optimized for 
+            speed, security, and future-proof scalability. <a routerLink="/about" class="text-blue-500 hover:underline">Learn more about my technical background</a>.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-white font-black uppercase tracking-widest text-sm mb-4">Business Outcome</h4>
+          <p class="text-slate-400 text-base leading-relaxed font-medium">
+            No retainers, no surprises. Production-grade work at transparent prices — from $350 landing pages to $500+ full-stack applications.
+          </p>
+          <p class="text-slate-500 text-sm leading-loose">
+            I don't just build websites; I build business tools. My solutions focus on reducing operational overhead and increasing customer 
+            retention through <a routerLink="/projects" class="text-blue-500 underline decoration-blue-500/30 underline-offset-4">battle-tested UX patterns</a>. 
+            <a routerLink="/contact" class="text-blue-500 hover:underline ml-1">Start a project today</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative background elements -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 pointer-events-none">
+    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px]"></div>
+  </div>
+</section>
