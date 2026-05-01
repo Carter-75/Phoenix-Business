@@ -82,7 +82,7 @@ export class ServicesComponent implements OnInit {
       setup: '500',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation.',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
-      features: ['30-Day Subscription Trial', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
+      features: ['30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
       featured: false
     }
   ];
