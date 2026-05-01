@@ -59,6 +59,57 @@
     </div>
   </section>
 
+  <!-- Client Showcase -->
+  <section class="section-padding bg-white/[0.01]">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="mb-24 hero-reveal">
+        <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Our Portfolio</span>
+        <h2 class="fluid-h2">SELECTED<br><span class="text-white/20">WORKS</span></h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05]">
+        <div *ngFor="let client of clients; let i = index" 
+             class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-all duration-700"
+             appScrollReveal [delay]="i * 0.1">
+          
+          <div class="mb-12">
+            <p class="text-[8px] font-black text-[#D4AF37] uppercase tracking-[0.3em] mb-4">{{ client.type }}</p>
+            <h3 class="text-2xl font-black uppercase tracking-tighter text-white">{{ client.name }}</h3>
+          </div>
+          
+          <div class="w-full aspect-video relative bg-white/[0.02] border border-white/[0.05] overflow-hidden group-hover:border-[#D4AF37]/30 transition-all duration-700">
+            <iframe [src]="client.url | safe" class="w-full h-full border-none pointer-events-none scale-100 group-hover:scale-105 transition-transform duration-1000 opacity-40 group-hover:opacity-80"></iframe>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#020205] via-transparent to-transparent opacity-60"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section-padding border-t border-white/5 relative">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="grid lg:grid-cols-2 gap-20">
+        <div *ngFor="let t of testimonials; let i = index" 
+             class="glass-card !p-16 sm:!p-24 group border-white/5" 
+             appScrollReveal [delay]="i * 0.2">
+          <p class="fluid-p text-white mb-16 font-medium italic relative z-10">
+            <span class="text-6xl font-serif text-[#D4AF37] absolute -top-12 -left-8 opacity-20">"</span>
+            {{t.text}}
+          </p>
+          <div class="flex items-center gap-6">
+            <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
+            <div>
+              <p class="text-xs font-black uppercase tracking-widest text-white">{{t.author}}</p>
+              <p class="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37] mt-2">{{t.role}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- Lead Capture Section -->
   <section class="section-padding relative" id="audit">
     <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#D4AF37]/5"></div>

@@ -14,7 +14,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, FormsModule, CommonModule, ScrollRevealDirective],
+  imports: [RouterLink, FormsModule, CommonModule, ScrollRevealDirective, SafePipe],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {
@@ -22,6 +22,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   
   submitting = signal(false);
   success = signal(false);
+
+  clients = [
+    {name: 'Artisan Ice Cream', type: 'Boutique', url: 'https://example1-icecream.vercel.app/'},
+    {name: 'Premium Cookies', type: 'Retail', url: 'https://example2-cookies.vercel.app/'},
+    {name: 'Craft Coffee', type: 'Subscription', url: 'https://example3-coffee.vercel.app/'}
+  ];
+
+  testimonials = [
+    {text: 'The tools Phoenix built for us have completely changed how we find new customers.', author: 'Elena Vance', role: 'Growth Director'},
+    {text: 'Our website is faster and more reliable than ever. A perfect partner for our tech needs.', author: 'Marcus Thorne', role: 'CTO, OmniStream'}
+  ];
 
   constructor() {
     afterNextRender(() => {
