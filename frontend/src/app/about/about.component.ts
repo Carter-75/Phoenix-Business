@@ -6,9 +6,9 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule, ScrollRevealDirective],
+  imports: [CommonModule],
   template: `
-    <section class="min-h-screen bg-[#050505] selection:bg-gold-500/30">
+    <section class="min-h-screen bg-[#050505] selection:bg-[#D4AF37]/30">
       <div class="section-spacing">
         <div class="max-w-[1400px] mx-auto">
           <div class="mb-32">

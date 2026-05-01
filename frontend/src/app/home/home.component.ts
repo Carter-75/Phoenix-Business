@@ -5,13 +5,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { SafePipe } from '../shared/pipes/safe.pipe';
 
 gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, FormsModule, CommonModule],
+  imports: [RouterLink, FormsModule, CommonModule, SafePipe],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {

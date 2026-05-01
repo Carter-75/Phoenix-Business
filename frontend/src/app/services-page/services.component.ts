@@ -25,7 +25,7 @@ interface ServiceTier {
   selector: 'app-services',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, ScrollRevealDirective, FormsModule, SafePipe],
+  imports: [CommonModule, ScrollRevealDirective],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './services.component.html'
 })
