@@ -152,8 +152,10 @@ if (process.env.MONGODB_URI) {
 
 app.use(session(sessionConfig));
 
-// --- Diagnostic Routes (After DB Check) ---
-app.get('/api/health', async (req, res) => {
+// --- Routes ---
+
+// Diagnostic Routes (After DB Check)
+const healthHandler = async (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
   res.json({
     status: 'online',
@@ -161,7 +163,22 @@ app.get('/api/health', async (req, res) => {
     env: isProd ? 'production' : 'development',
     timestamp: new Date().toISOString()
   });
-});
+};
+
+// Mount diagnostics at both paths to handle Vercel prefix stripping
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
+
+// Feature Routes
+const leadsRouter = require('./routes/leads');
+app.use('/leads', leadsRouter);
+app.use('/api/leads', leadsRouter);
+
+app.use('/auth', authRouter);
+app.use('/api/auth', authRouter);
+
+app.use('/api', indexRouter);
+app.use('/', indexRouter);
 
 // Passport
 app.use(passport.initialize());
