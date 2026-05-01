@@ -35,7 +35,7 @@ export class ServicesComponent implements OnInit {
   private doc = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
-  private api = inject(ApiService);
+  public api = inject(ApiService);
 
   readonly stripePublishableKey = environment.stripePublishableKey;
   
