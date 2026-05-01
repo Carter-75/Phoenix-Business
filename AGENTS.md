@@ -22,5 +22,5 @@ This project follows a decoupled MEAN stack architecture.
 - **File Deletions**: When deleting multiple files, do so one at a time.
 - **Syntax**: Always use standard Windows PowerShell syntax (e.g., `Remove-Item`, `New-Item`).
 - **Persistence**: If a command fails, try alternative PowerShell methods before giving up.
-- **Privacy**: Never expose the `.env.local` file content in logs. 
+- **Privacy**: Never expose the `.env.local` file content in logs.
 
