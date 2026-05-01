@@ -13,6 +13,7 @@
 
   <div class="grid lg:grid-cols-3 gap-0 relative z-10 max-w-[1400px] mx-auto border border-white/[0.05]">
     <div *ngFor="let tier of tiers; let i = index"
+         scrollReveal [srDelay]="getStagger(i)"
          class="premium-card !rounded-none border-collapse flex flex-col bg-transparent group"
          [class.border-x]="i === 1"
          [class.bg-white/[0.01]]="tier.featured">
