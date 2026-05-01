@@ -132,21 +132,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Sessions
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'secret',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      ttl: 14 * 24 * 60 * 60 // 14 days
-    }),
-    cookie: {
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax'
-    }
-  })
-);
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
+  }
+};
+
+if (process.env.MONGODB_URI) {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 14 * 24 * 60 * 60 // 14 days
+  });
+} else {
+  console.warn('WARN: MONGODB_URI not found. Using in-memory session store (unreliable on Vercel).');
+}
+
+app.use(session(sessionConfig));
 
 // Passport
 app.use(passport.initialize());
