@@ -69,6 +69,28 @@
         <p class="text-slate-400 font-medium">Our elite engineering team is on standby to ensure your infrastructure never burns out. We rise to every challenge.</p>
       </div>
     </div>
+
+    <!-- Lead Capture Section -->
+    <div class="mt-32 max-w-4xl mx-auto">
+      <div class="premium-card !p-12 text-center relative overflow-hidden">
+        <div class="blur-glow w-64 h-64 bg-orange-600/10 -top-24 -left-24"></div>
+        
+        <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4">Request The <span class="text-orange-500">AI Blueprint</span></h2>
+        <p class="text-slate-400 font-medium mb-10">Get our free guide on "Production-Grade AI Implementation" and join our automated outreach engine.</p>
+        
+        <div class="flex flex-col md:flex-row gap-4">
+          <input [(ngModel)]="leadEmail" type="email" placeholder="Business Email" 
+                 class="flex-1 h-[60px] bg-slate-950 border border-white/10 rounded-xl px-6 text-white focus:border-orange-500/50 outline-none transition-all">
+          <button (click)="captureLead()" [disabled]="leadLoading()" 
+                  class="primary-btn !py-0 h-[60px] px-10 flex items-center justify-center min-w-[200px]">
+            {{ leadLoading() ? 'Sending...' : 'Get The Guide' }}
+          </button>
+        </div>
+        <p class="mt-6 text-[10px] font-black uppercase tracking-widest text-slate-600">
+          * By requesting, you agree to our terms and automated follow-up policy.
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- Decorative Glows -->

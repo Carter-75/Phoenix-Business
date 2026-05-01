@@ -13,24 +13,42 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const Lead = require('../models/Lead');
+
 /**
  * @route POST /api/leads/capture
  * @desc Capture a lead and send a free guide
  */
 router.post('/capture', async (req, res) => {
-    const { email, name, guideType } = req.body;
+    const { email, name, businessName, guideType } = req.body;
 
     if (!email) {
         return res.status(400).json({ error: 'Email is required' });
     }
 
     try {
-        // 1. Send the guide to the user
+        // Check if already unsubscribed
+        const existingLead = await Lead.findOne({ email: email.toLowerCase() });
+        if (existingLead && existingLead.status === 'unsubscribed') {
+            return res.status(400).json({ error: 'This email has been unsubscribed.' });
+        }
+
+        // 1. Save or Update the lead in DB
+        if (!existingLead) {
+            await Lead.create({
+                email: email.toLowerCase(),
+                name,
+                businessName,
+                status: 'pending',
+                source: 'web-capture'
+            });
+        }
+
+        // 2. Send the guide to the user
         const userMailOptions = {
             from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Your Free AI Implementation Guide & SaaS Checklist',
-            text: `Hi ${name || 'there'},\n\nThank you for requesting my AI Implementation Guide. \n\nYou can access the full guide here: [Link Placeholder]\n\nI'll be in touch soon to see if you have any questions about scaling your systems.\n\nBest,\nCarter`,
             html: `
                 <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
                     <h2 style="color: #2563eb;">Hi ${name || 'there'},</h2>
@@ -41,29 +59,51 @@ router.post('/capture', async (req, res) => {
                     </div>
                     <p>If you're ready to automate your revenue engines or have questions about your specific technical roadmap, just reply to this email.</p>
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                    <p style="font-size: 12px; color: #999;">Carter Moyer | Full-Stack Engineer & AI Architect</p>
+                    <p style="font-size: 11px; color: #999;">
+                        Carter Moyer | Full-Stack Engineer & AI Architect<br>
+                        <a href="${process.env.PROD_BACKEND_URL || 'http://localhost:3000'}/api/leads/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a>
+                    </p>
                 </div>
             `
         };
 
-        // 2. Send notification to Carter
+        // 3. Send notification to Carter
         const adminMailOptions = {
-            from: `"Portfolio Lead Bot" <${process.env.EMAIL_USER}>`,
+            from: `"Phoenix Lead Bot" <${process.env.EMAIL_USER}>`,
             to: process.env.EMAIL_USER,
             subject: `🔥 New Lead: ${name || 'Unknown'} (${email})`,
-            text: `New lead capture from portfolio:\nName: ${name}\nEmail: ${email}\nGuide: ${guideType || 'General'}`
+            text: `New lead capture from web:\nName: ${name}\nBusiness: ${businessName}\nEmail: ${email}\nGuide: ${guideType || 'General'}`
         };
 
-        // Execute both sends
         await Promise.all([
             transporter.sendMail(userMailOptions),
             transporter.sendMail(adminMailOptions)
         ]);
 
-        res.json({ status: 'success', message: 'Guide sent successfully' });
+        res.json({ status: 'success', message: 'Guide sent and lead recorded.' });
     } catch (error) {
         console.error('Lead Capture Error:', error);
         res.status(500).json({ error: 'Failed to process lead capture' });
+    }
+});
+
+/**
+ * @route GET /api/leads/unsubscribe
+ * @desc Global unsubscribe handler
+ */
+router.get('/unsubscribe', async (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.status(400).send('Email required');
+
+    try {
+        await Lead.findOneAndUpdate(
+            { email: email.toLowerCase() },
+            { status: 'unsubscribed' },
+            { upsert: true }
+        );
+        res.send('<h1>You have been successfully unsubscribed.</h1><p>You will no longer receive automated outreach or guides from Phoenix.</p>');
+    } catch (error) {
+        res.status(500).send('Error processing unsubscribe request.');
     }
 });
 

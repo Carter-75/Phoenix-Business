@@ -5,19 +5,22 @@ import anime from 'animejs';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
   
+  leadEmail = '';
+  leadLoading = signal(false);
   private scene = viewChild<ElementRef<HTMLDivElement>>('scene');
   private engine?: Matter.Engine;
   private render?: Matter.Render;
@@ -35,6 +38,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Health check
     this.api.get('health').subscribe({
       error: () => console.log('Backend offline or connecting...')
+    });
+  }
+
+  captureLead() {
+    if (!this.leadEmail) return;
+    this.leadLoading.set(true);
+    this.api.post('leads/capture', { email: this.leadEmail, guideType: 'AI Blueprint' }).subscribe({
+      next: () => {
+        this.leadLoading.set(false);
+        this.leadEmail = '';
+        alert('Guide sent! Check your inbox.');
+      },
+      error: (err) => {
+        this.leadLoading.set(false);
+        alert(err.error?.error || 'Failed to send guide');
+      }
     });
   }
 

@@ -176,7 +176,7 @@ class OutreachService {
       <p style="font-size: 11px; color: #999;">
         <strong>Legal Disclosure:</strong> This communication is from Carter Moyer at Phoenix. 
         You are receiving this because ${lead.businessName || 'your business'} was identified as a candidate for digital optimization based on public data.<br>
-        <a href="https://www.carter-portfolio.fyi/api/leads/unsubscribe?email=${encodeURIComponent(lead.email)}" style="color: #4f46e5; text-decoration: underline;">Opt-out of future communications</a>
+        <a href="${process.env.PROD_BACKEND_URL || 'http://localhost:3000'}/api/leads/unsubscribe?email=${encodeURIComponent(lead.email)}" style="color: #4f46e5; text-decoration: underline;">Opt-out of future communications</a>
       </p>
     `;
 
