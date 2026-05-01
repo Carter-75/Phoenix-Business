@@ -6,7 +6,7 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const resolveEnvPath = () => {
   const candidates = [
-    path.join(process.cwd(), '.env.local'), 
+    path.join(process.cwd(), '.env.local'),
     path.join(process.cwd(), 'backend', '.env.local'),
     path.join(__dirname, '../.env.local')
   ];
@@ -45,8 +45,6 @@ require('./config/passport')(passport);
 // --- Routers ---
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
-const stripeRouter = require('./routes/stripe');
-const leadsRouter = require('./routes/leads');
 
 // --- Diagnostic Routes ---
 app.get('/api/health', async (req, res) => {
@@ -64,7 +62,7 @@ const mongoURI = process.env.MONGODB_URI;
 
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
-  
+
   if (!mongoURI) {
     console.warn('WARN: No MONGODB_URI found in environment!');
     return;
@@ -91,7 +89,7 @@ connectDB();
 const dbCheck = async (req, res, next) => {
   if (mongoose.connection.readyState === 1) return next();
   if (mongoose.connection.readyState === 0) await connectDB();
-  
+
   let attempts = 0;
   const interval = setInterval(() => {
     attempts++;
@@ -101,8 +99,8 @@ const dbCheck = async (req, res, next) => {
     }
     if (attempts >= 30) {
       clearInterval(interval);
-      return res.status(503).json({ 
-        error: 'Database connection timeout. Please refresh or check MONGODB_URI.' 
+      return res.status(503).json({
+        error: 'Database connection timeout. Please refresh or check MONGODB_URI.'
       });
     }
   }, 100);
@@ -144,11 +142,9 @@ const sessionConfig = {
 
 if (process.env.MONGODB_URI) {
   sessionConfig.store = MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
+    mongoUrl: process.env.MONGODB_URI.replace(/^["']|["']$/g, ''),
     ttl: 14 * 24 * 60 * 60 // 14 days
   });
-} else {
-  console.warn('WARN: MONGODB_URI not found. Using in-memory session store (unreliable on Vercel).');
 }
 
 app.use(session(sessionConfig));
@@ -167,12 +163,6 @@ app.use('/', indexRouter);
 
 app.use('/api/auth', authRouter);
 app.use('/auth', authRouter);
-
-app.use('/api/stripe', stripeRouter);
-app.use('/stripe', stripeRouter);
-
-app.use('/api/leads', leadsRouter);
-app.use('/leads', leadsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
