@@ -24,10 +24,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const session = require('express-session');
-let MongoStore = require('connect-mongo');
-if (MongoStore.default) {
-  MongoStore = MongoStore.default;
-}
+const MongoStore = require('connect-mongo');
 const passport = require('passport');
 
 const app = express();
@@ -48,17 +45,6 @@ require('./config/passport')(passport);
 // --- Routers ---
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
-
-// --- Diagnostic Routes ---
-app.get('/api/health', async (req, res) => {
-  const isConnected = mongoose.connection.readyState === 1;
-  res.json({
-    status: 'online',
-    database: isConnected ? 'Connected' : 'Disconnected',
-    env: isProd ? 'production' : 'development',
-    timestamp: new Date().toISOString()
-  });
-});
 
 // --- MongoDB Setup ---
 const mongoURI = process.env.MONGODB_URI;
@@ -144,13 +130,38 @@ const sessionConfig = {
 };
 
 if (process.env.MONGODB_URI) {
-  sessionConfig.store = MongoStore.create({
+  // Ultra-robust MongoStore initialization
+  const storeOptions = {
     mongoUrl: process.env.MONGODB_URI.replace(/^["']|["']$/g, ''),
-    ttl: 14 * 24 * 60 * 60
-  });
+    ttl: 14 * 24 * 60 * 60,
+    autoRemove: 'native'
+  };
+
+  try {
+    if (typeof MongoStore.create === 'function') {
+      sessionConfig.store = MongoStore.create(storeOptions);
+    } else if (typeof MongoStore === 'function') {
+      sessionConfig.store = new MongoStore(storeOptions);
+    } else if (MongoStore.default && typeof MongoStore.default.create === 'function') {
+      sessionConfig.store = MongoStore.default.create(storeOptions);
+    }
+  } catch (err) {
+    console.error('CRITICAL: Failed to initialize Session Store:', err.message);
+  }
 }
 
 app.use(session(sessionConfig));
+
+// --- Diagnostic Routes (After DB Check) ---
+app.get('/api/health', async (req, res) => {
+  const isConnected = mongoose.connection.readyState === 1;
+  res.json({
+    status: 'online',
+    database: isConnected ? 'Connected' : 'Disconnected',
+    env: isProd ? 'production' : 'development',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Passport
 app.use(passport.initialize());
