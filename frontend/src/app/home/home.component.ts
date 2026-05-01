@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Health check
-    this.api.getData('health').subscribe({
+    this.api.get('health').subscribe({
       error: () => console.log('Backend offline or connecting...')
     });
   }

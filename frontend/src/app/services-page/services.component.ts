@@ -19,8 +19,7 @@ interface ServiceTier {
   selector: 'app-services',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './services.component.html',
-  styleUrl: './services.component.css'
+  templateUrl: './services.component.html'
 })
 export class ServicesComponent {
   private api = inject(ApiService);
