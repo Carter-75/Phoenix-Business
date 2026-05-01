@@ -1,102 +1,119 @@
-<section class="relative min-h-screen overflow-hidden bg-slate-950 selection:bg-orange-500/30">
-  <!-- Interactive Physics Background -->
-  <div #scene class="absolute inset-0 pointer-events-none z-0 opacity-40"></div>
+<section class="relative min-h-screen bg-[#050505]">
+  <!-- Hero Section -->
+  <div class="relative min-h-screen flex flex-col items-center justify-center text-center px-6">
+    <div class="reveal-text mb-8">
+      <span class="fluid-tiny font-black uppercase tracking-[0.8em] text-white/30">Established MMXXIV</span>
+    </div>
+    
+    <h1 class="reveal-text fluid-h1 font-black text-white mb-12">
+      Phoenix <br> 
+      <span class="gold-text">Business</span>
+    </h1>
+    
+    <p class="reveal-text max-w-3xl mx-auto fluid-p mb-16">
+      Architecture for the modern era. We engineer high-performance digital ecosystems for elite businesses and global partners.
+    </p>
 
-  <!-- Hero Content -->
-  <div class="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-24 lg:pt-48 lg:pb-32">
-    <div class="text-center space-y-8 mb-24">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-black uppercase tracking-widest animate-pulse">
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-        </span>
-        Next-Gen Digital Infrastructure
-      </div>
-      
-      <h1 class="text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter leading-[0.85] uppercase">
-        Phoenix <br> 
-        <span class="gradient-text from-orange-400 via-red-500 to-purple-600">Rising</span>
-      </h1>
-      
-      <p class="max-w-2xl mx-auto text-slate-400 text-lg md:text-xl font-medium leading-relaxed">
-        High-performance web architecture and AI-driven systems designed for businesses that refuse to compromise on speed and stability.
-      </p>
-
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
-        <button routerLink="/services" class="primary-btn !bg-orange-600 hover:!bg-orange-500 group">
-          View Services
-          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-          </svg>
-        </button>
-        <button routerLink="/login" class="px-8 py-5 rounded-2xl border border-white/10 text-white font-bold uppercase tracking-widest text-xs hover:bg-white/5 transition-all">
-          Client Portal
-        </button>
-      </div>
+    <div class="reveal-text">
+      <button routerLink="/services" class="primary-btn">
+        View Services
+      </button>
     </div>
 
-    <!-- Features Bento Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div #card class="premium-card md:col-span-2 group">
-        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-orange-500/20 to-purple-600/20 border border-white/5 flex items-center justify-center">
-           <span class="text-6xl group-hover:scale-110 transition-transform duration-700">🚀</span>
-        </div>
-        <h3 class="text-3xl font-black text-white mb-4">Zero-Latency Deployment</h3>
-        <p class="text-slate-400 font-medium">Global CDN edge networks ensure your application is alive and responsive within milliseconds of the first click.</p>
-      </div>
-
-      <div class="premium-card group">
-        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-600/20 border border-white/5 flex items-center justify-center">
-           <span class="text-6xl group-hover:rotate-12 transition-transform duration-700">🤖</span>
-        </div>
-        <h3 class="text-3xl font-black text-white mb-4">AI Integration</h3>
-        <p class="text-slate-400 font-medium">Bespoke LLM pipelines designed to automate your workflows and engage your customers 24/7.</p>
-      </div>
-
-      <div class="premium-card group">
-        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-green-500/20 to-emerald-600/20 border border-white/5 flex items-center justify-center">
-           <span class="text-6xl group-hover:-translate-y-2 transition-transform duration-700">🔒</span>
-        </div>
-        <h3 class="text-3xl font-black text-white mb-4">Secure Contracts</h3>
-        <p class="text-slate-400 font-medium">Enterprise-grade legal and technical protection. Yearly commitments that ensure long-term stability.</p>
-      </div>
-
-      <div class="premium-card md:col-span-2 group">
-        <div class="h-48 mb-8 rounded-3xl bg-gradient-to-br from-red-500/20 to-orange-600/20 border border-white/5 flex items-center justify-center">
-           <span class="text-6xl group-hover:scale-95 transition-transform duration-700">🔥</span>
-        </div>
-        <h3 class="text-3xl font-black text-white mb-4">Phoenix Support</h3>
-        <p class="text-slate-400 font-medium">Our elite engineering team is on standby to ensure your infrastructure never burns out. We rise to every challenge.</p>
-      </div>
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-30">
+      <span class="fluid-tiny font-black uppercase tracking-[0.3em] vertical-text">Scroll</span>
+      <div class="w-[1px] h-20 bg-gradient-to-b from-white to-transparent"></div>
     </div>
+  </div>
 
-    <!-- Lead Capture Section -->
-    <div class="mt-32 max-w-4xl mx-auto">
-      <div class="premium-card !p-12 text-center relative overflow-hidden">
-        <div class="blur-glow w-64 h-64 bg-orange-600/10 -top-24 -left-24"></div>
-        
-        <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4">Request The <span class="text-orange-500">AI Blueprint</span></h2>
-        <p class="text-slate-400 font-medium mb-10">Get our free guide on "Production-Grade AI Implementation" and join our automated outreach engine.</p>
-        
-        <div class="flex flex-col md:flex-row gap-4">
-          <input [(ngModel)]="leadEmail" type="email" placeholder="Business Email" 
-                 class="flex-1 h-[60px] bg-slate-950 border border-white/10 rounded-xl px-6 text-white focus:border-orange-500/50 outline-none transition-all">
-          <button (click)="captureLead()" [disabled]="leadLoading()" 
-                  class="primary-btn !py-0 h-[60px] px-10 flex items-center justify-center min-w-[200px]">
-            {{ leadLoading() ? 'Sending...' : 'Get The Guide' }}
-          </button>
+  <!-- About Section -->
+  <div class="about-section section-spacing border-t border-white/[0.03]">
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-32 items-start">
+      <div>
+        <h2 class="fluid-h2 text-white mb-12">Our <span class="gold-text">Philosophy</span></h2>
+        <div class="space-y-8 fluid-p">
+          <p>
+            At Phoenix Business, we believe that digital infrastructure is the skeleton of modern enterprise. It must be resilient, expansive, and invisible.
+          </p>
+          <p>
+            Founded on the principles of Zero-Latency Engineering and AI-First Architecture, we have successfully deployed ecosystems for boutiques and billion-dollar entities alike.
+          </p>
         </div>
-        <div *ngIf="leadFeedback()" class="mt-6 text-[10px] font-black uppercase tracking-[0.2em]" [ngClass]="leadFeedback()?.includes('failed') ? 'text-red-500' : 'text-green-500'">
-          {{ leadFeedback() }}
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="aspect-[3/4] bg-white/[0.02] border border-white/[0.05] flex items-end p-8 group">
+          <p class="fluid-tiny font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-white transition-colors">Precision</p>
         </div>
-        <p class="mt-6 text-[10px] font-black uppercase tracking-widest text-slate-600">
-          * By requesting, you agree to our terms and automated follow-up policy.
-        </p>
+        <div class="aspect-[3/4] bg-white/[0.02] border border-white/[0.05] flex items-end p-8 group mt-12">
+          <p class="fluid-tiny font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-white transition-colors">Scale</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Decorative Glows -->
-  <div class="blur-glow w-[600px] h-[600px] bg-orange-600/20 -top-48 -left-48"></div>
-  <div class="blur-glow w-[600px] h-[600px] bg-purple-600/20 -bottom-48 -right-48"></div>
+  <!-- Showcase Section (Already Restored word-for-word before, now restyled) -->
+  <div class="section-spacing bg-white/[0.01]">
+    <div class="text-center mb-32">
+      <p class="fluid-tiny font-black uppercase tracking-[0.5em] text-[#D4AF37] mb-8">Selected Works</p>
+      <h2 class="fluid-h2 text-white uppercase">Client Showcase</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
+      <div *ngFor="let client of [
+        {name: 'Artisan Ice Cream', type: 'Boutique', url: 'https://example1-icecream.vercel.app/'},
+        {name: 'Premium Cookies', type: 'Retail', url: 'https://example2-cookies.vercel.app/'},
+        {name: 'Craft Coffee', type: 'Subscription', url: 'https://example3-coffee.vercel.app/'}
+      ]" class="premium-card group border-white/[0.03]">
+        <div class="mb-12">
+          <p class="fluid-tiny font-black text-[#D4AF37] uppercase tracking-[0.3em] mb-4">{{ client.type }}</p>
+          <h3 class="fluid-h3 text-white mb-4">{{ client.name }}</h3>
+        </div>
+        <div class="w-full aspect-video relative bg-white/[0.02] border border-white/[0.05] grayscale group-hover:grayscale-0 transition-all duration-1000 overflow-hidden">
+          <iframe [src]="client.url | safe" class="w-full h-full border-none pointer-events-none scale-110 group-hover:scale-100 transition-transform duration-1000"></iframe>
+          <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors duration-1000"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="section-spacing border-t border-white/[0.03]">
+    <div class="grid lg:grid-cols-2 gap-32">
+      <div *ngFor="let quote of [
+        {text: 'The automated outreach engine Phoenix built has redefined our sales cycle.', author: 'Elena Vance', role: 'Growth Director'},
+        {text: 'Architecture that scales without friction. Their AI-First approach is state-of-the-art.', author: 'Marcus Thorne', role: 'CTO'}
+      ]" class="relative">
+        <span class="text-8xl font-serif text-[#D4AF37] absolute -top-12 -left-8 opacity-20">"</span>
+        <p class="text-2xl font-medium text-white/80 leading-relaxed italic mb-12 relative z-10">{{ quote.text }}</p>
+        <div>
+          <p class="fluid-tiny font-black uppercase tracking-[0.3em] text-white">{{ quote.author }}</p>
+          <p class="fluid-tiny font-bold uppercase tracking-[0.1em] text-white/40 mt-2">{{ quote.role }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Call to Action -->
+  <div class="section-spacing flex justify-center">
+    <div class="max-w-4xl w-full text-center">
+      <h2 class="fluid-h2 text-white mb-12 uppercase">Begin Your <br> <span class="gold-text">Evolution</span></h2>
+      <div class="flex flex-col md:flex-row gap-0 border border-white/[0.05]">
+        <input [(ngModel)]="leadEmail" type="email" placeholder="Business Email" 
+               class="flex-1 h-[80px] bg-white/[0.02] px-10 text-white focus:bg-white/[0.05] outline-none transition-all">
+        <button (click)="captureLead()" [disabled]="leadLoading()" 
+                class="primary-btn h-[80px] min-w-[280px]">
+          Request Audit
+        </button>
+      </div>
+      <p *ngIf="leadFeedback()" class="mt-8 fluid-tiny font-black uppercase tracking-[0.2em] text-[#D4AF37]">
+        {{ leadFeedback() }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="py-24 px-6 border-t border-white/[0.03] text-center">
+    <p class="fluid-tiny font-black uppercase tracking-[1em] text-white/20">Phoenix Business Operations</p>
+  </div>
 </section>

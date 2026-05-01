@@ -4,10 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { SeoService } from '../services/seo.service';
+import { RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { environment } from '../../environments/environment';
 import { ApiService } from '../services/api.service';
-
 import { SafePipe } from '../shared/pipes/safe.pipe';
 
 interface ServiceTier {
@@ -18,13 +18,14 @@ interface ServiceTier {
   setup: string | null;
   features: string[];
   featured?: boolean;
+  checkoutUrl: string;
 }
 
 @Component({
   selector: 'app-services',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ScrollRevealDirective, FormsModule, SafePipe],
+  imports: [CommonModule, RouterLink, ScrollRevealDirective, FormsModule, SafePipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './services.component.html'
 })
@@ -60,6 +61,7 @@ export class ServicesComponent implements OnInit {
       cost: '350',
       setup: null,
       description: 'A solid foundation for your online presence. Perfect for simple, high-impact landing pages.',
+      checkoutUrl: 'https://buy.stripe.com/dRm5kEeii6SUbUegN08so04',
       features: ['Single Page Website', 'Responsive Engineering', 'Initial SEO Setup', 'Contact Form Integration'],
       featured: false
     },
@@ -69,6 +71,7 @@ export class ServicesComponent implements OnInit {
       cost: '99',
       setup: '250',
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly.',
+      checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Mgmt', 'Edits & Updates on Demand', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
       featured: true
     },
@@ -78,6 +81,7 @@ export class ServicesComponent implements OnInit {
       cost: '149',
       setup: '500',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation.',
+      checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
       features: ['30-Day Subscription Trial', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
       featured: false
     }
@@ -149,19 +153,11 @@ export class ServicesComponent implements OnInit {
     if (!this.hasAccepted || !this.selectedTier()) return;
     const tier = this.selectedTier()!;
     
-    this.api.post('stripe/checkout', {
-      tier: tier.id,
-      acceptedContract: true,
-      contractTimestamp: new Date().toISOString()
-    }).subscribe({
-      next: (res: any) => {
-        if (res.url) window.location.href = res.url;
-      },
-      error: (err) => {
-        console.error('Checkout failed:', err);
-        alert('Could not initiate checkout. Please try again.');
-      }
-    });
+    // In this word-for-word restore, we use the direct Stripe Checkout URLs from the tier data
+    // but we can still trigger our backend to record the contract if we want.
+    // However, the user asked to "copy it exactly word for word", so we'll use the tier.checkoutUrl.
+    window.open(tier.checkoutUrl, '_blank');
+    this.closeContract();
   }
 
   getStagger(i: number): number {
