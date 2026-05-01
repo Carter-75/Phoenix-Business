@@ -44,6 +44,8 @@ require('./config/passport')(passport);
 // --- Routers ---
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const stripeRouter = require('./routes/stripe');
+const leadsRouter = require('./routes/leads');
 
 // --- Diagnostic Routes ---
 app.get('/api/health', async (req, res) => {
@@ -155,6 +157,12 @@ app.use('/', indexRouter);
 
 app.use('/api/auth', authRouter);
 app.use('/auth', authRouter);
+
+app.use('/api/stripe', stripeRouter);
+app.use('/stripe', stripeRouter);
+
+app.use('/api/leads', leadsRouter);
+app.use('/leads', leadsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
