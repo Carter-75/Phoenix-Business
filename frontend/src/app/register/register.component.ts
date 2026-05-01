@@ -62,6 +62,10 @@ import { CommonModule } from '@angular/common';
                     class="primary-btn w-full !py-5 flex items-center justify-center">
               {{ loading() ? 'Creating Profile...' : 'Begin Partnership' }}
             </button>
+
+            <div *ngIf="errorMessage()" class="text-red-500 text-[10px] font-black uppercase tracking-widest text-center mt-4 bg-red-500/10 py-3 rounded-lg border border-red-500/20">
+              {{ errorMessage() }}
+            </div>
           </div>
 
           <div class="text-center pt-4">
@@ -84,6 +88,7 @@ export class RegisterComponent {
   email = '';
   password = '';
   loading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   loginWithGoogle() {
     this.api.loginWithGoogle();
@@ -92,6 +97,7 @@ export class RegisterComponent {
   register() {
     if (!this.email || !this.password || !this.firstName || !this.lastName) return;
     this.loading.set(true);
+    this.errorMessage.set(null);
     this.api.post('auth/register', { 
       email: this.email, 
       password: this.password,
@@ -101,7 +107,8 @@ export class RegisterComponent {
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
         this.loading.set(false);
-        alert(err.error?.message || 'Registration failed');
+        this.errorMessage.set('Registration encountered an issue. Check inputs or try again.');
+        console.error('[REGISTRATION ERROR]:', err);
       }
     });
   }

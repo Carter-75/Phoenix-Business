@@ -51,6 +51,10 @@ import { CommonModule } from '@angular/common';
                     class="primary-btn w-full !py-5 flex items-center justify-center">
               {{ loading() ? 'Authenticating...' : 'Sign In' }}
             </button>
+
+            <div *ngIf="errorMessage()" class="text-red-500 text-[10px] font-black uppercase tracking-widest text-center mt-4 bg-red-500/10 py-3 rounded-lg border border-red-500/20">
+              {{ errorMessage() }}
+            </div>
           </div>
 
           <div class="text-center pt-4">
@@ -77,15 +81,18 @@ export class LoginComponent {
   email = '';
   password = '';
   loading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   login() {
     if (!this.email || !this.password) return;
     this.loading.set(true);
+    this.errorMessage.set(null);
     this.api.login({ email: this.email, password: this.password }).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
         this.loading.set(false);
-        alert(err.error?.message || 'Login failed');
+        this.errorMessage.set('Security verification failed. Please check credentials.');
+        console.error('[AUTH ERROR] Details hidden from UI:', err);
       }
     });
   }

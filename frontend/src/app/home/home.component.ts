@@ -21,6 +21,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   
   leadEmail = '';
   leadLoading = signal(false);
+  leadFeedback = signal<string | null>(null);
   private scene = viewChild<ElementRef<HTMLDivElement>>('scene');
   private engine?: Matter.Engine;
   private render?: Matter.Render;
@@ -44,15 +45,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   captureLead() {
     if (!this.leadEmail) return;
     this.leadLoading.set(true);
+    this.leadFeedback.set(null);
     this.api.post('leads/capture', { email: this.leadEmail, guideType: 'AI Blueprint' }).subscribe({
       next: () => {
         this.leadLoading.set(false);
         this.leadEmail = '';
-        alert('Guide sent! Check your inbox.');
+        this.leadFeedback.set('Blueprint sent to your inbox!');
+        setTimeout(() => this.leadFeedback.set(null), 5000);
       },
       error: (err) => {
         this.leadLoading.set(false);
-        alert(err.error?.error || 'Failed to send guide');
+        this.leadFeedback.set('Request failed. Check email or try again later.');
+        console.error('[LEAD CAPTURE ERROR]:', err);
       }
     });
   }

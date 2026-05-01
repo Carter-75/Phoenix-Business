@@ -157,12 +157,14 @@ app.get(['/health', '/api/health'], healthHandler);
 // 2. Feature Routes (Apply DB check to these)
 const authRouter = require('./routes/auth');
 const leadsRouter = require('./routes/leads');
+const stripeRouter = require('./routes/stripe');
 const indexRouter = require('./routes/index');
 
 // Mount routes at both /api and root to handle Vercel routing flexibility
 const featureRoutes = [
   { path: '/auth', router: authRouter },
   { path: '/leads', router: leadsRouter },
+  { path: '/stripe', router: stripeRouter },
   { path: '/', router: indexRouter }
 ];
 

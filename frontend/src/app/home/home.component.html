@@ -86,6 +86,9 @@
             {{ leadLoading() ? 'Sending...' : 'Get The Guide' }}
           </button>
         </div>
+        <div *ngIf="leadFeedback()" class="mt-6 text-[10px] font-black uppercase tracking-[0.2em]" [ngClass]="leadFeedback()?.includes('failed') ? 'text-red-500' : 'text-green-500'">
+          {{ leadFeedback() }}
+        </div>
         <p class="mt-6 text-[10px] font-black uppercase tracking-widest text-slate-600">
           * By requesting, you agree to our terms and automated follow-up policy.
         </p>
