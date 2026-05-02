@@ -31,15 +31,16 @@
   .fluid-h2 { @apply text-[clamp(2.5rem,10vw,6rem)] leading-[0.9] tracking-[-0.04em]; }
   .fluid-h3 { @apply text-[clamp(1.5rem,5vw,3rem)] leading-tight; }
   .fluid-p { @apply text-[clamp(1rem,1.2vw,1.25rem)] text-white/50 leading-relaxed; }
+  .fluid-tiny { @apply text-[10px] font-black uppercase tracking-[0.4em] text-white/40; }
 
   .glass-card {
-    @apply backdrop-blur-3xl bg-white/[0.01] border border-white/[0.05] p-12 sm:p-20 relative overflow-hidden;
+    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.05] p-12 sm:p-20 relative overflow-hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
   .glass-card::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 transition-opacity duration-700;
+    @apply absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 transition-opacity duration-700 pointer-events-none;
   }
 
   .glass-card:hover::after {

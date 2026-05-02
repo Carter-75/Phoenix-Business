@@ -27,7 +27,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
         <div class="grid lg:grid-cols-2 gap-32 items-start border-t border-white/5 pt-32">
           <div class="space-y-12 fluid-p text-white/60" appScrollReveal>
             <p>
-              We focus on **speed** and **ease of use**. We don't just build sites; we create tools that help your business grow automatically.
+              We focus on <strong>speed</strong> and <strong>ease of use</strong>. We don't just build sites; we create tools that help your business grow automatically.
             </p>
             <p>
               Every bit of work we do is meant to last. From custom-built websites to smart automation, we make sure your tech always works perfectly.
@@ -53,7 +53,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
                 <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> 100% reliability you can trust</li>
               </ul>
             </div>
-            <div class="aspect-video bg-white/[0.01] border border-white/5 flex items-center justify-center group relative overflow-hidden">
+            <div class="aspect-video bg-white/[0.02] border border-white/5 flex items-center justify-center group relative overflow-hidden">
                <div class="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
                <span class="fluid-tiny font-black uppercase tracking-[1em] text-white/10 group-hover:text-[#D4AF37]/20 transition-colors">Phoenix Protocol</span>
             </div>

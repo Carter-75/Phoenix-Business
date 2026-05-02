@@ -31,31 +31,43 @@ router.post('/register', async (req, res) => {
 });
 
 // @route   POST /auth/login
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) return next(err);
-    if (!user) return res.status(401).json({ message: info.message || 'Login failed' });
-    
-    req.login(user, (err) => {
+  router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
       if (err) return next(err);
-      return res.json(user);
-    });
-  })(req, res, next);
-});
+      if (!user) {
+        const status = info.message === 'USER_NOT_FOUND' ? 404 : 401;
+        return res.status(status).json({ message: info.message });
+      }
+      
+      req.login(user, (err) => {
+        if (err) return next(err);
+        return res.json(user);
+      });
+    })(req, res, next);
+  });
 
 // @route   GET /auth/google
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  const returnTo = req.query.returnTo || '/dashboard';
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    state: returnTo
+  })(req, res, next);
+});
 
 // @route   GET /auth/google/callback
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    // Check if user is pending registration (Google info received but not yet in DB)
+    const returnUrl = req.query.state || '/dashboard';
+    
+    // Check if user is pending registration
     if (req.user && req.user.isPending) {
       return res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/complete-profile`);
     }
-    // Successful authentication, redirect home.
-    res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard`);
+    
+    // Successful authentication, redirect to returnUrl or dashboard
+    res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}${returnUrl}`);
   }
 );
 
@@ -85,33 +97,48 @@ router.post('/update-profile', async (req, res) => {
   }
 });
 
-// @route   POST /auth/complete-google-registration
-router.post('/complete-google-registration', async (req, res) => {
-  if (!req.isAuthenticated() || !req.user.isPending) {
-    return res.status(401).json({ message: 'No pending registration found' });
-  }
-
+// @route   POST /auth/finalize-onboarding
+router.post('/finalize-onboarding', async (req, res) => {
   try {
-    const { firstName, lastName } = req.body;
-    const { email, googleId } = req.user;
+    const { firstName, lastName, acceptedTerms, acceptedPrivacy, acceptedRefunds } = req.body;
+    
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Authentication required to finalize profile' });
+    }
 
-    // Create the user now
-    const newUser = new User({
-      email: email.toLowerCase(),
-      googleId,
-      firstName,
-      lastName,
-      hasFinalizedProfile: true
-    });
+    let user;
+    if (req.user.isPending) {
+      // Create NEW user from Google pending session
+      const { email, googleId } = req.user;
+      user = new User({
+        email: email.toLowerCase(),
+        googleId,
+        firstName,
+        lastName,
+        hasFinalizedProfile: true,
+        hasAcceptedContract: acceptedTerms // Use terms as proxy for contract acceptance
+      });
+    } else {
+      // Update EXISTING user
+      user = await User.findById(req.user._id);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+      user.firstName = firstName;
+      user.lastName = lastName;
+      user.hasFinalizedProfile = true;
+      user.hasAcceptedContract = acceptedTerms;
+    }
 
-    await newUser.save();
+    await user.save();
 
-    // Log in as the NEW user (clear the pending state)
-    req.login(newUser, (err) => {
-      if (err) return res.status(500).json({ message: 'Error logging in new user' });
-      res.json(newUser);
-    });
-
+    // If it was a new user, we need to log them in fully
+    if (req.user.isPending) {
+      req.login(user, (err) => {
+        if (err) return res.status(500).json({ message: 'Error establishing full session' });
+        return res.json(user);
+      });
+    } else {
+      res.json(user);
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

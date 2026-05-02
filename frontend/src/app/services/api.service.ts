@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -34,21 +34,24 @@ export class ApiService {
   }
 
   // Redirect-based Google Login
-  loginWithGoogle(): void {
-    window.location.href = `${this.apiUrl}/auth/google`;
+  loginWithGoogle(returnTo: string = '/dashboard'): void {
+    window.location.href = `${this.apiUrl}/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
   }
 
   checkStatus(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/auth/user`, { withCredentials: true }).pipe(
-      tap({
-        next: user => this.currentUser.set(user),
-        error: () => this.currentUser.set(null)
+      tap(user => this.currentUser.set(user)),
+      catchError(() => {
+        this.currentUser.set(null);
+        return of(null);
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem('auth_token');
+    this.http.get(`${this.apiUrl}/auth/logout`, { withCredentials: true }).subscribe();
     this.currentUser.set(null);
+    localStorage.removeItem('checkout_tier');
+    localStorage.removeItem('member_email');
   }
 }

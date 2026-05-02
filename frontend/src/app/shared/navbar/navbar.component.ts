@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-navbar',
@@ -18,15 +19,21 @@ import { CommonModule } from '@angular/common';
 
         <!-- Navigation Pages -->
         <div class="hidden md:flex items-center gap-16">
-          <a routerLink="/home" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Portal</a>
-          <a routerLink="/about" routerLinkActive="text-white !after:w-full" class="nav-link">Intelligence</a>
-          <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Infrastructure</a>
+          <a routerLink="/home" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+          <a routerLink="/about" routerLinkActive="text-white !after:w-full" class="nav-link">About</a>
+          <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Services</a>
         </div>
 
-        <!-- Contact Action -->
-        <div class="flex items-center">
-          <button (click)="scrollToAudit()" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all hidden sm:block">
-            Inquire
+        <!-- Auth Action -->
+        <div class="flex items-center gap-8">
+          <a *ngIf="!api.currentUser()" routerLink="/login" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
+            Login
+          </a>
+          <a *ngIf="api.currentUser()" routerLink="/dashboard" class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] hover:text-white transition-all">
+            Dashboard
+          </a>
+          <button *ngIf="api.currentUser()" (click)="api.logout()" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/10 hover:text-red-500 transition-all">
+            Logout
           </button>
         </div>
       </div>
@@ -34,9 +41,11 @@ import { CommonModule } from '@angular/common';
   `
 })
 export class NavbarComponent implements OnInit {
+  public api = inject(ApiService);
   scrolled = signal(false);
 
   ngOnInit() {
+    this.api.checkStatus().subscribe();
     window.addEventListener('scroll', () => {
       this.scrolled.set(window.scrollY > 50);
     });

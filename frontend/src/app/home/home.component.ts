@@ -47,13 +47,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   testimonials = [
     {
       text: "We needed a site that didn't just look good but actually handled our traffic during launches. Phoenix delivered a rock-solid platform that has significantly increased our sales conversion rate.", 
-      author: 'Elena Vance', 
-      role: 'Head of Growth at Artisan Boutique'
+      author: 'Verified Partner', 
+      role: 'Growth Specialist',
+      stars: 5
     },
     {
       text: 'Working with Phoenix was the best decision for our rebranding. The technical precision and attention to detail they brought to our subscription platform is unmatched in the industry.', 
-      author: 'Marcus Thorne', 
-      role: 'CTO, OmniStream Technologies'
+      author: 'Business Owner', 
+      role: 'Technical Director',
+      stars: 4
     }
   ];
 
@@ -115,22 +117,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       ease: 'power4.out',
       stagger: 0.15,
       delay: 0.5
-    });
-
-    // Scroll Reveal Utility
-    const reveals = document.querySelectorAll('[appScrollReveal]');
-    reveals.forEach(el => {
-      gsap.from(el, {
-        y: 40,
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top 85%',
-          toggleActions: 'play none none none'
-        }
-      });
     });
   }
 }
