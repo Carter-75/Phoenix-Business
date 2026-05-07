@@ -209,7 +209,8 @@ export class ServicesComponent implements OnInit {
         next: (res) => {
           localStorage.setItem('member_email', email);
           this.memberSessionEmail.set(email);
-          window.location.href = res.url;
+          window.open(res.url, '_blank');
+          this.portalLoading.set(false);
         },
         error: (err) => {
           this.portalLoading.set(false);
