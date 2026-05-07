@@ -123,6 +123,12 @@
               </div>
             </div>
 
+            <div class="space-y-2">
+              <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Business Name</label>
+              <input [(ngModel)]="businessName" type="text" placeholder="PHOENIX LLC"
+                     class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-red-600 transition-all">
+            </div>
+
             <div class="space-y-6 pt-8 border-t border-white/5">
               <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-6">Security & Policies</p>
               
@@ -156,8 +162,17 @@
       <div class="flex max-w-md mx-auto gap-4">
         <input type="email" #portalEmail placeholder="EMAIL ADDRESS" 
                class="flex-1 bg-white/[0.02] border border-white/[0.05] px-8 py-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
-        <button (click)="onManageSubscription(portalEmail.value)" class="premium-btn !px-8">Access</button>
+        <button (click)="onManageSubscription(portalEmail.value)" 
+                [disabled]="portalLoading()"
+                class="premium-btn !px-8 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]">
+          <span *ngIf="!portalLoading()">Access</span>
+          <i *ngIf="portalLoading()" class="fas fa-spinner animate-spin"></i>
+        </button>
       </div>
+      
+      <p *ngIf="portalError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest mt-6">
+        {{portalError()}}
+      </p>
     </div>
   </div>
-</div>v>
+</div>

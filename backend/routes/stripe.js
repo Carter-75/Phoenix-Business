@@ -22,7 +22,7 @@ const verifyStripe = (req, res, next) => {
  */
 router.post('/checkout', verifyStripe, async (req, res) => {
     try {
-        const { tier, email, name, projectType, message, acceptedContract, contractTimestamp } = req.body;
+        const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp } = req.body;
         const user = req.user;
 
         // Pricing logic (matching old portfolio requirements)
@@ -103,6 +103,7 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             metadata: {
                 tier,
                 customer_name: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
+                business_name: businessName || (user ? user.businessName : ''),
                 project_type: projectType,
                 initial_message: message,
                 userId: user ? user._id.toString() : 'guest',
@@ -127,13 +128,26 @@ router.post('/create-portal-session', verifyStripe, async (req, res) => {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required.' });
 
-        const customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
-        if (customers.data.length === 0) {
+        let customerId;
+        const user = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
+        if (user && user.stripeCustomerId) {
+            customerId = user.stripeCustomerId;
+        } else {
+            let customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
+            if (customers.data.length === 0 && email !== email.toLowerCase()) {
+                customers = await stripe.customers.list({ email: email, limit: 1 });
+            }
+            if (customers.data.length > 0) {
+                customerId = customers.data[0].id;
+            }
+        }
+
+        if (!customerId) {
             return res.status(404).json({ error: 'No subscription found with this email.' });
         }
 
         const portalSession = await stripe.billingPortal.sessions.create({
-            customer: customers.data[0].id,
+            customer: customerId,
             return_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/services`,
         });
 
@@ -150,11 +164,25 @@ router.post('/create-portal-session', verifyStripe, async (req, res) => {
 router.get('/subscriptions/:email', verifyStripe, async (req, res) => {
     try {
         const { email } = req.params;
-        const customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
-        if (customers.data.length === 0) return res.json({ subscriptions: {} });
+        
+        let customerId;
+        const user = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
+        if (user && user.stripeCustomerId) {
+            customerId = user.stripeCustomerId;
+        } else {
+            let customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
+            if (customers.data.length === 0 && email !== email.toLowerCase()) {
+                customers = await stripe.customers.list({ email: email, limit: 1 });
+            }
+            if (customers.data.length > 0) {
+                customerId = customers.data[0].id;
+            }
+        }
+
+        if (!customerId) return res.json({ subscriptions: {} });
 
         const subscriptions = await stripe.subscriptions.list({
-            customer: customers.data[0].id,
+            customer: customerId,
             status: 'active',
             expand: ['data.plan.product']
         });

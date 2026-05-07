@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   googleId: { type: String },
   firstName: { type: String },
   lastName: { type: String },
+  businessName: { type: String },
   hasFinalizedProfile: { type: Boolean, default: false },
   hasAcceptedContract: { type: Boolean, default: false },
   contractAcceptedAt: { type: Date },

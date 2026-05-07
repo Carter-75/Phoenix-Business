@@ -50,14 +50,15 @@ module.exports = function(passport) {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
+          const email = profile.emails[0].value.toLowerCase();
           let user = await User.findOne({ googleId: profile.id });
-          if (!user) user = await User.findOne({ email: profile.emails[0].value });
+          if (!user) user = await User.findOne({ email: email });
           
           if (!user) {
             // Return an "unregistered" user object (no _id)
             return done(null, {
               googleId: profile.id,
-              email: profile.emails[0].value,
+              email: email,
               displayName: profile.displayName,
               firstName: profile.name.givenName,
               lastName: profile.name.familyName,

@@ -6,16 +6,18 @@ const User = require('../models/user');
 // @route   POST /auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, acceptedTerms, termsAcceptedVersion } = req.body;
+    const { email, password, firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion } = req.body;
+    const lowerEmail = email.toLowerCase();
     
-    let user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: lowerEmail });
     if (user) return res.status(400).json({ message: 'User already exists' });
 
     user = new User({
-      email: email.toLowerCase(),
+      email: lowerEmail,
       password,
       firstName,
       lastName,
+      businessName,
       hasFinalizedProfile: true,
       hasAcceptedContract: acceptedTerms === true,
       termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
@@ -98,7 +100,7 @@ router.post('/update-profile', async (req, res) => {
 // @route   POST /auth/finalize-onboarding
 router.post('/finalize-onboarding', async (req, res) => {
   try {
-    const { firstName, lastName, acceptedTerms, termsAcceptedVersion } = req.body;
+    const { firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion } = req.body;
     
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: 'Authentication required to finalize profile' });
@@ -113,6 +115,7 @@ router.post('/finalize-onboarding', async (req, res) => {
         googleId,
         firstName,
         lastName,
+        businessName,
         hasFinalizedProfile: true,
         hasAcceptedContract: acceptedTerms,
         termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
@@ -124,6 +127,7 @@ router.post('/finalize-onboarding', async (req, res) => {
       if (!user) return res.status(404).json({ message: 'User not found' });
       user.firstName = firstName;
       user.lastName = lastName;
+      user.businessName = businessName;
       user.hasFinalizedProfile = true;
       user.hasAcceptedContract = acceptedTerms;
       if (acceptedTerms) {

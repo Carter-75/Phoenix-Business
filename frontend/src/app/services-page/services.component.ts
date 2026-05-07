@@ -59,6 +59,7 @@ export class ServicesComponent implements OnInit {
   // New Form State (Regular properties for [(ngModel)] binding)
   firstName = '';
   lastName = '';
+  businessName = '';
   userEmail = '';
   userPassword = ''; // Added for email login in modal
   acceptedTerms = false;
@@ -74,9 +75,10 @@ export class ServicesComponent implements OnInit {
 
   isFormValid() {
     const isNameValid = this.firstName.length > 0 && this.lastName.length > 0;
+    const isBusinessValid = this.businessName.length > 0;
     const isEmailValid = this.api.currentUser() || (this.userEmail.includes('@') && this.userEmail.length > 5);
     const policiesAccepted = this.acceptedTerms;
-    return isNameValid && isEmailValid && policiesAccepted;
+    return isNameValid && isBusinessValid && isEmailValid && policiesAccepted;
   }
 
   readonly tiers: ServiceTier[] = [
@@ -154,10 +156,11 @@ export class ServicesComponent implements OnInit {
             // If logged in, go to onboarding. If not, go to auth.
             this.modalStep.set(user ? 'onboarding' : 'auth');
             
-            // Pre-fill names if user exists
+            // Pre-fill fields if user exists
             if (user) {
               this.firstName = user.firstName || '';
               this.lastName = user.lastName || '';
+              this.businessName = user.businessName || '';
             }
           }
         }
@@ -170,6 +173,7 @@ export class ServicesComponent implements OnInit {
             this.modalStep.set('onboarding');
             this.firstName = user.firstName || '';
             this.lastName = user.lastName || '';
+            this.businessName = user.businessName || '';
           } else {
             this.router.navigate(['/home']);
           }
@@ -238,6 +242,7 @@ export class ServicesComponent implements OnInit {
     if (user) {
       this.firstName = user.firstName || '';
       this.lastName = user.lastName || '';
+      this.businessName = user.businessName || '';
       this.modalStep.set('onboarding');
     } else {
       this.modalStep.set('auth');
@@ -259,6 +264,7 @@ export class ServicesComponent implements OnInit {
     const payload = {
       firstName: this.firstName,
       lastName: this.lastName,
+      businessName: this.businessName,
       acceptedTerms: this.acceptedTerms,
       termsAcceptedVersion: this.TERMS_VERSION_TEXT,
       email: this.userEmail,
@@ -316,6 +322,7 @@ export class ServicesComponent implements OnInit {
       tier: tier.id,
       email: user?.email || this.userEmail,
       name: `${finalFirstName} ${finalLastName}`.trim(),
+      businessName: user?.businessName || this.businessName,
       acceptedContract: true,
       contractTimestamp: new Date().toISOString(),
       projectType: tier.title
