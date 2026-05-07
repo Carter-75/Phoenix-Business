@@ -9,7 +9,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
   imports: [CommonModule, RouterLink, ScrollRevealDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen bg-[#050505] text-white/90 pt-32 pb-20 px-8 sm:px-16 overflow-hidden">
+    <div class="min-h-screen bg-slate-950 text-white/90 pt-32 pb-20 px-8 sm:px-16 overflow-hidden">
       <div class="max-w-[1000px] mx-auto relative">
         <!-- Background Glow -->
         <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div>

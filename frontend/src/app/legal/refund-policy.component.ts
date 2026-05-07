@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-refunds',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ScrollRevealDirective],
   template: `
     <section class="min-h-screen pt-48 pb-24 px-6 bg-slate-950 relative overflow-hidden">
       <div class="blur-glow w-[500px] h-[500px] bg-red-600/5 bottom-[-10%] left-[-10%]"></div>
       
       <div class="max-w-4xl mx-auto relative z-10">
-        <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-12">Refund <span class="text-red-500">Policy</span></h1>
+        <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-12" appScrollReveal>Refund <span class="text-red-500">Policy</span></h1>
         
-        <div class="space-y-12 text-slate-400 font-medium leading-relaxed">
+        <div class="space-y-12 text-slate-400 font-medium leading-relaxed" appScrollReveal>
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. General Policy</h2>
             <p>Due to the immediate reservation of edge-network capacity and development time, <strong>we maintain a strict no-refund policy.</strong></p>

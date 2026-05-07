@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-terms',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ScrollRevealDirective],
   template: `
     <section class="min-h-screen pt-48 pb-24 px-6 bg-slate-950 relative overflow-hidden">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%]"></div>
       
       <div class="max-w-4xl mx-auto relative z-10">
-        <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-12">Terms of <span class="text-orange-500">Service</span></h1>
+        <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-12" appScrollReveal>Terms of <span class="text-orange-500">Service</span></h1>
         
-        <div class="space-y-12 text-slate-400 font-medium leading-relaxed">
+        <div class="space-y-12 text-slate-400 font-medium leading-relaxed" appScrollReveal>
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. The Agreement</h2>
             <p>By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement.</p>
