@@ -224,6 +224,34 @@ router.post('/webhook', async (req, res) => {
         const session = event.data.object;
         const { userId, tier, acceptedContract, contractTimestamp } = session.metadata;
 
+        // Automate 12-month subscription schedule if a subscription exists
+        if (session.subscription) {
+            try {
+                const schedule = await stripe.subscriptionSchedules.create({
+                    from_subscription: session.subscription,
+                });
+
+                const subscription = await stripe.subscriptions.retrieve(session.subscription);
+                
+                const items = subscription.items.data.map(item => ({
+                    price: item.price.id,
+                    quantity: item.quantity
+                }));
+
+                await stripe.subscriptionSchedules.update(schedule.id, {
+                    end_behavior: 'release',
+                    phases: [
+                        {
+                            items: items,
+                            iterations: 12,
+                        }
+                    ]
+                });
+            } catch (err) {
+                console.error('Failed to create subscription schedule:', err.message);
+            }
+        }
+
         if (acceptedContract === 'true' && userId !== 'guest' && tier !== 'simple') {
             const user = await User.findById(userId);
             if (user) {
