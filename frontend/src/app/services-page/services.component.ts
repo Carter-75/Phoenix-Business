@@ -62,8 +62,8 @@ export class ServicesComponent implements OnInit {
   userEmail = '';
   userPassword = ''; // Added for email login in modal
   acceptedTerms = false;
-  acceptedPrivacy = false;
-  acceptedRefunds = false;
+  
+  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that while Tier 1 is a one-time project, Subscription Tiers (Tiers 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms.";
   
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
@@ -75,7 +75,7 @@ export class ServicesComponent implements OnInit {
   isFormValid() {
     const isNameValid = this.firstName.length > 0 && this.lastName.length > 0;
     const isEmailValid = this.api.currentUser() || (this.userEmail.includes('@') && this.userEmail.length > 5);
-    const policiesAccepted = this.acceptedTerms && this.acceptedPrivacy && this.acceptedRefunds;
+    const policiesAccepted = this.acceptedTerms;
     return isNameValid && isEmailValid && policiesAccepted;
   }
 
@@ -260,8 +260,7 @@ export class ServicesComponent implements OnInit {
       firstName: this.firstName,
       lastName: this.lastName,
       acceptedTerms: this.acceptedTerms,
-      acceptedPrivacy: this.acceptedPrivacy,
-      acceptedRefunds: this.acceptedRefunds,
+      termsAcceptedVersion: this.TERMS_VERSION_TEXT,
       email: this.userEmail,
       password: this.userPassword // Only used if isNewUser
     };

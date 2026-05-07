@@ -125,17 +125,9 @@
               
               <label class="flex items-start gap-4 cursor-pointer group">
                 <input type="checkbox" [(ngModel)]="acceptedTerms" class="mt-1 accent-orange-600">
-                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I agree to the <a routerLink="/terms" target="_blank" class="text-orange-600 underline">Terms of Service</a> and the 12-month commitment.</span>
-              </label>
-
-              <label class="flex items-start gap-4 cursor-pointer group">
-                <input type="checkbox" [(ngModel)]="acceptedPrivacy" class="mt-1 accent-orange-600">
-                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I acknowledge the <a routerLink="/privacy" target="_blank" class="text-orange-600 underline">Privacy Policy</a> regarding my data.</span>
-              </label>
-
-              <label class="flex items-start gap-4 cursor-pointer group">
-                <input type="checkbox" [(ngModel)]="acceptedRefunds" class="mt-1 accent-orange-600">
-                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I have read the <a routerLink="/refunds" target="_blank" class="text-orange-600 underline">Refund Policy</a>.</span>
+                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors leading-relaxed">
+                  I agree to the <a routerLink="/terms" target="_blank" class="text-orange-600 underline">Terms of Service</a>, <a routerLink="/privacy" target="_blank" class="text-orange-600 underline">Privacy Policy</a>, and <a routerLink="/refunds" target="_blank" class="text-orange-600 underline">Refund Policy</a>. I acknowledge that while Tier 1 is a one-time project, Subscription Tiers (Tiers 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms.
+                </span>
               </label>
             </div>
 

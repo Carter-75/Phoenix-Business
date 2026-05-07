@@ -15,28 +15,17 @@ import { RouterLink } from '@angular/router';
         <div class="space-y-12 text-slate-400 font-medium leading-relaxed">
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. General Policy</h2>
-            <p>At Phoenix, we provide specialized digital infrastructure and high-performance architectural services. Due to the high-resource intensity of our initial setup and the dedicated reservation of edge-network capacity, <strong>we maintain a strict no-refund policy.</strong></p>
+            <p>Due to the immediate reservation of edge-network capacity and development time, <strong>we maintain a strict no-refund policy.</strong></p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">2. Why we don't refund</h2>
-            <p>When you subscribe to a Phoenix tier, our engineering team immediately begins the following non-recoverable operations:</p>
-            <ul class="list-disc ml-6 space-y-2">
-              <li>Allocation of high-priority edge-network slots.</li>
-              <li>Provisioning of isolated LLM data pipelines.</li>
-              <li>Bespoke architectural configuration and deployment scripts.</li>
-              <li>Strategic reservation of development time for your account.</li>
-            </ul>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">2. Setup Fees</h2>
+            <p>All initial setup and startup fees are non-refundable.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Trial Periods</h2>
-            <p>Certain promotional tiers may offer a 30-day "Limited Trial." During this period, you may cancel your subscription to prevent future charges, but any initial setup fees remain non-refundable.</p>
-          </div>
-
-          <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">4. Cancellation vs. Refund</h2>
-            <p>You may cancel your auto-renewal at any time via the client portal. Cancellation stops future charges but does not entitle the client to a refund of past payments or the current billing cycle.</p>
+            <p>If a 30-day "Subscription Trial" is offered, you may cancel to prevent future charges, but the initial setup fees remain non-refundable.</p>
           </div>
         </div>
 

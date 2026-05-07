@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
   hasFinalizedProfile: { type: Boolean, default: false },
   hasAcceptedContract: { type: Boolean, default: false },
   contractAcceptedAt: { type: Date },
+  termsAcceptedAt: { type: Date },
+  termsAcceptedVersion: { type: String },
   stripeCustomerId: { type: String },
   subscriptionStatus: { type: String, default: 'none' },
   createdAt: { type: Date, default: Date.now }

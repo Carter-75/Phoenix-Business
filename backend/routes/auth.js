@@ -6,7 +6,7 @@ const User = require('../models/user');
 // @route   POST /auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, acceptedTerms } = req.body;
+    const { email, password, firstName, lastName, acceptedTerms, termsAcceptedVersion } = req.body;
     
     let user = await User.findOne({ email: email.toLowerCase() });
     if (user) return res.status(400).json({ message: 'User already exists' });
@@ -17,7 +17,9 @@ router.post('/register', async (req, res) => {
       firstName,
       lastName,
       hasFinalizedProfile: true,
-      hasAcceptedContract: acceptedTerms === true
+      hasAcceptedContract: acceptedTerms === true,
+      termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
+      termsAcceptedAt: acceptedTerms ? new Date() : undefined
     });
 
     await user.save();
@@ -96,7 +98,7 @@ router.post('/update-profile', async (req, res) => {
 // @route   POST /auth/finalize-onboarding
 router.post('/finalize-onboarding', async (req, res) => {
   try {
-    const { firstName, lastName, acceptedTerms, acceptedPrivacy, acceptedRefunds } = req.body;
+    const { firstName, lastName, acceptedTerms, termsAcceptedVersion } = req.body;
     
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: 'Authentication required to finalize profile' });
@@ -112,7 +114,9 @@ router.post('/finalize-onboarding', async (req, res) => {
         firstName,
         lastName,
         hasFinalizedProfile: true,
-        hasAcceptedContract: acceptedTerms // Use terms as proxy for contract acceptance
+        hasAcceptedContract: acceptedTerms,
+        termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
+        termsAcceptedAt: acceptedTerms ? new Date() : undefined
       });
     } else {
       // Update EXISTING user
@@ -122,6 +126,10 @@ router.post('/finalize-onboarding', async (req, res) => {
       user.lastName = lastName;
       user.hasFinalizedProfile = true;
       user.hasAcceptedContract = acceptedTerms;
+      if (acceptedTerms) {
+        user.termsAcceptedVersion = termsAcceptedVersion;
+        user.termsAcceptedAt = new Date();
+      }
     }
 
     await user.save();
