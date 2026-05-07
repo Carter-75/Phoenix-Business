@@ -74,7 +74,12 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">11. Governing Law</h2>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">11. Communications & Deliverability</h2>
+            <p>It is the client's responsibility to maintain a valid, active email address on file and to whitelist communications from our domain. Any legal or administrative notice (including, but not limited to, renewal notices and invoices) that is successfully dispatched from our servers is considered formally and legally delivered, regardless of whether it is filtered into a spam/junk folder or blocked by your email provider. We are not liable for any consequences arising from your failure to receive emails due to your personal inbox settings or third-party email filtering.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">12. Governing Law</h2>
             <p>This agreement is governed by the laws of the State of Wisconsin.</p>
           </div>
         </div>
