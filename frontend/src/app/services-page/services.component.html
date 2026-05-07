@@ -27,9 +27,12 @@
         </div>
 
         <h3 class="fluid-h3 mb-4">{{tier.title}}</h3>
-        <div class="flex items-baseline gap-2 mb-12">
-          <span class="text-4xl font-black">${{tier.cost}}</span>
-          <span class="text-[10px] font-black uppercase tracking-widest text-white/30">/ {{tier.id === 'simple' ? 'Project' : 'Month'}}</span>
+        <div class="mb-12 flex flex-col">
+          <div class="flex items-baseline gap-2">
+            <span class="text-4xl font-black">${{tier.cost}}</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-white/30">/ {{tier.id === 'simple' ? 'Project' : 'Month'}}</span>
+          </div>
+          <span *ngIf="tier.setup" class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-2">+ ${{tier.setup}} SETUP FEE</span>
         </div>
 
         <div class="space-y-4 mb-16 h-40 overflow-hidden">
