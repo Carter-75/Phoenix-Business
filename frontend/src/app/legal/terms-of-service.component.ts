@@ -96,7 +96,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             </a>
           </div>
           <div class="text-white/30 text-[10px] font-black uppercase tracking-widest">
-            Last Updated: May 1, 2026 • Phoenix Digital Infrastructure
+            Last Updated: May 7, 2026 • Phoenix Digital Infrastructure
           </div>
         </footer>
       </div>

@@ -22,7 +22,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           <h1 class="fluid-huge font-black uppercase tracking-tighter leading-[0.9]">
             Privacy<br><span class="text-white/20">Policy</span>
           </h1>
-          <p class="mt-8 text-white/50 font-medium tracking-wide">Last Updated: May 1, 2026</p>
+          <p class="mt-8 text-white/50 font-medium tracking-wide">Last Updated: May 7, 2026</p>
         </header>
 
         <main class="space-y-16 relative z-10" appScrollReveal>

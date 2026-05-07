@@ -261,12 +261,16 @@ router.post('/webhook', async (req, res) => {
                 user.subscriptionStatus = tier;
                 await user.save();
 
+                const legalService = require('../services/legal.service');
+                const pdfBuffer = await legalService.generateMergedLegalPDF();
+
                 const newContract = new Contract({
                     userId: user._id,
                     contractType: `Yearly Service Agreement - ${tier}`,
                     acceptedAt: new Date(contractTimestamp),
                     status: 'active',
-                    expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+                    expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                    pdfSnapshot: pdfBuffer
                 });
                 await newContract.save();
             }
@@ -305,10 +309,14 @@ router.post('/webhook', async (req, res) => {
                         phases: [{ items: items, iterations: 12 }]
                     });
 
-                    // Extend the contract in DB by 1 year
+                    // Extend the contract in DB by 1 year and update PDF snapshot
                     const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
                     if (contract && contract.expiresAt) {
+                        const legalService = require('../services/legal.service');
+                        const pdfBuffer = await legalService.generateMergedLegalPDF();
+                        
                         contract.expiresAt = new Date(new Date(contract.expiresAt).setFullYear(new Date(contract.expiresAt).getFullYear() + 1));
+                        contract.pdfSnapshot = pdfBuffer;
                         await contract.save();
                     }
 

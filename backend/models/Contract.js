@@ -7,6 +7,7 @@ const contractSchema = new mongoose.Schema({
   ipAddress: { type: String },
   userAgent: { type: String },
   termsSnapshot: { type: String }, // Stores the exact terms text at time of signing
+  pdfSnapshot: { type: Buffer },   // Stores the binary PDF data
   status: { type: String, enum: ['active', 'breached', 'cancelled', 'expired'], default: 'active' },
   expiresAt: { type: Date }
 });
