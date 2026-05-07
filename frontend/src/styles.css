@@ -5,8 +5,10 @@
 @layer base {
   :root {
     --bg-deep: #020205;
-    --accent-gold: #D4AF37;
-    --accent-gold-glow: rgba(212, 175, 55, 0.2);
+    --accent-fire: #ff4d00;
+    --accent-fire-glow: rgba(255, 77, 0, 0.2);
+    --accent-gold: #ffcc00;
+    --accent-gold-glow: rgba(255, 204, 0, 0.2);
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.5);
     --glass-surface: rgba(255, 255, 255, 0.02);
@@ -17,7 +19,7 @@
   }
 
   body {
-    @apply bg-[#020205] text-white font-['Inter'] m-0 antialiased overflow-x-hidden selection:bg-[#D4AF37]/30;
+    @apply bg-[#020205] text-white font-['Inter'] m-0 antialiased overflow-x-hidden selection:bg-orange-600/30;
   }
 
   h1, h2, h3, h4 {
@@ -52,7 +54,7 @@
   }
 
   .premium-btn:hover {
-    @apply bg-[#D4AF37] text-white;
+    @apply bg-orange-600 text-white;
   }
 
   .nav-link {
@@ -61,7 +63,7 @@
 
   .nav-link::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-0 h-[1px] bg-[#D4AF37] transition-all duration-500;
+    @apply absolute bottom-0 left-0 w-0 h-[1px] bg-orange-600 transition-all duration-500;
   }
 
   .nav-link:hover::after {
@@ -85,5 +87,28 @@
 
 .glow-orb {
   @apply absolute rounded-full blur-[150px] opacity-20 pointer-events-none -z-10;
-  background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-fire) 0%, transparent 70%);
+  animation: flicker 4s infinite alternate;
+}
+
+/* Styled Angled Fire */
+.fire-container {
+  @apply fixed inset-0 -z-40 pointer-events-none opacity-20 overflow-hidden;
+}
+
+.fire-bar {
+  @apply absolute w-[2px] h-[300%] bg-gradient-to-t from-transparent via-orange-600 to-transparent;
+  transform: rotate(35deg) translateY(-50%);
+  filter: blur(1px);
+  animation: fireRise 10s linear infinite;
+}
+
+@keyframes fireRise {
+  from { transform: rotate(35deg) translateY(0%); }
+  to { transform: rotate(35deg) translateY(-100%); }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.15; filter: blur(150px); }
+  50% { opacity: 0.25; filter: blur(170px); }
 }

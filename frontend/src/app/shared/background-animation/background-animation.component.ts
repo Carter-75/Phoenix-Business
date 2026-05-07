@@ -71,19 +71,34 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
       positions[i+1] = (Math.random() - 0.5) * 20;
       positions[i+2] = (Math.random() - 0.5) * 20;
       
-      colors[i] = Math.random();
-      colors[i+1] = Math.random() * 0.5 + 0.5; // More blueish/white
-      colors[i+2] = 1;
+      // Fire colors: Red, Orange, Gold
+      const r = Math.random();
+      if (r > 0.8) {
+        // Gold
+        colors[i] = 1.0;
+        colors[i+1] = 0.8;
+        colors[i+2] = 0.2;
+      } else if (r > 0.4) {
+        // Orange
+        colors[i] = 1.0;
+        colors[i+1] = 0.4;
+        colors[i+2] = 0.0;
+      } else {
+        // Deep Red
+        colors[i] = 0.8;
+        colors[i+1] = 0.1;
+        colors[i+2] = 0.0;
+      }
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.015,
+      size: 0.025,
       vertexColors: true,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending
     });
 
@@ -94,8 +109,23 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private animate() {
     this.ngZone.runOutsideAngular(() => {
       const render = () => {
-        this.particles.rotation.y += 0.0003;
-        this.particles.rotation.x += 0.0001;
+        // Angled movement: Up and to the right
+        const positions = this.particles.geometry.attributes['position'].array as Float32Array;
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i] += 0.005; // Move Right
+          positions[i+1] += 0.01; // Move Up
+          
+          if (positions[i+1] > 10) {
+            positions[i+1] = -10;
+            positions[i] = (Math.random() - 0.5) * 20;
+          }
+          if (positions[i] > 10) {
+            positions[i] = -10;
+          }
+        }
+        this.particles.geometry.attributes['position'].needsUpdate = true;
+
+        this.particles.rotation.y += 0.0001;
         
         this.renderer.render(this.scene, this.camera);
         this.animationId = requestAnimationFrame(render);

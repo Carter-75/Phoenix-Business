@@ -2,8 +2,8 @@
   <div class="max-w-[1400px] mx-auto px-8 sm:px-16">
     <header class="mb-32 max-w-4xl" appScrollReveal>
       <div class="flex items-center gap-4 mb-8">
-        <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-        <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Our Services</span>
+        <div class="w-12 h-[1px] bg-orange-600"></div>
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-xs">Our Services</span>
       </div>
       <h1 class="fluid-h1 font-black mb-12">
         WEBSITES &<br>
@@ -23,7 +23,7 @@
         
         <div class="flex justify-between items-start mb-16">
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Tier {{i + 1}}</span>
-          <span *ngIf="tier.featured" class="px-4 py-1 bg-[#D4AF37] text-black text-[8px] font-black uppercase tracking-[0.2em]">Featured</span>
+          <span *ngIf="tier.featured" class="px-4 py-1 bg-orange-600 text-white text-[8px] font-black uppercase tracking-[0.2em]">Featured</span>
         </div>
 
         <h3 class="fluid-h3 mb-4">{{tier.title}}</h3>
@@ -38,13 +38,13 @@
 
         <ul class="space-y-6 mb-20 border-t border-white/5 pt-12">
           <li *ngFor="let feature of tier.features" class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-white/60">
-            <div class="w-1 h-1 bg-[#D4AF37] rounded-full"></div>
+            <div class="w-1 h-1 bg-orange-600 rounded-full"></div>
             {{feature}}
           </li>
         </ul>
 
         <button (click)="openContract(tier)" 
-                class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-[#D4AF37] group-hover:text-white">
+                class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
           Get Started
         </button>
       </div>
@@ -53,7 +53,7 @@
     <!-- Contract & Onboarding Modal -->
     <div *ngIf="showContract()" class="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
       <div class="absolute inset-0 bg-[#020205]/95 backdrop-blur-3xl" (click)="closeContract()"></div>
-      <div class="glass-card !bg-[#050505] max-w-[800px] w-full z-10 p-12 sm:p-24 border-[#D4AF37]/20 relative">
+      <div class="glass-card !bg-[#050505] max-w-[800px] w-full z-10 p-12 sm:p-24 border-orange-600/20 relative">
         
         <button (click)="closeContract()" class="absolute top-8 right-8 text-white/20 hover:text-white transition-all">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -63,7 +63,7 @@
           <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">
             {{modalStep() === 'auth' ? 'Identity Verification' : 'Finalize Agreement'}}
           </h2>
-          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37]">
+          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600">
             {{modalStep() === 'auth' ? 'Step 1: Authenticate' : 'Step 2: Onboarding — ' + selectedTier()?.title}}
           </p>
         </header>
@@ -72,7 +72,7 @@
           <!-- STEP 1: AUTHENTICATION -->
           <div *ngIf="modalStep() === 'auth'" class="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <button (click)="loginWithGoogle()" 
-                    class="w-full h-[66px] flex items-center justify-center gap-4 border border-white/10 hover:bg-[#D4AF37] hover:text-white hover:border-[#D4AF37] text-white text-[10px] font-black uppercase tracking-widest transition-all">
+                    class="w-full h-[66px] flex items-center justify-center gap-4 border border-white/10 hover:bg-orange-600 hover:text-white hover:border-orange-600 text-white text-[10px] font-black uppercase tracking-widest transition-all">
               <img src="https://www.google.com/favicon.ico" class="w-4 h-4" alt="Google">
               Verify with Google
             </button>
@@ -81,7 +81,7 @@
               <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">
                 Signed in as <span class="text-white">{{api.currentUser().email}}</span>
               </p>
-              <button (click)="api.logout(); closeContract()" class="text-[9px] font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:underline">
+              <button (click)="api.logout(); closeContract()" class="text-[9px] font-black uppercase tracking-[0.2em] text-orange-600 hover:underline">
                 Sign Out
               </button>
             </div>
@@ -94,9 +94,9 @@
             <div class="space-y-6">
               <div class="grid gap-4">
                 <input [(ngModel)]="userEmail" type="email" placeholder="EMAIL@BUSINESS.COM"
-                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-[#D4AF37] transition-all">
+                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
                 <input [(ngModel)]="userPassword" type="password" placeholder="PASSWORD"
-                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-[#D4AF37] transition-all">
+                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
               </div>
               
               <p *ngIf="authError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{{authError()}}</p>
@@ -111,12 +111,12 @@
               <div class="space-y-2">
                 <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">First Name</label>
                 <input [(ngModel)]="firstName" type="text" placeholder="ALEX"
-                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-[#D4AF37] transition-all">
+                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-red-600 transition-all">
               </div>
               <div class="space-y-2">
                 <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Last Name</label>
                 <input [(ngModel)]="lastName" type="text" placeholder="RIVERA"
-                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-[#D4AF37] transition-all">
+                       class="w-full bg-white/[0.02] border border-white/10 px-8 py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-red-600 transition-all">
               </div>
             </div>
 
@@ -124,18 +124,18 @@
               <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-6">Security & Policies</p>
               
               <label class="flex items-start gap-4 cursor-pointer group">
-                <input type="checkbox" [(ngModel)]="acceptedTerms" class="mt-1 accent-[#D4AF37]">
-                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I agree to the <a routerLink="/terms" target="_blank" class="text-[#D4AF37] underline">Terms of Service</a> and the 12-month commitment.</span>
+                <input type="checkbox" [(ngModel)]="acceptedTerms" class="mt-1 accent-orange-600">
+                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I agree to the <a routerLink="/terms" target="_blank" class="text-orange-600 underline">Terms of Service</a> and the 12-month commitment.</span>
               </label>
 
               <label class="flex items-start gap-4 cursor-pointer group">
-                <input type="checkbox" [(ngModel)]="acceptedPrivacy" class="mt-1 accent-[#D4AF37]">
-                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I acknowledge the <a routerLink="/privacy" target="_blank" class="text-[#D4AF37] underline">Privacy Policy</a> regarding my data.</span>
+                <input type="checkbox" [(ngModel)]="acceptedPrivacy" class="mt-1 accent-orange-600">
+                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I acknowledge the <a routerLink="/privacy" target="_blank" class="text-orange-600 underline">Privacy Policy</a> regarding my data.</span>
               </label>
 
               <label class="flex items-start gap-4 cursor-pointer group">
-                <input type="checkbox" [(ngModel)]="acceptedRefunds" class="mt-1 accent-[#D4AF37]">
-                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I have read the <a routerLink="/refunds" target="_blank" class="text-[#D4AF37] underline">Refund Policy</a>.</span>
+                <input type="checkbox" [(ngModel)]="acceptedRefunds" class="mt-1 accent-orange-600">
+                <span class="text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">I have read the <a routerLink="/refunds" target="_blank" class="text-orange-600 underline">Refund Policy</a>.</span>
               </label>
             </div>
 
@@ -160,9 +160,9 @@
       
       <div class="flex max-w-md mx-auto gap-4">
         <input type="email" #portalEmail placeholder="EMAIL ADDRESS" 
-               class="flex-1 bg-white/[0.02] border border-white/[0.05] px-8 py-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-[#D4AF37] transition-all">
+               class="flex-1 bg-white/[0.02] border border-white/[0.05] px-8 py-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
         <button (click)="onManageSubscription(portalEmail.value)" class="premium-btn !px-8">Access</button>
       </div>
     </div>
   </div>
-</div>
+</div>v>

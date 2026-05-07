@@ -6,8 +6,8 @@
     <div class="max-w-[1400px] mx-auto w-full">
       <header class="mb-12">
         <div class="flex items-center gap-4 mb-8 hero-reveal">
-          <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-          <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Modern Web Design</span>
+          <div class="w-12 h-[1px] bg-orange-600"></div>
+          <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-xs">Modern Web Design</span>
         </div>
         <h1 class="fluid-h1 font-black hero-reveal">
           PHOENIX<br>
@@ -22,13 +22,13 @@
           </p>
           <div class="flex flex-wrap gap-8">
             <button routerLink="/services" class="premium-btn">See Pricing</button>
-            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-[#D4AF37] transition-all border-b border-white/10">Get in Touch</button>
+            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-orange-600 transition-all border-b border-white/10">Get in Touch</button>
           </div>
         </div>
 
         <div class="hidden lg:flex justify-end hero-reveal">
           <div class="text-right">
-            <div class="text-xs font-black uppercase tracking-[0.5em] text-[#D4AF37]/50">Based in Wisconsin</div>
+            <div class="text-xs font-black uppercase tracking-[0.5em] text-orange-600/50">Based in Wisconsin</div>
           </div>
         </div>
       </div>
@@ -40,17 +40,17 @@
     <div class="max-w-[1400px] mx-auto">
       <div class="grid md:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05]">
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">01 / Logic</span>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">01 / Logic</span>
           <h3 class="fluid-h3 mb-6">Smart<br>Systems</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">Automated tools and lead generation that work for you 24/7.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">02 / Design</span>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">02 / Design</span>
           <h3 class="fluid-h3 mb-6">Modern<br>Aesthetics</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">Websites that look professional and help your brand stand out.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-8 block">03 / Tech</span>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">03 / Tech</span>
           <h3 class="fluid-h3 mb-6">Reliable<br>Builds</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">Safe, fast, and secure websites designed to grow with your business.</p>
         </div>
@@ -62,18 +62,18 @@
   <section class="section-padding bg-white/[0.01]">
     <div class="max-w-[1400px] mx-auto">
       <div class="mb-24" appScrollReveal>
-        <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Our Portfolio</span>
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Our Portfolio</span>
         <h2 class="fluid-h2">SELECTED<br><span class="text-white/20">WORKS</span></h2>
       </div>
 
       <div class="space-y-12">
         <div *ngFor="let client of clients; let i = index" 
-             class="glass-card !p-0 overflow-hidden group border-white/5 hover:border-[#D4AF37]/30 transition-all duration-700"
+             class="glass-card !p-0 overflow-hidden group border-white/5 hover:border-orange-600/30 transition-all duration-700"
              appScrollReveal [delay]="i * 0.1" [y]="60">
           
           <div class="grid lg:grid-cols-2">
             <div class="p-12 sm:p-20 flex flex-col justify-center">
-              <span class="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.3em] mb-4">{{ client.type }}</span>
+              <span class="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] mb-4">{{ client.type }}</span>
               <h3 class="fluid-h3 mb-6">{{ client.name }}</h3>
               <p class="text-white/40 text-sm leading-relaxed mb-6 max-w-md">{{ client.desc }}</p>
             </div>
@@ -92,7 +92,7 @@
   <section class="section-padding border-t border-white/5 relative">
     <div class="max-w-[1400px] mx-auto">
       <div class="mb-24 text-center" appScrollReveal>
-         <h2 class="fluid-h3 uppercase tracking-widest">What Our <span class="text-[#D4AF37]">Partners</span> Say</h2>
+         <h2 class="fluid-h3 uppercase tracking-widest">What Our <span class="text-orange-600">Partners</span> Say</h2>
       </div>
       <div class="grid lg:grid-cols-2 gap-12">
         <div *ngFor="let t of testimonials; let i = index" 
@@ -102,20 +102,20 @@
             <div class="flex gap-2 mb-8">
                <i *ngFor="let s of [1,2,3,4,5]" 
                   class="fas fa-star text-[10px]"
-                  [class.text-[#D4AF37]]="s <= t.stars"
-                  [class.text-[#D4AF37]/20]="s > t.stars"></i>
+                  [class.text-orange-600]="s <= t.stars"
+                  [class.text-orange-600/20]="s > t.stars"></i>
             </div>
             <p class="text-lg sm:text-xl text-white/80 leading-relaxed font-medium relative z-10">
               "{{t.text}}"
             </p>
           </div>
           <div class="flex items-center gap-6 pt-12 border-t border-white/5">
-            <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-[#D4AF37]">
+            <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-orange-600">
               {{t.author.charAt(0)}}
             </div>
             <div>
               <p class="text-xs font-black uppercase tracking-widest text-white">{{t.author}}</p>
-              <p class="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/60 mt-1">{{t.role}}</p>
+              <p class="text-[9px] font-black uppercase tracking-[0.3em] text-orange-600/60 mt-1">{{t.role}}</p>
             </div>
           </div>
         </div>
@@ -126,7 +126,7 @@
 
   <!-- Lead Capture Section -->
   <section class="section-padding relative" id="audit">
-    <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#D4AF37]/5"></div>
+    <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-orange-600/5"></div>
     <div class="max-w-[1000px] mx-auto text-center">
       <div class="mb-20" appScrollReveal>
         <h2 class="fluid-h2 mb-8">Ready to <span class="text-white/20">Start?</span></h2>
@@ -138,17 +138,17 @@
           <div class="space-y-2">
             <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Your Name</label>
             <input name="name" type="text" placeholder="John Doe" required 
-                   class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-[#D4AF37] outline-none transition-all">
+                   class="w-full bg-white/[0.02] border border-white/0.05 px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
           <div class="space-y-2">
             <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Email Address</label>
             <input name="email" type="email" placeholder="john@email.com" required 
-                   class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-[#D4AF37] outline-none transition-all">
+                   class="w-full bg-white/[0.02] border border-white/0.05 px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
           <div class="sm:col-span-2 space-y-2">
             <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Project Details</label>
             <textarea name="requirements" placeholder="Tell us about your project..." rows="4"
-                      class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-medium focus:border-[#D4AF37] outline-none transition-all resize-none"></textarea>
+                      class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-medium focus:border-orange-600 outline-none transition-all resize-none"></textarea>
           </div>
           <div class="sm:col-span-2 mt-8">
             <button type="submit" [disabled]="submitting()" 
@@ -159,7 +159,7 @@
           </div>
         </form>
         
-        <p *ngIf="success()" class="mt-8 text-[#D4AF37] text-xs font-black uppercase tracking-[0.4em] animate-bounce">
+        <p *ngIf="success()" class="mt-8 text-orange-600 text-xs font-black uppercase tracking-[0.4em] animate-bounce">
           Message Sent. We will get back to you soon.
         </p>
       </div>
