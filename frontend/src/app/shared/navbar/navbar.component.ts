@@ -26,11 +26,8 @@ import { ApiService } from '../../services/api.service';
 
         <!-- Auth Action -->
         <div class="flex items-center gap-8">
-          <a *ngIf="!api.currentUser()" routerLink="/login" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
+          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
             Login
-          </a>
-          <a *ngIf="api.currentUser()" routerLink="/dashboard" class="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] hover:text-white transition-all">
-            Dashboard
           </a>
           <button *ngIf="api.currentUser()" (click)="api.logout()" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/10 hover:text-red-500 transition-all">
             Logout

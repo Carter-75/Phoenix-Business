@@ -58,16 +58,11 @@ router.get('/google', (req, res, next) => {
 
 // @route   GET /auth/google/callback
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: '/services' }),
   (req, res) => {
     const returnUrl = req.query.state || '/dashboard';
     
-    // Check if user is pending registration
-    if (req.user && req.user.isPending) {
-      return res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/complete-profile`);
-    }
-    
-    // Successful authentication, redirect to returnUrl or dashboard
+    // Successful authentication or pending registration, redirect to returnUrl
     res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}${returnUrl}`);
   }
 );

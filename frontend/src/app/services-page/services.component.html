@@ -64,7 +64,7 @@
             {{modalStep() === 'auth' ? 'Identity Verification' : 'Finalize Agreement'}}
           </h2>
           <p class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600">
-            {{modalStep() === 'auth' ? 'Step 1: Authenticate' : 'Step 2: Onboarding — ' + selectedTier()?.title}}
+            {{modalStep() === 'auth' ? 'Step 1: Authenticate' : 'Step 2: Onboarding' + (selectedTier() ? ' — ' + selectedTier()!.title : '')}}
           </p>
         </header>
 

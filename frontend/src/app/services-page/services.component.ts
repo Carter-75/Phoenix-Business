@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { SeoService } from '../services/seo.service';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { environment } from '../../environments/environment';
 import { ApiService } from '../services/api.service';
@@ -35,6 +35,8 @@ export class ServicesComponent implements OnInit {
   private doc = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   private http = inject(HttpClient);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   public api = inject(ApiService);
 
   readonly stripePublishableKey = environment.stripePublishableKey;
@@ -118,9 +120,22 @@ export class ServicesComponent implements OnInit {
       this.loadSubscriptions(savedEmail);
     }
 
+    // Handle route query params for generic login
+    this.route.queryParams.subscribe(params => {
+      if (params['login'] === 'true' && !this.api.currentUser()) {
+        this.selectedTier.set(null);
+        this.showContract.set(true);
+        this.modalStep.set('auth');
+        // Clean up the URL so it doesn't reopen on refresh
+        this.router.navigate([], { replaceUrl: true, queryParams: { login: null }, queryParamsHandling: 'merge' });
+      }
+    });
+
     // Handle return from Google Login / Resume flow
     this.api.checkStatus().subscribe(user => {
       const savedTierId = sessionStorage.getItem('checkout_tier');
+      const isGenericLogin = sessionStorage.getItem('generic_login');
+      
       if (savedTierId) {
         const tier = this.tiers.find(t => t.id === savedTierId);
         sessionStorage.removeItem('checkout_tier');
@@ -144,6 +159,19 @@ export class ServicesComponent implements OnInit {
               this.firstName = user.firstName || '';
               this.lastName = user.lastName || '';
             }
+          }
+        }
+      } else if (isGenericLogin) {
+        sessionStorage.removeItem('generic_login');
+        if (user) {
+          if (!user.hasFinalizedProfile) {
+            this.selectedTier.set(null);
+            this.showContract.set(true);
+            this.modalStep.set('onboarding');
+            this.firstName = user.firstName || '';
+            this.lastName = user.lastName || '';
+          } else {
+            this.router.navigate(['/home']);
           }
         }
       }
@@ -224,8 +252,8 @@ export class ServicesComponent implements OnInit {
   }
 
   proceedToCheckout() {
-    if (!this.isFormValid() || !this.selectedTier()) return;
-    const tier = this.selectedTier()!;
+    if (!this.isFormValid()) return;
+    const tier = this.selectedTier();
     this.checkoutLoading.set(true);
 
     const payload = {
@@ -247,7 +275,12 @@ export class ServicesComponent implements OnInit {
       }).subscribe({
         next: (user) => {
           this.api.currentUser.set(user);
-          this.triggerStripe(tier);
+          if (tier) {
+            this.triggerStripe(tier);
+          } else {
+            this.closeContract();
+            this.router.navigate(['/home']);
+          }
         },
         error: (err) => {
           this.checkoutLoading.set(false);
@@ -259,7 +292,12 @@ export class ServicesComponent implements OnInit {
       this.api.post('auth/finalize-onboarding', payload).subscribe({
         next: (user) => {
           this.api.currentUser.set(user);
-          this.triggerStripe(tier);
+          if (tier) {
+            this.triggerStripe(tier);
+          } else {
+            this.closeContract();
+            this.router.navigate(['/home']);
+          }
         },
         error: (err) => {
           this.checkoutLoading.set(false);
@@ -302,6 +340,8 @@ export class ServicesComponent implements OnInit {
   loginWithGoogle() {
     if (this.selectedTier()) {
       sessionStorage.setItem('checkout_tier', this.selectedTier()!.id);
+    } else {
+      sessionStorage.setItem('generic_login', 'true');
     }
     this.api.loginWithGoogle('/services');
   }
@@ -320,11 +360,16 @@ export class ServicesComponent implements OnInit {
         const user = this.api.currentUser();
         
         if (user && user.hasFinalizedProfile) {
-          // Returning user fully registered. Go straight to Stripe!
-          this.firstName = user.firstName;
-          this.lastName = user.lastName;
-          this.checkoutLoading.set(true);
-          this.triggerStripe(this.selectedTier()!);
+          // Returning user fully registered.
+          if (this.selectedTier()) {
+            this.firstName = user.firstName;
+            this.lastName = user.lastName;
+            this.checkoutLoading.set(true);
+            this.triggerStripe(this.selectedTier()!);
+          } else {
+            this.closeContract();
+            this.router.navigate(['/home']);
+          }
         } else {
           // Account exists but profile is not finalized (unlikely for email, but safe fallback)
           this.modalStep.set('onboarding');
