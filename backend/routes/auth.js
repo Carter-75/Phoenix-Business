@@ -6,7 +6,7 @@ const User = require('../models/user');
 // @route   POST /auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName, acceptedTerms } = req.body;
     
     let user = await User.findOne({ email: email.toLowerCase() });
     if (user) return res.status(400).json({ message: 'User already exists' });
@@ -16,7 +16,8 @@ router.post('/register', async (req, res) => {
       password,
       firstName,
       lastName,
-      hasFinalizedProfile: true
+      hasFinalizedProfile: true,
+      hasAcceptedContract: acceptedTerms === true
     });
 
     await user.save();

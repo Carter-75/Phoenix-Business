@@ -4,6 +4,8 @@ import { AboutComponent } from './about/about.component';
 import { ServicesComponent } from './services-page/services.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { CompleteProfileComponent } from './login/complete-profile.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { TermsComponent } from './legal/terms-of-service.component';
 import { RefundPolicyComponent } from './legal/refund-policy.component';
 import { PrivacyPolicyComponent } from './legal/privacy-policy.component';
@@ -20,6 +22,8 @@ export const routes: Routes = [
   // Hidden utility routes (not in navigation)
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'complete-profile', component: CompleteProfileComponent },
+  { path: 'dashboard', component: DashboardComponent },
   
   { path: '**', redirectTo: 'home' }
 ];

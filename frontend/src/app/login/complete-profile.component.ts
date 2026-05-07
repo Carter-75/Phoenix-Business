@@ -64,8 +64,8 @@ export class CompleteProfileComponent implements OnInit {
 
   saveProfile() {
     this.loading.set(true);
-    // Use the specific endpoint for pending Google registrations
-    this.api.post('auth/complete-google-registration', { 
+    // Use the finalize-onboarding endpoint for pending Google registrations
+    this.api.post('auth/finalize-onboarding', { 
       firstName: this.firstName, 
       lastName: this.lastName 
     }).subscribe({

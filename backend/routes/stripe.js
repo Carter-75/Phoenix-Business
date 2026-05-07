@@ -32,21 +32,62 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             professional: 50000  // $500.00 (Setup Fee)
         };
 
-        let amount = 0;
-        let title = '';
+        let line_items = [];
+        let mode = 'payment';
 
         switch (tier) {
             case 'simple':
-                amount = prices.simple;
-                title = 'Simple Launch - Website Build';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: 'Simple Launch - Website Build',
+                            description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`,
+                        },
+                        unit_amount: prices.simple,
+                    },
+                    quantity: 1,
+                });
                 break;
             case 'essential':
-                amount = prices.essential;
-                title = 'Essential Care - Setup Fee';
+                mode = 'subscription';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Essential Care - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}` },
+                        unit_amount: prices.essential,
+                    },
+                    quantity: 1,
+                });
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Essential Care - Monthly Subscription' },
+                        unit_amount: 9900,
+                        recurring: { interval: 'month' }
+                    },
+                    quantity: 1,
+                });
                 break;
             case 'professional':
-                amount = prices.professional;
-                title = 'Professional Growth - Setup Fee';
+                mode = 'subscription';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Professional Growth - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}` },
+                        unit_amount: prices.professional,
+                    },
+                    quantity: 1,
+                });
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Professional Growth - Monthly Subscription' },
+                        unit_amount: 14900,
+                        recurring: { interval: 'month' }
+                    },
+                    quantity: 1,
+                });
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid service tier selected.' });
@@ -54,20 +95,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: title,
-                            description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`,
-                        },
-                        unit_amount: amount,
-                    },
-                    quantity: 1,
-                },
-            ],
-            mode: 'payment',
+            line_items: line_items,
+            mode: mode,
             success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?success=true`,
             cancel_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/services?canceled=true`,
             customer_email: email || (user ? user.email : undefined),
