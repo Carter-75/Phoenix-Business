@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-refunds',
   standalone: true,
+  imports: [RouterLink],
   template: `
     <section class="min-h-screen pt-48 pb-24 px-6 bg-slate-950 relative overflow-hidden">
       <div class="blur-glow w-[500px] h-[500px] bg-red-600/5 bottom-[-10%] left-[-10%]"></div>
@@ -38,9 +40,21 @@ import { Component } from '@angular/core';
           </div>
         </div>
 
-        <div class="mt-24 pt-12 border-t border-white/5 text-slate-600 text-[10px] font-black uppercase tracking-widest">
-          Last Updated: May 1, 2026 • Phoenix Digital Infrastructure
-        </div>
+        <footer class="mt-24 pt-12 border-t border-white/5 flex flex-col gap-12">
+          <div class="flex flex-col sm:flex-row justify-between gap-8 items-start sm:items-center">
+            <div>
+              <p class="text-white/30 text-sm font-medium">Questions regarding this policy?</p>
+              <p class="text-white font-bold mt-1 tracking-widest uppercase">legal&#64;phoenix.com</p>
+            </div>
+            <a routerLink="/home" class="group flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white/50 hover:text-white transition-all">
+              Return Home
+              <div class="w-8 h-[1px] bg-white/20 group-hover:w-12 group-hover:bg-white transition-all duration-500"></div>
+            </a>
+          </div>
+          <div class="text-white/30 text-[10px] font-black uppercase tracking-widest">
+            Last Updated: May 1, 2026 • Phoenix Digital Infrastructure
+          </div>
+        </footer>
       </div>
     </section>
   `
