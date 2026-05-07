@@ -181,6 +181,10 @@ featureRoutes.forEach(route => {
   app.use(route.path, dbCheck, route.router);
 });
 
+// Start background cron jobs
+const cronService = require('./services/cron');
+cronService.startCronJobs();
+
 // --- Final Handling ---
 
 // Root welcome

@@ -279,6 +279,69 @@ router.post('/webhook', async (req, res) => {
                 await user.save();
             }
         }
+    } else if (event.type === 'subscription_schedule.released') {
+        const schedule = event.data.object;
+        const subscriptionId = schedule.subscription;
+
+        if (subscriptionId) {
+            try {
+                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+                const customerId = subscription.customer;
+                const user = await User.findOne({ stripeCustomerId: customerId });
+
+                if (user) {
+                    // Create a NEW 12-month schedule for the next cycle
+                    const items = subscription.items.data.map(item => ({
+                        price: item.price.id,
+                        quantity: item.quantity
+                    }));
+
+                    const newSchedule = await stripe.subscriptionSchedules.create({
+                        from_subscription: subscriptionId,
+                    });
+
+                    await stripe.subscriptionSchedules.update(newSchedule.id, {
+                        end_behavior: 'release',
+                        phases: [{ items: items, iterations: 12 }]
+                    });
+
+                    // Extend the contract in DB by 1 year
+                    const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
+                    if (contract && contract.expiresAt) {
+                        contract.expiresAt = new Date(new Date(contract.expiresAt).setFullYear(new Date(contract.expiresAt).getFullYear() + 1));
+                        await contract.save();
+                    }
+
+                    // Send renewal confirmation email
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_HOST || 'mail.privateemail.com',
+                        port: parseInt(process.env.SMTP_PORT || '465'),
+                        secure: true,
+                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                    });
+
+                    await transporter.sendMail({
+                        from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
+                        to: user.email,
+                        subject: 'Your Annual Contract has Renewed',
+                        html: `
+                            <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                                <h2 style="color: #2563eb;">Contract Renewed</h2>
+                                <p>Hi ${user.firstName || user.name || 'there'},</p>
+                                <p>Your 12-month service contract has successfully auto-renewed for another year.</p>
+                                <p>Your continued partnership ensures uninterrupted access to hosting, maintenance, and support.</p>
+                                <p>If you have any questions or need anything, just reply to this email!</p>
+                                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                                <p style="font-size: 11px; color: #999;">Carter Moyer | Phoenix Business Systems</p>
+                            </div>
+                        `
+                    });
+                }
+            } catch (err) {
+                console.error('Error handling subscription schedule release (renewal):', err);
+            }
+        }
     }
     res.json({ received: true });
 });

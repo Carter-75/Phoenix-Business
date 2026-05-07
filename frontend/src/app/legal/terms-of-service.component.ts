@@ -31,7 +31,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Automatic Renewal</h2>
-            <p>To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice 15-30 days before the 30-day cancellation window opens for the annual contract renewal. Additionally, you will receive standard automated reminders and receipts prior to each monthly subscription billing cycle.</p>
+            <p>To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice via email exactly 30 days before your annual contract is set to renew. Once the automatic renewal occurs, you are bound to a new 12-month service agreement under these same terms. Additionally, you will receive standard automated reminders and receipts prior to each monthly subscription billing cycle.</p>
           </div>
 
           <div class="space-y-4">
