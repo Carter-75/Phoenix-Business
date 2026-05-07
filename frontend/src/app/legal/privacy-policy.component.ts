@@ -28,22 +28,49 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
         <main class="space-y-16 relative z-10" appScrollReveal>
           <section>
             <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">1. Information We Collect</h2>
+            <div class="space-y-4 text-white/60 leading-relaxed font-light">
+              <p>We collect information that you provide directly to us, such as when you request a free guide, inquire about services, or create an account. This may include:</p>
+              <ul class="list-none space-y-2 pl-4 border-l border-white/10">
+                <li>• Name and contact information (email address)</li>
+                <li>• Business details (business name, project requirements)</li>
+                <li>• Payment information (processed securely via Stripe)</li>
+                <li>• Communications you send to us</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">2. Legal Basis for Processing</h2>
             <p class="text-white/60 leading-relaxed font-light">
-              We collect Name, email, business details, and payment information (processed securely via Stripe).
+              Under GDPR and other relevant privacy standards, our legal basis for collecting and processing B2B data (including cold outreach) is "Legitimate Interest". We process data to offer relevant digital infrastructure services to professional entities.
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">2. How We Use Your Data</h2>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">3. How We Use Your Data</h2>
+            <div class="space-y-4 text-white/60 leading-relaxed font-light">
+              <p>Phoenix uses the collected data for various purposes:</p>
+              <ul class="list-none space-y-2 pl-4 border-l border-white/10">
+                <li>• To provide and maintain our services</li>
+                <li>• To send requested resources (e.g., AI Implementation Guides)</li>
+                <li>• To process payments and subscriptions</li>
+                <li>• To communicate about project updates or technical roadmaps</li>
+                <li>• To monitor service usage and performance</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">4. Data Security</h2>
             <p class="text-white/60 leading-relaxed font-light">
-              Data is used to provide services, send requested resources, and process payments.
+              We implement industry-standard security measures to protect your personal data. However, no method of transmission over the Internet or electronic storage is 100% secure. We utilize encrypted connections (SSL) and secure third-party processors like Stripe and MongoDB Atlas to ensure maximum protection.
             </p>
           </section>
 
           <section>
-            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">3. Data Security</h2>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">5. Your Rights</h2>
             <p class="text-white/60 leading-relaxed font-light">
-              We utilize encrypted connections (SSL) and secure processors like Stripe and MongoDB Atlas.
+              You have the right to access, correct, or delete your personal information at any time. You can unsubscribe from our automated outreach via the link in our emails or by contacting us directly.
             </p>
           </section>
 

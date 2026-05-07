@@ -16,30 +16,65 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
         <div class="space-y-12 text-slate-400 font-medium leading-relaxed" appScrollReveal>
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. The Agreement</h2>
-            <p>By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement.</p>
+            <p>By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure services.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">2. Contractual Commitment</h2>
+            <p>Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.</p>
             <ul class="list-disc ml-6 space-y-2">
               <li><strong>General Accounts:</strong> Users creating an account without a service selection are bound by general usage and privacy terms.</li>
               <li><strong>One-Time Projects (Tier 1):</strong> Engagement terminates upon delivery of final assets and full payment. No long-term commitment required.</li>
-              <li><strong>Subscription Services (Tiers 2 & 3):</strong> All subscription-based tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> This ensures infrastructure stability and dedicated resource allocation.</li>
+              <li><strong>Subscription Services (Tiers 2 & 3):</strong> All subscription-based tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong></li>
             </ul>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Automatic Renewal</h2>
-            <p>Subscription contracts automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date.</p>
+            <p>To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice 15-30 days before the 30-day cancellation window opens.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">4. Early Termination & Liquidated Damages</h2>
-            <p>Early termination of a 12-month commitment results in the immediate accrual of "Liquidated Damages" equal to 50% of the remaining total contract value. This is a pre-estimate of unrecoverable setup costs and lost opportunities.</p>
+            <p>Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." This fee is calculated as 50% of the remaining total contract value. This is not a penalty, but a reasonable pre-estimate of Phoenix's actual losses. This fee covers the costs of custom deployment, dedicated server reservation, and administrative overhead incurred at the project start.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Governing Law</h2>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Payment & Non-Refundability</h2>
+            <p>Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a payment failure, services may be suspended immediately until the account is brought current.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">6. Limitation of Liability</h2>
+            <p>Phoenix provides high-performance infrastructure but does not guarantee specific business outcomes. Our liability is limited to the total amount paid by the client in the 3 months preceding any claim.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">7. Service Scope & Fair Use</h2>
+            <ul class="list-disc ml-6 space-y-2">
+              <li><strong>Tier 2 (Essential Care):</strong> Includes up to 2 hours of "Edits & Updates" per month. Unused hours do not roll over.</li>
+              <li><strong>Tier 3 (Professional Growth):</strong> Includes up to 5 hours of specialized updates and AI maintenance.</li>
+              <li><strong>Exclusions:</strong> Requests exceeding these limits or requiring new core architecture will be billed at our standard hourly rate.</li>
+            </ul>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">8. Domain & Portability / Ownership</h2>
+            <p>Upon completion of the initial 12-month term and full payment of all fees, the Client may request a transfer of the domain name for a nominal administrative fee of $50. Website source code and proprietary AI configurations remain the property of Phoenix unless a "Buyout Option" is exercised.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">9. Indemnification</h2>
+            <p>The client agrees to indemnify and hold harmless Phoenix from any claims resulting from the client's use of the service, including but not limited to copyright infringement claims arising from content or media provided by the client.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">10. Force Majeure</h2>
+            <p>Phoenix is not liable for any failure or delay in performance due to circumstances beyond our reasonable control, including acts of God, natural disasters, or third-party infrastructure failures (e.g., Stripe, MongoDB).</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">11. Governing Law</h2>
             <p>This agreement is governed by the laws of the State of Wisconsin.</p>
           </div>
         </div>
