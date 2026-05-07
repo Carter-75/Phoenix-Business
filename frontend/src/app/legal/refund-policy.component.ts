@@ -13,7 +13,7 @@ import { Component } from '@angular/core';
         <div class="space-y-12 text-slate-400 font-medium leading-relaxed">
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. General Policy</h2>
-            <p>At Phoenix, we provide specialized digital infrastructure and high-performance architectural services. Due to the high-resource intensity of our initial setup and the dedicated reservation of edge-network capacity, **we maintain a strict no-refund policy.**</p>
+            <p>At Phoenix, we provide specialized digital infrastructure and high-performance architectural services. Due to the high-resource intensity of our initial setup and the dedicated reservation of edge-network capacity, <strong>we maintain a strict no-refund policy.</strong></p>
           </div>
 
           <div class="space-y-4">
