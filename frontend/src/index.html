@@ -10,12 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <script>
     (function() {
-      console.log('🚀 [' + 'phoenix-business' + '] Client script active.');
       if (window.parent !== window) {
-        console.log('🚀 [' + 'phoenix-business' + '] Embedded in iframe. Sending handshake...');
         window.parent.postMessage({ type: 'CHECK_IN', project: 'phoenix-business' }, '*');
-      } else {
-        console.log('🚀 [' + 'phoenix-business' + '] Running standalone.');
       }
     })();
   </script>
