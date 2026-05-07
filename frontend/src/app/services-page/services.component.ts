@@ -120,24 +120,32 @@ export class ServicesComponent implements OnInit {
 
     // Handle return from Google Login / Resume flow
     this.api.checkStatus().subscribe(user => {
-      const savedTierId = localStorage.getItem('checkout_tier');
+      const savedTierId = sessionStorage.getItem('checkout_tier');
       if (savedTierId) {
         const tier = this.tiers.find(t => t.id === savedTierId);
+        sessionStorage.removeItem('checkout_tier');
         if (tier) {
-          // Always open the modal if we have an intent
-          this.selectedTier.set(tier);
-          this.showContract.set(true);
-          
-          // If logged in, go to onboarding. If not, go to auth.
-          this.modalStep.set(user ? 'onboarding' : 'auth');
-          
-          // Pre-fill names if user exists
-          if (user) {
-            this.firstName = user.firstName || '';
-            this.lastName = user.lastName || '';
+          if (user && user.hasFinalizedProfile) {
+            // User is fully registered, go straight to Stripe
+            this.firstName = user.firstName;
+            this.lastName = user.lastName;
+            this.checkoutLoading.set(true);
+            this.triggerStripe(tier);
+          } else {
+            // Always open the modal if we have an intent but missing profile
+            this.selectedTier.set(tier);
+            this.showContract.set(true);
+            
+            // If logged in, go to onboarding. If not, go to auth.
+            this.modalStep.set(user ? 'onboarding' : 'auth');
+            
+            // Pre-fill names if user exists
+            if (user) {
+              this.firstName = user.firstName || '';
+              this.lastName = user.lastName || '';
+            }
           }
         }
-        localStorage.removeItem('checkout_tier');
       }
     });
 
@@ -185,10 +193,23 @@ export class ServicesComponent implements OnInit {
   }
 
   openContract(tier: ServiceTier) {
+    const user = this.api.currentUser();
+    
+    if (user && user.hasFinalizedProfile) {
+      // User is fully registered. Go straight to Stripe!
+      this.firstName = user.firstName;
+      this.lastName = user.lastName;
+      this.checkoutLoading.set(true);
+      this.triggerStripe(tier);
+      return;
+    }
+
     this.selectedTier.set(tier);
     this.showContract.set(true);
     
-    if (this.api.currentUser()) {
+    if (user) {
+      this.firstName = user.firstName || '';
+      this.lastName = user.lastName || '';
       this.modalStep.set('onboarding');
     } else {
       this.modalStep.set('auth');
@@ -199,7 +220,7 @@ export class ServicesComponent implements OnInit {
     this.showContract.set(false);
     this.selectedTier.set(null);
     this.hasAccepted = false;
-    localStorage.removeItem('checkout_tier');
+    sessionStorage.removeItem('checkout_tier');
   }
 
   proceedToCheckout() {
@@ -250,10 +271,14 @@ export class ServicesComponent implements OnInit {
   }
 
   private triggerStripe(tier: ServiceTier) {
+    const user = this.api.currentUser();
+    const finalFirstName = user?.firstName || this.firstName;
+    const finalLastName = user?.lastName || this.lastName;
+    
     const payload = {
       tier: tier.id,
-      email: this.api.currentUser()?.email,
-      name: `${this.firstName} ${this.lastName}`,
+      email: user?.email || this.userEmail,
+      name: `${finalFirstName} ${finalLastName}`.trim(),
       acceptedContract: true,
       contractTimestamp: new Date().toISOString(),
       projectType: tier.title
@@ -276,7 +301,7 @@ export class ServicesComponent implements OnInit {
 
   loginWithGoogle() {
     if (this.selectedTier()) {
-      localStorage.setItem('checkout_tier', this.selectedTier()!.id);
+      sessionStorage.setItem('checkout_tier', this.selectedTier()!.id);
     }
     this.api.loginWithGoogle('/services');
   }
@@ -292,7 +317,18 @@ export class ServicesComponent implements OnInit {
     this.api.login({ email: this.userEmail, password: this.userPassword }).subscribe({
       next: () => {
         this.isNewUser = false;
-        this.modalStep.set('onboarding');
+        const user = this.api.currentUser();
+        
+        if (user && user.hasFinalizedProfile) {
+          // Returning user fully registered. Go straight to Stripe!
+          this.firstName = user.firstName;
+          this.lastName = user.lastName;
+          this.checkoutLoading.set(true);
+          this.triggerStripe(this.selectedTier()!);
+        } else {
+          // Account exists but profile is not finalized (unlikely for email, but safe fallback)
+          this.modalStep.set('onboarding');
+        }
       },
       error: (err) => {
         // 404 means the user doesn't exist -> Go to onboarding

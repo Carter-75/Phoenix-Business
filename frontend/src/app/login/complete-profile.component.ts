@@ -54,8 +54,12 @@ export class CompleteProfileComponent implements OnInit {
     // Pre-populate if possible
     this.api.get('auth/user').subscribe((user: any) => {
       if (user && !user.isPending && user.hasFinalizedProfile) {
-        // If already complete and NOT pending, skip to dashboard
-        this.router.navigate(['/dashboard']);
+        // If already complete and NOT pending, skip to dashboard or services
+        if (sessionStorage.getItem('checkout_tier')) {
+          this.router.navigate(['/services']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       }
       this.firstName = user.firstName || '';
       this.lastName = user.lastName || '';
@@ -69,7 +73,13 @@ export class CompleteProfileComponent implements OnInit {
       firstName: this.firstName, 
       lastName: this.lastName 
     }).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        if (sessionStorage.getItem('checkout_tier')) {
+          this.router.navigate(['/services']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+      },
       error: (err) => {
         this.loading.set(false);
         alert(err.error?.message || 'Failed to update profile');

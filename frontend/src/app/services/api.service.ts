@@ -51,7 +51,7 @@ export class ApiService {
   logout(): void {
     this.http.get(`${this.apiUrl}/auth/logout`, { withCredentials: true }).subscribe();
     this.currentUser.set(null);
-    localStorage.removeItem('checkout_tier');
+    sessionStorage.removeItem('checkout_tier');
     localStorage.removeItem('member_email');
   }
 }
