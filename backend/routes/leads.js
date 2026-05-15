@@ -40,7 +40,8 @@ router.post('/capture', async (req, res) => {
                 name,
                 businessName,
                 status: 'pending',
-                source: 'web-capture'
+                source: 'portfolio',
+                sourceEmail: process.env.EMAIL_USER
             });
         }
 

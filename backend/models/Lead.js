@@ -14,6 +14,7 @@ const LeadSchema = new mongoose.Schema({
 
   // Source tag — identifies this as a portfolio outreach lead in the shared MongoDB.
   source: { type: String, default: 'portfolio' },
+  sourceEmail: { type: String },
 
   // Message Thread — same shape as engine leads so the dashboard can display & reply
   messageIds: [String],
