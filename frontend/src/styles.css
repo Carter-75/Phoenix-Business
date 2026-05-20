@@ -36,7 +36,7 @@
   .fluid-tiny { @apply text-[10px] font-black uppercase tracking-[0.4em] text-white/40; }
 
   .glass-card {
-    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.05] p-12 sm:p-20 relative overflow-hidden;
+    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.05] p-8 sm:p-12 lg:p-20 relative overflow-hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
@@ -71,7 +71,7 @@
   }
 
   .section-padding {
-    @apply py-32 px-8 sm:py-56 sm:px-16 lg:px-32;
+    @apply py-20 px-8 sm:py-32 sm:px-16 lg:py-56 lg:px-32;
   }
 }
 

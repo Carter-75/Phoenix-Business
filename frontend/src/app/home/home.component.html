@@ -23,7 +23,7 @@
           <p class="fluid-p max-w-xl mb-12">
             We build fast, reliable websites and tools for growing businesses. Beautiful design meets powerful technology.
           </p>
-          <div class="flex flex-wrap gap-8">
+          <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
             <button routerLink="/services" class="premium-btn">See Pricing</button>
             <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-orange-600 transition-all border-b border-white/10">Get in Touch</button>
           </div>
@@ -75,7 +75,7 @@
              appScrollReveal [delay]="i * 0.1" [y]="60">
           
           <div class="grid lg:grid-cols-2">
-            <div class="p-12 sm:p-20 flex flex-col justify-center">
+            <div class="p-8 sm:p-12 lg:p-20 flex flex-col justify-center">
               <span class="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] mb-4">{{ client.type }}</span>
               <h3 class="fluid-h3 mb-6">{{ client.name }}</h3>
               <p class="text-white/40 text-sm leading-relaxed mb-6 max-w-md">{{ client.desc }}</p>
@@ -99,7 +99,7 @@
       </div>
       <div class="grid lg:grid-cols-2 gap-12">
         <div *ngFor="let t of testimonials; let i = index" 
-             class="glass-card !p-12 sm:!p-20 group border-white/5" 
+             class="glass-card !p-8 sm:!p-12 lg:!p-20 group border-white/5" 
              appScrollReveal [delay]="i * 0.2">
           <div class="mb-12">
             <div class="flex gap-2 mb-8">
@@ -136,22 +136,22 @@
         <p class="fluid-p max-w-2xl mx-auto">Get a free checkup of your current website or start a new project with us.</p>
       </div>
 
-      <div class="glass-card !p-12 sm:!p-24" appScrollReveal>
+      <div class="glass-card !p-8 sm:!p-12 lg:!p-24" appScrollReveal>
         <form (submit)="onSubmitLead($event)" class="grid sm:grid-cols-2 gap-8 text-left">
           <div class="space-y-2">
             <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Your Name</label>
             <input name="name" type="text" placeholder="John Doe" required 
-                   class="w-full bg-white/[0.02] border border-white/0.05 px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
+                   class="w-full bg-white/[0.02] border border-white/0.05 px-6 py-4 sm:px-8 sm:py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
           <div class="space-y-2">
             <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Email Address</label>
             <input name="email" type="email" placeholder="john@email.com" required 
-                   class="w-full bg-white/[0.02] border border-white/0.05 px-8 py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
+                   class="w-full bg-white/[0.02] border border-white/0.05 px-6 py-4 sm:px-8 sm:py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
           <div class="sm:col-span-2 space-y-2">
             <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Project Details</label>
             <textarea name="requirements" placeholder="Tell us about your project..." rows="4"
-                      class="w-full bg-white/[0.02] border border-white/[0.05] px-8 py-6 text-sm font-medium focus:border-orange-600 outline-none transition-all resize-none"></textarea>
+                      class="w-full bg-white/[0.02] border border-white/[0.05] px-6 py-4 sm:px-8 sm:py-6 text-sm font-medium focus:border-orange-600 outline-none transition-all resize-none"></textarea>
           </div>
           <div class="sm:col-span-2 mt-8">
             <button type="submit" [disabled]="submitting()" 

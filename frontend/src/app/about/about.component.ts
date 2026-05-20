@@ -32,7 +32,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             <p>
               Every bit of work we do is meant to last. From custom-built websites to smart automation, we make sure your tech always works perfectly.
             </p>
-            <div class="flex gap-12 mt-20 pt-20 border-t border-white/5">
+            <div class="flex flex-col sm:flex-row gap-8 sm:gap-12 mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-white/5">
               <div>
                 <div class="text-4xl font-black text-white leading-none mb-2">99.9%</div>
                 <div class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">System Reliability</div>
@@ -45,7 +45,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           </div>
           
           <div class="space-y-12" appScrollReveal [delay]="0.2">
-            <div class="glass-card !p-12 border-white/5">
+            <div class="glass-card !p-8 sm:!p-12 border-white/5">
               <h3 class="fluid-h3 text-white mb-8 uppercase tracking-tighter">Our Promise</h3>
               <ul class="space-y-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/40">
                 <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Fast loading for every visitor</li>

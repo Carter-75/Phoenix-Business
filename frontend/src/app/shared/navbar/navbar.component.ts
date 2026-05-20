@@ -24,12 +24,39 @@ import { ApiService } from '../../services/api.service';
           <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Services</a>
         </div>
 
-        <!-- Auth Action -->
-        <div class="flex items-center gap-8">
-          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
+        <!-- Auth Action and Mobile Toggle -->
+        <div class="flex items-center gap-6 sm:gap-8">
+          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
             Login
           </a>
-          <button *ngIf="api.currentUser()" (click)="api.logout()" class="text-[10px] font-black uppercase tracking-[0.4em] text-white/10 hover:text-red-500 transition-all">
+          <button *ngIf="api.currentUser()" (click)="api.logout()" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/10 hover:text-red-500 transition-all">
+            Logout
+          </button>
+          
+          <!-- Hamburger Button -->
+          <button (click)="toggleMobileMenu()" class="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 z-[110] relative">
+            <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.rotate-45]="mobileMenuOpen()" [class.translate-y-[7px]]="mobileMenuOpen()"></div>
+            <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.opacity-0]="mobileMenuOpen()"></div>
+            <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.-rotate-45]="mobileMenuOpen()" [class.-translate-y-[7px]]="mobileMenuOpen()"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Overlay -->
+      <div class="fixed inset-0 bg-[#020205] backdrop-blur-3xl z-[105] flex flex-col justify-center items-center transition-all duration-500"
+           [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
+           [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
+        <div class="flex flex-col items-center gap-12" [class.-translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()" class="transition-transform duration-700">
+          <a routerLink="/home" (click)="toggleMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
+          <a routerLink="/about" (click)="toggleMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
+          <a routerLink="/services" (click)="toggleMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
+          
+          <div class="w-12 h-[1px] bg-white/10 my-4"></div>
+          
+          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="toggleMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
+            Login
+          </a>
+          <button *ngIf="api.currentUser()" (click)="api.logout(); toggleMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">
             Logout
           </button>
         </div>
@@ -40,6 +67,7 @@ import { ApiService } from '../../services/api.service';
 export class NavbarComponent implements OnInit {
   public api = inject(ApiService);
   scrolled = signal(false);
+  mobileMenuOpen = signal(false);
 
   ngOnInit() {
     this.api.checkStatus().subscribe();
@@ -49,6 +77,7 @@ export class NavbarComponent implements OnInit {
   }
 
   scrollToAudit() {
+    this.mobileMenuOpen.set(false);
     const audit = document.querySelector('input[type="email"]') || document.querySelector('.audit-section');
     if (audit) {
       audit.scrollIntoView({ behavior: 'smooth' });
@@ -57,5 +86,9 @@ export class NavbarComponent implements OnInit {
       // For now, keep it simple.
       window.location.href = '/home#audit';
     }
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen.update(v => !v);
   }
 }
