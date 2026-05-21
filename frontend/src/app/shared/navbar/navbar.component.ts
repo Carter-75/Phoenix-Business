@@ -46,10 +46,10 @@ import { ApiService } from '../../services/api.service';
       </div>
 
       <!-- Mobile Menu Overlay -->
-      <div class="fixed inset-0 bg-[#020205]/95 backdrop-blur-3xl z-[105] flex flex-col justify-center items-center transition-all duration-500 touch-none"
+      <div class="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[105] overflow-y-auto transition-all duration-500"
            [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
            [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
-        <div class="flex flex-col items-center gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
+        <div class="min-h-full w-full flex flex-col justify-start items-center pt-32 pb-20 gap-8 sm:gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
           <a routerLink="/home" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
           <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
           <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
