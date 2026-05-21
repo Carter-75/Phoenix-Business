@@ -43,7 +43,7 @@ import { ApiService } from '../../services/api.service';
       </div>
 
       <!-- Mobile Menu Overlay -->
-      <div class="fixed inset-0 bg-[#020205]/95 backdrop-blur-3xl z-[105] flex flex-col justify-center items-center transition-all duration-500"
+      <div class="fixed inset-0 bg-[#020205]/95 backdrop-blur-3xl z-[105] flex flex-col justify-center items-center transition-all duration-500 touch-none"
            [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
            [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
         <div class="flex flex-col items-center gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
