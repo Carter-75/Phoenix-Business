@@ -43,32 +43,33 @@ import { ApiService } from '../../services/api.service';
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.-rotate-45]="mobileMenuOpen()" [class.-translate-y-[7px]]="mobileMenuOpen()"></div>
           </button>
         </div>
-      </div>
-
-      <!-- Mobile Menu Overlay -->
-      <div class="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[105] overflow-y-auto transition-all duration-500"
-           [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
-           [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
-        <div class="min-h-full w-full flex flex-col justify-start items-center pt-32 pb-20 gap-8 sm:gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
-          <a routerLink="/home" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
-          <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
-          <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
-          
-          <div class="w-12 h-[1px] bg-white/10 my-2"></div>
-          
-          <a href="https://carter-portfolio.fyi" target="_blank" class="text-xl font-black uppercase tracking-[0.2em] text-orange-500/80 hover:text-orange-500 transition-colors">Carter's Portfolio</a>
-
-          <div class="w-12 h-[1px] bg-white/10 my-2"></div>
-          
-          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
-            Login
-          </a>
-          <button *ngIf="api.currentUser()" (click)="api.logout(); closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">
-            Logout
-          </button>
         </div>
       </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[105] overflow-y-auto overscroll-none transition-all duration-500"
+         [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
+         [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
+      <div class="min-h-full w-full flex flex-col justify-start items-center pt-32 pb-20 gap-8 sm:gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
+        <a routerLink="/home" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
+        <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
+        <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
+        
+        <div class="w-12 h-[1px] bg-white/10 my-2"></div>
+        
+        <a href="https://carter-portfolio.fyi" target="_blank" class="text-xl font-black uppercase tracking-[0.2em] text-orange-500/80 hover:text-orange-500 transition-colors">Carter's Portfolio</a>
+
+        <div class="w-12 h-[1px] bg-white/10 my-2"></div>
+        
+        <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
+          Login
+        </a>
+        <button *ngIf="api.currentUser()" (click)="api.logout(); closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">
+          Logout
+        </button>
+      </div>
+    </div>
   `
 })
 export class NavbarComponent implements OnInit {
