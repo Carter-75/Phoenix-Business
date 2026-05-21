@@ -8,7 +8,7 @@ import { ApiService } from '../../services/api.service';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
-    <nav class="fixed top-0 left-0 w-full z-[100] transition-all duration-1000" 
+    <nav class="fixed top-0 left-0 w-full z-[110] transition-all duration-1000" 
          [class.bg-[#020205]/80]="scrolled()" [class.backdrop-blur-3xl]="scrolled()" [class.py-8]="scrolled()" [class.py-12]="!scrolled()">
       <div class="max-w-[1400px] mx-auto px-8 sm:px-16 flex items-center justify-between">
         <!-- Logo -->
@@ -42,7 +42,6 @@ import { ApiService } from '../../services/api.service';
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.opacity-0]="mobileMenuOpen()"></div>
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.-rotate-45]="mobileMenuOpen()" [class.-translate-y-[7px]]="mobileMenuOpen()"></div>
           </button>
-        </div>
         </div>
       </div>
     </nav>
