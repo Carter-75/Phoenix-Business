@@ -18,10 +18,13 @@ import { ApiService } from '../../services/api.service';
         </a>
 
         <!-- Navigation Pages -->
-        <div class="hidden md:flex items-center gap-16">
+        <div class="hidden md:flex items-center gap-12 lg:gap-16">
           <a routerLink="/home" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
           <a routerLink="/about" routerLinkActive="text-white !after:w-full" class="nav-link">About</a>
           <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Services</a>
+          <a href="https://carter-portfolio.fyi" target="_blank" class="nav-link !text-orange-500/80 hover:!text-orange-500 flex items-center gap-2">
+            Carter's Portfolio
+          </a>
         </div>
 
         <!-- Auth Action and Mobile Toggle -->
@@ -51,7 +54,11 @@ import { ApiService } from '../../services/api.service';
           <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
           <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
           
-          <div class="w-12 h-[1px] bg-white/10 my-4"></div>
+          <div class="w-12 h-[1px] bg-white/10 my-2"></div>
+          
+          <a href="https://carter-portfolio.fyi" target="_blank" class="text-xl font-black uppercase tracking-[0.2em] text-orange-500/80 hover:text-orange-500 transition-colors">Carter's Portfolio</a>
+
+          <div class="w-12 h-[1px] bg-white/10 my-2"></div>
           
           <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
             Login
