@@ -43,20 +43,20 @@ import { ApiService } from '../../services/api.service';
       </div>
 
       <!-- Mobile Menu Overlay -->
-      <div class="fixed inset-0 bg-[#020205] backdrop-blur-3xl z-[105] flex flex-col justify-center items-center transition-all duration-500"
+      <div class="fixed inset-0 bg-[#020205]/95 backdrop-blur-3xl z-[105] flex flex-col justify-center items-center transition-all duration-500"
            [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
            [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
-        <div class="flex flex-col items-center gap-12" [class.-translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()" class="transition-transform duration-700">
-          <a routerLink="/home" (click)="toggleMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
-          <a routerLink="/about" (click)="toggleMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
-          <a routerLink="/services" (click)="toggleMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
+        <div class="flex flex-col items-center gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
+          <a routerLink="/home" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
+          <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
+          <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
           
           <div class="w-12 h-[1px] bg-white/10 my-4"></div>
           
-          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="toggleMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
+          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
             Login
           </a>
-          <button *ngIf="api.currentUser()" (click)="api.logout(); toggleMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">
+          <button *ngIf="api.currentUser()" (click)="api.logout(); closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">
             Logout
           </button>
         </div>
@@ -90,5 +90,19 @@ export class NavbarComponent implements OnInit {
 
   toggleMobileMenu() {
     this.mobileMenuOpen.update(v => !v);
+    this.updateBodyScroll();
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen.set(false);
+    this.updateBodyScroll();
+  }
+
+  private updateBodyScroll() {
+    if (this.mobileMenuOpen()) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 }

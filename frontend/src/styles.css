@@ -18,8 +18,8 @@
     --font-display: 'Syne', sans-serif;
   }
 
-  body {
-    @apply bg-[#020205] text-white font-['Inter'] m-0 antialiased overflow-x-hidden selection:bg-orange-600/30;
+  html, body {
+    @apply bg-[#020205] text-white font-['Inter'] m-0 antialiased overflow-x-hidden w-full relative selection:bg-orange-600/30;
   }
 
   h1, h2, h3, h4 {
