@@ -47,6 +47,12 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private historyPos: THREE.Vector3[] = [];
   private historyQuat: THREE.Quaternion[] = [];
   private readonly MAX_HISTORY = 600;
+  
+  // Mobile responsiveness
+  private boundX = 15;
+  private boundY = 10;
+  private birdScale = 1.0;
+  private readonly ambientBoxSize = 80;
 
   constructor(private ngZone: NgZone) {}
 
@@ -80,6 +86,22 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
     this.camera.position.z = 5;
+    this.updateBounds();
+  }
+
+  private updateBounds() {
+    const depth = -15; // Standard depth for containment
+    const distance = Math.abs(this.camera.position.z - depth);
+    const vFov = THREE.MathUtils.degToRad(this.camera.fov);
+    const height = 2 * Math.tan(vFov / 2) * distance;
+    const width = height * this.camera.aspect;
+    
+    // Containment box should be roughly 80% of viewport
+    this.boundX = (width / 2) * 0.8;
+    this.boundY = (height / 2) * 0.8;
+    
+    // Scale bird down on mobile screens (baseline 1200px width)
+    this.birdScale = Math.max(0.4, Math.min(1.0, window.innerWidth / 1200));
   }
 
   private createParticles() {
@@ -89,9 +111,9 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     const colors = new Float32Array(count * 3);
 
     for (let i = 0; i < count * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 20;
-      positions[i+1] = (Math.random() - 0.5) * 20;
-      positions[i+2] = (Math.random() - 0.5) * 20;
+      positions[i] = (Math.random() - 0.5) * this.ambientBoxSize;
+      positions[i+1] = (Math.random() - 0.5) * this.ambientBoxSize;
+      positions[i+2] = (Math.random() - 0.5) * 40 - 10; // Spans Z from -30 to +10
       
       // Fire colors: Red, Orange, Gold
       const r = Math.random();
@@ -268,35 +290,24 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private animate() {
     this.ngZone.runOutsideAngular(() => {
       const render = () => {
-        // Angled movement: Up and to the right
+        // Ambient background drifting
         const positions = this.particles.geometry.attributes['position'].array as Float32Array;
+        const halfBox = this.ambientBoxSize / 2;
         for (let i = 0; i < positions.length; i += 3) {
-          positions[i] += 0.005; // Move Right
-          positions[i+1] += 0.01; // Move Up
-          
-          if (positions[i+1] > 10) {
-            positions[i+1] = -10;
-            positions[i] = (Math.random() - 0.5) * 20;
-          }
-          if (positions[i] > 10) {
-            positions[i] = -10;
-          }
+          positions[i] += 0.005; positions[i+1] += 0.01; 
+          if (positions[i+1] > halfBox) { positions[i+1] = -halfBox; positions[i] = (Math.random() - 0.5) * this.ambientBoxSize; }
+          if (positions[i] > halfBox) positions[i] = -halfBox;
         }
         this.particles.geometry.attributes['position'].needsUpdate = true;
-
         this.particles.rotation.y += 0.0001;
 
         // --- Phoenix Animation ---
         if (this.phoenixGroup) {
-          // Boid Wandering Logic
-          const speed = 0.04; // Gentle, majestic speed
-          const maxTurnForce = 0.0002; // Extremely thin cone - halves the turn radius from before
+          const speed = 0.04; 
+          const maxTurnForce = 0.0002; // Thin steering cone
           
-          // 1. Wander Force (Severely restricted to favor straight flight)
-          this.wanderTheta += (Math.random() - 0.5) * 0.02; // Very tiny adjustments
+          this.wanderTheta += (Math.random() - 0.5) * 0.02; 
           this.wanderPhi += (Math.random() - 0.5) * 0.02;
-          
-          // Constrain phi so it doesn't fly perfectly straight up or down all the time
           this.wanderPhi = Math.max(Math.PI / 3, Math.min(2 * Math.PI / 3, this.wanderPhi));
 
           const wanderForce = new THREE.Vector3(
@@ -305,69 +316,41 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
               Math.sin(this.wanderPhi) * Math.sin(this.wanderTheta)
           ).normalize().multiplyScalar(0.005); 
 
-          // 2. Containment Force
-          // This creates a strong "desired" vector back to the box if it goes out,
-          // but the bird will only curve smoothly to match it because of maxTurnForce
           let containForce = new THREE.Vector3();
-          
-          if (this.phoenixPosition.x < -15) containForce.x += 0.05;
-          else if (this.phoenixPosition.x > 15) containForce.x -= 0.05;
-          
-          if (this.phoenixPosition.y < -10) containForce.y += 0.05;
-          else if (this.phoenixPosition.y > 10) containForce.y -= 0.05;
-          
+          if (this.phoenixPosition.x < -this.boundX) containForce.x += 0.05;
+          else if (this.phoenixPosition.x > this.boundX) containForce.x -= 0.05;
+          if (this.phoenixPosition.y < -this.boundY) containForce.y += 0.05;
+          else if (this.phoenixPosition.y > this.boundY) containForce.y -= 0.05;
           if (this.phoenixPosition.z < -20) containForce.z += 0.05; 
           else if (this.phoenixPosition.z > -10) containForce.z -= 0.05; 
 
-          // 3. Reynolds Steering Algorithm
-          const desiredVelocity = this.phoenixVelocity.clone()
-              .add(wanderForce)
-              .add(containForce)
-              .normalize()
-              .multiplyScalar(speed);
-
+          // Reynolds Steering Algorithm
+          const desiredVelocity = this.phoenixVelocity.clone().add(wanderForce).add(containForce).normalize().multiplyScalar(speed);
           const steering = desiredVelocity.sub(this.phoenixVelocity);
-          
-          // Clamp steering force to enforce the "thin cone" (no sharp angles!)
-          if (steering.length() > maxTurnForce) {
-              steering.normalize().multiplyScalar(maxTurnForce);
-          }
+          if (steering.length() > maxTurnForce) steering.normalize().multiplyScalar(maxTurnForce);
 
-          // Apply forces
           this.phoenixVelocity.add(steering);
           this.phoenixVelocity.normalize().multiplyScalar(speed);
-
-          // Move the bird head
           this.phoenixPosition.add(this.phoenixVelocity);
 
-          // Point forward (multiply velocity by 100 to fix lookAt precision shaking)
           const lookTarget = this.phoenixPosition.clone().add(this.phoenixVelocity.clone().multiplyScalar(100));
-          
-          // Use a dummy object to calculate the master rotation for this frame
           const dummy = new THREE.Object3D();
           dummy.position.copy(this.phoenixPosition);
           dummy.lookAt(lookTarget);
-          dummy.rotateY(Math.PI); // Flip 180 degrees
+          dummy.rotateY(Math.PI); 
 
-          // Calculate Bank Angle (Roll)
           const vDiff = this.phoenixVelocity.clone().sub(this.previousVelocity);
           const right = new THREE.Vector3(1, 0, 0).applyQuaternion(dummy.quaternion);
-          const turnRate = vDiff.dot(right);
-          
-          let targetBank = turnRate * 400; 
+          let targetBank = vDiff.dot(right) * 400; 
           targetBank = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, targetBank));
           this.currentBank += (targetBank - this.currentBank) * 0.05;
           dummy.rotateZ(this.currentBank);
-          
           this.previousVelocity.copy(this.phoenixVelocity);
 
-          // Push new frame to history
           this.historyPos.unshift(this.phoenixPosition.clone());
           this.historyQuat.unshift(dummy.quaternion.clone());
-          
           if (this.historyPos.length > this.MAX_HISTORY) {
-              this.historyPos.pop();
-              this.historyQuat.pop();
+              this.historyPos.pop(); this.historyQuat.pop();
           }
 
           // Dragon Snake Particle Mapping
@@ -380,25 +363,24 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             const baseY = this.basePositions[idx+1];
             const baseZ = this.basePositions[idx+2];
             
-            // Map the particle's Z distance to a frame in the flight history
-            // baseZ is positive (0 = head, higher = tail). 
-            // We divide by speed to get the number of frames behind the head it should be.
-            let histIdx = Math.floor(baseZ / speed);
+            const scaledBaseX = baseX * this.birdScale;
+            const scaledBaseY = baseY * this.birdScale;
+            const scaledBaseZ = baseZ * this.birdScale;
+            
+            let histIdx = Math.floor(scaledBaseZ / speed);
             histIdx = Math.max(0, Math.min(this.historyPos.length - 1, histIdx));
             
             const hPos = this.historyPos[histIdx];
             const hQuat = this.historyQuat[histIdx];
             
-            const flapAmount = Math.abs(baseX) * 0.5; // X is scaled down, so boost flap multiplier
-            const flapPhase = this.flapTime - baseZ * 2.0; // Wave travels down the body
+            const flapAmount = Math.abs(scaledBaseX) * 0.5; 
+            const flapPhase = this.flapTime - scaledBaseZ * 2.0; 
             const flapOffset = Math.sin(flapPhase) * flapAmount;
             
-            const flickerX = (Math.random() - 0.5) * 0.05;
-            const flickerY = (Math.random() - 0.5) * 0.05;
+            const flickerX = (Math.random() - 0.5) * 0.05 * this.birdScale;
+            const flickerY = (Math.random() - 0.5) * 0.05 * this.birdScale;
             
-            // Notice baseZ is entirely replaced by the history lookup!
-            // We only apply the lateral offsets (X/Y) relative to the spine at that history frame.
-            const localOffset = new THREE.Vector3(baseX + flickerX, baseY + flapOffset + flickerY, 0);
+            const localOffset = new THREE.Vector3(scaledBaseX + flickerX, scaledBaseY + flapOffset + flickerY, 0);
             localOffset.applyQuaternion(hQuat);
             
             pPositions[idx] = hPos.x + localOffset.x;
@@ -419,6 +401,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.updateBounds();
   }
 }
 
