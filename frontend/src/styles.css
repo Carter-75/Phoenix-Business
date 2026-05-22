@@ -18,8 +18,11 @@
     --font-display: 'Syne', sans-serif;
   }
 
-  html, body {
-    @apply bg-[#020205] text-white font-['Inter'] m-0 antialiased overflow-x-hidden w-full relative selection:bg-orange-600/30;
+  html {
+    @apply bg-[#020205] w-full;
+  }
+  body {
+    @apply bg-transparent text-white font-['Inter'] m-0 antialiased overflow-x-hidden w-full relative selection:bg-orange-600/30;
   }
 
   h1, h2, h3, h4 {
@@ -75,10 +78,6 @@
   }
 }
 
-/* Moving Background Container */
-#bg-canvas {
-  @apply fixed inset-0 -z-50 pointer-events-none;
-}
 
 /* Animations */
 .reveal-text {

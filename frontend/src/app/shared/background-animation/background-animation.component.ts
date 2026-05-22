@@ -12,6 +12,7 @@ import * as THREE from 'three';
       inset: 0;
       z-index: -50;
       background: #020205;
+      pointer-events: none;
     }
     #bg-canvas {
       width: 100%;
