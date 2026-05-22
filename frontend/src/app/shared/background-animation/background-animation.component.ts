@@ -129,13 +129,44 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   }
 
   private initHistory() {
-    const startPos = new THREE.Vector3(0, 0, -15);
-    const startVel = new THREE.Vector3(0, 0, -1);
+    // 1. Calculate physical viewport size at the Phoenix's depth layer (Z = -15)
+    const depth = -15;
+    const distance = Math.abs(this.camera.position.z - depth);
+    const vFov = THREE.MathUtils.degToRad(this.camera.fov);
+    const height = 2 * Math.tan(vFov / 2) * distance;
+    const width = height * this.camera.aspect;
+    
+    // 2. Create an invisible circle encompassing the full viewport, plus 25%
+    const viewportRadius = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2));
+    const spawnRadius = viewportRadius * 1.25;
+
+    // 3. Pick a completely random point on this circle
+    const spawnAngle = Math.random() * Math.PI * 2;
+    const spawnX = Math.cos(spawnAngle) * spawnRadius;
+    const spawnY = Math.sin(spawnAngle) * spawnRadius;
+    const startPos = new THREE.Vector3(spawnX, spawnY, depth);
+    
+    // 4. Pick a completely random 3D direction
+    const randomTheta = Math.random() * Math.PI * 2;
+    const randomPhi = Math.acos(2 * Math.random() - 1);
+    const startDir = new THREE.Vector3(
+        Math.sin(randomPhi) * Math.cos(randomTheta),
+        Math.cos(randomPhi),
+        Math.sin(randomPhi) * Math.sin(randomTheta)
+    ).normalize();
+    
+    // 5. Seed the wander forces to align with this random starting direction
+    this.wanderTheta = Math.atan2(startDir.z, startDir.x);
+    this.wanderPhi = Math.acos(startDir.y);
+    
+    const speed = 0.04;
+    const startVel = startDir.clone().multiplyScalar(speed);
+
     const dummy = new THREE.Object3D();
     
     for (let i = 0; i < this.MAX_HISTORY; i++) {
         // i=0 is head, i>0 is progressively further behind
-        const p = startPos.clone().sub(startVel.clone().multiplyScalar(i * 0.04));
+        const p = startPos.clone().sub(startDir.clone().multiplyScalar(i * speed));
         this.historyPos.push(p);
         
         dummy.position.copy(p);
