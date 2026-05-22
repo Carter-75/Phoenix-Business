@@ -168,16 +168,16 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     const spawnY = Math.sin(spawnAngle) * spawnRadius;
     const startPos = new THREE.Vector3(spawnX, spawnY, depth);
     
-    // 4. Pick a completely random 3D direction
-    const randomTheta = Math.random() * Math.PI * 2;
-    const randomPhi = Math.acos(2 * Math.random() - 1);
-    const startDir = new THREE.Vector3(
-        Math.sin(randomPhi) * Math.cos(randomTheta),
-        Math.cos(randomPhi),
-        Math.sin(randomPhi) * Math.sin(randomTheta)
-    ).normalize();
+    // 4. Target a random point inside the visible viewport
+    const targetX = (Math.random() - 0.5) * width * 0.8;
+    const targetY = (Math.random() - 0.5) * height * 0.8;
+    const targetZ = depth + (Math.random() - 0.5) * 10; // Add some depth variation
+    const targetPos = new THREE.Vector3(targetX, targetY, targetZ);
     
-    // 5. Seed the wander forces to align with this random starting direction
+    // Initial direction directly aims from spawn point into the screen
+    const startDir = targetPos.clone().sub(startPos).normalize();
+    
+    // 5. Seed the wander forces to align with this starting direction
     this.wanderTheta = Math.atan2(startDir.z, startDir.x);
     this.wanderPhi = Math.acos(startDir.y);
     
@@ -304,7 +304,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
         // --- Phoenix Animation ---
         if (this.phoenixGroup) {
           const speed = 0.04; 
-          const maxTurnForce = 0.0002; // Thin steering cone
+          let maxTurnForce = 0.0002; 
+          
+          // Dynamically relax the turn restriction if it gets too far off screen
+          // This allows it to make a smooth teardrop loop back onto the screen
+          const distX = Math.abs(this.phoenixPosition.x);
+          const distY = Math.abs(this.phoenixPosition.y);
+          if (distX > this.boundX) maxTurnForce += (distX - this.boundX) * 0.0001;
+          if (distY > this.boundY) maxTurnForce += (distY - this.boundY) * 0.0001;
           
           this.wanderTheta += (Math.random() - 0.5) * 0.02; 
           this.wanderPhi += (Math.random() - 0.5) * 0.02;
