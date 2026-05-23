@@ -182,14 +182,20 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
 
   private createParticles() {
     const geometry = new THREE.BufferGeometry();
-    const count = 5000;
+    const count = 7000;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
 
     for (let i = 0; i < count * 3; i += 3) {
       positions[i] = (Math.random() - 0.5) * this.ambientBoxSize;
       positions[i+1] = (Math.random() - 0.5) * this.ambientBoxSize;
-      positions[i+2] = (Math.random() - 0.5) * 40 - 10; // Spans Z from -30 to +10
+      
+      // Spawn 5000 in the background/midground, and 2000 specifically in the foreground
+      if (i < 5000 * 3) {
+        positions[i+2] = (Math.random() - 0.5) * 40 - 10; // Spans Z from -30 to +10
+      } else {
+        positions[i+2] = Math.random() * 8 - 4; // Spans Z from -4 to +4 (very close to camera at Z=5)
+      }
       
       const r = Math.random();
       // 50% chance for Orange/Gold, 50% chance for Blue particles
