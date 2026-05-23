@@ -1,8 +1,9 @@
-import { Component, ElementRef, OnInit, OnDestroy, ViewChild, NgZone } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild, NgZone, inject } from '@angular/core';
 import * as THREE from 'three';
+import { PhoenixSettingsService } from '../../services/phoenix-settings.service';
 
 interface PhoenixState {
-  theme: 'orange' | 'blue';
+  theme: 'orange' | 'blue' | 'purple';
   group: THREE.Group;
   particles: THREE.Points;
   basePositions: Float32Array;
@@ -62,23 +63,31 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private birdScale = 1.0;
   private readonly ambientBoxSize = 80;
 
+  private settings = inject(PhoenixSettingsService);
+
   constructor(private ngZone: NgZone) {}
 
   ngOnInit() {
     this.initThree();
     this.createParticles();
     
-    // Initialize Orange Phoenix
+    // Initialize Fire Phoenix
     const orangeBird = this.createBirdState('orange');
     this.initHistory(orangeBird);
     this.createPhoenixMesh(orangeBird);
     this.birds.push(orangeBird);
     
-    // Initialize Blue Phoenix
+    // Initialize Ice Phoenix
     const blueBird = this.createBirdState('blue');
     this.initHistory(blueBird);
     this.createPhoenixMesh(blueBird);
     this.birds.push(blueBird);
+
+    // Initialize Eclipse Phoenix
+    const purpleBird = this.createBirdState('purple');
+    this.initHistory(purpleBird);
+    this.createPhoenixMesh(purpleBird);
+    this.birds.push(purpleBird);
 
     this.animate();
     
@@ -93,7 +102,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     this.renderer.dispose();
   }
 
-  private createBirdState(theme: 'orange' | 'blue'): PhoenixState {
+  private createBirdState(theme: 'orange' | 'blue' | 'purple'): PhoenixState {
     return {
       theme,
       group: new THREE.Group(),
@@ -198,17 +207,22 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
       }
       
       const r = Math.random();
-      // 50% chance for Orange/Gold, 50% chance for Blue particles
-      if (r > 0.5) {
+      // Evenly distribute colors amongst Orange, Blue, and Purple
+      if (r > 0.66) {
         const subR = Math.random();
         if (subR > 0.7) { colors[i] = 1.0; colors[i+1] = 0.8; colors[i+2] = 0.2; } // Gold
         else if (subR > 0.3) { colors[i] = 1.0; colors[i+1] = 0.4; colors[i+2] = 0.0; } // Orange
         else { colors[i] = 0.8; colors[i+1] = 0.1; colors[i+2] = 0.0; } // Deep Red
-      } else {
+      } else if (r > 0.33) {
         const subR = Math.random();
         if (subR > 0.7) { colors[i] = 0.2; colors[i+1] = 0.8; colors[i+2] = 1.0; } // Cyan
         else if (subR > 0.3) { colors[i] = 0.0; colors[i+1] = 0.4; colors[i+2] = 1.0; } // Blue
         else { colors[i] = 0.0; colors[i+1] = 0.1; colors[i+2] = 0.8; } // Deep Blue
+      } else {
+        const subR = Math.random();
+        if (subR > 0.7) { colors[i] = 0.9; colors[i+1] = 0.2; colors[i+2] = 1.0; } // Magenta/Pink
+        else if (subR > 0.3) { colors[i] = 0.6; colors[i+1] = 0.0; colors[i+2] = 1.0; } // Vivid Purple
+        else { colors[i] = 0.3; colors[i+1] = 0.0; colors[i+2] = 0.6; } // Deep Purple
       }
     }
 
@@ -333,14 +347,22 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
         } else {
           colors[idx] = 0.8; colors[idx+1] = 0.1; colors[idx+2] = 0.0;
         }
-      } else {
-        // Blue Theme
+      } else if (bird.theme === 'blue') {
         if (distFromCenter < 2 && z < 2) {
           colors[idx] = 0.5; colors[idx+1] = 0.9; colors[idx+2] = 1.0; // Cyan Core
         } else if (distFromCenter < 5 && z < 6) {
           colors[idx] = 0.0; colors[idx+1] = 0.4; colors[idx+2] = 1.0; // Vivid Blue
         } else {
           colors[idx] = 0.0; colors[idx+1] = 0.1; colors[idx+2] = 0.8; // Deep Blue edges
+        }
+      } else {
+        // Purple/Eclipse Theme
+        if (distFromCenter < 2 && z < 2) {
+          colors[idx] = 0.9; colors[idx+1] = 0.2; colors[idx+2] = 1.0; // Magenta Core
+        } else if (distFromCenter < 5 && z < 6) {
+          colors[idx] = 0.6; colors[idx+1] = 0.0; colors[idx+2] = 1.0; // Vivid Purple
+        } else {
+          colors[idx] = 0.3; colors[idx+1] = 0.0; colors[idx+2] = 0.6; // Deep Purple edges
         }
       }
     }
@@ -384,6 +406,16 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
           const bird = this.birds[i];
           
           if (bird.group) {
+            // Respect visibility toggles from Settings Service
+            const isVisible = (bird.theme === 'orange' && this.settings.fireEnabled()) ||
+                              (bird.theme === 'blue' && this.settings.iceEnabled()) ||
+                              (bird.theme === 'purple' && this.settings.eclipseEnabled());
+            
+            bird.group.visible = isVisible;
+
+            // Performance: If disabled via the hidden menu, skip running heavy 3D physics for this bird!
+            if (!isVisible) continue;
+
             // Check if waypoint reached
             if (bird.position.distanceTo(bird.targetWaypoint) < 10.0) {
                 this.generateWaypoint(bird);
@@ -430,14 +462,20 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             for (let j = 0; j < this.birds.length; j++) {
               if (i !== j) {
                 const otherBird = this.birds[j];
-                const distToOther = bird.position.distanceTo(otherBird.position);
-                
-                // If they get within 15 units of each other, strongly repel
-                if (distToOther < 15.0 && distToOther > 0) {
-                  const repel = bird.position.clone().sub(otherBird.position).normalize();
-                  // Closer they are, stronger the repel
-                  const repelStrength = (15.0 - distToOther) / 15.0; 
-                  avoidForce.add(repel.multiplyScalar(repelStrength * 0.015)); 
+                // Only avoid other birds that are currently active!
+                const isOtherVisible = (otherBird.theme === 'orange' && this.settings.fireEnabled()) ||
+                                       (otherBird.theme === 'blue' && this.settings.iceEnabled()) ||
+                                       (otherBird.theme === 'purple' && this.settings.eclipseEnabled());
+                if (isOtherVisible) {
+                  const distToOther = bird.position.distanceTo(otherBird.position);
+                  
+                  // If they get within 15 units of each other, strongly repel
+                  if (distToOther < 15.0 && distToOther > 0) {
+                    const repel = bird.position.clone().sub(otherBird.position).normalize();
+                    // Closer they are, stronger the repel
+                    const repelStrength = (15.0 - distToOther) / 15.0; 
+                    avoidForce.add(repel.multiplyScalar(repelStrength * 0.015)); 
+                  }
                 }
               }
             }

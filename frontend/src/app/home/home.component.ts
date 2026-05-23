@@ -10,6 +10,7 @@ import { SafePipe } from '../shared/pipes/safe.pipe';
 gsap.registerPlugin(ScrollTrigger);
 
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
+import { PhoenixSettingsService } from '../services/phoenix-settings.service';
 
 @Component({
   selector: 'app-home',
@@ -19,9 +20,14 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
+  public settings = inject(PhoenixSettingsService);
   
   submitting = signal(false);
   success = signal(false);
+  
+  // Secret Menu
+  secretClickCount = signal(0);
+  showSecretMenu = signal(false);
 
   clients = [
     {
@@ -102,6 +108,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   scrollToAudit() {
     document.getElementById('audit')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  onTitleClick() {
+    this.secretClickCount.update(c => c + 1);
+    if (this.secretClickCount() >= 5) {
+      this.showSecretMenu.set(true);
+      this.secretClickCount.set(0); // Reset after opening
+    }
   }
 
   ngOnDestroy() {

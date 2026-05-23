@@ -9,8 +9,8 @@
           <div class="w-12 h-[1px] bg-orange-600"></div>
           <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-xs">Modern Web Design</span>
         </div>
-        <div class="flex items-end gap-8 hero-reveal">
-          <h1 class="fluid-h1 font-black">
+        <div class="flex items-end gap-8 hero-reveal cursor-pointer" (click)="onTitleClick()">
+          <h1 class="fluid-h1 font-black select-none">
             PHOENIX<br>
             <span class="text-white/20">STUDIO</span>
           </h1>
@@ -168,4 +168,67 @@
       </div>
     </div>
   </section>
+
+  <!-- Hidden Phoenix Menu -->
+  <div *ngIf="showSecretMenu()" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="showSecretMenu.set(false)"></div>
+    <div class="relative glass-card !bg-[#050508]/80 !border-white/10 w-full max-w-md p-8 sm:p-12 animate-in fade-in zoom-in duration-300">
+      <button (click)="showSecretMenu.set(false)" class="absolute top-6 right-6 text-white/40 hover:text-white transition-colors">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+
+      <h3 class="text-xl font-black uppercase tracking-[0.3em] text-white mb-2">Phoenix Settings</h3>
+      <p class="text-[10px] uppercase tracking-[0.2em] text-orange-600 mb-8">Tri-Engine Debug Mode</p>
+
+      <div class="space-y-6">
+        <!-- Fire Toggle -->
+        <div class="flex items-center justify-between group">
+          <div>
+            <div class="text-sm font-bold uppercase tracking-widest text-orange-500">Fire Phoenix</div>
+            <div class="text-[10px] text-white/40 tracking-widest uppercase">Default Core Engine</div>
+          </div>
+          <button (click)="settings.toggleBird('fire')"
+                  class="w-12 h-6 rounded-full transition-colors relative"
+                  [class.bg-orange-600]="settings.fireEnabled()"
+                  [class.bg-white]="!settings.fireEnabled()"
+                  [class.opacity-20]="!settings.fireEnabled()">
+            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
+                 [class.translate-x-6]="settings.fireEnabled()"></div>
+          </button>
+        </div>
+
+        <!-- Ice Toggle -->
+        <div class="flex items-center justify-between group">
+          <div>
+            <div class="text-sm font-bold uppercase tracking-widest text-cyan-400">Ice Phoenix</div>
+            <div class="text-[10px] text-white/40 tracking-widest uppercase">Secondary Engine</div>
+          </div>
+          <button (click)="settings.toggleBird('ice')"
+                  class="w-12 h-6 rounded-full transition-colors relative"
+                  [class.bg-cyan-500]="settings.iceEnabled()"
+                  [class.bg-white]="!settings.iceEnabled()"
+                  [class.opacity-20]="!settings.iceEnabled()">
+            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
+                 [class.translate-x-6]="settings.iceEnabled()"></div>
+          </button>
+        </div>
+
+        <!-- Eclipse Toggle -->
+        <div class="flex items-center justify-between group">
+          <div>
+            <div class="text-sm font-bold uppercase tracking-widest text-purple-500">Eclipse Phoenix</div>
+            <div class="text-[10px] text-white/40 tracking-widest uppercase">Tertiary Engine</div>
+          </div>
+          <button (click)="settings.toggleBird('eclipse')"
+                  class="w-12 h-6 rounded-full transition-colors relative"
+                  [class.bg-purple-600]="settings.eclipseEnabled()"
+                  [class.bg-white]="!settings.eclipseEnabled()"
+                  [class.opacity-20]="!settings.eclipseEnabled()">
+            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
+                 [class.translate-x-6]="settings.eclipseEnabled()"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
