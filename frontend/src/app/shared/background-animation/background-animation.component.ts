@@ -44,6 +44,9 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private wanderTheta = 0;
   private wanderPhi = Math.PI / 2;
   
+  private targetWaypoint = new THREE.Vector3();
+  private exclusionRadius = 0;
+  
   private historyPos: THREE.Vector3[] = [];
   private historyQuat: THREE.Quaternion[] = [];
   private readonly MAX_HISTORY = 600;
@@ -100,9 +103,37 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     // Scale bird down on mobile screens (baseline 1200px width)
     this.birdScale = Math.max(0.4, Math.min(1.0, window.innerWidth / 1200));
     
-    // Allow the bird to fly off screen by setting bounds 20% larger than viewport
-    this.boundX = (width / 2) * 1.2;
-    this.boundY = (height / 2) * 1.2;
+    // 90% of viewport for waypoint spawning
+    this.boundX = (width / 2) * 0.9;
+    this.boundY = (height / 2) * 0.9;
+
+    // Exclusion radius area = 2.5% of total screen area
+    const screenArea = width * height;
+    const targetArea = screenArea * 0.025;
+    this.exclusionRadius = Math.sqrt(targetArea / Math.PI);
+  }
+
+  private generateWaypoint() {
+    let newWaypoint = new THREE.Vector3();
+    let valid = false;
+    let attempts = 0;
+
+    while (!valid && attempts < 50) {
+      newWaypoint.x = (Math.random() - 0.5) * (this.boundX * 2);
+      newWaypoint.y = (Math.random() - 0.5) * (this.boundY * 2);
+      newWaypoint.z = -17.5 + (Math.random() - 0.5) * 15; // Z between -25 and -10
+
+      if (this.targetWaypoint.lengthSq() === 0) {
+        valid = true;
+      } else {
+        const dist = newWaypoint.distanceTo(this.targetWaypoint);
+        if (dist > this.exclusionRadius) {
+          valid = true;
+        }
+      }
+      attempts++;
+    }
+    this.targetWaypoint.copy(newWaypoint);
   }
 
   private createParticles() {
@@ -169,16 +200,13 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     const spawnY = Math.sin(spawnAngle) * spawnRadius;
     const startPos = new THREE.Vector3(spawnX, spawnY, depth);
     
-    // Target a point inside the visible viewport, strictly maintaining Z depth
-    const targetX = (Math.random() - 0.5) * width * 0.5;
-    const targetY = (Math.random() - 0.5) * height * 0.5;
-    const targetZ = depth;
-    const targetPos = new THREE.Vector3(targetX, targetY, targetZ);
+    // Generate the very first waypoint
+    this.targetWaypoint = new THREE.Vector3(); // reset
+    this.generateWaypoint();
     
-    // Initial direction directly aims from spawn point into the screen
-    const startDir = targetPos.clone().sub(startPos).normalize();
+    // Initial direction directly aims from spawn point into the screen towards waypoint
+    const startDir = this.targetWaypoint.clone().sub(startPos).normalize();
     
-    // 5. Seed the wander forces to align with this starting direction
     this.wanderTheta = Math.atan2(startDir.z, startDir.x);
     this.wanderPhi = Math.acos(startDir.y);
     
@@ -306,16 +334,15 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
         // --- Phoenix Animation ---
         if (this.phoenixGroup) {
           const speed = 0.08; 
-          // Scale turn force inverse to bird scale so mobile birds turn tighter
-          let maxTurnForce = 0.0008 / this.birdScale; 
           
-          const distX = Math.abs(this.phoenixPosition.x);
-          const distY = Math.abs(this.phoenixPosition.y);
-          if (distX > this.boundX * 1.2) maxTurnForce += (distX - this.boundX * 1.2) * 0.0005;
-          if (distY > this.boundY * 1.2) maxTurnForce += (distY - this.boundY * 1.2) * 0.0005;
-          
-          this.wanderTheta += (Math.random() - 0.5) * 0.02; 
-          this.wanderPhi += (Math.random() - 0.5) * 0.02;
+          // Check if waypoint reached (capture radius increased to 10 since it's only wandering loosely towards it)
+          if (this.phoenixPosition.distanceTo(this.targetWaypoint) < 10.0) {
+              this.generateWaypoint();
+          }
+
+          // 1. Fluid Wander Force
+          this.wanderTheta += (Math.random() - 0.5) * 0.05; 
+          this.wanderPhi += (Math.random() - 0.5) * 0.05;
           this.wanderPhi = Math.max(Math.PI / 3, Math.min(2 * Math.PI / 3, this.wanderPhi));
 
           const wanderForce = new THREE.Vector3(
@@ -324,20 +351,28 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
               Math.sin(this.wanderPhi) * Math.sin(this.wanderTheta)
           ).normalize().multiplyScalar(0.005); 
 
+          // 2. Waypoint Pull (Favoring the point)
+          const waypointForce = this.targetWaypoint.clone().sub(this.phoenixPosition).normalize().multiplyScalar(0.005);
+
+          // 3. Loose Containment (Just in case the wander pushes it too far off screen)
           let containForce = new THREE.Vector3();
-          
-          // X/Y Containment (Seek center horizontally/vertically if out of bounds)
-          if (distX > this.boundX || distY > this.boundY) {
+          const distX = Math.abs(this.phoenixPosition.x);
+          const distY = Math.abs(this.phoenixPosition.y);
+          if (distX > this.boundX * 1.3 || distY > this.boundY * 1.3) {
               const centerXY = new THREE.Vector3(0, 0, this.phoenixPosition.z);
-              containForce = centerXY.sub(this.phoenixPosition).normalize().multiplyScalar(0.05);
+              containForce = centerXY.sub(this.phoenixPosition).normalize().multiplyScalar(0.01);
           }
-
-          // Relaxed Z Containment (Allow 3D flux between -25 and -10)
-          if (this.phoenixPosition.z < -25) containForce.z += 0.05;
-          else if (this.phoenixPosition.z > -10) containForce.z -= 0.05;
-
+          if (this.phoenixPosition.z < -25) containForce.z += 0.01;
+          else if (this.phoenixPosition.z > -10) containForce.z -= 0.01;
+          
+          // Combine forces (Wander + Waypoint + Containment)
+          const combinedForce = wanderForce.add(waypointForce).add(containForce);
+          
+          // Significantly lower turn force for majestic, sweeping, massive turns
+          let maxTurnForce = 0.00025 / this.birdScale; 
+          
           // Reynolds Steering Algorithm
-          const desiredVelocity = this.phoenixVelocity.clone().add(wanderForce).add(containForce).normalize().multiplyScalar(speed);
+          const desiredVelocity = this.phoenixVelocity.clone().add(combinedForce).normalize().multiplyScalar(speed);
           const steering = desiredVelocity.sub(this.phoenixVelocity);
           if (steering.length() > maxTurnForce) steering.normalize().multiplyScalar(maxTurnForce);
 
