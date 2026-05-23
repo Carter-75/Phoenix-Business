@@ -220,9 +220,9 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
         else { colors[i] = 0.0; colors[i+1] = 0.1; colors[i+2] = 0.8; } // Deep Blue
       } else {
         const subR = Math.random();
-        if (subR > 0.7) { colors[i] = 0.9; colors[i+1] = 0.2; colors[i+2] = 1.0; } // Magenta/Pink
-        else if (subR > 0.3) { colors[i] = 0.6; colors[i+1] = 0.0; colors[i+2] = 1.0; } // Vivid Purple
-        else { colors[i] = 0.3; colors[i+1] = 0.0; colors[i+2] = 0.6; } // Deep Purple
+        if (subR > 0.7) { colors[i] = 0.6; colors[i+1] = 0.0; colors[i+2] = 1.0; } // Vivid Purple Core
+        else if (subR > 0.3) { colors[i] = 0.3; colors[i+1] = 0.0; colors[i+2] = 0.8; } // Deep Purple
+        else { colors[i] = 0.1; colors[i+1] = 0.0; colors[i+2] = 0.5; } // Dark Void Purple
       }
     }
 
@@ -358,11 +358,11 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
       } else {
         // Purple/Eclipse Theme
         if (distFromCenter < 2 && z < 2) {
-          colors[idx] = 0.9; colors[idx+1] = 0.2; colors[idx+2] = 1.0; // Magenta Core
+          colors[idx] = 0.6; colors[idx+1] = 0.0; colors[idx+2] = 1.0; // Vivid Purple Core
         } else if (distFromCenter < 5 && z < 6) {
-          colors[idx] = 0.6; colors[idx+1] = 0.0; colors[idx+2] = 1.0; // Vivid Purple
+          colors[idx] = 0.3; colors[idx+1] = 0.0; colors[idx+2] = 0.8; // Deep Purple
         } else {
-          colors[idx] = 0.3; colors[idx+1] = 0.0; colors[idx+2] = 0.6; // Deep Purple edges
+          colors[idx] = 0.1; colors[idx+1] = 0.0; colors[idx+2] = 0.5; // Dark Void Purple edges
         }
       }
     }
