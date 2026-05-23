@@ -47,6 +47,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private historyPos: THREE.Vector3[] = [];
   private historyQuat: THREE.Quaternion[] = [];
   private readonly MAX_HISTORY = 600;
+  private lastLogTime = 0;
   
   // Mobile responsiveness
   private boundX = 15;
@@ -90,18 +91,18 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   }
 
   private updateBounds() {
-    const depth = -15; // Standard depth for containment
+    const depth = -15; 
     const distance = Math.abs(this.camera.position.z - depth);
     const vFov = THREE.MathUtils.degToRad(this.camera.fov);
     const height = 2 * Math.tan(vFov / 2) * distance;
     const width = height * this.camera.aspect;
     
-    // Containment box should be roughly 80% of viewport
-    this.boundX = (width / 2) * 0.8;
-    this.boundY = (height / 2) * 0.8;
-    
     // Scale bird down on mobile screens (baseline 1200px width)
     this.birdScale = Math.max(0.4, Math.min(1.0, window.innerWidth / 1200));
+    
+    // Allow the bird to fly off screen by setting bounds 20% larger than viewport
+    this.boundX = (width / 2) * 1.2;
+    this.boundY = (height / 2) * 1.2;
   }
 
   private createParticles() {
@@ -168,10 +169,10 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     const spawnY = Math.sin(spawnAngle) * spawnRadius;
     const startPos = new THREE.Vector3(spawnX, spawnY, depth);
     
-    // 4. Target a random point inside the visible viewport
-    const targetX = (Math.random() - 0.5) * width * 0.8;
-    const targetY = (Math.random() - 0.5) * height * 0.8;
-    const targetZ = depth + (Math.random() - 0.5) * 10; // Add some depth variation
+    // Target a point inside the visible viewport, strictly maintaining Z depth
+    const targetX = (Math.random() - 0.5) * width * 0.5;
+    const targetY = (Math.random() - 0.5) * height * 0.5;
+    const targetZ = depth;
     const targetPos = new THREE.Vector3(targetX, targetY, targetZ);
     
     // Initial direction directly aims from spawn point into the screen
@@ -181,7 +182,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     this.wanderTheta = Math.atan2(startDir.z, startDir.x);
     this.wanderPhi = Math.acos(startDir.y);
     
-    const speed = 0.04;
+    const speed = 0.08; // Doubled speed
     const startVel = startDir.clone().multiplyScalar(speed);
 
     const dummy = new THREE.Object3D();
@@ -280,6 +281,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     });
 
     this.phoenixParticles = new THREE.Points(geometry, material);
+    this.phoenixParticles.frustumCulled = false; // CRITICAL: Prevents ThreeJS from hiding the bird!
     this.phoenixGroup = new THREE.Group();
     this.phoenixGroup.add(this.phoenixParticles);
     // Note: Bird is scaled natively in basePositions, so Group is left at 1.0 scale.
@@ -303,15 +305,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
 
         // --- Phoenix Animation ---
         if (this.phoenixGroup) {
-          const speed = 0.04; 
-          let maxTurnForce = 0.0002; 
+          const speed = 0.08; 
+          // Scale turn force inverse to bird scale so mobile birds turn tighter
+          let maxTurnForce = 0.0008 / this.birdScale; 
           
-          // Dynamically relax the turn restriction if it gets too far off screen
-          // This allows it to make a smooth teardrop loop back onto the screen
           const distX = Math.abs(this.phoenixPosition.x);
           const distY = Math.abs(this.phoenixPosition.y);
-          if (distX > this.boundX) maxTurnForce += (distX - this.boundX) * 0.0001;
-          if (distY > this.boundY) maxTurnForce += (distY - this.boundY) * 0.0001;
+          if (distX > this.boundX * 1.2) maxTurnForce += (distX - this.boundX * 1.2) * 0.0005;
+          if (distY > this.boundY * 1.2) maxTurnForce += (distY - this.boundY * 1.2) * 0.0005;
           
           this.wanderTheta += (Math.random() - 0.5) * 0.02; 
           this.wanderPhi += (Math.random() - 0.5) * 0.02;
@@ -324,12 +325,16 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
           ).normalize().multiplyScalar(0.005); 
 
           let containForce = new THREE.Vector3();
-          if (this.phoenixPosition.x < -this.boundX) containForce.x += 0.05;
-          else if (this.phoenixPosition.x > this.boundX) containForce.x -= 0.05;
-          if (this.phoenixPosition.y < -this.boundY) containForce.y += 0.05;
-          else if (this.phoenixPosition.y > this.boundY) containForce.y -= 0.05;
-          if (this.phoenixPosition.z < -20) containForce.z += 0.05; 
-          else if (this.phoenixPosition.z > -10) containForce.z -= 0.05; 
+          
+          // X/Y Containment (Seek center horizontally/vertically if out of bounds)
+          if (distX > this.boundX || distY > this.boundY) {
+              const centerXY = new THREE.Vector3(0, 0, this.phoenixPosition.z);
+              containForce = centerXY.sub(this.phoenixPosition).normalize().multiplyScalar(0.05);
+          }
+
+          // Relaxed Z Containment (Allow 3D flux between -25 and -10)
+          if (this.phoenixPosition.z < -25) containForce.z += 0.05;
+          else if (this.phoenixPosition.z > -10) containForce.z -= 0.05;
 
           // Reynolds Steering Algorithm
           const desiredVelocity = this.phoenixVelocity.clone().add(wanderForce).add(containForce).normalize().multiplyScalar(speed);
@@ -361,7 +366,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
           }
 
           // Dragon Snake Particle Mapping
-          this.flapTime += 0.04;
+          this.flapTime += 0.08;
           const pPositions = this.phoenixParticles.geometry.attributes['position'].array as Float32Array;
           
           for (let i = 0; i < this.phoenixCount; i++) {
@@ -395,6 +400,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             pPositions[idx+2] = hPos.z + localOffset.z;
           }
           this.phoenixParticles.geometry.attributes['position'].needsUpdate = true;
+          
+          // Debugging log every 1 second
+          if (performance.now() - this.lastLogTime > 1000) {
+              const center = new THREE.Vector3(0, 0, -15);
+              const dist = this.phoenixPosition.distanceTo(center);
+              console.log(`Phoenix Distance: ${dist.toFixed(2)} | Pos: (${this.phoenixPosition.x.toFixed(2)}, ${this.phoenixPosition.y.toFixed(2)}, ${this.phoenixPosition.z.toFixed(2)}) | Vel: (${this.phoenixVelocity.x.toFixed(3)}, ${this.phoenixVelocity.y.toFixed(3)}, ${this.phoenixVelocity.z.toFixed(3)})`);
+              this.lastLogTime = performance.now();
+          }
         }
         
         this.renderer.render(this.scene, this.camera);
