@@ -46,11 +46,12 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   
   private targetWaypoint = new THREE.Vector3();
   private exclusionRadius = 0;
+  private lastLogTime = 0;
+  private curvePhase = 0;
   
   private historyPos: THREE.Vector3[] = [];
   private historyQuat: THREE.Quaternion[] = [];
   private readonly MAX_HISTORY = 600;
-  private lastLogTime = 0;
   
   // Mobile responsiveness
   private boundX = 15;
@@ -121,7 +122,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     while (!valid && attempts < 50) {
       newWaypoint.x = (Math.random() - 0.5) * (this.boundX * 2);
       newWaypoint.y = (Math.random() - 0.5) * (this.boundY * 2);
-      newWaypoint.z = -17.5 + (Math.random() - 0.5) * 15; // Z between -25 and -10
+      newWaypoint.z = -15 + (Math.random() - 0.5) * 5; // Kept tightly around -15
 
       if (this.targetWaypoint.lengthSq() === 0) {
         valid = true;
@@ -351,8 +352,20 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
               Math.sin(this.wanderPhi) * Math.sin(this.wanderTheta)
           ).normalize().multiplyScalar(0.005); 
 
-          // 2. Waypoint Pull (Favoring the point)
-          const waypointForce = this.targetWaypoint.clone().sub(this.phoenixPosition).normalize().multiplyScalar(0.005);
+          // 2. S-Curve Waypoint Pull (Favoring the point but curving)
+          const directToTarget = this.targetWaypoint.clone().sub(this.phoenixPosition);
+          directToTarget.normalize();
+          
+          // Slowly oscillate left and right to force majestic S-Curves instead of straight lines
+          this.curvePhase += 0.015; 
+          const curveIntensity = Math.sin(this.curvePhase) * 0.8; 
+          
+          const up = new THREE.Vector3(0, 1, 0);
+          let curveRight = new THREE.Vector3().crossVectors(directToTarget, up).normalize();
+          if (curveRight.lengthSq() < 0.001) curveRight = new THREE.Vector3(1, 0, 0); // Fallback if pointing straight up/down
+          
+          const curveVector = curveRight.multiplyScalar(curveIntensity);
+          const waypointForce = directToTarget.add(curveVector).normalize().multiplyScalar(0.005);
 
           // 3. Loose Containment (Just in case the wander pushes it too far off screen)
           let containForce = new THREE.Vector3();
@@ -368,8 +381,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
           // Combine forces (Wander + Waypoint + Containment)
           const combinedForce = wanderForce.add(waypointForce).add(containForce);
           
-          // Significantly lower turn force for majestic, sweeping, massive turns
-          let maxTurnForce = 0.00025 / this.birdScale; 
+          // Dynamic Turn Radius: Wide sweeping turns in center, sharper dramatic turns near edges
+          const ratioX = Math.min(1.0, distX / this.boundX);
+          const ratioY = Math.min(1.0, distY / this.boundY);
+          const edgeProximity = Math.max(ratioX, ratioY); // 0 at center, 1 at screen edge
+          
+          const baseTurn = 0.0001;
+          const edgeBonus = 0.0008;
+          let maxTurnForce = (baseTurn + (edgeProximity * edgeBonus)) / this.birdScale; 
           
           // Reynolds Steering Algorithm
           const desiredVelocity = this.phoenixVelocity.clone().add(combinedForce).normalize().multiplyScalar(speed);
@@ -436,11 +455,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
           }
           this.phoenixParticles.geometry.attributes['position'].needsUpdate = true;
           
-          // Debugging log every 1 second
+          // Console Debugging
           if (performance.now() - this.lastLogTime > 1000) {
-              const center = new THREE.Vector3(0, 0, -15);
-              const dist = this.phoenixPosition.distanceTo(center);
-              console.log(`Phoenix Distance: ${dist.toFixed(2)} | Pos: (${this.phoenixPosition.x.toFixed(2)}, ${this.phoenixPosition.y.toFixed(2)}, ${this.phoenixPosition.z.toFixed(2)}) | Vel: (${this.phoenixVelocity.x.toFixed(3)}, ${this.phoenixVelocity.y.toFixed(3)}, ${this.phoenixVelocity.z.toFixed(3)})`);
+              const wpDist = this.phoenixPosition.distanceTo(this.targetWaypoint);
+              console.log(`[Phoenix] Pos: (${this.phoenixPosition.x.toFixed(1)}, ${this.phoenixPosition.y.toFixed(1)}, ${this.phoenixPosition.z.toFixed(1)}) | ` +
+                          `WP: (${this.targetWaypoint.x.toFixed(1)}, ${this.targetWaypoint.y.toFixed(1)}, ${this.targetWaypoint.z.toFixed(1)}) | ` +
+                          `ExclRadius: ${this.exclusionRadius.toFixed(1)} | ` +
+                          `Dist: ${wpDist.toFixed(1)} | ` +
+                          `Turn Force: ${maxTurnForce.toFixed(5)}`);
               this.lastLogTime = performance.now();
           }
         }
