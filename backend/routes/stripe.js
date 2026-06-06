@@ -102,7 +102,6 @@ router.post('/checkout', verifyStripe, async (req, res) => {
         }
 
         const sessionConfig = {
-            payment_method_types: ['card'],
             line_items: line_items,
             mode: mode,
             success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?success=true`,
@@ -226,7 +225,6 @@ router.post('/checkout-cancellation', async (req, res) => {
         }
 
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
             customer: user.stripeCustomerId,
             line_items: [
                 {
@@ -417,6 +415,11 @@ router.post('/webhook', async (req, res) => {
         console.error('Failed to check for processed event:', err.message);
     }
 
+    // Best Practice: Return a 200 OK immediately so Stripe doesn't timeout
+    res.json({ received: true });
+
+    // Process the event asynchronously
+    (async () => {
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
 
@@ -429,10 +432,11 @@ router.post('/webhook', async (req, res) => {
                 const finalStatus = session.metadata.type === 'buyout' ? 'bought-out' : 'cancelled';
                 
                 await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
-                return res.json({ received: true, cancellation_processed: true, status: finalStatus });
+                console.log(`[STRIPE] Cancellation processed. Status updated to ${finalStatus}`);
+                return; // Early return for the async IIFE
             } catch (err) {
                 console.error('Failed to process cancellation payment:', err);
-                return res.status(500).json({ error: 'Cancellation failed' });
+                return; // Early return for the async IIFE
             }
         }
 
@@ -700,8 +704,7 @@ router.post('/webhook', async (req, res) => {
     } catch (err) {
         console.error('Failed to save processed event:', err.message);
     }
-
-    res.json({ received: true });
+    })(); // End of async processing block
 });
 
 /**
