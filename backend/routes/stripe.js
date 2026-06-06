@@ -522,8 +522,24 @@ router.post('/webhook', async (req, res) => {
         if (userToEmail || session.customer_details?.email) {
             const emailTarget = userToEmail?.email || session.customer_details?.email;
             const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata?.customer_name;
-            const businessName = userToEmail?.businessName || 'Not Provided';
+            const businessName = userToEmail?.businessName || session.metadata?.business_name || 'Not Provided';
             const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
+            
+            // Update the Stripe Customer object with Business Name and Name
+            try {
+                await stripe.customers.update(session.customer, {
+                    name: businessName !== 'Not Provided' ? businessName : userName,
+                    description: `Contact: ${userName}`,
+                    metadata: {
+                        individual_name: userName,
+                        business_name: businessName,
+                        tier: tier || 'Unknown'
+                    }
+                });
+                console.log(`[STRIPE] Customer ${session.customer} updated with name/business_name.`);
+            } catch (err) {
+                console.error('[STRIPE] Failed to update customer name:', err.message);
+            }
             
             // 1. Send Receipt to Client
             sendReceiptEmail(emailTarget, userName, session.amount_total, projectType, pdfBuffer)
