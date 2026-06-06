@@ -66,7 +66,7 @@ import { environment } from '../../environments/environment';
           <p class="text-xl text-slate-400 mb-12 font-medium">Manage your digital infrastructure, view payment history, and download invoices.</p>
           
           <div class="flex flex-col items-center gap-6 max-w-sm mx-auto">
-            <input *ngIf="!api.currentUser()" #portalEmail type="email" placeholder="ENTER YOUR EMAIL" class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all text-center rounded-lg text-white">
+            <input [hidden]="api.currentUser()" #portalEmail type="email" placeholder="ENTER YOUR EMAIL" class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all text-center rounded-lg text-white">
 
             <button (click)="openCustomerPortal(portalEmail?.value)" [disabled]="loadingPortal()" class="w-full group relative px-8 py-4 bg-white text-black hover:bg-slate-200 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="relative z-10 font-black uppercase tracking-widest text-sm">
