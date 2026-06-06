@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../services/api.service';
@@ -207,6 +207,14 @@ export class DashboardComponent implements OnInit {
   contracts = signal<any[]>([]);
   loadingContracts = signal(true);
 
+  constructor() {
+    effect(() => {
+      if (this.api.currentUser()) {
+        this.fetchContracts();
+      }
+    });
+  }
+
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params['success'] === 'true') {
@@ -216,10 +224,6 @@ export class DashboardComponent implements OnInit {
         this.isCancellationSuccess.set(true);
       }
     });
-
-    if (this.api.currentUser()) {
-      this.fetchContracts();
-    }
   }
 
   fetchContracts() {
