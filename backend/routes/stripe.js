@@ -156,7 +156,21 @@ router.get('/cancellation-quote/:email', async (req, res) => {
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
-        if (!contract || !contract.expiresAt) return res.status(400).json({ error: 'No active contract found' });
+        if (!contract) return res.status(400).json({ error: 'No active contract found' });
+
+        if (contract.contractType && contract.contractType.toLowerCase().includes('simple')) {
+            return res.json({
+                windowStatus: 'not-applicable',
+                monthsLeft: 0,
+                daysUntilExpiration: 0,
+                earlyTerminationFee: 0,
+                buyoutFeeOnly: 0,
+                totalBuyoutCost: 0,
+                subscriptionId: null,
+                isOneTimePurchase: true,
+                tier: 'simple'
+            });
+        }
 
         const subscriptions = await stripe.subscriptions.list({
             customer: user.stripeCustomerId,

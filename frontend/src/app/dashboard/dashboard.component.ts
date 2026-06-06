@@ -98,6 +98,9 @@ import { environment } from '../../environments/environment';
         <header class="mb-10">
           <h2 class="text-3xl font-black uppercase tracking-tighter mb-4 text-white">Manage <span class="text-red-500">Service</span></h2>
           <div class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 space-y-2">
+            
+            <p *ngIf="cancelQuote()?.isOneTimePurchase" class="text-blue-400 bg-blue-500/10 inline-block px-4 py-2 rounded-lg border border-blue-500/20"><i class="fa-solid fa-crown mr-1"></i> Ownership Unlocked</p>
+
             <p *ngIf="cancelQuote()?.windowStatus === 'in-window'" class="text-green-500 bg-green-500/10 inline-block px-4 py-2 rounded-lg border border-green-500/20"><i class="fa-solid fa-check-circle mr-1"></i> Eligible for 60-30 Day Notice Window (No Penalty)</p>
             
             <p *ngIf="cancelQuote()?.windowStatus === 'too-early'" class="text-orange-500 bg-orange-500/10 inline-block px-4 py-2 rounded-lg border border-orange-500/20"><i class="fa-solid fa-clock mr-1"></i> {{ cancelQuote()?.monthsLeft }} Months Remaining in Contract</p>
@@ -113,7 +116,19 @@ import { environment } from '../../environments/environment';
           <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
         </div>
 
-        <div *ngIf="!loadingQuote() && cancelQuote()" class="space-y-6">
+        <!-- TIER 1 OUTRIGHT OWNERSHIP STATE -->
+        <div *ngIf="!loadingQuote() && cancelQuote()?.isOneTimePurchase" class="space-y-6">
+          <div class="border border-blue-500/30 bg-blue-500/5 rounded-2xl p-6 relative overflow-hidden">
+            <h3 class="text-xl font-black text-white mb-2">Simple Launch Plan</h3>
+            <p class="text-sm text-slate-400 mb-6 leading-relaxed">You have fully purchased and own the rights to your custom website infrastructure. There are no monthly subscriptions, buyout fees, or early termination penalties to worry about.</p>
+            
+            <button (click)="closeCancelModal()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors">
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingQuote() && cancelQuote() && !cancelQuote()?.isOneTimePurchase" class="space-y-6">
           
           <!-- OPTION A: BUYOUT -->
           <div class="border border-orange-500/30 bg-orange-500/5 rounded-2xl p-6 relative overflow-hidden group">
