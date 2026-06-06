@@ -288,8 +288,8 @@ router.post('/checkout-cancellation', async (req, res) => {
                 subscriptionId: subscriptionId,
                 userId: user._id.toString()
             },
-            success_url: `${process.env.CLIENT_URL}/dashboard?cancellation_success=true`,
-            cancel_url: `${process.env.CLIENT_URL}/dashboard?canceled=true`
+            success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?cancellation_success=true`,
+            cancel_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?canceled=true`
         });
 
         res.json({ url: session.url });
