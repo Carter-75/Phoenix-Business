@@ -34,7 +34,15 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '44900')
         };
 
-        const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+        if (process.env.TEST_MODE === 'true') {
+            prices.simple = 100; // $1.00
+            prices.essential_setup = 200; // $2.00
+            prices.essential_monthly = 200; // $2.00
+            prices.professional_setup = 300; // $3.00
+            prices.professional_monthly = 300; // $3.00
+        }
+
+        const discountPercentage = process.env.TEST_MODE === 'true' ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
         const applyDiscount = (amount) => {
             return Math.round(amount * (1 - (discountPercentage / 100)));
         };
@@ -712,14 +720,15 @@ router.post('/webhook', async (req, res) => {
  * Exposes current dynamic pricing to the frontend
  */
 router.get('/pricing', (req, res) => {
+    const isTestMode = process.env.TEST_MODE === 'true';
     res.json({
-        discountPercentage: parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
+        discountPercentage: isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
         basePrices: {
-            simple: parseInt(process.env.PRICE_SIMPLE || '83200'),
-            essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'),
-            essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '27600'),
-            professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'),
-            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '49800')
+            simple: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE || '83200'),
+            essential_setup: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'),
+            essential_monthly: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '27600'),
+            professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'),
+            professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '49800')
         }
     });
 });
