@@ -105,7 +105,6 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             payment_method_types: ['card'],
             line_items: line_items,
             mode: mode,
-            managed_payments: { enabled: true },
             success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?success=true`,
             cancel_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/services?canceled=true`,
             customer_email: email || (user ? user.email : undefined),
@@ -127,9 +126,7 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             };
         }
 
-        const session = await stripe.checkout.sessions.create(sessionConfig, {
-            stripeVersion: '2026-02-25.preview'
-        });
+        const session = await stripe.checkout.sessions.create(sessionConfig);
 
         res.json({ url: session.url });
 
