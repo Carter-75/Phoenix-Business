@@ -52,7 +52,7 @@ AI Chatbot Upkeep
 Ad Landing Page Testing
 Appointment Integrations
 Get Started
-
+ 
 Tier 1: Simple Launch (The Essentials)
 
 Scope: A high-impact, single-page or simple multi-page static website (like the Coffee, Icecream, or Cookie examples).
