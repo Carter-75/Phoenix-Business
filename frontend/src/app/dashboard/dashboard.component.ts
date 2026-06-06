@@ -63,24 +63,50 @@ import { environment } from '../../environments/environment';
             <i class="fa-solid fa-user-astronaut text-4xl"></i>
           </div>
           <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Portal</span></h1>
-          <p class="text-xl text-slate-400 mb-12 font-medium">Manage your contract, view termination options, and download invoices.</p>
+          <p class="text-xl text-slate-400 mb-12 font-medium">Manage your active projects, view termination options, and download invoices.</p>
           
-          <div class="flex flex-col items-center gap-6 max-w-sm mx-auto">
-            <button (click)="openCancelModal()" class="w-full group relative px-8 py-5 bg-white text-black hover:bg-red-50 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3">
-              <span class="relative z-10 font-black uppercase tracking-widest text-sm text-red-600">
-                Manage Contract / Cancellation
-              </span>
-              <i class="fa-solid fa-arrow-right relative z-10 text-red-600 group-hover:translate-x-1 transition-transform"></i>
-            </button>
-
-            <a href="#" *ngIf="api.currentUser()" (click)="downloadPDF($event)" class="text-slate-400 hover:text-white transition-colors text-sm font-medium underline underline-offset-4 mt-4 inline-block">
-              {{ downloadingPdf() ? 'Downloading...' : 'Download Latest Contract/Receipt' }}
-            </a>
-            
-            <button *ngIf="api.currentUser()" (click)="logout()" class="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-widest mt-8">
-              Sign Out
-            </button>
+          <div *ngIf="loadingContracts()" class="flex justify-center py-12">
+            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
           </div>
+
+          <div *ngIf="!loadingContracts() && contracts().length === 0" class="text-center py-12 bg-white/5 rounded-2xl border border-white/10 max-w-lg mx-auto">
+             <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-4"></i>
+             <h3 class="text-xl font-bold text-white mb-2">No Active Projects</h3>
+             <p class="text-slate-400 text-sm">You do not have any active websites or contracts right now.</p>
+          </div>
+
+          <div *ngIf="!loadingContracts() && contracts().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
+            
+            <div *ngFor="let contract of contracts()" class="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
+              <!-- Status Badge -->
+              <div class="absolute top-0 right-0 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-bl-lg"
+                   [ngClass]="{
+                     'bg-green-500 text-white': contract.status === 'active',
+                     'bg-blue-500 text-white': contract.status === 'bought-out',
+                     'bg-red-500 text-white': contract.status === 'cancelled' || contract.status === 'breached'
+                   }">
+                {{ contract.status }}
+              </div>
+
+              <h3 class="text-xl font-black text-white mb-1 pr-16">{{ contract.projectName || 'Phoenix Digital Services' }}</h3>
+              <p class="text-xs text-orange-500 font-bold uppercase tracking-widest mb-6">{{ contract.contractType }}</p>
+
+              <div class="flex flex-col gap-3 mt-auto">
+                <button (click)="openCancelModal(contract._id)" class="w-full px-4 py-3 bg-white/10 hover:bg-white/20 text-white transition-all rounded-lg flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
+                  <i class="fa-solid fa-gear"></i> Manage Contract
+                </button>
+                
+                <button (click)="downloadPDF($event, contract._id)" class="w-full px-4 py-3 border border-white/10 hover:border-white/30 text-slate-400 hover:text-white transition-colors rounded-lg flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
+                  <i class="fa-solid fa-download"></i> {{ downloadingPdfId() === contract._id ? 'Downloading...' : 'Download PDF' }}
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <button *ngIf="api.currentUser()" (click)="logout()" class="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-widest mt-12 block mx-auto">
+            Sign Out
+          </button>
         </ng-container>
 
       </div>
@@ -179,7 +205,10 @@ export class DashboardComponent implements OnInit {
   loadingQuote = signal(false);
   checkoutLoading = signal(false);
   cancelQuote = signal<any>(null);
-  downloadingPdf = signal(false);
+  downloadingPdfId = signal<string | null>(null);
+  
+  contracts = signal<any[]>([]);
+  loadingContracts = signal(true);
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -190,41 +219,58 @@ export class DashboardComponent implements OnInit {
         this.isCancellationSuccess.set(true);
       }
     });
+
+    if (this.api.currentUser()) {
+      this.fetchContracts();
+    }
   }
 
-  downloadPDF(event: Event) {
-    event.preventDefault();
-    if (this.downloadingPdf()) return;
-    this.downloadingPdf.set(true);
-
-    this.api.download('auth/contract/pdf').subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Phoenix_Contract_Receipt.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        this.downloadingPdf.set(false);
+  fetchContracts() {
+    this.api.get<any[]>('auth/contracts').subscribe({
+      next: (res) => {
+        this.contracts.set(res);
+        this.loadingContracts.set(false);
       },
       error: (err) => {
-        console.error('Download failed', err);
-        alert('Failed to download PDF. Please try again from a desktop computer, or check your email for the attached copy.');
-        this.downloadingPdf.set(false);
+        console.error('Failed to load contracts', err);
+        this.loadingContracts.set(false);
       }
     });
   }
 
-  openCancelModal() {
+  downloadPDF(event: Event, contractId: string) {
+    event.preventDefault();
+    if (this.downloadingPdfId()) return;
+    this.downloadingPdfId.set(contractId);
+
+    this.api.download(`auth/contract/pdf/${contractId}`).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Phoenix_Contract_${contractId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.downloadingPdfId.set(null);
+      },
+      error: (err) => {
+        console.error('Download failed', err);
+        alert('Failed to download PDF. Please try again from a desktop computer, or check your email for the attached copy.');
+        this.downloadingPdfId.set(null);
+      }
+    });
+  }
+
+  openCancelModal(contractId: string) {
     const user = this.api.currentUser();
     if (!user) return;
     
     this.showCancelModal.set(true);
     this.loadingQuote.set(true);
     
-    this.api.get<any>(`stripe/cancellation-quote/${user.email}`).subscribe({
+    this.api.get<any>(`stripe/cancellation-quote/${contractId}`).subscribe({
       next: (res) => {
         this.cancelQuote.set(res);
         this.loadingQuote.set(false);

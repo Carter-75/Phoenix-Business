@@ -144,19 +144,18 @@ router.post('/checkout', verifyStripe, async (req, res) => {
 });
 
 /**
- * POST /api/ Calculate early termination and buyout quotes
+ * GET /api/stripe/cancellation-quote/:contractId
+ * Calculate early termination and buyout quotes for a specific contract
  */
-router.get('/cancellation-quote/:email', async (req, res) => {
+router.get('/cancellation-quote/:contractId', async (req, res) => {
     try {
-        const { email } = req.params;
-        const User = require('../models/user');
+        const { contractId } = req.params;
         const Contract = require('../models/Contract');
         
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) return res.status(404).json({ error: 'User not found' });
-
-        const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
-        if (!contract) return res.status(400).json({ error: 'No active contract found' });
+        const contract = await Contract.findById(contractId).populate('userId');
+        if (!contract) return res.status(404).json({ error: 'Contract not found' });
+        
+        const user = contract.userId;
 
         if (contract.contractType && contract.contractType.toLowerCase().includes('simple')) {
             return res.json({
@@ -172,15 +171,17 @@ router.get('/cancellation-quote/:email', async (req, res) => {
             });
         }
 
-        const subscriptions = await stripe.subscriptions.list({
-            customer: user.stripeCustomerId,
-            status: 'all',
-            expand: ['data.plan.product']
+        if (!contract.stripeSubscriptionId) {
+            return res.status(400).json({ error: 'This contract does not have a linked Stripe subscription.' });
+        }
+
+        const activeSub = await stripe.subscriptions.retrieve(contract.stripeSubscriptionId, {
+            expand: ['plan.product']
         });
 
-        const activeSubs = subscriptions.data.filter(sub => sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due');
-        if (activeSubs.length === 0) return res.status(400).json({ error: 'No active or trialing Stripe subscription found' });
-        const activeSub = activeSubs[0];
+        if (activeSub.status === 'canceled') {
+             return res.status(400).json({ error: 'This subscription is already canceled.' });
+        }
 
         const daysUntilExpiration = Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const monthsLeft = Math.max(0, Math.ceil(daysUntilExpiration / 30.44));
@@ -497,41 +498,39 @@ router.post('/webhook', async (req, res) => {
         let pdfBuffer = null;
         let userToEmail = null;
 
-        if (acceptedContract === 'true' && userId !== 'guest' && tier !== 'simple') {
+        if (acceptedContract === 'true' && userId !== 'guest') {
             const user = await User.findById(userId);
             if (user) {
                 userToEmail = user;
                 user.hasAcceptedContract = true;
                 user.contractAcceptedAt = new Date(contractTimestamp);
                 user.stripeCustomerId = session.customer;
-                user.subscriptionStatus = tier;
+                user.subscriptionStatus = tier === 'simple' ? 'simple-build' : tier;
                 await user.save();
 
                 const legalService = require('../services/legal.service');
                 pdfBuffer = await legalService.generateMergedLegalPDF();
+
+                const contractType = tier === 'simple' ? 'Simple Launch Agreement' : `Yearly Service Agreement - ${tier}`;
+                const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
+                
+                // Tier 1 doesn't expire. Tiers 2/3 expire in 1 year.
+                let expiresAt = new Date('2099-12-31T23:59:59.999Z');
+                if (tier !== 'simple') {
+                    expiresAt = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                }
 
                 const newContract = new Contract({
                     userId: user._id,
-                    contractType: `Yearly Service Agreement - ${tier}`,
+                    contractType: contractType,
+                    projectName: projectType,
+                    stripeSubscriptionId: session.subscription || null,
                     acceptedAt: new Date(contractTimestamp),
                     status: 'active',
-                    expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                    expiresAt: expiresAt,
                     pdfSnapshot: pdfBuffer
                 });
                 await newContract.save();
-            }
-        } else if (tier === 'simple' && userId !== 'guest') {
-            // Just update subscription status for one-time build
-            const user = await User.findById(userId);
-            if (user) {
-                userToEmail = user;
-                user.subscriptionStatus = 'simple-build';
-                user.stripeCustomerId = session.customer;
-                await user.save();
-                
-                // For simple tier we still want to generate the PDF to email it
-                const legalService = require('../services/legal.service');
-                pdfBuffer = await legalService.generateMergedLegalPDF();
             }
         }
 

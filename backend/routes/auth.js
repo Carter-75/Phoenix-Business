@@ -164,13 +164,13 @@ router.post('/finalize-onboarding', async (req, res) => {
   }
 });
 
-// @route   GET /auth/contract/pdf
-router.get('/contract/pdf', async (req, res) => {
+// @route   GET /auth/contract/pdf/:contractId
+router.get('/contract/pdf/:contractId', async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
     
     const Contract = require('../models/Contract');
-    const contract = await Contract.findOne({ userId: req.user._id, status: 'active' }).sort({ acceptedAt: -1 });
+    const contract = await Contract.findOne({ _id: req.params.contractId, userId: req.user._id });
     
     if (!contract || !contract.pdfSnapshot) {
       return res.status(404).json({ message: 'No receipt found for this user.' });
@@ -179,6 +179,23 @@ router.get('/contract/pdf', async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="Phoenix_Contract_Receipt.pdf"');
     res.send(contract.pdfSnapshot);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @route   GET /auth/contracts
+// @desc    Get all contracts/projects for the logged-in user
+router.get('/contracts', async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    
+    const Contract = require('../models/Contract');
+    // Fetch all active/expired contracts but exclude the massive PDF buffer to save bandwidth
+    const contracts = await Contract.find({ userId: req.user._id })
+                                    .select('-pdfSnapshot -termsSnapshot')
+                                    .sort({ acceptedAt: -1 });
+    res.json(contracts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
