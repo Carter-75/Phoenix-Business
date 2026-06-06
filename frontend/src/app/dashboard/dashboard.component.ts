@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="min-h-screen pt-48 pb-24 px-6 bg-slate-950 relative flex items-center justify-center">
+    <section class="min-h-screen pt-32 sm:pt-48 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
       
       <div class="max-w-2xl w-full relative z-10 text-center">
@@ -110,9 +110,10 @@ import { environment } from '../../environments/environment';
     </section>
 
     <!-- Cancellation & Ownership Modal -->
-    <div *ngIf="showCancelModal()" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      <div class="absolute inset-0 bg-[#020205]/95 backdrop-blur-3xl" (click)="closeCancelModal()"></div>
-      <div class="glass-card !bg-[#050505] max-w-[600px] w-full z-10 p-8 sm:p-12 border-red-500/20 relative">
+    <div *ngIf="showCancelModal()" class="fixed inset-0 z-[200] overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4 sm:p-6 relative">
+        <div class="fixed inset-0 bg-[#020205]/95 backdrop-blur-3xl" (click)="closeCancelModal()"></div>
+        <div class="glass-card !bg-[#050505] max-w-[600px] w-full z-10 p-6 sm:p-12 border-red-500/20 relative">
         
         <button (click)="closeCancelModal()" class="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/20 hover:text-white transition-all">
           <i class="fa-solid fa-xmark text-xl"></i>
