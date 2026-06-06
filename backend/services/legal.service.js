@@ -27,6 +27,7 @@ By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding 
 Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.
 - One-Time Projects (Tier 1): Engagement terminates upon delivery of final assets and full payment of $${simpleCost}. No long-term commitment required.
 - Subscription Services (Tiers 2 & 3): All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months. Tier 2 requires a $${tier2Setup} setup fee and $${tier2Monthly} monthly payments. Tier 3 requires an $${tier3Setup} setup fee and $${tier3Monthly} monthly payments.
+- Price Lock Guarantee: Your monthly subscription price is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee will never go up.
 
 3. Automatic Renewal
 To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal or cancellation must be provided via the client portal within a strict 30-day window (between 60 and 30 days prior to the current contract's expiration date). Phoenix will provide a courtesy reminder notice via email prior to this window. Once the automatic renewal occurs, or if notice is given less than 30 days prior to expiration, you are bound to a new 12-month service agreement under these same terms.
