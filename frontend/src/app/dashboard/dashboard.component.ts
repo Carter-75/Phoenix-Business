@@ -70,7 +70,7 @@ import { environment } from '../../environments/environment';
 
             <button (click)="openCustomerPortal(portalEmail?.value)" [disabled]="loadingPortal()" class="w-full group relative px-8 py-4 bg-white text-black hover:bg-slate-200 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="relative z-10 font-black uppercase tracking-widest text-sm">
-                {{ loadingPortal() ? 'Loading...' : 'Manage Billing & Subscriptions' }}
+                {{ loadingPortal() ? 'Loading...' : 'Update Payment Method & Invoices' }}
               </span>
               <i class="fa-solid fa-arrow-right relative z-10 group-hover:translate-x-1 transition-transform" *ngIf="!loadingPortal()"></i>
               <i class="fa-solid fa-circle-notch fa-spin relative z-10" *ngIf="loadingPortal()"></i>
@@ -86,8 +86,11 @@ import { environment } from '../../environments/environment';
 
             <!-- Ownership & Cancellation Section -->
             <div *ngIf="api.currentUser()" class="mt-12 pt-8 border-t border-white/5 w-full">
-              <button (click)="openCancelModal()" class="w-full px-6 py-4 border border-red-500/20 hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-all rounded-xl flex items-center justify-between group">
-                <span class="font-bold uppercase tracking-widest text-[10px]">Cancellation & Ownership</span>
+              <button (click)="openCancelModal()" class="w-full px-6 py-5 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 transition-all rounded-xl flex items-center justify-between group shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                <div class="text-left">
+                  <span class="font-black uppercase tracking-widest text-xs block mb-1">Buyout / Terminate Contract</span>
+                  <span class="text-[10px] text-red-400/60 font-medium normal-case">Calculate early termination fees or purchase your website</span>
+                </div>
                 <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition-transform"></i>
               </button>
             </div>
