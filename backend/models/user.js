@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   contractAcceptedAt: { type: Date },
   termsAcceptedAt: { type: Date },
   termsAcceptedVersion: { type: String },
+  termsAcceptedFullText: { type: String },
   stripeCustomerId: { type: String },
   subscriptionStatus: { type: String, default: 'none' },
   createdAt: { type: Date, default: Date.now }

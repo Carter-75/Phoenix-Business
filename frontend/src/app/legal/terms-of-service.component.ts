@@ -24,8 +24,8 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             <p>Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.</p>
             <ul class="list-disc ml-6 space-y-2">
               <li><strong>General Accounts:</strong> Users creating an account without a service selection are bound by general usage and privacy terms.</li>
-              <li><strong>One-Time Projects (Tier 1):</strong> Engagement terminates upon delivery of final assets and full payment. No long-term commitment required.</li>
-              <li><strong>Subscription Services (Tiers 2 & 3):</strong> All subscription-based tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong></li>
+              <li><strong>One-Time Projects (Tier 1):</strong> Engagement terminates upon delivery of final assets and full payment of $749. No long-term commitment required.</li>
+              <li><strong>Subscription Services (Tiers 2 & 3):</strong> All subscription-based tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Tier 2 requires a $499 setup fee and $249 monthly payments. Tier 3 requires an $899 setup fee and $449 monthly payments.</li>
             </ul>
           </div>
 

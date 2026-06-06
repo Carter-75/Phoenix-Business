@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user');
+const { LEGAL_POLICIES } = require('../services/legal.service');
+
+const getFullLegalText = () => Object.values(LEGAL_POLICIES).join('\n\n---\n\n');
 
 // @route   POST /auth/register
 router.post('/register', async (req, res) => {
@@ -21,6 +24,7 @@ router.post('/register', async (req, res) => {
       hasFinalizedProfile: true,
       hasAcceptedContract: acceptedTerms === true,
       termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
+      termsAcceptedFullText: acceptedTerms ? getFullLegalText() : undefined,
       termsAcceptedAt: acceptedTerms ? new Date() : undefined
     });
 
@@ -119,6 +123,7 @@ router.post('/finalize-onboarding', async (req, res) => {
         hasFinalizedProfile: true,
         hasAcceptedContract: acceptedTerms,
         termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
+        termsAcceptedFullText: acceptedTerms ? getFullLegalText() : undefined,
         termsAcceptedAt: acceptedTerms ? new Date() : undefined
       });
     } else {
@@ -132,6 +137,7 @@ router.post('/finalize-onboarding', async (req, res) => {
       user.hasAcceptedContract = acceptedTerms;
       if (acceptedTerms) {
         user.termsAcceptedVersion = termsAcceptedVersion;
+        user.termsAcceptedFullText = getFullLegalText();
         user.termsAcceptedAt = new Date();
       }
     }

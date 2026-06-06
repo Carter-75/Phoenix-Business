@@ -64,7 +64,7 @@ export class ServicesComponent implements OnInit {
   userPassword = ''; // Added for email login in modal
   acceptedTerms = false;
   
-  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that while Tier 1 is a one-time project, Subscription Tiers (Tiers 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms.";
+  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that while Tier 1 is a one-time project, Subscription Tiers (Tiers 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
   
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
@@ -85,7 +85,7 @@ export class ServicesComponent implements OnInit {
     {
       id: 'simple',
       title: 'Simple Launch',
-      cost: '350',
+      cost: '749',
       setup: null,
       description: 'A solid foundation for your online presence. Perfect for simple, high-impact landing pages.',
       checkoutUrl: 'https://buy.stripe.com/dRm5kEeii6SUbUegN08so04',
@@ -95,8 +95,8 @@ export class ServicesComponent implements OnInit {
     {
       id: 'essential',
       title: 'Essential Care',
-      cost: '99',
-      setup: '250',
+      cost: '249',
+      setup: '499',
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly.',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Mgmt', 'Edits & Updates on Demand', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
@@ -105,8 +105,8 @@ export class ServicesComponent implements OnInit {
     {
       id: 'professional',
       title: 'Professional Growth',
-      cost: '149',
-      setup: '500',
+      cost: '449',
+      setup: '899',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation.',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],

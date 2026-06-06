@@ -208,6 +208,53 @@ router.get('/subscriptions/:email', verifyStripe, async (req, res) => {
 });
 
 /**
+ * Helper function to send receipt email via Zoho
+ */
+const sendReceiptEmail = async (userEmail, userName, amountTotal, projectType, pdfBuffer) => {
+    try {
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+            port: parseInt(process.env.SMTP_PORT || '465'),
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const htmlContent = `
+            <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #ea580c;">Phoenix Payment Receipt</h2>
+                <p>Hi ${userName || 'there'},</p>
+                <p>Thank you for your payment. Your transaction has been successfully processed.</p>
+                <h3>Transaction Details:</h3>
+                <ul>
+                    <li><strong>Service:</strong> ${projectType || 'Phoenix Digital Services'}</li>
+                    <li><strong>Amount Paid:</strong> $${(amountTotal / 100).toFixed(2)}</li>
+                    <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
+                </ul>
+                <p>A copy of your signed Master Service Agreement and our legal policies are attached to this email for your records.</p>
+                <p>If you have any questions, please reply directly to this email.</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="font-size: 11px; color: #999;">Phoenix Digital Infrastructure</p>
+            </div>
+        `;
+
+        await transporter.sendMail({
+            from: `"Phoenix" <${process.env.EMAIL_USER}>`,
+            to: userEmail,
+            subject: 'Payment Receipt & Legal Agreements - Phoenix',
+            html: htmlContent,
+            attachments: pdfBuffer ? [{ filename: 'Phoenix_Master_Service_Agreement.pdf', content: pdfBuffer }] : []
+        });
+        console.log('Receipt email sent to', userEmail);
+    } catch (err) {
+        console.error('Failed to send receipt email:', err);
+    }
+};
+
+/**
  * Webhook handler to record contracts
  */
 router.post('/webhook', async (req, res) => {
@@ -252,9 +299,13 @@ router.post('/webhook', async (req, res) => {
             }
         }
 
+        let pdfBuffer = null;
+        let userToEmail = null;
+
         if (acceptedContract === 'true' && userId !== 'guest' && tier !== 'simple') {
             const user = await User.findById(userId);
             if (user) {
+                userToEmail = user;
                 user.hasAcceptedContract = true;
                 user.contractAcceptedAt = new Date(contractTimestamp);
                 user.stripeCustomerId = session.customer;
@@ -262,7 +313,7 @@ router.post('/webhook', async (req, res) => {
                 await user.save();
 
                 const legalService = require('../services/legal.service');
-                const pdfBuffer = await legalService.generateMergedLegalPDF();
+                pdfBuffer = await legalService.generateMergedLegalPDF();
 
                 const newContract = new Contract({
                     userId: user._id,
@@ -278,10 +329,21 @@ router.post('/webhook', async (req, res) => {
             // Just update subscription status for one-time build
             const user = await User.findById(userId);
             if (user) {
+                userToEmail = user;
                 user.subscriptionStatus = 'simple-build';
                 user.stripeCustomerId = session.customer;
                 await user.save();
+                
+                // For simple tier we still want to generate the PDF to email it
+                const legalService = require('../services/legal.service');
+                pdfBuffer = await legalService.generateMergedLegalPDF();
             }
+        }
+
+        if (userToEmail || session.customer_details?.email) {
+            const emailTarget = userToEmail?.email || session.customer_details?.email;
+            const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata.customer_name;
+            await sendReceiptEmail(emailTarget, userName, session.amount_total, session.metadata.project_type, pdfBuffer);
         }
     } else if (event.type === 'subscription_schedule.released') {
         const schedule = event.data.object;

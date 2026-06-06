@@ -13,7 +13,8 @@ By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding 
 
 2. Contractual Commitment
 Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.
-- Subscription Services: All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months.
+- One-Time Projects (Tier 1): Engagement terminates upon delivery of final assets and full payment of $749. No long-term commitment required.
+- Subscription Services (Tiers 2 & 3): All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months. Tier 2 requires a $499 setup fee and $249 monthly payments. Tier 3 requires an $899 setup fee and $449 monthly payments.
 
 3. Automatic Renewal
 To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice via email exactly 30 days before your annual contract is set to renew. Once the automatic renewal occurs, you are bound to a new 12-month service agreement under these same terms.
