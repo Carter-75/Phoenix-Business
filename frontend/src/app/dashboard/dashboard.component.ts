@@ -32,10 +32,7 @@ import { environment } from '../../environments/environment';
           </div>
 
           <div class="flex flex-col sm:flex-row gap-6 justify-center">
-            <a href="#" (click)="downloadPDF($event)" class="group relative px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3">
-              <span class="relative z-10 text-white font-bold uppercase tracking-widest text-sm">{{ downloadingPdf() ? 'Downloading...' : 'Download Receipt (PDF)' }}</span>
-              <i class="fa-solid" [class.fa-download]="!downloadingPdf()" [class.fa-circle-notch]="downloadingPdf()" [class.fa-spin]="downloadingPdf()" class="relative z-10 text-white group-hover:-translate-y-1 transition-transform"></i>
-            </a>
+
             <a routerLink="/home" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full flex items-center justify-center gap-3 text-white font-bold uppercase tracking-widest text-sm">
               Return Home
             </a>
