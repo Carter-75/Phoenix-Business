@@ -16,7 +16,7 @@
 
     <!-- Pricing Grid -->
     <div class="grid lg:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05] mb-40">
-      <div *ngFor="let tier of tiers; let i = index" 
+      <div *ngFor="let tier of tiers(); let i = index" 
            class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-all duration-700"
            [class.lg:border-x]="tier.featured"
            appScrollReveal [delay]="i * 0.1">
@@ -29,10 +29,14 @@
         <h3 class="fluid-h3 mb-4">{{tier.title}}</h3>
         <div class="mb-12 flex flex-col">
           <div class="flex items-baseline gap-2">
-            <span class="text-4xl font-black">${{tier.cost}}</span>
+            <span *ngIf="discountPercentage() > 0" class="text-xl font-bold line-through text-white/30 mr-1">${{tier.baseCost}}</span>
+            <span class="text-4xl font-black" [class.text-orange-500]="discountPercentage() > 0">${{tier.cost}}</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-white/30">/ {{tier.id === 'simple' ? 'Project' : 'Month'}}</span>
           </div>
-          <span *ngIf="tier.setup" class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-2">+ ${{tier.setup}} SETUP FEE</span>
+          <div *ngIf="tier.setup" class="flex flex-col mt-2">
+            <span *ngIf="discountPercentage() > 0" class="text-[10px] font-bold line-through text-white/30">+ ${{tier.baseSetup}} SETUP FEE</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-orange-500">+ ${{tier.setup}} SETUP FEE</span>
+          </div>
         </div>
 
         <div class="space-y-4 mb-16 h-40 overflow-hidden">

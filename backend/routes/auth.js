@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user');
-const { LEGAL_POLICIES } = require('../services/legal.service');
+const { getDynamicPolicies } = require('../services/legal.service');
 
-const getFullLegalText = () => Object.values(LEGAL_POLICIES).join('\n\n---\n\n');
+const getFullLegalText = () => Object.values(getDynamicPolicies()).join('\n\n---\n\n');
 
 // @route   POST /auth/register
 router.post('/register', async (req, res) => {

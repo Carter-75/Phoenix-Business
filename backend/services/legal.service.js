@@ -3,18 +3,30 @@ const PDFDocument = require('pdfkit');
 /**
  * Service to manage legal policy text and generate merged PDFs for contracts
  */
-const LEGAL_POLICIES = {
-    TERMS_OF_SERVICE: `
+const getDynamicPolicies = () => {
+    const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+    const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
+    
+    const simpleCost = applyDiscount(parseInt(process.env.PRICE_SIMPLE || '83200')) / 100;
+    const tier2Setup = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400')) / 100;
+    const tier2Monthly = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '27600')) / 100;
+    const tier3Setup = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800')) / 100;
+    const tier3Monthly = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '49800')) / 100;
+    
+    const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    return {
+        TERMS_OF_SERVICE: `
 TERMS OF SERVICE
-Last Updated: May 7, 2026
+Last Updated: ${currentDate}
 
 1. The Agreement
 By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure services.
 
 2. Contractual Commitment
 Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.
-- One-Time Projects (Tier 1): Engagement terminates upon delivery of final assets and full payment of $749. No long-term commitment required.
-- Subscription Services (Tiers 2 & 3): All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months. Tier 2 requires a $499 setup fee and $249 monthly payments. Tier 3 requires an $899 setup fee and $449 monthly payments.
+- One-Time Projects (Tier 1): Engagement terminates upon delivery of final assets and full payment of $${simpleCost}. No long-term commitment required.
+- Subscription Services (Tiers 2 & 3): All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months. Tier 2 requires a $${tier2Setup} setup fee and $${tier2Monthly} monthly payments. Tier 3 requires an $${tier3Setup} setup fee and $${tier3Monthly} monthly payments.
 
 3. Automatic Renewal
 To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice via email exactly 30 days before your annual contract is set to renew. Once the automatic renewal occurs, you are bound to a new 12-month service agreement under these same terms.
@@ -33,10 +45,10 @@ It is the client's responsibility to maintain a valid, active email address on f
 
 8. Governing Law
 This agreement is governed by the laws of the State of Wisconsin.
-    `,
-    PRIVACY_POLICY: `
+        `,
+        PRIVACY_POLICY: `
 PRIVACY POLICY
-Last Updated: May 7, 2026
+Last Updated: ${currentDate}
 
 1. Information We Collect
 We collect information that you provide directly to us, such as name, contact information, business details, and payment information processed via Stripe.
@@ -52,10 +64,10 @@ We implement industry-standard security measures, including SSL and secure third
 
 5. Your Rights
 You have the right to access, correct, or delete your personal information at any time.
-    `,
-    REFUND_POLICY: `
+        `,
+        REFUND_POLICY: `
 REFUND POLICY
-Last Updated: May 7, 2026
+Last Updated: ${currentDate}
 
 1. General Policy
 We maintain a strict no-refund policy for all payments made due to the high-resource intensity of our initial setup and dedicated reservation of capacity.
@@ -71,7 +83,8 @@ Promotional "Limited Trial" periods allow cancellation to prevent future charges
 
 5. Cancellation vs. Refund
 Cancellation stops future charges but does not entitle the client to a refund of past payments.
-    `
+        `
+    };
 };
 
 /**
@@ -97,9 +110,11 @@ const generateMergedLegalPDF = () => {
         
         doc.addPage();
 
+        const policies = getDynamicPolicies();
+
         // Policies
-        Object.keys(LEGAL_POLICIES).forEach((key, index) => {
-            const content = LEGAL_POLICIES[key];
+        Object.keys(policies).forEach((key, index) => {
+            const content = policies[key];
             const title = key.replace(/_/g, ' ');
             
             doc.fontSize(16).text(title, { underline: true });
@@ -110,7 +125,7 @@ const generateMergedLegalPDF = () => {
                 align: 'justify'
             });
             
-            if (index < Object.keys(LEGAL_POLICIES).length - 1) {
+            if (index < Object.keys(policies).length - 1) {
                 doc.addPage();
             }
         });
@@ -121,5 +136,5 @@ const generateMergedLegalPDF = () => {
 
 module.exports = {
     generateMergedLegalPDF,
-    LEGAL_POLICIES
+    getDynamicPolicies
 };

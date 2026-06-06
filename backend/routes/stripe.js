@@ -25,11 +25,18 @@ router.post('/checkout', verifyStripe, async (req, res) => {
         const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp } = req.body;
         const user = req.user;
 
-        // Pricing logic (matching old portfolio requirements)
+        // Pricing logic pulled from environment variables with safe defaults (in cents)
         const prices = {
-            simple: 35000,       // $350.00
-            essential: 25000,    // $250.00 (Setup Fee)
-            professional: 50000  // $500.00 (Setup Fee)
+            simple: parseInt(process.env.PRICE_SIMPLE || '74900'),
+            essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '49900'),
+            essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '24900'),
+            professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '89900'),
+            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '44900')
+        };
+
+        const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+        const applyDiscount = (amount) => {
+            return Math.round(amount * (1 - (discountPercentage / 100)));
         };
 
         let line_items = [];
@@ -43,8 +50,9 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                         product_data: {
                             name: 'Simple Launch - Website Build',
                             description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`,
+                            tax_code: 'txcd_10103100'
                         },
-                        unit_amount: prices.simple,
+                        unit_amount: applyDiscount(prices.simple),
                     },
                     quantity: 1,
                 });
@@ -54,16 +62,16 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Essential Care - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}` },
-                        unit_amount: prices.essential,
+                        product_data: { name: 'Essential Care - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`, tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.essential_setup),
                     },
                     quantity: 1,
                 });
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Essential Care - Monthly Subscription' },
-                        unit_amount: 9900,
+                        product_data: { name: 'Essential Care - Monthly Subscription', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.essential_monthly),
                         recurring: { interval: 'month' }
                     },
                     quantity: 1,
@@ -74,16 +82,16 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Professional Growth - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}` },
-                        unit_amount: prices.professional,
+                        product_data: { name: 'Professional Growth - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`, tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.professional_setup),
                     },
                     quantity: 1,
                 });
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Professional Growth - Monthly Subscription' },
-                        unit_amount: 14900,
+                        product_data: { name: 'Professional Growth - Monthly Subscription', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.professional_monthly),
                         recurring: { interval: 'month' }
                     },
                     quantity: 1,
@@ -93,10 +101,11 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 return res.status(400).json({ error: 'Invalid service tier selected.' });
         }
 
-        const session = await stripe.checkout.sessions.create({
+        const sessionConfig = {
             payment_method_types: ['card'],
             line_items: line_items,
             mode: mode,
+            managed_payments: { enabled: true },
             success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?success=true`,
             cancel_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/services?canceled=true`,
             customer_email: email || (user ? user.email : undefined),
@@ -110,6 +119,16 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 acceptedContract: acceptedContract ? 'true' : 'false',
                 contractTimestamp: contractTimestamp || new Date().toISOString()
             },
+        };
+
+        if (mode === 'subscription') {
+            sessionConfig.subscription_data = {
+                trial_period_days: 30
+            };
+        }
+
+        const session = await stripe.checkout.sessions.create(sessionConfig, {
+            stripeVersion: '2026-02-25.preview'
         });
 
         res.json({ url: session.url });
@@ -433,6 +452,23 @@ router.post('/webhook', async (req, res) => {
     }
 
     res.json({ received: true });
+});
+
+/**
+ * GET /api/stripe/pricing
+ * Exposes current dynamic pricing to the frontend
+ */
+router.get('/pricing', (req, res) => {
+    res.json({
+        discountPercentage: parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
+        basePrices: {
+            simple: parseInt(process.env.PRICE_SIMPLE || '83200'),
+            essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'),
+            essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '27600'),
+            professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'),
+            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '49800')
+        }
+    });
 });
 
 module.exports = router;

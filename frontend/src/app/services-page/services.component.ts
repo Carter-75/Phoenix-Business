@@ -14,8 +14,10 @@ interface ServiceTier {
   id: string;
   title: string;
   description: string;
-  cost: string;
+  cost: string | null;
+  baseCost?: string | null;
   setup: string | null;
+  baseSetup?: string | null;
   features: string[];
   featured?: boolean;
   checkoutUrl: string;
@@ -81,22 +83,27 @@ export class ServicesComponent implements OnInit {
     return isNameValid && isBusinessValid && isEmailValid && policiesAccepted;
   }
 
-  readonly tiers: ServiceTier[] = [
+  readonly discountPercentage = signal(0);
+
+  tiers = signal<ServiceTier[]>([
     {
       id: 'simple',
       title: 'Simple Launch',
       cost: '749',
+      baseCost: '832',
       setup: null,
-      description: 'A solid foundation for your online presence. Perfect for simple, high-impact landing pages.',
-      checkoutUrl: 'https://buy.stripe.com/dRm5kEeii6SUbUegN08so04',
-      features: ['Single Page Website', 'Responsive Engineering', 'Initial SEO Setup', 'Contact Form Integration'],
+      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients.',
+      checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
+      features: ['Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
       featured: false
     },
     {
       id: 'essential',
       title: 'Essential Care',
       cost: '249',
+      baseCost: '276',
       setup: '499',
+      baseSetup: '554',
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly.',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Mgmt', 'Edits & Updates on Demand', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
@@ -106,15 +113,43 @@ export class ServicesComponent implements OnInit {
       id: 'professional',
       title: 'Professional Growth',
       cost: '449',
+      baseCost: '498',
       setup: '899',
+      baseSetup: '998',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation.',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
       featured: false
     }
-  ];
+  ]);
 
   ngOnInit() {
+    // Fetch Dynamic Pricing
+    this.api.get<any>('stripe/pricing').subscribe({
+      next: (data) => {
+        this.discountPercentage.set(data.discountPercentage || 0);
+        const formatBase = (cents: number) => cents ? Math.round(cents / 100).toString() : null;
+        const formatPrice = (cents: number, pct: number) => cents ? Math.round((cents / 100) * (1 - pct / 100)).toString() : null;
+        
+        this.tiers.update(currentTiers => currentTiers.map(t => {
+          let baseCostCents = 0;
+          let baseSetupCents = 0;
+          if (t.id === 'simple') baseCostCents = data.basePrices.simple;
+          if (t.id === 'essential') { baseCostCents = data.basePrices.essential_monthly; baseSetupCents = data.basePrices.essential_setup; }
+          if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
+          
+          return {
+            ...t,
+            baseCost: formatBase(baseCostCents),
+            cost: formatPrice(baseCostCents, data.discountPercentage) || t.cost,
+            baseSetup: formatBase(baseSetupCents),
+            setup: formatPrice(baseSetupCents, data.discountPercentage) || t.setup
+          };
+        }));
+      },
+      error: (err) => console.error('Failed to load dynamic pricing', err)
+    });
+
     // Check for existing member session
     const savedEmail = localStorage.getItem('member_email');
     if (savedEmail) {
@@ -139,7 +174,7 @@ export class ServicesComponent implements OnInit {
       const isGenericLogin = sessionStorage.getItem('generic_login');
       
       if (savedTierId) {
-        const tier = this.tiers.find(t => t.id === savedTierId);
+        const tier = this.tiers().find(t => t.id === savedTierId);
         sessionStorage.removeItem('checkout_tier');
         if (tier) {
           if (user && user.hasFinalizedProfile) {
