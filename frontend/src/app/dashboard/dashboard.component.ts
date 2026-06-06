@@ -63,37 +63,23 @@ import { environment } from '../../environments/environment';
             <i class="fa-solid fa-user-astronaut text-4xl"></i>
           </div>
           <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Portal</span></h1>
-          <p class="text-xl text-slate-400 mb-12 font-medium">Manage your digital infrastructure, view payment history, and download invoices.</p>
+          <p class="text-xl text-slate-400 mb-12 font-medium">Manage your contract, view termination options, and download invoices.</p>
           
           <div class="flex flex-col items-center gap-6 max-w-sm mx-auto">
-            <input [hidden]="api.currentUser()" #portalEmail type="email" placeholder="ENTER YOUR EMAIL" class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all text-center rounded-lg text-white">
-
-            <button (click)="openCustomerPortal(portalEmail?.value)" [disabled]="loadingPortal()" class="w-full group relative px-8 py-4 bg-white text-black hover:bg-slate-200 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="relative z-10 font-black uppercase tracking-widest text-sm">
-                {{ loadingPortal() ? 'Loading...' : 'Update Payment Method & Invoices' }}
+            <button (click)="openCancelModal()" class="w-full group relative px-8 py-5 bg-white text-black hover:bg-red-50 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3">
+              <span class="relative z-10 font-black uppercase tracking-widest text-sm text-red-600">
+                Manage Contract / Cancellation
               </span>
-              <i class="fa-solid fa-arrow-right relative z-10 group-hover:translate-x-1 transition-transform" *ngIf="!loadingPortal()"></i>
-              <i class="fa-solid fa-circle-notch fa-spin relative z-10" *ngIf="loadingPortal()"></i>
+              <i class="fa-solid fa-arrow-right relative z-10 text-red-600 group-hover:translate-x-1 transition-transform"></i>
             </button>
 
-            <a href="#" *ngIf="api.currentUser()" (click)="downloadPDF($event)" class="text-slate-400 hover:text-white transition-colors text-sm font-medium underline underline-offset-4">
+            <a href="#" *ngIf="api.currentUser()" (click)="downloadPDF($event)" class="text-slate-400 hover:text-white transition-colors text-sm font-medium underline underline-offset-4 mt-4 inline-block">
               {{ downloadingPdf() ? 'Downloading...' : 'Download Latest Contract/Receipt' }}
             </a>
             
             <button *ngIf="api.currentUser()" (click)="logout()" class="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-widest mt-8">
               Sign Out
             </button>
-
-            <!-- Ownership & Cancellation Section -->
-            <div *ngIf="api.currentUser()" class="mt-12 pt-8 border-t border-white/5 w-full">
-              <button (click)="openCancelModal()" class="w-full px-6 py-5 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 transition-all rounded-xl flex items-center justify-between group shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                <div class="text-left">
-                  <span class="font-black uppercase tracking-widest text-xs block mb-1">Buyout / Terminate Contract</span>
-                  <span class="text-[10px] text-red-400/60 font-medium normal-case">Calculate early termination fees or purchase your website</span>
-                </div>
-                <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition-transform"></i>
-              </button>
-            </div>
           </div>
         </ng-container>
 
@@ -172,7 +158,6 @@ export class DashboardComponent implements OnInit {
   
   isSuccess = signal(false);
   isCancellationSuccess = signal(false);
-  loadingPortal = signal(false);
   apiUrl = environment.apiUrl;
 
   showCancelModal = signal(false);
@@ -213,33 +198,6 @@ export class DashboardComponent implements OnInit {
         console.error('Download failed', err);
         alert('Failed to download PDF. Please try again from a desktop computer, or check your email for the attached copy.');
         this.downloadingPdf.set(false);
-      }
-    });
-  }
-
-  openCustomerPortal(emailInput?: string) {
-    const user = this.api.currentUser();
-    const finalEmail = user?.email || emailInput;
-
-    if (!finalEmail || !finalEmail.includes('@')) {
-      alert('Please enter a valid email address.');
-      return;
-    }
-
-    this.loadingPortal.set(true);
-    this.api.post<any>('stripe/create-portal-session', { email: finalEmail }).subscribe({
-      next: (res) => {
-        if (res.url) {
-          window.location.href = res.url;
-        } else {
-          this.loadingPortal.set(false);
-          alert('Could not initialize portal session. Please try again.');
-        }
-      },
-      error: (err) => {
-        this.loadingPortal.set(false);
-        console.error('Portal Error:', err);
-        alert('Could not initialize portal session. Please try again.');
       }
     });
   }
