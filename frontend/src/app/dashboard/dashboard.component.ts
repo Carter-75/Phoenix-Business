@@ -32,9 +32,9 @@ import { environment } from '../../environments/environment';
           </div>
 
           <div class="flex flex-col sm:flex-row gap-6 justify-center">
-            <a [href]="apiUrl + '/auth/contract/pdf'" download="Phoenix_Contract_Receipt.pdf" class="group relative px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3">
-              <span class="relative z-10 text-white font-bold uppercase tracking-widest text-sm">Download Receipt (PDF)</span>
-              <i class="fa-solid fa-download relative z-10 text-white group-hover:-translate-y-1 transition-transform"></i>
+            <a href="#" (click)="downloadPDF($event)" class="group relative px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full overflow-hidden flex items-center justify-center gap-3">
+              <span class="relative z-10 text-white font-bold uppercase tracking-widest text-sm">{{ downloadingPdf() ? 'Downloading...' : 'Download Receipt (PDF)' }}</span>
+              <i class="fa-solid" [class.fa-download]="!downloadingPdf()" [class.fa-circle-notch]="downloadingPdf()" [class.fa-spin]="downloadingPdf()" class="relative z-10 text-white group-hover:-translate-y-1 transition-transform"></i>
             </a>
             <a routerLink="/home" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full flex items-center justify-center gap-3 text-white font-bold uppercase tracking-widest text-sm">
               Return Home
@@ -76,8 +76,8 @@ import { environment } from '../../environments/environment';
               <i class="fa-solid fa-circle-notch fa-spin relative z-10" *ngIf="loadingPortal()"></i>
             </button>
 
-            <a *ngIf="api.currentUser()" [href]="apiUrl + '/auth/contract/pdf'" download="Phoenix_Contract_Receipt.pdf" class="text-slate-400 hover:text-white transition-colors text-sm font-medium underline underline-offset-4">
-              Download Latest Contract/Receipt
+            <a href="#" *ngIf="api.currentUser()" (click)="downloadPDF($event)" class="text-slate-400 hover:text-white transition-colors text-sm font-medium underline underline-offset-4">
+              {{ downloadingPdf() ? 'Downloading...' : 'Download Latest Contract/Receipt' }}
             </a>
             
             <button *ngIf="api.currentUser()" (click)="logout()" class="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-widest mt-8">
@@ -176,6 +176,7 @@ export class DashboardComponent implements OnInit {
   loadingQuote = signal(false);
   checkoutLoading = signal(false);
   cancelQuote = signal<any>(null);
+  downloadingPdf = signal(false);
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -184,6 +185,31 @@ export class DashboardComponent implements OnInit {
       }
       if (params['cancellation_success'] === 'true') {
         this.isCancellationSuccess.set(true);
+      }
+    });
+  }
+
+  downloadPDF(event: Event) {
+    event.preventDefault();
+    if (this.downloadingPdf()) return;
+    this.downloadingPdf.set(true);
+
+    this.api.download('auth/contract/pdf').subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Phoenix_Contract_Receipt.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.downloadingPdf.set(false);
+      },
+      error: (err) => {
+        console.error('Download failed', err);
+        alert('Failed to download PDF. Please try again from a desktop computer, or check your email for the attached copy.');
+        this.downloadingPdf.set(false);
       }
     });
   }

@@ -26,6 +26,10 @@ export class ApiService {
     return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, { withCredentials: true });
   }
 
+  download(endpoint: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${endpoint}`, { withCredentials: true, responseType: 'blob' });
+  }
+
   // --- Auth Methods ---
   login(credentials: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/login`, credentials).pipe(
