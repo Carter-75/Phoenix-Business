@@ -13,8 +13,8 @@ const contractSchema = new mongoose.Schema({
   stripeSubscriptionId: { type: String }, // Nullable for Simple Launch
   projectName: { type: String }, // E.g., "Carter's Plumbing - Essential Care"
   tier: { type: String }, // 'simple', 'essential', 'professional'
-  setupFeePaid: { type: Number, default: 0 }, // In cents
-  monthlyFee: { type: Number, default: 0 } // In cents
+  setupFeePaid: { type: Number }, // In cents
+  monthlyFee: { type: Number } // In cents
 });
 
 module.exports = mongoose.model('Contract', contractSchema);
