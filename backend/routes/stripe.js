@@ -218,8 +218,8 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
         
         let setupFeeInCents = contract.setupFeePaid;
         
-        // Fallback for legacy contracts without setupFeePaid populated (or those saved as 0 due to old Mongoose defaults)
-        if (!setupFeeInCents || setupFeeInCents === 0) {
+        // Fallback for legacy contracts without setupFeePaid populated
+        if (!setupFeeInCents && setupFeeInCents !== 0) {
             const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
             const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
             if (process.env.TEST_MODE === 'true') {
