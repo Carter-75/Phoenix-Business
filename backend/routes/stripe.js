@@ -647,7 +647,7 @@ router.post('/webhook', async (req, res) => {
         // If this is a subscription payment and it succeeded, ensure their status is restored to active
         if (invoice.subscription) {
             try {
-                const User = require('../models/User');
+                const User = require('../models/user');
                 const Contract = require('../models/Contract');
                 const user = await User.findOne({ stripeCustomerId: invoice.customer });
                 
@@ -662,7 +662,7 @@ router.post('/webhook', async (req, res) => {
     } else if (event.type === 'customer.subscription.deleted') {
         const subscription = event.data.object;
         try {
-            const User = require('../models/User');
+            const User = require('../models/user');
             const Contract = require('../models/Contract');
             const user = await User.findOne({ stripeCustomerId: subscription.customer });
             
@@ -679,7 +679,7 @@ router.post('/webhook', async (req, res) => {
             const chargeId = dispute.charge;
             const charge = await stripe.charges.retrieve(chargeId);
             if (charge && charge.customer) {
-                const User = require('../models/User');
+                const User = require('../models/user');
                 const Contract = require('../models/Contract');
                 const user = await User.findOne({ stripeCustomerId: charge.customer });
                 if (user) {
