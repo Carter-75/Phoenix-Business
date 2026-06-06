@@ -160,12 +160,13 @@ router.get('/cancellation-quote/:email', async (req, res) => {
 
         const subscriptions = await stripe.subscriptions.list({
             customer: user.stripeCustomerId,
-            status: 'active',
+            status: 'all',
             expand: ['data.plan.product']
         });
 
-        if (subscriptions.data.length === 0) return res.status(400).json({ error: 'No active Stripe subscription found' });
-        const activeSub = subscriptions.data[0];
+        const activeSubs = subscriptions.data.filter(sub => sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due');
+        if (activeSubs.length === 0) return res.status(400).json({ error: 'No active or trialing Stripe subscription found' });
+        const activeSub = activeSubs[0];
 
         const daysUntilExpiration = Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const monthsLeft = Math.max(0, Math.ceil(daysUntilExpiration / 30.44));
@@ -328,12 +329,13 @@ router.get('/subscriptions/:email', verifyStripe, async (req, res) => {
 
         const subscriptions = await stripe.subscriptions.list({
             customer: customerId,
-            status: 'active',
+            status: 'all',
             expand: ['data.plan.product']
         });
 
         const grouped = { simple: [], essential: [], professional: [] };
         subscriptions.data.forEach(sub => {
+            if (sub.status === 'canceled') return;
             const tier = sub.metadata.tier || (sub.plan.product.name.toLowerCase().includes('essential') ? 'essential' : 
                           sub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'simple');
             if (grouped[tier]) {
