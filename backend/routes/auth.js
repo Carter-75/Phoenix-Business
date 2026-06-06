@@ -10,6 +10,11 @@ const getFullLegalText = () => Object.values(LEGAL_POLICIES).join('\n\n---\n\n')
 router.post('/register', async (req, res) => {
   try {
     const { email, password, firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     const lowerEmail = email.toLowerCase();
     
     let user = await User.findOne({ email: lowerEmail });
@@ -113,7 +118,8 @@ router.post('/finalize-onboarding', async (req, res) => {
     let user;
     if (req.user.isPending) {
       // Create NEW user from Google pending session
-      const { email, googleId } = req.user;
+      const email = req.user.email || '';
+      const googleId = req.user.googleId;
       user = new User({
         email: email.toLowerCase(),
         googleId,

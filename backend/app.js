@@ -40,12 +40,11 @@ if (isProd) {
 
 // --- Middlewares (Basics) ---
 app.use(helmet({
-  frameguard: false,
-  contentSecurityPolicy: false
+  frameguard: false
 }));
 
 app.use(cors({
-  origin: true,
+  origin: [process.env.PROD_FRONTEND_URL || 'https://phoenixwebsites.ai', 'http://localhost:4200'],
   credentials: true
 }));
 
@@ -85,8 +84,13 @@ const connectDB = async () => {
 connectDB();
 
 // --- Session & Passport Setup ---
+if (!process.env.SESSION_SECRET) {
+    console.error('CRITICAL: SESSION_SECRET is missing from environment variables!');
+    throw new Error("SESSION_SECRET is required to secure user sessions.");
+}
+
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {

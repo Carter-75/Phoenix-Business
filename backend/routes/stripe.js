@@ -267,6 +267,17 @@ router.post('/webhook', async (req, res) => {
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
+    const ProcessedEvent = require('../models/ProcessedEvent');
+    try {
+        const existingEvent = await ProcessedEvent.findOne({ eventId: event.id });
+        if (existingEvent) {
+            console.log(`[STRIPE] Ignoring duplicate event ${event.id}`);
+            return res.json({ received: true });
+        }
+    } catch (err) {
+        console.error('Failed to check for processed event:', err.message);
+    }
+
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
         const { userId, tier, acceptedContract, contractTimestamp } = session.metadata;
@@ -343,7 +354,8 @@ router.post('/webhook', async (req, res) => {
         if (userToEmail || session.customer_details?.email) {
             const emailTarget = userToEmail?.email || session.customer_details?.email;
             const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata.customer_name;
-            await sendReceiptEmail(emailTarget, userName, session.amount_total, session.metadata.project_type, pdfBuffer);
+            sendReceiptEmail(emailTarget, userName, session.amount_total, session.metadata.project_type, pdfBuffer)
+                .catch(err => console.error('Background email failed:', err));
         }
     } else if (event.type === 'subscription_schedule.released') {
         const schedule = event.data.object;
@@ -413,6 +425,13 @@ router.post('/webhook', async (req, res) => {
             }
         }
     }
+
+    try {
+        await new ProcessedEvent({ eventId: event.id, type: event.type }).save();
+    } catch (err) {
+        console.error('Failed to save processed event:', err.message);
+    }
+
     res.json({ received: true });
 });
 
