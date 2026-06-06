@@ -29,13 +29,23 @@ Unless otherwise specified in a custom engagement agreement, all service tiers r
 - Subscription Services (Tiers 2 & 3): All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months. Tier 2 requires a $${tier2Setup} setup fee and $${tier2Monthly} monthly payments. Tier 3 requires an $${tier3Setup} setup fee and $${tier3Monthly} monthly payments.
 
 3. Automatic Renewal
-To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice via email exactly 30 days before your annual contract is set to renew. Once the automatic renewal occurs, you are bound to a new 12-month service agreement under these same terms.
+To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal or cancellation must be provided via the client portal within a strict 30-day window (between 60 and 30 days prior to the current contract's expiration date). Phoenix will provide a courtesy reminder notice via email prior to this window. Once the automatic renewal occurs, or if notice is given less than 30 days prior to expiration, you are bound to a new 12-month service agreement under these same terms.
 
 4. Early Termination & Liquidated Damages
-Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." This fee is calculated as 50% of the remaining total contract value.
+Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." The fee depends on when notice is given:
+- **Too Early (More than 60 days before expiration):** The fee is calculated as 50% of the remaining total contract value for the current term.
+- **In Window (60 to 30 days before expiration):** No liquidated damages apply. The contract terminates at the end of the current term.
+- **Too Late (Less than 30 days before expiration):** Because you missed the required notice window, you are liable for 50% of the remaining time in the current contract PLUS 50% of the subsequent 12-month auto-renewal contract (effectively a 6-month penalty).
+5. Website Buyout Option & Ownership Finality
+If you wish to terminate the ongoing service agreement but retain full ownership, hosting rights, and access to the custom website built for you, you may exercise a "Website Buyout." The Buyout Fee is exactly 50% of your original one-time setup fee. 
+- You must pay this Buyout Fee IN ADDITION to any Liquidated Damages calculated under Section 4 based on when your notice is provided.
+- **Ownership Finality:** Upon successful payment of the Buyout Fee, all automated suspension mechanisms ("Kill Switches") are permanently deactivated. Full ownership, intellectual property rights, and hosting deployment control are irreversibly transferred to you, assuming the payment clears successfully and is not later reversed, disputed, or charged back.
 
-5. Payment & Non-Refundability
-Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced.
+6. Infrastructure Hosting & Suspensions
+Frontend client applications are deployed and hosted on **Vercel**, and any applicable backend or database services are hosted on **Render** and **MongoDB Atlas**. Phoenix reserves the right to employ automated license checks ("Kill Switches"). Failure to process recurring payments or early termination fees will result in the immediate and automatic suspension of your digital infrastructure until the outstanding balance is resolved.
+
+7. Payment & Non-Refundability
+Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a chargeback or payment dispute, Phoenix will immediately enact Section 6 infrastructure suspensions until the dispute is resolved.
 
 6. Limitation of Liability
 Phoenix liability is limited to the total amount paid by the client in the 3 months preceding any claim.

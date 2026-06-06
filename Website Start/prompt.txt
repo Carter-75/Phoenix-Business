@@ -1,0 +1,80 @@
+I have just scaffolded a brand new website using my starting script. I have attached the root folder of this new project to this prompt. Please analyze the attached folder structure to understand the base boilerplate (Angular frontend, Node/Express backend).
+
+I need you to help me build out this new client website based on my Tier System.
+
+Here are the details for this specific project:
+
+Client/Business Name: [Insert Business Name Here]
+Niche/Industry: [Insert Niche, e.g., Coffee Shop, Plumber, Tech Startup]
+Target Audience & Vibe: [Insert Vibe, e.g., Cozy & Warm, Sleek & Modern, Trustworthy & Professional]
+Project Tier: [Insert Tier 1, 2, or 3]
+Please use the following architectural rules based on the Tier selected above:
+
+Tier 1
+Simple Launch
+$749
+/ Project
+A solid foundation for your online presence. Perfect for simple, high-impact landing pages.
+
+Single Page Website
+Responsive Engineering
+Initial SEO Setup
+Contact Form Integration
+Get Started
+Tier 2
+Featured
+Essential Care
+$249
+/ Month
++ $499 SETUP FEE
+Peace of mind with ongoing support and maintenance. We keep your business running smoothly.
+
+30-Day Subscription Trial
+Hosting & Domain Mgmt
+Edits & Updates on Demand
+24/7 Uptime Monitoring
+Backups & Security
+Google Business Management
+Get Started
+Tier 3
+Professional Growth
+$449
+/ Month
++ $899 SETUP FEE
+Scaling your revenue through data-driven improvements and intelligent automation.
+
+30-Day Subscription Trial
+Hosting & Domain Management
+SEO Improvements
+Lead Capture Optimization
+Monthly Analytics Reports
+AI Chatbot Upkeep
+Ad Landing Page Testing
+Appointment Integrations
+Get Started
+
+Tier 1: Simple Launch (The Essentials)
+
+Scope: A high-impact, single-page or simple multi-page static website (like the Coffee, Icecream, or Cookie examples).
+Frontend: Focus heavily on stunning visual aesthetics, micro-animations, fast load times, and mobile responsiveness.
+Backend: Very minimal. Usually just a basic POST /contact endpoint to handle form submissions and send an email notification.
+Database/Auth: None required.
+Tier 2: Essential Care (Intermediate)
+
+Scope: A dynamic website requiring data persistence or basic user interaction.
+Frontend: Multiple pages, dynamic content fetching, and potentially a simple admin dashboard or client portal.
+Backend: REST API endpoints connected to MongoDB.
+Database/Auth: Implement MongoDB for storing things like leads, appointments, or simple blog posts. Basic JWT authentication if an admin portal is required. No complex billing.
+Tier 3: Professional Growth (Full-Stack & E-Commerce)
+
+Scope: A complex web application (like the Phoenix-Business site).
+Frontend: Complex state management, user authentication flows, dynamic pricing, and comprehensive dashboards.
+Backend: Deep integration with third-party APIs (Stripe for payments/subscriptions, Zoho for automated emails).
+Database/Auth: Full MongoDB integration with User models, automated contract/policy generation, robust authentication (Google OAuth/Passport), and webhook listeners for payment processing.
+Your Instructions:
+
+Do not make any code changes yet. First, review the attached folder and acknowledge that you understand the base boilerplate.
+Based on the selected Tier and Niche, write out a brief implementation_plan detailing the exact components, API routes, and database models you plan to add.
+Suggest a 2-color brand palette (Brand Color + Accent Color) that matches the requested vibe.
+MANDATORY KILL SWITCH: You must build an automated status check into the root of this new application (e.g., an Angular APP_INITIALIZER or a Router Guard). Every time the site loads, it must make a GET request to https://[YOUR-PHOENIX-DOMAIN]/auth/public/site-status/[CLIENT_EMAIL]. If the response is { authorized: false }, the website MUST immediately blank out the entire DOM and display a full-screen, un-bypassable message: "This website has been temporarily suspended. If you are the owner, please check your billing portal or contact support."
+Wait for my approval on the plan before you begin writing code.

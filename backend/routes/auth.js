@@ -164,6 +164,52 @@ router.post('/finalize-onboarding', async (req, res) => {
   }
 });
 
+// @route   GET /auth/contract/pdf
+router.get('/contract/pdf', async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    
+    const Contract = require('../models/Contract');
+    const contract = await Contract.findOne({ userId: req.user._id, status: 'active' }).sort({ acceptedAt: -1 });
+    
+    if (!contract || !contract.pdfSnapshot) {
+      return res.status(404).json({ message: 'No receipt found for this user.' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="Phoenix_Contract_Receipt.pdf"');
+    res.send(contract.pdfSnapshot);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @route   GET /auth/public/site-status/:email
+// @desc    Public "Kill Switch" API for client websites to check if they should be online.
+router.get('/public/site-status/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const User = require('../models/User');
+    const Contract = require('../models/Contract');
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.json({ authorized: false }); // User doesn't exist
+
+    // Check if they have an active contract
+    const contract = await Contract.findOne({ userId: user._id }).sort({ acceptedAt: -1 });
+    
+    if (!contract) return res.json({ authorized: false });
+    
+    if (contract.status === 'active' || contract.status === 'bought-out') {
+      return res.json({ authorized: true, status: contract.status });
+    } else {
+      return res.json({ authorized: false, reason: contract.status });
+    }
+  } catch (err) {
+    res.status(500).json({ authorized: false, error: 'Server error' });
+  }
+});
+
 // @route   GET /auth/logout
 router.get('/logout', (req, res) => {
   req.logout((err) => {

@@ -140,6 +140,129 @@ router.post('/checkout', verifyStripe, async (req, res) => {
 });
 
 /**
+ * POST /api/ Calculate early termination and buyout quotes
+ */
+router.get('/cancellation-quote/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+        const User = require('../models/user');
+        const Contract = require('../models/Contract');
+        
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
+        if (!contract || !contract.expiresAt) return res.status(400).json({ error: 'No active contract found' });
+
+        const subscriptions = await stripe.subscriptions.list({
+            customer: user.stripeCustomerId,
+            status: 'active',
+            expand: ['data.plan.product']
+        });
+
+        if (subscriptions.data.length === 0) return res.status(400).json({ error: 'No active Stripe subscription found' });
+        const activeSub = subscriptions.data[0];
+
+        const daysUntilExpiration = Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        const monthsLeft = Math.max(0, Math.ceil(daysUntilExpiration / 30.44));
+        
+        const monthlyFeeInCents = activeSub.plan.amount;
+        let earlyTerminationFeeInCents = 0;
+        let windowStatus = 'in-window';
+
+        if (daysUntilExpiration > 60) {
+            // Too Early: Pay 50% of remaining months
+            windowStatus = 'too-early';
+            earlyTerminationFeeInCents = Math.round((monthsLeft * monthlyFeeInCents) / 2);
+        } else if (daysUntilExpiration < 30) {
+            // Too Late: Pay 50% of remaining time + 50% of next 12-month contract (6 months penalty)
+            windowStatus = 'too-late';
+            earlyTerminationFeeInCents = Math.round((monthsLeft * monthlyFeeInCents) / 2) + (6 * monthlyFeeInCents);
+        } else {
+            // In Window: Exactly 60 to 30 days left
+            windowStatus = 'in-window';
+            earlyTerminationFeeInCents = 0;
+        }
+
+        const tier = activeSub.metadata.tier || (activeSub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'essential');
+        const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+        const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
+
+        let setupFeeInCents = 0;
+        if (tier === 'professional') {
+            setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'));
+        } else {
+            setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'));
+        }
+
+        const buyoutFeeInCents = Math.round(setupFeeInCents / 2);
+        const totalBuyoutCost = buyoutFeeInCents + earlyTerminationFeeInCents;
+
+        res.json({
+            windowStatus,
+            monthsLeft,
+            daysUntilExpiration,
+            earlyTerminationFee: earlyTerminationFeeInCents / 100,
+            buyoutFeeOnly: buyoutFeeInCents / 100,
+            totalBuyoutCost: totalBuyoutCost / 100,
+            subscriptionId: activeSub.id
+        });
+    } catch (err) {
+        console.error('QUOTE ERROR:', err);
+        res.status(500).json({ error: 'Failed to generate quote' });
+    }
+});
+
+// Create Stripe Checkout Session for Cancellation or Buyout
+router.post('/checkout-cancellation', async (req, res) => {
+    try {
+        const { email, type, amount, subscriptionId } = req.body;
+        const User = require('../models/user');
+        const user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // If the amount is 0 (e.g. they cancel in the notice window, no fees apply)
+        if (amount === 0) {
+            await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+            return res.json({ url: '/dashboard?success=true', zeroDollar: true });
+        }
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            customer: user.stripeCustomerId,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: type === 'buyout' ? 'Website Buyout & Early Termination' : 'Early Termination Fee',
+                            description: type === 'buyout' ? 'Purchase full rights to your website.' : '50% of remaining 12-month contract.'
+                        },
+                        unit_amount: Math.round(amount * 100)
+                    },
+                    quantity: 1
+                }
+            ],
+            mode: 'payment',
+            metadata: {
+                action: 'cancellation_payment',
+                type: type,
+                subscriptionId: subscriptionId,
+                userId: user._id.toString()
+            },
+            success_url: `${process.env.CLIENT_URL}/dashboard?cancellation_success=true`,
+            cancel_url: `${process.env.CLIENT_URL}/dashboard?canceled=true`
+        });
+
+        res.json({ url: session.url });
+    } catch (err) {
+        console.error('CANCELLATION CHECKOUT ERROR:', err);
+        res.status(500).json({ error: 'Failed to create checkout session' });
+    }
+});
+
+/**
  * POST /api/stripe/create-portal-session
  */
 router.post('/create-portal-session', verifyStripe, async (req, res) => {
@@ -299,7 +422,24 @@ router.post('/webhook', async (req, res) => {
 
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-        const { userId, tier, acceptedContract, contractTimestamp } = session.metadata;
+
+        if (session.metadata && session.metadata.action === 'cancellation_payment') {
+            try {
+                const subId = session.metadata.subscriptionId;
+                await stripe.subscriptions.cancel(subId);
+                const Contract = require('../models/Contract');
+                
+                const finalStatus = session.metadata.type === 'buyout' ? 'bought-out' : 'cancelled';
+                
+                await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
+                return res.json({ received: true, cancellation_processed: true, status: finalStatus });
+            } catch (err) {
+                console.error('Failed to process cancellation payment:', err);
+                return res.status(500).json({ error: 'Cancellation failed' });
+            }
+        }
+
+        const { userId, tier, acceptedContract, contractTimestamp } = session.metadata || {};
 
         // Automate 12-month subscription schedule if a subscription exists
         if (session.subscription) {
@@ -442,6 +582,120 @@ router.post('/webhook', async (req, res) => {
             } catch (err) {
                 console.error('Error handling subscription schedule release (renewal):', err);
             }
+        }
+    } else if (event.type === 'invoice.payment_failed') {
+        const invoice = event.data.object;
+        
+        try {
+            const customerId = invoice.customer;
+            const User = require('../models/user');
+            const user = await User.findOne({ stripeCustomerId: customerId });
+            
+            const customerEmail = user?.email || invoice.customer_email || 'Unknown Email';
+            const customerName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Customer';
+            const amountDue = (invoice.amount_due / 100).toFixed(2);
+            
+            // Email the Admin (Carter)
+            const nodemailer = require('nodemailer');
+            const transporter = nodemailer.createTransport({
+                host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                port: parseInt(process.env.SMTP_PORT || '465'),
+                secure: true,
+                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            });
+
+            await transporter.sendMail({
+                from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                to: process.env.EMAIL_USER, // Send to Carter
+                subject: `URGENT: Payment Failed - ${customerName}`,
+                html: `
+                    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px; border-left: 5px solid #ef4444;">
+                        <h2 style="color: #ef4444;">Payment Failure Alert</h2>
+                        <p>A recurring subscription payment has failed.</p>
+                        <ul>
+                            <li><strong>Client:</strong> ${customerName}</li>
+                            <li><strong>Email:</strong> ${customerEmail}</li>
+                            <li><strong>Amount Due:</strong> $${amountDue}</li>
+                            <li><strong>Invoice URL:</strong> <a href="${invoice.hosted_invoice_url}">View Stripe Invoice</a></li>
+                        </ul>
+                        <p>Stripe will automatically attempt to retry this payment based on your retry schedule settings. If it continues to fail, you may need to suspend their website services or take further collection action.</p>
+                    </div>
+                `
+            });
+            
+            // Suspend the client's website (Kill Switch Trigger)
+            if (user) {
+                const Contract = require('../models/Contract');
+                await Contract.updateMany({ userId: user._id, status: 'active' }, { status: 'breached' });
+            }
+            
+        } catch (err) {
+            console.error('Failed to process invoice.payment_failed event:', err);
+        }
+        }
+    } else if (event.type === 'invoice.payment_succeeded') {
+        const invoice = event.data.object;
+        
+        // If this is a subscription payment and it succeeded, ensure their status is restored to active
+        if (invoice.subscription) {
+            try {
+                const User = require('../models/User');
+                const Contract = require('../models/Contract');
+                const user = await User.findOne({ stripeCustomerId: invoice.customer });
+                
+                if (user) {
+                    // Restore website access (Kill Switch Untrigger)
+                    await Contract.updateMany({ userId: user._id, status: 'breached' }, { status: 'active' });
+                }
+            } catch (err) {
+                console.error('Failed to process invoice.payment_succeeded event:', err);
+            }
+        }
+    } else if (event.type === 'customer.subscription.deleted') {
+        const subscription = event.data.object;
+        try {
+            const User = require('../models/User');
+            const Contract = require('../models/Contract');
+            const user = await User.findOne({ stripeCustomerId: subscription.customer });
+            
+            if (user) {
+                // Permanently suspend site when subscription is fully deleted/cancelled
+                await Contract.updateMany({ userId: user._id, status: { $in: ['active', 'breached'] } }, { status: 'cancelled' });
+            }
+        } catch (err) {
+            console.error('Failed to process customer.subscription.deleted event:', err);
+        }
+    } else if (event.type === 'charge.dispute.created') {
+        const dispute = event.data.object;
+        try {
+            const chargeId = dispute.charge;
+            const charge = await stripe.charges.retrieve(chargeId);
+            if (charge && charge.customer) {
+                const User = require('../models/User');
+                const Contract = require('../models/Contract');
+                const user = await User.findOne({ stripeCustomerId: charge.customer });
+                if (user) {
+                    // If they did a chargeback on ANY payment (including a Buyout), instantly breach their contract
+                    await Contract.updateMany({ userId: user._id }, { status: 'breached' });
+                    
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                        port: parseInt(process.env.SMTP_PORT || '465'),
+                        secure: true,
+                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                    });
+
+                    await transporter.sendMail({
+                        from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                        to: process.env.EMAIL_USER,
+                        subject: `URGENT: Chargeback / Dispute Received!`,
+                        html: `<p>A chargeback was filed by customer email: ${user.email}. Their contract has been marked as breached and the Kill Switch has been activated.</p>`
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Failed to process charge.dispute.created event:', err);
         }
     }
 

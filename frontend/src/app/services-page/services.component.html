@@ -161,22 +161,13 @@
     <!-- Management Portal Trigger -->
     <div class="glass-card text-center py-24" appScrollReveal>
       <h2 class="text-2xl font-black uppercase tracking-widest mb-8">Client Portal</h2>
-      <p class="text-white/40 text-sm mb-12 max-w-xl mx-auto">Already working with us? Log in to manage your plan and billing.</p>
+      <p class="text-white/40 text-sm mb-12 max-w-xl mx-auto">Already working with us? Access your secure dashboard to manage your plan, billing, and downloads.</p>
       
-      <div class="flex flex-col sm:flex-row max-w-md mx-auto gap-4">
-        <input type="email" #portalEmail placeholder="EMAIL ADDRESS" 
-               class="flex-1 bg-white/[0.02] border border-white/[0.05] px-6 py-4 sm:px-8 text-[10px] font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
-        <button (click)="onManageSubscription(portalEmail.value)" 
-                [disabled]="portalLoading()"
-                class="premium-btn !px-8 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]">
-          <span *ngIf="!portalLoading()">Access</span>
-          <i *ngIf="portalLoading()" class="fas fa-spinner animate-spin"></i>
-        </button>
+      <div class="flex justify-center max-w-md mx-auto gap-4">
+        <a routerLink="/dashboard" class="premium-btn !px-12 flex items-center justify-center">
+          Access Dashboard
+        </a>
       </div>
-      
-      <p *ngIf="portalError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest mt-6">
-        {{portalError()}}
-      </p>
     </div>
   </div>
 </div>

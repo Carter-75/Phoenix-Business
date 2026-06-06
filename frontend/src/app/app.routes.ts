@@ -5,6 +5,7 @@ import { ServicesComponent } from './services-page/services.component';
 import { TermsComponent } from './legal/terms-of-service.component';
 import { RefundPolicyComponent } from './legal/refund-policy.component';
 import { PrivacyPolicyComponent } from './legal/privacy-policy.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'terms', component: TermsComponent },
   { path: 'refunds', component: RefundPolicyComponent },
   { path: 'privacy', component: PrivacyPolicyComponent },
+  { path: 'dashboard', component: DashboardComponent },
   
   { path: '**', redirectTo: 'home' }
 ];

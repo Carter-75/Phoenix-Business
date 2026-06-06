@@ -44,8 +44,6 @@ export class ServicesComponent implements OnInit {
   readonly stripePublishableKey = environment.stripePublishableKey;
   
   // Subscription Management State
-  portalLoading = signal(false);
-  portalError = signal<string | null>(null);
   memberSessionEmail = signal<string | null>(null);
   subscriptionsByTier = signal<Record<string, any[]>>({
     simple: [],
@@ -150,13 +148,6 @@ export class ServicesComponent implements OnInit {
       error: (err) => console.error('Failed to load dynamic pricing', err)
     });
 
-    // Check for existing member session
-    const savedEmail = localStorage.getItem('member_email');
-    if (savedEmail) {
-      this.memberSessionEmail.set(savedEmail);
-      this.loadSubscriptions(savedEmail);
-    }
-
     // Handle route query params for generic login
     this.route.queryParams.subscribe(params => {
       if (params['login'] === 'true' && !this.api.currentUser()) {
@@ -222,42 +213,6 @@ export class ServicesComponent implements OnInit {
     );
     
     this.injectJsonLd();
-  }
-
-  loadSubscriptions(email: string) {
-    this.http.get<{subscriptions: any}>(`${environment.apiUrl}/stripe/subscriptions/${email}`)
-      .subscribe({
-        next: (res) => this.subscriptionsByTier.set(res.subscriptions),
-        error: (err) => console.warn('Could not load subscriptions for email:', email)
-      });
-  }
-
-  onManageSubscription(email: string) {
-    if (!email || !email.includes('@')) {
-      this.portalError.set('Please enter a valid email address.');
-      return;
-    }
-    this.portalLoading.set(true);
-    this.portalError.set(null);
-    this.http.post<{url: string}>(`${environment.apiUrl}/stripe/create-portal-session`, { email })
-      .subscribe({
-        next: (res) => {
-          localStorage.setItem('member_email', email);
-          this.memberSessionEmail.set(email);
-          window.open(res.url, '_blank');
-          this.portalLoading.set(false);
-        },
-        error: (err) => {
-          this.portalLoading.set(false);
-          this.portalError.set(err.error?.error || 'Could not find an active subscription.');
-        }
-      });
-  }
-
-  onLogout() {
-    localStorage.removeItem('member_email');
-    this.memberSessionEmail.set(null);
-    this.subscriptionsByTier.set({ simple: [], essential: [], professional: [] });
   }
 
   openContract(tier: ServiceTier) {
