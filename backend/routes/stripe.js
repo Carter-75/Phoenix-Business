@@ -521,9 +521,47 @@ router.post('/webhook', async (req, res) => {
 
         if (userToEmail || session.customer_details?.email) {
             const emailTarget = userToEmail?.email || session.customer_details?.email;
-            const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata.customer_name;
-            sendReceiptEmail(emailTarget, userName, session.amount_total, session.metadata.project_type, pdfBuffer)
+            const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata?.customer_name;
+            const businessName = userToEmail?.businessName || 'Not Provided';
+            const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
+            
+            // 1. Send Receipt to Client
+            sendReceiptEmail(emailTarget, userName, session.amount_total, projectType, pdfBuffer)
                 .catch(err => console.error('Background email failed:', err));
+            
+            // 2. Send Alert to Admin (Carter)
+            try {
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                    port: parseInt(process.env.SMTP_PORT || '465'),
+                    secure: true,
+                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                });
+                
+                transporter.sendMail({
+                    from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                    to: process.env.EMAIL_USER,
+                    subject: `🚀 NEW CLIENT ONBOARDED: ${businessName} / ${userName || 'Unknown'}`,
+                    html: `
+                        <div style="font-family: sans-serif; line-height: 1.6; color: #333; border: 1px solid #eee; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto;">
+                            <h2 style="color: #ea580c;">New Client Checkout Completed!</h2>
+                            <p>A new client has successfully paid and completed onboarding.</p>
+                            <ul>
+                                <li><strong>Client Name:</strong> ${userName || 'Unknown'}</li>
+                                <li><strong>Business Name:</strong> ${businessName}</li>
+                                <li><strong>Email:</strong> ${emailTarget}</li>
+                                <li><strong>Project Type:</strong> ${projectType}</li>
+                                <li><strong>Tier:</strong> ${tier || 'Unknown'}</li>
+                                <li><strong>Amount Paid Today:</strong> $${(session.amount_total / 100).toFixed(2)}</li>
+                            </ul>
+                            <p>You can view their full billing details and manage their subscription in the Stripe Dashboard.</p>
+                        </div>
+                    `
+                }).catch(err => console.error('Admin alert email failed:', err));
+            } catch (err) {
+                console.error('Admin alert error:', err);
+            }
         }
     } else if (event.type === 'subscription_schedule.released') {
         const schedule = event.data.object;
