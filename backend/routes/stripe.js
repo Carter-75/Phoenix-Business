@@ -632,7 +632,6 @@ router.post('/webhook', async (req, res) => {
         } catch (err) {
             console.error('Failed to process invoice.payment_failed event:', err);
         }
-        }
     } else if (event.type === 'invoice.payment_succeeded') {
         const invoice = event.data.object;
         
