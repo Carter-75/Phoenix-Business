@@ -193,7 +193,7 @@ import { environment } from '../../environments/environment';
 export class DashboardComponent implements OnInit {
   api = inject(ApiService);
   route = inject(ActivatedRoute);
-  
+
   isSuccess = signal(false);
   isCancellationSuccess = signal(false);
   apiUrl = environment.apiUrl;
@@ -203,7 +203,7 @@ export class DashboardComponent implements OnInit {
   checkoutLoading = signal(false);
   cancelQuote = signal<any>(null);
   downloadingPdfId = signal<string | null>(null);
-  
+
   contracts = signal<any[]>([]);
   loadingContracts = signal(true);
 
@@ -267,10 +267,10 @@ export class DashboardComponent implements OnInit {
   openCancelModal(contractId: string) {
     const user = this.api.currentUser();
     if (!user) return;
-    
+
     this.showCancelModal.set(true);
     this.loadingQuote.set(true);
-    
+
     this.api.get<any>(`stripe/cancellation-quote/${contractId}`).subscribe({
       next: (res) => {
         this.cancelQuote.set(res);
@@ -294,7 +294,7 @@ export class DashboardComponent implements OnInit {
     this.checkoutLoading.set(true);
     const quote = this.cancelQuote();
     const amount = type === 'buyout' ? quote.totalBuyoutCost : quote.earlyTerminationFee;
-    
+
     this.api.post<any>('stripe/checkout-cancellation', {
       email: this.api.currentUser()?.email,
       type,

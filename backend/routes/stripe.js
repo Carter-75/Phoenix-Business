@@ -64,6 +64,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                     },
                     quantity: 1,
                 });
+                setupFee = applyDiscount(prices.simple);
+                monthlyFee = 0;
                 break;
             case 'essential':
                 mode = 'subscription';
@@ -84,6 +86,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                     },
                     quantity: 1,
                 });
+                setupFee = applyDiscount(prices.essential_setup);
+                monthlyFee = applyDiscount(prices.essential_monthly);
                 break;
             case 'professional':
                 mode = 'subscription';
@@ -104,6 +108,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                     },
                     quantity: 1,
                 });
+                setupFee = applyDiscount(prices.professional_setup);
+                monthlyFee = applyDiscount(prices.professional_monthly);
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid service tier selected.' });
@@ -117,6 +123,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             customer_email: email || (user ? user.email : undefined),
             metadata: {
                 tier,
+                setupFee: setupFee.toString(),
+                monthlyFee: monthlyFee.toString(),
                 customer_name: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
                 business_name: businessName || (user ? user.businessName : ''),
                 project_type: projectType,
@@ -151,10 +159,10 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
     try {
         const { contractId } = req.params;
         const Contract = require('../models/Contract');
-        
+
         const contract = await Contract.findById(contractId).populate('userId');
         if (!contract) return res.status(404).json({ error: 'Contract not found' });
-        
+
         const user = contract.userId;
 
         if (contract.contractType && contract.contractType.toLowerCase().includes('simple')) {
@@ -180,13 +188,13 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
         });
 
         if (activeSub.status === 'canceled') {
-             return res.status(400).json({ error: 'This subscription is already canceled.' });
+            return res.status(400).json({ error: 'This subscription is already canceled.' });
         }
 
         const daysUntilExpiration = Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const monthsLeft = Math.max(0, Math.ceil(daysUntilExpiration / 30.44));
-        
-        const monthlyFeeInCents = activeSub.plan.amount;
+
+        const monthlyFeeInCents = contract.monthlyFee || activeSub.plan.amount;
         let earlyTerminationFeeInCents = 0;
         let windowStatus = 'in-window';
 
@@ -204,15 +212,23 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
             earlyTerminationFeeInCents = 0;
         }
 
-        const tier = activeSub.metadata.tier || (activeSub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'essential');
-        const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
-        const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
-
-        let setupFeeInCents = 0;
-        if (tier === 'professional') {
-            setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'));
-        } else {
-            setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'));
+        const tier = contract.tier || activeSub.metadata.tier || (activeSub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'essential');
+        
+        let setupFeeInCents = contract.setupFeePaid;
+        
+        // Fallback for legacy contracts without setupFeePaid populated
+        if (!setupFeeInCents && setupFeeInCents !== 0) {
+            const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+            const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
+            if (process.env.TEST_MODE === 'true') {
+                setupFeeInCents = tier === 'professional' ? 300 : 200;
+            } else {
+                if (tier === 'professional') {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'));
+                } else {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'));
+                }
+            }
         }
 
         const buyoutFeeInCents = Math.round(setupFeeInCents / 2);
@@ -325,7 +341,7 @@ router.post('/create-portal-session', verifyStripe, async (req, res) => {
 router.get('/subscriptions/:email', verifyStripe, async (req, res) => {
     try {
         const { email } = req.params;
-        
+
         let customerId;
         const user = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
         if (user && user.stripeCustomerId) {
@@ -351,8 +367,8 @@ router.get('/subscriptions/:email', verifyStripe, async (req, res) => {
         const grouped = { simple: [], essential: [], professional: [] };
         subscriptions.data.forEach(sub => {
             if (sub.status === 'canceled') return;
-            const tier = sub.metadata.tier || (sub.plan.product.name.toLowerCase().includes('essential') ? 'essential' : 
-                          sub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'simple');
+            const tier = sub.metadata.tier || (sub.plan.product.name.toLowerCase().includes('essential') ? 'essential' :
+                sub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'simple');
             if (grouped[tier]) {
                 grouped[tier].push({
                     id: sub.id,
@@ -445,136 +461,143 @@ router.post('/webhook', async (req, res) => {
 
     // Process the event asynchronously
     (async () => {
-    if (event.type === 'checkout.session.completed') {
-        const session = event.data.object;
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
 
-        if (session.metadata && session.metadata.action === 'cancellation_payment') {
-            try {
-                const subId = session.metadata.subscriptionId;
-                await stripe.subscriptions.cancel(subId);
-                const Contract = require('../models/Contract');
-                
-                const finalStatus = session.metadata.type === 'buyout' ? 'bought-out' : 'cancelled';
-                
-                await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
-                console.log(`[STRIPE] Cancellation processed. Status updated to ${finalStatus}`);
-                return; // Early return for the async IIFE
-            } catch (err) {
-                console.error('Failed to process cancellation payment:', err);
-                return; // Early return for the async IIFE
+            if (session.metadata && session.metadata.action === 'cancellation_payment') {
+                try {
+                    const subId = session.metadata.subscriptionId;
+                    await stripe.subscriptions.cancel(subId);
+                    const Contract = require('../models/Contract');
+
+                    const finalStatus = session.metadata.type === 'buyout' ? 'bought-out' : 'cancelled';
+
+                    await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
+                    console.log(`[STRIPE] Cancellation processed. Status updated to ${finalStatus}`);
+                    return; // Early return for the async IIFE
+                } catch (err) {
+                    console.error('Failed to process cancellation payment:', err);
+                    return; // Early return for the async IIFE
+                }
             }
-        }
 
-        const { userId, tier, acceptedContract, contractTimestamp } = session.metadata || {};
+            const { userId, tier, acceptedContract, contractTimestamp, setupFee, monthlyFee } = session.metadata || {};
 
-        // Automate 12-month subscription schedule if a subscription exists
-        if (session.subscription) {
-            try {
-                const schedule = await stripe.subscriptionSchedules.create({
-                    from_subscription: session.subscription,
-                });
+            // Automate 12-month subscription schedule if a subscription exists
+            if (session.subscription) {
+                try {
+                    const schedule = await stripe.subscriptionSchedules.create({
+                        from_subscription: session.subscription,
+                    });
 
-                const subscription = await stripe.subscriptions.retrieve(session.subscription);
-                
-                const items = subscription.items.data.map(item => ({
-                    price: item.price.id,
-                    quantity: item.quantity
-                }));
+                    const subscription = await stripe.subscriptions.retrieve(session.subscription);
 
-                await stripe.subscriptionSchedules.update(schedule.id, {
-                    end_behavior: 'release',
-                    phases: [
-                        {
-                            items: items,
-                            iterations: 12,
-                        }
-                    ]
-                });
-            } catch (err) {
-                console.error('Failed to create subscription schedule:', err.message);
+                    const items = subscription.items.data.map(item => ({
+                        price: item.price.id,
+                        quantity: item.quantity
+                    }));
+
+                    await stripe.subscriptionSchedules.update(schedule.id, {
+                        end_behavior: 'release',
+                        phases: [
+                            {
+                                items: items,
+                                iterations: 12,
+                            }
+                        ]
+                    });
+                } catch (err) {
+                    console.error('Failed to create subscription schedule:', err.message);
+                }
             }
-        }
 
-        let pdfBuffer = null;
-        let userToEmail = null;
+            let pdfBuffer = null;
+            let userToEmail = null;
 
-        if (acceptedContract === 'true' && userId !== 'guest') {
-            const user = await User.findById(userId);
-            if (user) {
-                userToEmail = user;
-                user.hasAcceptedContract = true;
-                user.contractAcceptedAt = new Date(contractTimestamp);
-                user.stripeCustomerId = session.customer;
-                user.subscriptionStatus = tier === 'simple' ? 'simple-build' : tier;
-                await user.save();
+            if (acceptedContract === 'true' && userId !== 'guest') {
+                const user = await User.findById(userId);
+                if (user) {
+                    userToEmail = user;
+                    user.hasAcceptedContract = true;
+                    user.contractAcceptedAt = new Date(contractTimestamp);
+                    user.stripeCustomerId = session.customer;
+                    user.subscriptionStatus = tier === 'simple' ? 'simple-build' : tier;
+                    await user.save();
 
-                const legalService = require('../services/legal.service');
-                pdfBuffer = await legalService.generateMergedLegalPDF();
+                    const legalService = require('../services/legal.service');
+                    pdfBuffer = await legalService.generateMergedLegalPDF({
+                        tier,
+                        setupFee: parseInt(setupFee || '0'),
+                        monthlyFee: parseInt(monthlyFee || '0')
+                    });
 
-                const contractType = tier === 'simple' ? 'Simple Launch Agreement' : `Yearly Service Agreement - ${tier}`;
+                    const contractType = tier === 'simple' ? 'Simple Launch Agreement' : `Yearly Service Agreement - ${tier}`;
+                    const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
+
+                    // Tier 1 doesn't expire. Tiers 2/3 expire in 1 year.
+                    let expiresAt = new Date('2099-12-31T23:59:59.999Z');
+                    if (tier !== 'simple') {
+                        expiresAt = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                    }
+
+                    const newContract = new Contract({
+                        userId: user._id,
+                        contractType: contractType,
+                        projectName: projectType,
+                        stripeSubscriptionId: session.subscription || null,
+                        tier: tier,
+                        setupFeePaid: parseInt(setupFee || '0'),
+                        monthlyFee: parseInt(monthlyFee || '0'),
+                        acceptedAt: new Date(contractTimestamp),
+                        status: 'active',
+                        expiresAt: expiresAt,
+                        pdfSnapshot: pdfBuffer
+                    });
+                    await newContract.save();
+                }
+            }
+
+            if (userToEmail || session.customer_details?.email) {
+                const emailTarget = userToEmail?.email || session.customer_details?.email;
+                const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata?.customer_name;
+                const businessName = userToEmail?.businessName || session.metadata?.business_name || 'Not Provided';
                 const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
-                
-                // Tier 1 doesn't expire. Tiers 2/3 expire in 1 year.
-                let expiresAt = new Date('2099-12-31T23:59:59.999Z');
-                if (tier !== 'simple') {
-                    expiresAt = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
+                // Update the Stripe Customer object with Business Name and Name
+                try {
+                    await stripe.customers.update(session.customer, {
+                        name: businessName !== 'Not Provided' ? businessName : userName,
+                        description: `Contact: ${userName}`,
+                        metadata: {
+                            individual_name: userName,
+                            business_name: businessName,
+                            tier: tier || 'Unknown'
+                        }
+                    });
+                    console.log(`[STRIPE] Customer ${session.customer} updated with name/business_name.`);
+                } catch (err) {
+                    console.error('[STRIPE] Failed to update customer name:', err.message);
                 }
 
-                const newContract = new Contract({
-                    userId: user._id,
-                    contractType: contractType,
-                    projectName: projectType,
-                    stripeSubscriptionId: session.subscription || null,
-                    acceptedAt: new Date(contractTimestamp),
-                    status: 'active',
-                    expiresAt: expiresAt,
-                    pdfSnapshot: pdfBuffer
-                });
-                await newContract.save();
-            }
-        }
+                // 1. Send Receipt to Client
+                sendReceiptEmail(emailTarget, userName, session.amount_total, projectType, pdfBuffer)
+                    .catch(err => console.error('Background email failed:', err));
 
-        if (userToEmail || session.customer_details?.email) {
-            const emailTarget = userToEmail?.email || session.customer_details?.email;
-            const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata?.customer_name;
-            const businessName = userToEmail?.businessName || session.metadata?.business_name || 'Not Provided';
-            const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
-            
-            // Update the Stripe Customer object with Business Name and Name
-            try {
-                await stripe.customers.update(session.customer, {
-                    name: businessName !== 'Not Provided' ? businessName : userName,
-                    description: `Contact: ${userName}`,
-                    metadata: {
-                        individual_name: userName,
-                        business_name: businessName,
-                        tier: tier || 'Unknown'
-                    }
-                });
-                console.log(`[STRIPE] Customer ${session.customer} updated with name/business_name.`);
-            } catch (err) {
-                console.error('[STRIPE] Failed to update customer name:', err.message);
-            }
-            
-            // 1. Send Receipt to Client
-            sendReceiptEmail(emailTarget, userName, session.amount_total, projectType, pdfBuffer)
-                .catch(err => console.error('Background email failed:', err));
-            
-            // 2. Send Alert to Admin (Carter)
-            try {
-                const nodemailer = require('nodemailer');
-                const transporter = nodemailer.createTransport({
-                    host: process.env.SMTP_HOST || 'smtppro.zoho.com',
-                    port: parseInt(process.env.SMTP_PORT || '465'),
-                    secure: true,
-                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-                });
-                
-                transporter.sendMail({
-                    from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
-                    to: process.env.EMAIL_USER,
-                    subject: `🚀 NEW CLIENT ONBOARDED: ${businessName} / ${userName || 'Unknown'}`,
-                    html: `
+                // 2. Send Alert to Admin (Carter)
+                try {
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                        port: parseInt(process.env.SMTP_PORT || '465'),
+                        secure: true,
+                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                    });
+
+                    transporter.sendMail({
+                        from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                        to: process.env.EMAIL_USER,
+                        subject: `🚀 NEW CLIENT ONBOARDED: ${businessName} / ${userName || 'Unknown'}`,
+                        html: `
                         <div style="font-family: sans-serif; line-height: 1.6; color: #333; border: 1px solid #eee; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto;">
                             <h2 style="color: #ea580c;">New Client Checkout Completed!</h2>
                             <p>A new client has successfully paid and completed onboarding.</p>
@@ -589,62 +612,66 @@ router.post('/webhook', async (req, res) => {
                             <p>You can view their full billing details and manage their subscription in the Stripe Dashboard.</p>
                         </div>
                     `
-                }).catch(err => console.error('Admin alert email failed:', err));
-            } catch (err) {
-                console.error('Admin alert error:', err);
+                    }).catch(err => console.error('Admin alert email failed:', err));
+                } catch (err) {
+                    console.error('Admin alert error:', err);
+                }
             }
-        }
-    } else if (event.type === 'subscription_schedule.released') {
-        const schedule = event.data.object;
-        const subscriptionId = schedule.subscription;
+        } else if (event.type === 'subscription_schedule.released') {
+            const schedule = event.data.object;
+            const subscriptionId = schedule.subscription;
 
-        if (subscriptionId) {
-            try {
-                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-                const customerId = subscription.customer;
-                const user = await User.findOne({ stripeCustomerId: customerId });
+            if (subscriptionId) {
+                try {
+                    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+                    const customerId = subscription.customer;
+                    const user = await User.findOne({ stripeCustomerId: customerId });
 
-                if (user) {
-                    // Create a NEW 12-month schedule for the next cycle
-                    const items = subscription.items.data.map(item => ({
-                        price: item.price.id,
-                        quantity: item.quantity
-                    }));
+                    if (user) {
+                        // Create a NEW 12-month schedule for the next cycle
+                        const items = subscription.items.data.map(item => ({
+                            price: item.price.id,
+                            quantity: item.quantity
+                        }));
 
-                    const newSchedule = await stripe.subscriptionSchedules.create({
-                        from_subscription: subscriptionId,
-                    });
+                        const newSchedule = await stripe.subscriptionSchedules.create({
+                            from_subscription: subscriptionId,
+                        });
 
-                    await stripe.subscriptionSchedules.update(newSchedule.id, {
-                        end_behavior: 'release',
-                        phases: [{ items: items, iterations: 12 }]
-                    });
+                        await stripe.subscriptionSchedules.update(newSchedule.id, {
+                            end_behavior: 'release',
+                            phases: [{ items: items, iterations: 12 }]
+                        });
 
-                    // Extend the contract in DB by 1 year and update PDF snapshot
-                    const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
-                    if (contract && contract.expiresAt) {
-                        const legalService = require('../services/legal.service');
-                        const pdfBuffer = await legalService.generateMergedLegalPDF();
-                        
-                        contract.expiresAt = new Date(new Date(contract.expiresAt).setFullYear(new Date(contract.expiresAt).getFullYear() + 1));
-                        contract.pdfSnapshot = pdfBuffer;
-                        await contract.save();
-                    }
+                        // Extend the contract in DB by 1 year and update PDF snapshot
+                        const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
+                        if (contract && contract.expiresAt) {
+                            const legalService = require('../services/legal.service');
+                            const pdfBuffer = await legalService.generateMergedLegalPDF({
+                                tier: contract.tier,
+                                setupFee: contract.setupFeePaid,
+                                monthlyFee: contract.monthlyFee
+                            });
 
-                    // Send renewal confirmation email
-                    const nodemailer = require('nodemailer');
-                    const transporter = nodemailer.createTransport({
-                        host: process.env.SMTP_HOST || 'mail.privateemail.com',
-                        port: parseInt(process.env.SMTP_PORT || '465'),
-                        secure: true,
-                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-                    });
+                            contract.expiresAt = new Date(new Date(contract.expiresAt).setFullYear(new Date(contract.expiresAt).getFullYear() + 1));
+                            contract.pdfSnapshot = pdfBuffer;
+                            await contract.save();
+                        }
 
-                    await transporter.sendMail({
-                        from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
-                        to: user.email,
-                        subject: 'Your Annual Contract has Renewed',
-                        html: `
+                        // Send renewal confirmation email
+                        const nodemailer = require('nodemailer');
+                        const transporter = nodemailer.createTransport({
+                            host: process.env.SMTP_HOST || 'mail.privateemail.com',
+                            port: parseInt(process.env.SMTP_PORT || '465'),
+                            secure: true,
+                            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                        });
+
+                        await transporter.sendMail({
+                            from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
+                            to: user.email,
+                            subject: 'Your Annual Contract has Renewed',
+                            html: `
                             <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
                                 <h2 style="color: #2563eb;">Contract Renewed</h2>
                                 <p>Hi ${user.firstName || user.name || 'there'},</p>
@@ -655,38 +682,38 @@ router.post('/webhook', async (req, res) => {
                                 <p style="font-size: 11px; color: #999;">Carter Moyer | Phoenix Business Systems</p>
                             </div>
                         `
-                    });
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error handling subscription schedule release (renewal):', err);
                 }
-            } catch (err) {
-                console.error('Error handling subscription schedule release (renewal):', err);
             }
-        }
-    } else if (event.type === 'invoice.payment_failed') {
-        const invoice = event.data.object;
-        
-        try {
-            const customerId = invoice.customer;
-            const User = require('../models/user');
-            const user = await User.findOne({ stripeCustomerId: customerId });
-            
-            const customerEmail = user?.email || invoice.customer_email || 'Unknown Email';
-            const customerName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Customer';
-            const amountDue = (invoice.amount_due / 100).toFixed(2);
-            
-            // Email the Admin (Carter)
-            const nodemailer = require('nodemailer');
-            const transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST || 'smtppro.zoho.com',
-                port: parseInt(process.env.SMTP_PORT || '465'),
-                secure: true,
-                auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-            });
+        } else if (event.type === 'invoice.payment_failed') {
+            const invoice = event.data.object;
 
-            await transporter.sendMail({
-                from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
-                to: process.env.EMAIL_USER, // Send to Carter
-                subject: `URGENT: Payment Failed - ${customerName}`,
-                html: `
+            try {
+                const customerId = invoice.customer;
+                const User = require('../models/user');
+                const user = await User.findOne({ stripeCustomerId: customerId });
+
+                const customerEmail = user?.email || invoice.customer_email || 'Unknown Email';
+                const customerName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Customer';
+                const amountDue = (invoice.amount_due / 100).toFixed(2);
+
+                // Email the Admin (Carter)
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                    port: parseInt(process.env.SMTP_PORT || '465'),
+                    secure: true,
+                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                });
+
+                await transporter.sendMail({
+                    from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                    to: process.env.EMAIL_USER, // Send to Carter
+                    subject: `URGENT: Payment Failed - ${customerName}`,
+                    html: `
                     <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px; border-left: 5px solid #ef4444;">
                         <h2 style="color: #ef4444;">Payment Failure Alert</h2>
                         <p>A recurring subscription payment has failed.</p>
@@ -699,88 +726,88 @@ router.post('/webhook', async (req, res) => {
                         <p>Stripe will automatically attempt to retry this payment based on your retry schedule settings. If it continues to fail, you may need to suspend their website services or take further collection action.</p>
                     </div>
                 `
-            });
-            
-            // Suspend the client's website (Kill Switch Trigger)
-            if (user) {
-                const Contract = require('../models/Contract');
-                await Contract.updateMany({ userId: user._id, status: 'active' }, { status: 'breached' });
+                });
+
+                // Suspend the client's website (Kill Switch Trigger)
+                if (user) {
+                    const Contract = require('../models/Contract');
+                    await Contract.updateMany({ userId: user._id, status: 'active' }, { status: 'breached' });
+                }
+
+            } catch (err) {
+                console.error('Failed to process invoice.payment_failed event:', err);
             }
-            
-        } catch (err) {
-            console.error('Failed to process invoice.payment_failed event:', err);
-        }
-    } else if (event.type === 'invoice.payment_succeeded') {
-        const invoice = event.data.object;
-        
-        // If this is a subscription payment and it succeeded, ensure their status is restored to active
-        if (invoice.subscription) {
+        } else if (event.type === 'invoice.payment_succeeded') {
+            const invoice = event.data.object;
+
+            // If this is a subscription payment and it succeeded, ensure their status is restored to active
+            if (invoice.subscription) {
+                try {
+                    const User = require('../models/user');
+                    const Contract = require('../models/Contract');
+                    const user = await User.findOne({ stripeCustomerId: invoice.customer });
+
+                    if (user) {
+                        // Restore website access (Kill Switch Untrigger)
+                        await Contract.updateMany({ userId: user._id, status: 'breached' }, { status: 'active' });
+                    }
+                } catch (err) {
+                    console.error('Failed to process invoice.payment_succeeded event:', err);
+                }
+            }
+        } else if (event.type === 'customer.subscription.deleted') {
+            const subscription = event.data.object;
             try {
                 const User = require('../models/user');
                 const Contract = require('../models/Contract');
-                const user = await User.findOne({ stripeCustomerId: invoice.customer });
-                
+                const user = await User.findOne({ stripeCustomerId: subscription.customer });
+
                 if (user) {
-                    // Restore website access (Kill Switch Untrigger)
-                    await Contract.updateMany({ userId: user._id, status: 'breached' }, { status: 'active' });
+                    // Permanently suspend site when subscription is fully deleted/cancelled
+                    await Contract.updateMany({ userId: user._id, status: { $in: ['active', 'breached'] } }, { status: 'cancelled' });
                 }
             } catch (err) {
-                console.error('Failed to process invoice.payment_succeeded event:', err);
+                console.error('Failed to process customer.subscription.deleted event:', err);
             }
-        }
-    } else if (event.type === 'customer.subscription.deleted') {
-        const subscription = event.data.object;
-        try {
-            const User = require('../models/user');
-            const Contract = require('../models/Contract');
-            const user = await User.findOne({ stripeCustomerId: subscription.customer });
-            
-            if (user) {
-                // Permanently suspend site when subscription is fully deleted/cancelled
-                await Contract.updateMany({ userId: user._id, status: { $in: ['active', 'breached'] } }, { status: 'cancelled' });
-            }
-        } catch (err) {
-            console.error('Failed to process customer.subscription.deleted event:', err);
-        }
-    } else if (event.type === 'charge.dispute.created') {
-        const dispute = event.data.object;
-        try {
-            const chargeId = dispute.charge;
-            const charge = await stripe.charges.retrieve(chargeId);
-            if (charge && charge.customer) {
-                const User = require('../models/user');
-                const Contract = require('../models/Contract');
-                const user = await User.findOne({ stripeCustomerId: charge.customer });
-                if (user) {
-                    // If they did a chargeback on ANY payment (including a Buyout), instantly breach their contract
-                    await Contract.updateMany({ userId: user._id }, { status: 'breached' });
-                    
-                    const nodemailer = require('nodemailer');
-                    const transporter = nodemailer.createTransport({
-                        host: process.env.SMTP_HOST || 'smtppro.zoho.com',
-                        port: parseInt(process.env.SMTP_PORT || '465'),
-                        secure: true,
-                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-                    });
+        } else if (event.type === 'charge.dispute.created') {
+            const dispute = event.data.object;
+            try {
+                const chargeId = dispute.charge;
+                const charge = await stripe.charges.retrieve(chargeId);
+                if (charge && charge.customer) {
+                    const User = require('../models/user');
+                    const Contract = require('../models/Contract');
+                    const user = await User.findOne({ stripeCustomerId: charge.customer });
+                    if (user) {
+                        // If they did a chargeback on ANY payment (including a Buyout), instantly breach their contract
+                        await Contract.updateMany({ userId: user._id }, { status: 'breached' });
 
-                    await transporter.sendMail({
-                        from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
-                        to: process.env.EMAIL_USER,
-                        subject: `URGENT: Chargeback / Dispute Received!`,
-                        html: `<p>A chargeback was filed by customer email: ${user.email}. Their contract has been marked as breached and the Kill Switch has been activated.</p>`
-                    });
+                        const nodemailer = require('nodemailer');
+                        const transporter = nodemailer.createTransport({
+                            host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                            port: parseInt(process.env.SMTP_PORT || '465'),
+                            secure: true,
+                            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                        });
+
+                        await transporter.sendMail({
+                            from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                            to: process.env.EMAIL_USER,
+                            subject: `URGENT: Chargeback / Dispute Received!`,
+                            html: `<p>A chargeback was filed by customer email: ${user.email}. Their contract has been marked as breached and the Kill Switch has been activated.</p>`
+                        });
+                    }
                 }
+            } catch (err) {
+                console.error('Failed to process charge.dispute.created event:', err);
             }
-        } catch (err) {
-            console.error('Failed to process charge.dispute.created event:', err);
         }
-    }
 
-    try {
-        await new ProcessedEvent({ eventId: event.id, type: event.type }).save();
-    } catch (err) {
-        console.error('Failed to save processed event:', err.message);
-    }
+        try {
+            await new ProcessedEvent({ eventId: event.id, type: event.type }).save();
+        } catch (err) {
+            console.error('Failed to save processed event:', err.message);
+        }
     })(); // End of async processing block
 });
 

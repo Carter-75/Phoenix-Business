@@ -11,7 +11,10 @@ const contractSchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'breached', 'cancelled', 'expired', 'bought-out'], default: 'active' },
   expiresAt: { type: Date },
   stripeSubscriptionId: { type: String }, // Nullable for Simple Launch
-  projectName: { type: String } // E.g., "Carter's Plumbing - Essential Care"
+  projectName: { type: String }, // E.g., "Carter's Plumbing - Essential Care"
+  tier: { type: String }, // 'simple', 'essential', 'professional'
+  setupFeePaid: { type: Number, default: 0 }, // In cents
+  monthlyFee: { type: Number, default: 0 } // In cents
 });
 
 module.exports = mongoose.model('Contract', contractSchema);

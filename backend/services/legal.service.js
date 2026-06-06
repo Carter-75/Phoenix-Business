@@ -3,17 +3,16 @@ const PDFDocument = require('pdfkit');
 /**
  * Service to manage legal policy text and generate merged PDFs for contracts
  */
-const getDynamicPolicies = () => {
-    const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
-    const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
-    
-    const simpleCost = applyDiscount(parseInt(process.env.PRICE_SIMPLE || '83200')) / 100;
-    const tier2Setup = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400')) / 100;
-    const tier2Monthly = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '27600')) / 100;
-    const tier3Setup = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800')) / 100;
-    const tier3Monthly = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '49800')) / 100;
-    
+const getDynamicPolicies = (contractData = {}) => {
+    const { tier = 'unknown', setupFee = 0, monthlyFee = 0 } = contractData;
     const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    let commitmentText = '';
+    if (tier === 'simple') {
+        commitmentText = `- One-Time Project: Engagement terminates upon delivery of final assets and full payment of $${(setupFee / 100).toFixed(2)}. No long-term commitment required.`;
+    } else {
+        commitmentText = `- Subscription Service: This subscription requires a mandatory minimum commitment of twelve (12) consecutive months. You have agreed to a $${(setupFee / 100).toFixed(2)} setup fee and $${(monthlyFee / 100).toFixed(2)} monthly payments.\n- Price Lock Guarantee: Your monthly subscription price for this specific website project is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee for this project will never go up. Note that this guarantee applies strictly on a per-project basis; any additional websites or distinct projects you commission from Phoenix will be subject to the pricing and a separate contract applicable at that time.`;
+    }
 
     return {
         TERMS_OF_SERVICE: `
@@ -24,10 +23,8 @@ Last Updated: ${currentDate}
 By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure services.
 
 2. Contractual Commitment
-Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.
-- One-Time Projects (Tier 1): Engagement terminates upon delivery of final assets and full payment of $${simpleCost}. No long-term commitment required.
-- Subscription Services (Tiers 2 & 3): All subscription-based tiers require a mandatory minimum commitment of twelve (12) consecutive months. Tier 2 requires a $${tier2Setup} setup fee and $${tier2Monthly} monthly payments. Tier 3 requires an $${tier3Setup} setup fee and $${tier3Monthly} monthly payments.
-- Price Lock Guarantee: Your monthly subscription price for this specific website project is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee for this project will never go up. Note that this guarantee applies strictly on a per-project basis; any additional websites or distinct projects you commission from Phoenix will be subject to the pricing and a separate contract applicable at that time.
+Unless otherwise specified in a custom engagement agreement, subscription service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.
+${commitmentText}
 
 3. Automatic Renewal
 To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal or cancellation must be provided via the client portal within a strict 30-day window (between 60 and 30 days prior to the current contract's expiration date). Phoenix will provide a courtesy reminder notice via email prior to this window. Once the automatic renewal occurs, or if notice is given less than 30 days prior to expiration, you are bound to a new 12-month service agreement under these same terms.
@@ -102,7 +99,7 @@ Cancellation stops future charges but does not entitle the client to a refund of
  * Generates a merged PDF buffer of all legal policies
  * @returns {Promise<Buffer>}
  */
-const generateMergedLegalPDF = () => {
+const generateMergedLegalPDF = async (contractData = {}) => {
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ margin: 50 });
         let buffers = [];
@@ -121,7 +118,7 @@ const generateMergedLegalPDF = () => {
         
         doc.addPage();
 
-        const policies = getDynamicPolicies();
+        const policies = getDynamicPolicies(contractData);
 
         // Policies
         Object.keys(policies).forEach((key, index) => {
