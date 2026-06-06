@@ -262,7 +262,10 @@ router.post('/checkout-cancellation', async (req, res) => {
 
         // If the amount is 0 (e.g. they cancel in the notice window, no fees apply)
         if (amount === 0) {
-            await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+            await stripe.subscriptions.cancel(subscriptionId);
+            const Contract = require('../models/Contract');
+            const finalStatus = type === 'buyout' ? 'bought-out' : 'cancelled';
+            await Contract.updateMany({ userId: user._id, status: 'active' }, { status: finalStatus });
             return res.json({ url: '/dashboard?success=true', zeroDollar: true });
         }
 
