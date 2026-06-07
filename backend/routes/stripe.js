@@ -6,6 +6,39 @@ const User = require('../models/user');
 const Contract = require('../models/Contract');
 
 /**
+ * Helper function to send SMS alert to admin via Email-to-SMS
+ */
+const sendAdminSMS = async (message) => {
+    try {
+        const phone = process.env.ADMIN_PHONE_NUMBER;
+        const gateway = process.env.ADMIN_SMS_GATEWAY;
+
+        if (!phone || !gateway) {
+            console.log('[SMS] Admin phone or SMS gateway missing. Skipping SMS alert.');
+            return;
+        }
+
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+            port: parseInt(process.env.SMTP_PORT || '465'),
+            secure: true,
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+
+        await transporter.sendMail({
+            from: `"Phoenix Alerts" <${process.env.EMAIL_USER}>`,
+            to: `${phone}@${gateway}`,
+            subject: 'Payment Alert',
+            text: message // Send as plain text for SMS compatibility
+        });
+        console.log(`[SMS] Alert sent via Email-to-SMS to ${phone}@${gateway} successfully.`);
+    } catch (err) {
+        console.error('[SMS] Failed to send Email-to-SMS:', err.message);
+    }
+};
+
+/**
  * Middleware to verify Stripe configuration
  */
 const verifyStripe = (req, res, next) => {
@@ -479,6 +512,18 @@ router.post('/webhook', async (req, res) => {
 
                     await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
                     console.log(`[STRIPE] Cancellation processed. Status updated to ${finalStatus}`);
+
+                    const amountPaid = (session.amount_total / 100).toFixed(2);
+                    const paymentType = session.metadata.type === 'buyout' ? 'Buyout (Terminate and Keep)' : 'Cancellation (Terminate)';
+                    
+                    const User = require('../models/user');
+                    const user = await User.findById(session.metadata.userId);
+                    const userName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Unknown';
+                    const businessName = user ? user.businessName : 'Unknown';
+
+                    const smsMessage = `Phoenix Payment Alert!\nWho: ${userName} (${businessName})\nAmount: $${amountPaid}\nFor: ${paymentType}`;
+                    await sendAdminSMS(smsMessage);
+
                     return; // Early return for the async IIFE
                 } catch (err) {
                     console.error('Failed to process cancellation payment:', err);
@@ -621,6 +666,14 @@ router.post('/webhook', async (req, res) => {
                 } catch (err) {
                     console.error('Admin alert error:', err);
                 }
+
+                // 3. Send SMS Alert to Admin
+                const amountPaid = (session.amount_total / 100).toFixed(2);
+                let paymentType = 'Website & Subscription Setup';
+                if (tier === 'simple') paymentType = 'Website Build (Simple)';
+                
+                const smsMessage = `Phoenix Payment Alert!\nWho: ${userName || 'Unknown'} (${businessName || 'Unknown'})\nAmount: $${amountPaid}\nFor: ${paymentType}\nTier: ${tier || 'Unknown'}`;
+                await sendAdminSMS(smsMessage);
             }
         } else if (event.type === 'subscription_schedule.released') {
             const schedule = event.data.object;
@@ -755,6 +808,20 @@ router.post('/webhook', async (req, res) => {
                     if (user) {
                         // Restore website access (Kill Switch Untrigger)
                         await Contract.updateMany({ userId: user._id, status: 'breached' }, { status: 'active' });
+
+                        const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+                        if (amountPaid > 0) {
+                            const userName = `${user.firstName} ${user.lastName}`.trim();
+                            const businessName = user.businessName || 'Unknown';
+                            const smsMessage = `Phoenix Payment Alert!\nWho: ${userName} (${businessName})\nAmount: $${amountPaid}\nFor: Monthly Subscription Renewal`;
+                            await sendAdminSMS(smsMessage);
+                        }
+                    } else {
+                        const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+                        if (amountPaid > 0) {
+                            const smsMessage = `Phoenix Payment Alert!\nWho: Unknown (${invoice.customer_email || invoice.customer})\nAmount: $${amountPaid}\nFor: Monthly Subscription Renewal`;
+                            await sendAdminSMS(smsMessage);
+                        }
                     }
                 } catch (err) {
                     console.error('Failed to process invoice.payment_succeeded event:', err);
