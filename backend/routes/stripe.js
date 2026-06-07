@@ -494,11 +494,11 @@ router.post('/webhook', async (req, res) => {
         console.error('Failed to check for processed event:', err.message);
     }
 
-    // Best Practice: Return a 200 OK immediately so Stripe doesn't timeout
-    res.json({ received: true });
-
-    // Process the event asynchronously
-    (async () => {
+    // Best Practice for long running servers is returning early, BUT on Vercel Serverless, 
+    // returning early kills the function before async tasks finish. We must wait.
+    
+    // Process the event
+    try {
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object;
 
@@ -524,10 +524,10 @@ router.post('/webhook', async (req, res) => {
                     const smsMessage = `Phoenix Payment Alert!\nWho: ${userName} (${businessName})\nAmount: $${amountPaid}\nFor: ${paymentType}`;
                     await sendAdminSMS(smsMessage);
 
-                    return; // Early return for the async IIFE
+                    return res.json({ received: true }); // Respond after processing
                 } catch (err) {
                     console.error('Failed to process cancellation payment:', err);
-                    return; // Early return for the async IIFE
+                    return res.status(500).json({ error: 'Failed' });
                 }
             }
 
@@ -880,7 +880,13 @@ router.post('/webhook', async (req, res) => {
         } catch (err) {
             console.error('Failed to save processed event:', err.message);
         }
-    })(); // End of async processing block
+
+        // Return 200 OK to Stripe AFTER all processing is done so Vercel doesn't kill the function early
+        res.json({ received: true });
+    } catch (err) {
+        console.error('Webhook processing error:', err);
+        if (!res.headersSent) res.status(500).send('Webhook processing failed');
+    }
 });
 
 /**
