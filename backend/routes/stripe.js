@@ -65,7 +65,9 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
             essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
             professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
-            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900')
+            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900'),
+            enterprise_setup: parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
+            enterprise_monthly: parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900')
         };
 
         if (process.env.TEST_MODE === 'true') {
@@ -75,6 +77,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             prices.essential_monthly = 200; // $2.00
             prices.professional_setup = 300; // $3.00
             prices.professional_monthly = 300; // $3.00
+            prices.enterprise_setup = 400; // $4.00
+            prices.enterprise_monthly = 400; // $4.00
         }
 
         const discountPercentage = process.env.TEST_MODE === 'true' ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
@@ -137,7 +141,7 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Professional Growth - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`, tax_code: 'txcd_10103100' },
+                        product_data: { name: 'Professional Growth - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Premium Portal'}`, tax_code: 'txcd_10103100' },
                         unit_amount: applyDiscount(prices.professional_setup),
                     },
                     quantity: 1,
@@ -153,6 +157,28 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 });
                 setupFee = applyDiscount(prices.professional_setup);
                 monthlyFee = applyDiscount(prices.professional_monthly);
+                break;
+            case 'enterprise':
+                mode = 'subscription';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Enterprise Custom - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Custom Architecture'}`, tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.enterprise_setup),
+                    },
+                    quantity: 1,
+                });
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Enterprise Custom - Monthly Subscription', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.enterprise_monthly),
+                        recurring: { interval: 'month' }
+                    },
+                    quantity: 1,
+                });
+                setupFee = applyDiscount(prices.enterprise_setup);
+                monthlyFee = applyDiscount(prices.enterprise_monthly);
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid service tier selected.' });
@@ -250,9 +276,11 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
             const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
             const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
             if (process.env.TEST_MODE === 'true') {
-                setupFeeInCents = tier === 'professional' ? 300 : tier === 'simple' ? 100 : 200;
+                setupFeeInCents = tier === 'enterprise' ? 400 : tier === 'professional' ? 300 : tier === 'simple' ? 100 : 200;
             } else {
-                if (tier === 'professional') {
+                if (tier === 'enterprise') {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'));
+                } else if (tier === 'professional') {
                     setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'));
                 } else if (tier === 'essential') {
                     setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'));
@@ -896,7 +924,9 @@ router.get('/pricing', (req, res) => {
             essential_setup: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
             essential_monthly: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
             professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
-            professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900')
+            professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900'),
+            enterprise_setup: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
+            enterprise_monthly: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900')
         }
     });
 });

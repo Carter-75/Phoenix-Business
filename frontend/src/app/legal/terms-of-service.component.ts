@@ -27,7 +27,7 @@ import { ApiService } from '../services/api.service';
             <ul class="list-disc ml-6 space-y-2">
               <li><strong>General Accounts:</strong> Users creating an account without a service selection are bound by general usage and privacy terms.</li>
               <li><strong>Subscription Projects (Tiers 1, 2 & 3):</strong> All tiers require a mandatory 12-month commitment. The engagement includes ongoing services matching your selected tier, subject to auto-renewal unless canceled.</li>
-              <li><strong>Subscription Pricing (Tiers 1, 2 & 3):</strong> All tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Tier 1 requires a $\{{prices().simple_setup}} setup fee and $\{{prices().simple_monthly}} monthly payments. Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments.</li>
+              <li><strong>Subscription Pricing (Tiers 1, 2, 3 & 4):</strong> All tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Tier 1 requires a $\{{prices().simple_setup}} setup fee and $\{{prices().simple_monthly}} monthly payments. Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments. Tier 4 requires an $\{{prices().enterprise_setup}} setup fee and $\{{prices().enterprise_monthly}} monthly payments.</li>
             </ul>
           </div>
 
@@ -54,9 +54,11 @@ import { ApiService } from '../services/api.service';
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">7. Service Scope & Fair Use</h2>
             <ul class="list-disc ml-6 space-y-2">
+              <li><strong>Tier 1 (Simple Launch):</strong> Includes basic hosting, security, and uptime monitoring. Does not include any free time for ongoing edits or feature updates.</li>
               <li><strong>Tier 2 (Essential Care):</strong> Includes up to 2 hours of "Edits & Updates" per month. Unused hours do not roll over.</li>
               <li><strong>Tier 3 (Professional Growth):</strong> Includes up to 5 hours of specialized updates and AI maintenance.</li>
-              <li><strong>Exclusions:</strong> Requests exceeding these limits or requiring new core architecture will be billed at our standard hourly rate.</li>
+              <li><strong>Tier 4 (Enterprise Custom):</strong> Includes up to 10 hours of custom development, priority maintenance, and advanced architectural updates.</li>
+              <li><strong>Exclusions:</strong> Requests exceeding these limits or requiring new core architecture will be billed at our standard hourly rate of $150/hr.</li>
             </ul>
           </div>
 
@@ -113,7 +115,9 @@ export class TermsComponent implements OnInit {
     essential_setup: 3499,
     essential_monthly: 299,
     professional_setup: 7999,
-    professional_monthly: 599
+    professional_monthly: 599,
+    enterprise_setup: 14999,
+    enterprise_monthly: 999
   });
 
   currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -130,7 +134,9 @@ export class TermsComponent implements OnInit {
           essential_setup: formatPrice(data.basePrices.essential_setup),
           essential_monthly: formatPrice(data.basePrices.essential_monthly),
           professional_setup: formatPrice(data.basePrices.professional_setup),
-          professional_monthly: formatPrice(data.basePrices.professional_monthly)
+          professional_monthly: formatPrice(data.basePrices.professional_monthly),
+          enterprise_setup: formatPrice(data.basePrices.enterprise_setup),
+          enterprise_monthly: formatPrice(data.basePrices.enterprise_monthly)
         });
       },
       error: () => console.error('Failed to load dynamic pricing for terms')

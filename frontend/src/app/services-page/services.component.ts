@@ -64,7 +64,7 @@ export class ServicesComponent implements OnInit {
   userPassword = ''; // Added for email login in modal
   acceptedTerms = false;
   
-  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
+  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2, 3 & 4) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
   
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
@@ -119,6 +119,18 @@ export class ServicesComponent implements OnInit {
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
       featured: false
+    },
+    {
+      id: 'enterprise',
+      title: 'Enterprise Custom',
+      cost: '899',
+      baseCost: '999',
+      setup: '13499',
+      baseSetup: '14999',
+      description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month.',
+      checkoutUrl: '#',
+      features: ['Dedicated Account Manager', 'Custom Database Architecture', 'Advanced Third-Party Integrations', 'Multi-Language Support', 'SLA Guarantees', 'Priority 24/7 Support'],
+      featured: false
     }
   ]);
 
@@ -136,6 +148,7 @@ export class ServicesComponent implements OnInit {
           if (t.id === 'simple') { baseCostCents = data.basePrices.simple_monthly; baseSetupCents = data.basePrices.simple_setup; }
           if (t.id === 'essential') { baseCostCents = data.basePrices.essential_monthly; baseSetupCents = data.basePrices.essential_setup; }
           if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
+          if (t.id === 'enterprise') { baseCostCents = data.basePrices.enterprise_monthly; baseSetupCents = data.basePrices.enterprise_setup; }
           
           return {
             ...t,

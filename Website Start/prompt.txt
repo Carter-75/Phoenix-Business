@@ -17,6 +17,13 @@ Client Customizations (Override the tier defaults if specified):
 - Authentication Type: [Insert None/Local/Google/Both or leave blank for default]
 
 ---
+### THE APPROVED TECH STACK
+All websites must be built exclusively on the Phoenix Stack. Do NOT use PHP, WordPress, Python (Django/Flask), or Ruby on Rails.
+- **Frontend**: Angular OR Next.js
+- **Backend**: Express.js (Node.js)
+- **Database**: MongoDB
+
+---
 ### THE TIER SYSTEM & PRICING
 
 **Tier 1: Starter Landing Page**
@@ -32,6 +39,11 @@ Client Customizations (Override the tier defaults if specified):
 **Tier 3: Premium Web App / Portal**
 - **Price**: $7,999 Setup + $599/Month
 - **Scope**: A complex web application scaling revenue through data-driven improvements and intelligent automation. Includes **Priority Support & Advanced Edits** (Layout adjustments, new features).
+- **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
+
+**Tier 4: Enterprise Custom**
+- **Price**: $14,999 Setup + $999/Month
+- **Scope**: Fully custom enterprise architecture built for scale. Includes **10 Hours/Month** of priority custom development.
 - **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
 
 ---
@@ -79,16 +91,19 @@ When you run `python new-project.py`, it will ask you a series of interactive qu
 - Frontend Port: 4200
 - Backend Port: 3000
 - CSS Flavor / Framework: tailwind
-- Do you want Matter.js?: yes
-- Do you want Anime.js?: yes
-- Do you want Confetti?: yes
-- Do you want GSAP (Animations)?: yes
-- Do you want Three.js (3D)?: yes
-- Do you want Lenis (Smooth Scroll)?: yes
-- Which AI tools do you want to configure?: Agents.md
-- Authentication Type: Both
+- Do you want Matter.js?: [Select yes/no based on Client Customizations]
+- Do you want Anime.js?: [Select yes/no based on Client Customizations]
+- Do you want Confetti?: [Select yes/no based on Client Customizations]
+- Do you want GSAP (Animations)?: [Select yes/no based on Client Customizations]
+- Do you want Three.js (3D)?: [Select yes/no based on Client Customizations]
+- Do you want Lenis (Smooth Scroll)?: [Select yes/no based on Client Customizations]
+- Which AI tools do you want to configure?: [Select based on Client Customizations]
+- Authentication Type: [Select based on Client Customizations]
 - Frontend Hosting: vercel
 - Backend Hosting: vercel
+
+**Baseline Answers if Tier 4 is selected:**
+Tier 4 is a fully custom Enterprise build. You do not necessarily need to use the `new-project.py` boilerplate script if the client's architecture deviates significantly from it. Rely entirely on the "Client Customizations" section at the top of this prompt to determine the tech stack (within the bounds of the Approved Tech Stack) and the required features. If you *do* use the script, answer the prompts according to the client's explicit instructions.
 
 ---
 ### IMPLEMENTATION INSTRUCTIONS
