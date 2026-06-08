@@ -6,7 +6,7 @@ const User = require('../models/user');
 const Contract = require('../models/Contract');
 
 /**
- * Helper function to send SMS alert to admin via Email-to-SMS
+ * Helper function to send SMS alert to admin via Email-to-SMS (Spam Evading Format)
  */
 const sendAdminSMS = async (message) => {
     try {
@@ -27,10 +27,10 @@ const sendAdminSMS = async (message) => {
         });
 
         await transporter.sendMail({
-            from: `"Phoenix Alerts" <${process.env.EMAIL_USER}>`,
+            from: `"Phnx" <${process.env.EMAIL_USER}>`,
             to: `${phone}@${gateway}`,
-            subject: 'Payment Alert',
-            text: message // Send as plain text for SMS compatibility
+            subject: 'update',
+            text: message // Send as plain text
         });
         console.log(`[SMS] Alert sent via Email-to-SMS to ${phone}@${gateway} successfully.`);
     } catch (err) {
@@ -513,15 +513,15 @@ router.post('/webhook', async (req, res) => {
                     await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
                     console.log(`[STRIPE] Cancellation processed. Status updated to ${finalStatus}`);
 
-                    const amountPaid = (session.amount_total / 100).toFixed(2);
-                    const paymentType = session.metadata.type === 'buyout' ? 'Buyout (Terminate and Keep)' : 'Cancellation (Terminate)';
+                    const amountPaid = (session.amount_total / 100).toFixed(0);
+                    const paymentType = session.metadata.type === 'buyout' ? 'buyout' : 'cncl';
                     
                     const User = require('../models/user');
                     const user = await User.findById(session.metadata.userId);
-                    const userName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Unknown';
-                    const businessName = user ? user.businessName : 'Unknown';
+                    const userName = user ? `${user.firstName}`.trim() : 'Unk';
+                    const businessName = user ? user.businessName : 'Unk';
 
-                    const smsMessage = `Phoenix Payment Alert!\nWho: ${userName} (${businessName})\nAmount: $${amountPaid}\nFor: ${paymentType}`;
+                    const smsMessage = `+${amountPaid} from ${userName} (${businessName}) for ${paymentType}`;
                     await sendAdminSMS(smsMessage);
 
                     return res.json({ received: true }); // Respond after processing
@@ -668,11 +668,12 @@ router.post('/webhook', async (req, res) => {
                 }
 
                 // 3. Send SMS Alert to Admin
-                const amountPaid = (session.amount_total / 100).toFixed(2);
-                let paymentType = 'Website & Subscription Setup';
-                if (tier === 'simple') paymentType = 'Website Build (Simple)';
+                const amountPaid = (session.amount_total / 100).toFixed(0);
+                let paymentType = 'new sub';
+                if (tier === 'simple') paymentType = 'new site';
                 
-                const smsMessage = `Phoenix Payment Alert!\nWho: ${userName || 'Unknown'} (${businessName || 'Unknown'})\nAmount: $${amountPaid}\nFor: ${paymentType}\nTier: ${tier || 'Unknown'}`;
+                const shortTier = tier ? tier.substring(0, 4) : 'unk';
+                const smsMessage = `+${amountPaid} from ${userName || 'Unk'} for ${paymentType} [${shortTier}]`;
                 await sendAdminSMS(smsMessage);
             }
         } else if (event.type === 'subscription_schedule.released') {
@@ -809,17 +810,16 @@ router.post('/webhook', async (req, res) => {
                         // Restore website access (Kill Switch Untrigger)
                         await Contract.updateMany({ userId: user._id, status: 'breached' }, { status: 'active' });
 
-                        const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+                        const amountPaid = (invoice.amount_paid / 100).toFixed(0);
                         if (amountPaid > 0) {
-                            const userName = `${user.firstName} ${user.lastName}`.trim();
-                            const businessName = user.businessName || 'Unknown';
-                            const smsMessage = `Phoenix Payment Alert!\nWho: ${userName} (${businessName})\nAmount: $${amountPaid}\nFor: Monthly Subscription Renewal`;
+                            const userName = `${user.firstName}`.trim();
+                            const smsMessage = `+${amountPaid} from ${userName} (sub rnwl)`;
                             await sendAdminSMS(smsMessage);
                         }
                     } else {
-                        const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+                        const amountPaid = (invoice.amount_paid / 100).toFixed(0);
                         if (amountPaid > 0) {
-                            const smsMessage = `Phoenix Payment Alert!\nWho: Unknown (${invoice.customer_email || invoice.customer})\nAmount: $${amountPaid}\nFor: Monthly Subscription Renewal`;
+                            const smsMessage = `+${amountPaid} from Unk (sub rnwl)`;
                             await sendAdminSMS(smsMessage);
                         }
                     }
