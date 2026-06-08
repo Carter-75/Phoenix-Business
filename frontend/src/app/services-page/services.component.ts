@@ -93,7 +93,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '1499',
       description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits.',
       checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
-      features: ['Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
+      features: ['0 Hours/Mo Custom Edits', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
       featured: false
     },
     {
@@ -105,7 +105,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '3499',
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates).',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
-      features: ['30-Day Subscription Trial', 'Hosting & Domain Mgmt', 'Edits & Updates on Demand', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
+      features: ['2 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Mgmt', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
       featured: true
     },
     {
@@ -117,7 +117,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '7999',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features).',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
-      features: ['30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
+      features: ['5 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing'],
       featured: false
     },
     {
@@ -129,7 +129,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '14999',
       description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month.',
       checkoutUrl: '#',
-      features: ['Dedicated Account Manager', 'Custom Database Architecture', 'Advanced Third-Party Integrations', 'Multi-Language Support', 'SLA Guarantees', 'Priority 24/7 Support'],
+      features: ['10 Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database Architecture', 'Advanced Third-Party Integrations', 'Multi-Language Support', 'SLA Guarantees', 'Priority 24/7 Support'],
       featured: false
     }
   ]);
