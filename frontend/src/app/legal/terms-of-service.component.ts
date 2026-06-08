@@ -26,8 +26,8 @@ import { ApiService } from '../services/api.service';
             <p>Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.</p>
             <ul class="list-disc ml-6 space-y-2">
               <li><strong>General Accounts:</strong> Users creating an account without a service selection are bound by general usage and privacy terms.</li>
-              <li><strong>One-Time Projects (Tier 1):</strong> Engagement terminates upon delivery of final assets and full payment of $\{{prices().simple}}. No long-term commitment required.</li>
-              <li><strong>Subscription Services (Tiers 2 & 3):</strong> All subscription-based tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments.</li>
+              <li><strong>Subscription Projects (Tiers 1, 2 & 3):</strong> All tiers require a mandatory 12-month commitment. The engagement includes ongoing services matching your selected tier, subject to auto-renewal unless canceled.</li>
+              <li><strong>Subscription Pricing (Tiers 1, 2 & 3):</strong> All tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Tier 1 requires a $\{{prices().simple_setup}} setup fee and $\{{prices().simple_monthly}} monthly payments. Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments.</li>
             </ul>
           </div>
 
@@ -108,11 +108,12 @@ import { ApiService } from '../services/api.service';
 export class TermsComponent implements OnInit {
   api = inject(ApiService);
   prices = signal<any>({
-    simple: 749,
-    essential_setup: 499,
-    essential_monthly: 249,
-    professional_setup: 899,
-    professional_monthly: 449
+    simple_setup: 1499,
+    simple_monthly: 99,
+    essential_setup: 3499,
+    essential_monthly: 299,
+    professional_setup: 7999,
+    professional_monthly: 599
   });
 
   currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -124,7 +125,8 @@ export class TermsComponent implements OnInit {
         const formatPrice = (cents: number) => cents ? Math.round((cents / 100) * (1 - pct / 100)) : 0;
         
         this.prices.set({
-          simple: formatPrice(data.basePrices.simple),
+          simple_setup: formatPrice(data.basePrices.simple_setup),
+          simple_monthly: formatPrice(data.basePrices.simple_monthly),
           essential_setup: formatPrice(data.basePrices.essential_setup),
           essential_monthly: formatPrice(data.basePrices.essential_monthly),
           professional_setup: formatPrice(data.basePrices.professional_setup),

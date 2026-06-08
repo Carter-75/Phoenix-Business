@@ -60,15 +60,17 @@ router.post('/checkout', verifyStripe, async (req, res) => {
 
         // Pricing logic pulled from environment variables with safe defaults (in cents)
         const prices = {
-            simple: parseInt(process.env.PRICE_SIMPLE || '74900'),
-            essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '49900'),
-            essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '24900'),
-            professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '89900'),
-            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '44900')
+            simple_setup: parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'),
+            simple_monthly: parseInt(process.env.PRICE_SIMPLE_MONTHLY || '9900'),
+            essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
+            essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
+            professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
+            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900')
         };
 
         if (process.env.TEST_MODE === 'true') {
-            prices.simple = 100; // $1.00
+            prices.simple_setup = 100; // $1.00
+            prices.simple_monthly = 100; // $1.00
             prices.essential_setup = 200; // $2.00
             prices.essential_monthly = 200; // $2.00
             prices.professional_setup = 300; // $3.00
@@ -87,20 +89,26 @@ router.post('/checkout', verifyStripe, async (req, res) => {
 
         switch (tier) {
             case 'simple':
+                mode = 'subscription';
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: {
-                            name: 'Simple Launch - Website Build',
-                            description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`,
-                            tax_code: 'txcd_10103100'
-                        },
-                        unit_amount: applyDiscount(prices.simple),
+                        product_data: { name: 'Simple Launch - Setup Fee', description: `Strategic Infrastructure: ${projectType || 'Standard Build'}`, tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.simple_setup),
                     },
                     quantity: 1,
                 });
-                setupFee = applyDiscount(prices.simple);
-                monthlyFee = 0;
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Simple Launch - Monthly Subscription', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(prices.simple_monthly),
+                        recurring: { interval: 'month' }
+                    },
+                    quantity: 1,
+                });
+                setupFee = applyDiscount(prices.simple_setup);
+                monthlyFee = applyDiscount(prices.simple_monthly);
                 break;
             case 'essential':
                 mode = 'subscription';
@@ -200,20 +208,6 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
 
         const user = contract.userId;
 
-        if (contract.contractType && contract.contractType.toLowerCase().includes('simple')) {
-            return res.json({
-                windowStatus: 'not-applicable',
-                monthsLeft: 0,
-                daysUntilExpiration: 0,
-                earlyTerminationFee: 0,
-                buyoutFeeOnly: 0,
-                totalBuyoutCost: 0,
-                subscriptionId: null,
-                isOneTimePurchase: true,
-                tier: 'simple'
-            });
-        }
-
         if (!contract.stripeSubscriptionId) {
             return res.status(400).json({ error: 'This contract does not have a linked Stripe subscription.' });
         }
@@ -256,12 +250,14 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
             const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
             const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
             if (process.env.TEST_MODE === 'true') {
-                setupFeeInCents = tier === 'professional' ? 300 : 200;
+                setupFeeInCents = tier === 'professional' ? 300 : tier === 'simple' ? 100 : 200;
             } else {
                 if (tier === 'professional') {
-                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'));
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'));
+                } else if (tier === 'essential') {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'));
                 } else {
-                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'));
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'));
                 }
             }
         }
@@ -581,14 +577,11 @@ router.post('/webhook', async (req, res) => {
                         monthlyFee: parseInt(monthlyFee || '0')
                     });
 
-                    const contractType = tier === 'simple' ? 'Simple Launch Agreement' : `Yearly Service Agreement - ${tier}`;
+                    const contractType = tier === 'simple' ? 'Yearly Service Agreement - Simple' : `Yearly Service Agreement - ${tier}`;
                     const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
 
-                    // Tier 1 doesn't expire. Tiers 2/3 expire in 1 year.
-                    let expiresAt = new Date('2099-12-31T23:59:59.999Z');
-                    if (tier !== 'simple') {
-                        expiresAt = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-                    }
+                    // All tiers now expire in 1 year.
+                    let expiresAt = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
                     const newContract = new Contract({
                         userId: user._id,
@@ -898,11 +891,12 @@ router.get('/pricing', (req, res) => {
     res.json({
         discountPercentage: isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
         basePrices: {
-            simple: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE || '83200'),
-            essential_setup: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_SETUP || '55400'),
-            essential_monthly: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '27600'),
-            professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '99800'),
-            professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '49800')
+            simple_setup: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'),
+            simple_monthly: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_MONTHLY || '9900'),
+            essential_setup: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
+            essential_monthly: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
+            professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
+            professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900')
         }
     });
 });

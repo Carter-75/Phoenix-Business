@@ -1,80 +1,100 @@
-I have just scaffolded a brand new website using my starting script. I have attached the root folder of this new project to this prompt. Please analyze the attached folder structure to understand the base boilerplate (Angular frontend, Node/Express backend).
-
-I need you to help me build out this new client website based on my Tier System.
+You are an expert full-stack developer. I need you to help me build out a new client website based on my Tier System.
 
 Here are the details for this specific project:
-
 Client/Business Name: [Insert Business Name Here]
 Niche/Industry: [Insert Niche, e.g., Coffee Shop, Plumber, Tech Startup]
 Target Audience & Vibe: [Insert Vibe, e.g., Cozy & Warm, Sleek & Modern, Trustworthy & Professional]
-Project Tier: [Insert Tier 1, 2, or 3]
-Please use the following architectural rules based on the Tier selected above:
+Project Tier: [Insert Tier 1, Tier 2, or Tier 3]
 
-Tier 1
-Simple Launch
-$749
-/ Project
-A solid foundation for your online presence. Perfect for simple, high-impact landing pages.
+Client Customizations (Override the tier defaults if specified):
+- CSS Framework: [Insert tailwind/bulma/css/scss or leave blank for default]
+- Matter.js (Physics): [Insert yes/no or leave blank for default]
+- Anime.js (Animations): [Insert yes/no or leave blank for default]
+- Confetti: [Insert yes/no or leave blank for default]
+- GSAP (Animations): [Insert yes/no or leave blank for default]
+- Three.js (3D): [Insert yes/no or leave blank for default]
+- Lenis (Smooth Scroll): [Insert yes/no or leave blank for default]
+- Authentication Type: [Insert None/Local/Google/Both or leave blank for default]
 
-Single Page Website
-Responsive Engineering
-Initial SEO Setup
-Contact Form Integration
-Get Started
-Tier 2
-Featured
-Essential Care
-$249
-/ Month
-+ $499 SETUP FEE
-Peace of mind with ongoing support and maintenance. We keep your business running smoothly.
+---
+### THE TIER SYSTEM & PRICING
 
-30-Day Subscription Trial
-Hosting & Domain Mgmt
-Edits & Updates on Demand
-24/7 Uptime Monitoring
-Backups & Security
-Google Business Management
-Get Started
-Tier 3
-Professional Growth
-$449
-/ Month
-+ $899 SETUP FEE
-Scaling your revenue through data-driven improvements and intelligent automation.
+**Tier 1: Starter Landing Page**
+- **Price**: $1,499 Setup + $99/Month
+- **Scope**: A high-impact, single-page or simple multi-page static website. Includes basic hosting and maintenance, but **no free ongoing edits**.
+- **Allowed Script Options**: Tailwind CSS, Confetti, Lenis Smooth Scroll. No advanced animations (GSAP/Anime/Three.js) or Authentication.
 
-30-Day Subscription Trial
-Hosting & Domain Management
-SEO Improvements
-Lead Capture Optimization
-Monthly Analytics Reports
-AI Chatbot Upkeep
-Ad Landing Page Testing
-Appointment Integrations
-Get Started
+**Tier 2: Interactive Dynamic Website**
+- **Price**: $3,499 Setup + $299/Month
+- **Scope**: A dynamic website requiring data persistence, basic user interaction, and premium animations. Includes **On-Demand Edits** (Small content and image updates). 
+- **Allowed Script Options**: Tailwind CSS, Anime.js, Confetti, GSAP, Lenis Smooth Scroll, Local Authentication. No 3D (Three.js) or Physics (Matter.js).
 
-Tier 1: Simple Launch (The Essentials)
+**Tier 3: Premium Web App / Portal**
+- **Price**: $7,999 Setup + $599/Month
+- **Scope**: A complex web application scaling revenue through data-driven improvements and intelligent automation. Includes **Priority Support & Advanced Edits** (Layout adjustments, new features).
+- **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
 
-Scope: A high-impact, single-page or simple multi-page static website (like the Coffee, Icecream, or Cookie examples).
-Frontend: Focus heavily on stunning visual aesthetics, micro-animations, fast load times, and mobile responsiveness.
-Backend: Very minimal. Usually just a basic POST /contact endpoint to handle form submissions and send an email notification.
-Database/Auth: None required.
-Tier 2: Essential Care (Intermediate)
+---
+### SCRIPT EXECUTION INSTRUCTIONS
 
-Scope: A dynamic website requiring data persistence or basic user interaction.
-Frontend: Multiple pages, dynamic content fetching, and potentially a simple admin dashboard or client portal.
-Backend: REST API endpoints connected to MongoDB.
-Database/Auth: Implement MongoDB for storing things like leads, appointments, or simple blog posts. Basic JWT authentication if an admin portal is required. No complex billing.
-Tier 3: Professional Growth (Full-Stack & E-Commerce)
+Before writing any code, your FIRST task is to run the scaffolding script `new-project.py` located in this directory to generate the boilerplate. 
+When you run `python new-project.py`, it will ask you a series of interactive questions. You must answer them EXACTLY as follows depending on the Tier selected above. 
 
-Scope: A complex web application (like the Phoenix-Business site).
-Frontend: Complex state management, user authentication flows, dynamic pricing, and comprehensive dashboards.
-Backend: Deep integration with third-party APIs (Stripe for payments/subscriptions, Zoho for automated emails).
-Database/Auth: Full MongoDB integration with User models, automated contract/policy generation, robust authentication (Google OAuth/Passport), and webhook listeners for payment processing.
-Your Instructions:
+**CRITICAL INSTRUCTION**: Use the baseline answers below for the selected Tier. **HOWEVER**, if I have filled out any values in the "Client Customizations" section at the top of this prompt, you MUST override the baseline answers with the client's explicit choices.
 
-Do not make any code changes yet. First, review the attached folder and acknowledge that you understand the base boilerplate.
-Based on the selected Tier and Niche, write out a brief implementation_plan detailing the exact components, API routes, and database models you plan to add.
-Suggest a 2-color brand palette (Brand Color + Accent Color) that matches the requested vibe.
-MANDATORY KILL SWITCH: You must build an automated status check into the root of this new application (e.g., an Angular APP_INITIALIZER or a Router Guard). Every time the site loads, it must make a GET request to https://[YOUR-PHOENIX-DOMAIN]/auth/public/site-status/[CLIENT_EMAIL]. If the response is { authorized: false }, the website MUST immediately blank out the entire DOM and display a full-screen, un-bypassable message: "This website has been temporarily suspended. If you are the owner, please check your billing portal or contact support."
-Wait for my approval on the plan before you begin writing code.
+**Baseline Answers if Tier 1 is selected:**
+- Project Name: [Use Client/Business Name formatted as a slug, e.g. coffee-shop]
+- Frontend Port: 4200
+- Backend Port: 3000
+- CSS Flavor / Framework: tailwind
+- Do you want Matter.js?: no
+- Do you want Anime.js?: no
+- Do you want Confetti?: yes
+- Do you want GSAP (Animations)?: no
+- Do you want Three.js (3D)?: no
+- Do you want Lenis (Smooth Scroll)?: yes
+- Which AI tools do you want to configure?: Agents.md
+- Authentication Type: None
+- Frontend Hosting: vercel
+- Backend Hosting: vercel
+
+**Baseline Answers if Tier 2 is selected:**
+- Project Name: [Use Client/Business Name formatted as a slug]
+- Frontend Port: 4200
+- Backend Port: 3000
+- CSS Flavor / Framework: tailwind
+- Do you want Matter.js?: no
+- Do you want Anime.js?: yes
+- Do you want Confetti?: yes
+- Do you want GSAP (Animations)?: yes
+- Do you want Three.js (3D)?: no
+- Do you want Lenis (Smooth Scroll)?: yes
+- Which AI tools do you want to configure?: Agents.md
+- Authentication Type: Local
+- Frontend Hosting: vercel
+- Backend Hosting: vercel
+
+**Baseline Answers if Tier 3 is selected:**
+- Project Name: [Use Client/Business Name formatted as a slug]
+- Frontend Port: 4200
+- Backend Port: 3000
+- CSS Flavor / Framework: tailwind
+- Do you want Matter.js?: yes
+- Do you want Anime.js?: yes
+- Do you want Confetti?: yes
+- Do you want GSAP (Animations)?: yes
+- Do you want Three.js (3D)?: yes
+- Do you want Lenis (Smooth Scroll)?: yes
+- Which AI tools do you want to configure?: Agents.md
+- Authentication Type: Both
+- Frontend Hosting: vercel
+- Backend Hosting: vercel
+
+---
+### IMPLEMENTATION INSTRUCTIONS
+
+1. **Scaffold**: Execute the `new-project.py` script, providing the answers as defined above (applying any client customization overrides). Wait for the project to be fully created in a new folder.
+2. **Review Boilerplate**: Cd into the new project folder, review the generated boilerplate to understand the structure.
+3. **Plan**: Based on the Tier, Niche, and Customizations, write out a brief `implementation_plan.md` detailing the exact components, API routes, and database models you plan to add. Suggest a 2-color brand palette (Brand Color + Accent Color) that matches the requested vibe.
+4. **MANDATORY KILL SWITCH**: You must build an automated status check into the root of this new application (e.g., an Angular APP_INITIALIZER or a Router Guard). Every time the site loads, it must make a GET request to `https://[YOUR-PHOENIX-DOMAIN]/auth/public/site-status/[CLIENT_EMAIL]`. If the response is `{ authorized: false }`, the website MUST immediately blank out the entire DOM and display a full-screen, un-bypassable message: "This website has been temporarily suspended. If you are the owner, please check your billing portal or contact support."
+5. Wait for my approval on the plan before you begin modifying the scaffolded code.

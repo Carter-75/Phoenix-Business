@@ -64,7 +64,7 @@ export class ServicesComponent implements OnInit {
   userPassword = ''; // Added for email login in modal
   acceptedTerms = false;
   
-  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that while Tier 1 is a one-time project, Subscription Tiers (Tiers 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
+  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2 & 3) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
   
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
@@ -87,10 +87,11 @@ export class ServicesComponent implements OnInit {
     {
       id: 'simple',
       title: 'Simple Launch',
-      cost: '749',
-      baseCost: '832',
-      setup: null,
-      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients.',
+      cost: '89',
+      baseCost: '99',
+      setup: '1349',
+      baseSetup: '1499',
+      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits.',
       checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
       features: ['Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
       featured: false
@@ -98,11 +99,11 @@ export class ServicesComponent implements OnInit {
     {
       id: 'essential',
       title: 'Essential Care',
-      cost: '249',
-      baseCost: '276',
-      setup: '499',
-      baseSetup: '554',
-      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly.',
+      cost: '269',
+      baseCost: '299',
+      setup: '3149',
+      baseSetup: '3499',
+      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates).',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Mgmt', 'Edits & Updates on Demand', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
       featured: true
@@ -110,11 +111,11 @@ export class ServicesComponent implements OnInit {
     {
       id: 'professional',
       title: 'Professional Growth',
-      cost: '449',
-      baseCost: '498',
-      setup: '899',
-      baseSetup: '998',
-      description: 'Scaling your revenue through data-driven improvements and intelligent automation.',
+      cost: '539',
+      baseCost: '599',
+      setup: '7199',
+      baseSetup: '7999',
+      description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features).',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
       features: ['30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing', 'Appointment Integrations'],
       featured: false
@@ -132,7 +133,7 @@ export class ServicesComponent implements OnInit {
         this.tiers.update(currentTiers => currentTiers.map(t => {
           let baseCostCents = 0;
           let baseSetupCents = 0;
-          if (t.id === 'simple') baseCostCents = data.basePrices.simple;
+          if (t.id === 'simple') { baseCostCents = data.basePrices.simple_monthly; baseSetupCents = data.basePrices.simple_setup; }
           if (t.id === 'essential') { baseCostCents = data.basePrices.essential_monthly; baseSetupCents = data.basePrices.essential_setup; }
           if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
           
