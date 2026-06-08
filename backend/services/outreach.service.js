@@ -153,22 +153,7 @@ class OutreachService {
 
     let body = completion.choices[0].message.content.trim().replace(/\n/g, '<br>');
     
-    const signature = `
-      <br><br>
-      <table style="max-width: 520px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;" border="0" cellspacing="0" cellpadding="0">
-      <tbody>
-      <tr>
-      <td style="padding: 0 0 12px 0; border-bottom: 3px solid #00d4ff;"><span style="font-size: 23px; font-weight: bold; color: #111111; letter-spacing: -0.6px;">Carter Moyer</span> <br /><span style="font-size: 14.5px; color: #555555; font-weight: 500;">Full Stack AI Developer</span></td>
-      </tr>
-      <tr>
-      <td style="padding: 16px 0 0 0;"><a style="color: #00d4ff; text-decoration: none; font-weight: 500;" href="mailto:hello@carter-portfolio.fyi">hello@carter-portfolio.fyi</a> <br /><a style="color: #00d4ff; text-decoration: none; font-weight: 500;" href="https://carter-portfolio.fyi">carter-portfolio.fyi</a></td>
-      </tr>
-      <tr>
-      <td style="padding-top: 16px; font-size: 13.5px; color: #777777;">Building intelligent web applications • AI-powered experiences from frontend to backend</td>
-      </tr>
-      </tbody>
-      </table>
-    `;
+    const signature = process.env.EMAIL_SIGNATURE ? `<br><br>\${process.env.EMAIL_SIGNATURE}` : '';
 
     const footer = `
       <br><br>

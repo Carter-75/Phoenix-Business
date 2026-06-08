@@ -59,9 +59,10 @@ router.post('/capture', async (req, res) => {
                         <a href="https://www.carter-portfolio.fyi/assets/guides/ai-saas-checklist.pdf" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Download The Guide</a>
                     </div>
                     <p>If you're ready to automate your revenue engines or have questions about your specific technical roadmap, just reply to this email.</p>
+                    <br><br>
+                    ${process.env.EMAIL_SIGNATURE || ''}
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
                     <p style="font-size: 11px; color: #999;">
-                        Carter Moyer | Full-Stack Engineer & AI Architect<br>
                         <a href="${process.env.PROD_BACKEND_URL || 'http://localhost:3000'}/api/leads/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a>
                     </p>
                 </div>

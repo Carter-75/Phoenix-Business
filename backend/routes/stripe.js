@@ -452,8 +452,8 @@ const sendReceiptEmail = async (userEmail, userName, amountTotal, projectType, p
                 </ul>
                 <p>A copy of your signed Master Service Agreement and our legal policies are attached to this email for your records.</p>
                 <p>If you have any questions, please reply directly to this email.</p>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="font-size: 11px; color: #999;">Phoenix Digital Infrastructure</p>
+                <br><br>
+                ${process.env.EMAIL_SIGNATURE || ''}
             </div>
         `;
 
@@ -737,8 +737,8 @@ router.post('/webhook', async (req, res) => {
                                 <p>Your 12-month service contract has successfully auto-renewed for another year.</p>
                                 <p>Your continued partnership ensures uninterrupted access to hosting, maintenance, and support.</p>
                                 <p>If you have any questions or need anything, just reply to this email!</p>
-                                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                                <p style="font-size: 11px; color: #999;">Carter Moyer | Phoenix Business Systems</p>
+                                <br><br>
+                                ${process.env.EMAIL_SIGNATURE || ''}
                             </div>
                         `
                         });

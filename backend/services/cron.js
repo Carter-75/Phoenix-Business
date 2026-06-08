@@ -47,8 +47,8 @@ const startCronJobs = () => {
                                 <p>Your subscription will seamlessly continue for another 12-month period, ensuring uninterrupted service, hosting, and priority support.</p>
                                 <p>If you wish to make any changes to your subscription or cancel before the renewal takes place, please log into your client portal or reply directly to this email.</p>
                                 <p>Thank you for being a valued client!</p>
-                                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                                <p style="font-size: 11px; color: #999;">Carter Moyer | Phoenix Business Systems</p>
+                                <br><br>
+                                ${process.env.EMAIL_SIGNATURE || ''}
                             </div>
                         `
                     };
