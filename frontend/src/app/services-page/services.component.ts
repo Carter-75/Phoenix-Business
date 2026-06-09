@@ -106,7 +106,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '1499',
       description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery.',
       checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
-      features: ['Max 2-Week Delivery', '0 Hours/Mo Custom Edits', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
+      features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Standard Contact Forms'],
       featured: false
     },
     {
@@ -118,7 +118,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '3499',
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery.',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
-      features: ['Max 3-Week Delivery', '2 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Mgmt', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
+      features: ['30-Day Subscription Trial', 'Everything in Simple Launch', 'Max 3-Week Delivery', '2 Hours/Mo Custom Edits', 'Hosting & 24/7 Monitoring', 'Google Business Management'],
       featured: true
     },
     {
@@ -130,7 +130,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '7999',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery.',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
-      features: ['Max 4-Week Delivery', '5 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing'],
+      features: ['30-Day Subscription Trial', 'Everything in Essential Care', 'Max 4-Week Delivery', '5 Hours/Mo Custom Edits', 'Monthly Analytics & SEO', 'AI Chatbot Upkeep'],
       featured: false
     },
     {
@@ -142,7 +142,7 @@ export class ServicesComponent implements OnInit {
       baseSetup: '14999',
       description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope.',
       checkoutUrl: '#',
-      features: ['Timeline Varies By Scope', '10 Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database Architecture', 'Advanced Third-Party Integrations', 'Multi-Language Support', 'SLA Guarantees', 'Priority 24/7 Support'],
+      features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
       featured: false
     }
   ]);
