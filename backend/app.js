@@ -169,12 +169,14 @@ const authRouter = require('./routes/auth');
 const leadsRouter = require('./routes/leads');
 const stripeRouter = require('./routes/stripe');
 const indexRouter = require('./routes/index');
+const cronRouter = require('./routes/cron');
 
 // Mount routes at both /api and root to handle Vercel routing flexibility
 const featureRoutes = [
   { path: '/auth', router: authRouter },
   { path: '/leads', router: leadsRouter },
   { path: '/stripe', router: stripeRouter },
+  { path: '/cron', router: cronRouter },
   { path: '/', router: indexRouter }
 ];
 
@@ -184,10 +186,6 @@ featureRoutes.forEach(route => {
   // Mount at root as fallback
   app.use(route.path, dbCheck, route.router);
 });
-
-// Start background cron jobs
-const cronService = require('./services/cron');
-cronService.startCronJobs();
 
 // --- Final Handling ---
 

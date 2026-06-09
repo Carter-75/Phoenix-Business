@@ -42,13 +42,13 @@ import { ApiService } from '../services/api.service';
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Payment & Non-Refundability</h2>
-            <p>Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a payment failure, services may be suspended immediately until the account is brought current.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Payment, Non-Refundability & Late Fees</h2>
+            <p>Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a payment failure or unwarranted chargeback, services will be suspended immediately. Any unpaid balances, including debts from fraudulent chargebacks, will accrue a late fee of 5% per month (or the maximum allowed by Wisconsin law). We will pursue debt recovery through third-party collections or legal action (e.g., wage garnishment) if necessary.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">6. Limitation of Liability</h2>
-            <p>Phoenix provides high-performance infrastructure but does not guarantee specific business outcomes. Our liability is limited to the total amount paid by the client in the 3 months preceding any claim.</p>
+            <p>Phoenix provides high-performance infrastructure but does not guarantee specific business outcomes. <strong>In no event shall Phoenix be liable for any indirect, consequential, incidental, special, or punitive damages</strong> (including, without limitation, lost profits, lost data, or business interruption) arising out of or related to this agreement. This limitation explicitly extends to any delays or failures to deliver projects within estimated timelines. Our total aggregate liability is strictly limited to the total amount paid by the client in the 3 months preceding the event giving rise to the claim.</p>
           </div>
 
           <div class="space-y-4">
@@ -85,6 +85,18 @@ import { ApiService } from '../services/api.service';
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">12. Governing Law</h2>
             <p>This agreement is governed by the laws of the State of Wisconsin.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">13. Dispute Resolution & Arbitration</h2>
+            <p><strong>Mandatory Binding Arbitration:</strong> Any dispute, claim, or controversy arising out of or relating to these Terms or the breach, termination, enforcement, interpretation, or validity thereof, shall be determined by confidential, binding arbitration in the State of Wisconsin, rather than in public court. This means you waive your right to a trial by jury and to have any dispute heard in a public court.</p>
+            <p><strong>Class Action Waiver:</strong> You and Phoenix agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action. You waive any right to participate in a class-action lawsuit or class-wide arbitration.</p>
+            <p><strong>Confidentiality:</strong> All aspects of the arbitration proceeding, including but not limited to the award of the arbitrator and compliance therewith, shall be strictly confidential. The parties agree to maintain confidentiality unless otherwise required by law.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">14. Disclaimer of Warranties</h2>
+            <p><strong>"As-Is" Service:</strong> All services are provided on an "AS-IS" and "AS-AVAILABLE" basis without warranties of any kind. Phoenix expressly disclaims all warranties, whether express, implied, or statutory, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee that the services will meet your specific business requirements, generate a certain number of leads, or be entirely error-free.</p>
           </div>
         </div>
 

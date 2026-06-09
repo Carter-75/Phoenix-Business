@@ -74,6 +74,27 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             </p>
           </section>
 
+          <section>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">6. Cookies & Tracking</h2>
+            <p class="text-white/60 leading-relaxed font-light">
+              We use cookies, web beacons, and similar tracking technologies to track activity on our platform, analyze usage patterns, and improve the user experience. You can instruct your browser to refuse all cookies, but some parts of our service may not function properly without them.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">7. Third-Party Sharing</h2>
+            <p class="text-white/60 leading-relaxed font-light">
+              We do not sell your personal data. We only share your data with trusted third-party service providers who assist us in operating our infrastructure (e.g., Vercel, MongoDB Atlas, Stripe). These third parties have access to your personal data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose. We may also disclose your information if legally required to do so by a valid subpoena or court order.
+            </p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black uppercase tracking-widest mb-6 text-white">8. Data Retention</h2>
+            <p class="text-white/60 leading-relaxed font-light">
+              We will retain your personal information only for as long as is necessary for the purposes set out in this Privacy Policy, including to comply with our legal, tax, or accounting obligations, resolve disputes, and enforce our legal agreements.
+            </p>
+          </section>
+
           <footer class="mt-24 pt-12 border-t border-white/5 flex flex-col gap-12">
             <div class="flex flex-col sm:flex-row justify-between gap-8 items-start sm:items-center">
               <div>

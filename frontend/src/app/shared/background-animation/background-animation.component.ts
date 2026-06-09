@@ -329,7 +329,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
       z += (Math.random() - 0.5) * 0.5;
       if (z < 0) z = 0;
 
-      const scale = 0.4;
+      const scale = 0.28;
       bird.basePositions[idx] = x * scale;
       bird.basePositions[idx+1] = y * scale;
       bird.basePositions[idx+2] = z * scale;

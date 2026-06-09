@@ -23,7 +23,16 @@
           "key": "Cross-Origin-Resource-Policy",
           "value": "cross-origin"
         }
-      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/check-refunds",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/daily-renewals",
+      "schedule": "0 8 * * *"
     }
   ]
 }

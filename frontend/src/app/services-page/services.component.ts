@@ -64,6 +64,19 @@ export class ServicesComponent implements OnInit {
   userPassword = ''; // Added for email login in modal
   acceptedTerms = false;
   
+  enterpriseProjectType = 'Custom Web Application';
+  enterpriseOptions = [
+    'Custom Web Application',
+    'Interactive Browser Game',
+    'Internal Business Tool',
+    'Workflow Automation',
+    'Mobile App Backend',
+    'Hardware Integration',
+    'AI Agent Swarm / Pipeline',
+    'Data Scraping Pipeline',
+    'Other / Let\'s Discuss'
+  ];
+  
   readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2, 3 & 4) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
   
   checkoutLoading = signal(false);
@@ -91,9 +104,9 @@ export class ServicesComponent implements OnInit {
       baseCost: '99',
       setup: '1349',
       baseSetup: '1499',
-      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits.',
+      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery.',
       checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
-      features: ['0 Hours/Mo Custom Edits', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
+      features: ['Max 2-Week Delivery', '0 Hours/Mo Custom Edits', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Blazing Fast Next.js/Angular', 'High-Converting Copywriting', 'Secure & Accessible', 'Standard Contact Forms'],
       featured: false
     },
     {
@@ -103,9 +116,9 @@ export class ServicesComponent implements OnInit {
       baseCost: '299',
       setup: '3149',
       baseSetup: '3499',
-      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates).',
+      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery.',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
-      features: ['2 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Mgmt', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
+      features: ['Max 3-Week Delivery', '2 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Mgmt', '24/7 Uptime Monitoring', 'Backups & Security', 'Google Business Management'],
       featured: true
     },
     {
@@ -115,9 +128,9 @@ export class ServicesComponent implements OnInit {
       baseCost: '599',
       setup: '7199',
       baseSetup: '7999',
-      description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features).',
+      description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery.',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
-      features: ['5 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing'],
+      features: ['Max 4-Week Delivery', '5 Hours/Mo Custom Edits', '30-Day Subscription Trial', 'Hosting & Domain Management', 'SEO Improvements', 'Lead Capture Optimization', 'Monthly Analytics Reports', 'AI Chatbot Upkeep', 'Ad Landing Page Testing'],
       featured: false
     },
     {
@@ -127,9 +140,9 @@ export class ServicesComponent implements OnInit {
       baseCost: '999',
       setup: '13499',
       baseSetup: '14999',
-      description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month.',
+      description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope.',
       checkoutUrl: '#',
-      features: ['10 Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database Architecture', 'Advanced Third-Party Integrations', 'Multi-Language Support', 'SLA Guarantees', 'Priority 24/7 Support'],
+      features: ['Timeline Varies By Scope', '10 Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database Architecture', 'Advanced Third-Party Integrations', 'Multi-Language Support', 'SLA Guarantees', 'Priority 24/7 Support'],
       featured: false
     }
   ]);
@@ -330,7 +343,7 @@ export class ServicesComponent implements OnInit {
       businessName: user?.businessName || this.businessName,
       acceptedContract: true,
       contractTimestamp: new Date().toISOString(),
-      projectType: tier.title
+      projectType: tier.id === 'enterprise' ? this.enterpriseProjectType : tier.title
     };
 
     this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, payload).subscribe({

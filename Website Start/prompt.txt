@@ -28,22 +28,26 @@ All websites must be built exclusively on the Phoenix Stack. Do NOT use PHP, Wor
 
 **Tier 1: Starter Landing Page**
 - **Price**: $1,499 Setup + $99/Month
+- **Timeline**: Maximum 2 weeks.
 - **Scope**: A high-impact, single-page or simple multi-page static website. Includes basic hosting and maintenance, but **no free ongoing edits**.
 - **Allowed Script Options**: Tailwind CSS, Confetti, Lenis Smooth Scroll. No advanced animations (GSAP/Anime/Three.js) or Authentication.
 
 **Tier 2: Interactive Dynamic Website**
 - **Price**: $3,499 Setup + $299/Month
+- **Timeline**: Maximum 3 weeks.
 - **Scope**: A dynamic website requiring data persistence, basic user interaction, and premium animations. Includes **On-Demand Edits** (Small content and image updates). 
 - **Allowed Script Options**: Tailwind CSS, Anime.js, Confetti, GSAP, Lenis Smooth Scroll, Local Authentication. No 3D (Three.js) or Physics (Matter.js).
 
 **Tier 3: Premium Web App / Portal**
 - **Price**: $7,999 Setup + $599/Month
+- **Timeline**: Maximum 4 weeks.
 - **Scope**: A complex web application scaling revenue through data-driven improvements and intelligent automation. Includes **Priority Support & Advanced Edits** (Layout adjustments, new features).
 - **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
 
 **Tier 4: Enterprise Custom**
 - **Price**: $14,999 Setup + $999/Month
-- **Scope**: Fully custom enterprise architecture built for scale. Includes **10 Hours/Month** of priority custom development.
+- **Timeline**: Varies significantly depending on scope.
+- **Scope**: Fully custom enterprise architecture built for scale. This can include massive web applications, browser games, automated workflows, and non-website software projects. *Note: The client is fully responsible for paying any extra third-party software fees, API costs, or asset costs incurred for arbitrary custom requests.* Includes **10 Hours/Month** of priority custom development.
 - **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
 
 ---

@@ -51,6 +51,16 @@
           </li>
         </ul>
 
+        <div *ngIf="tier.id === 'enterprise'" class="mb-6 space-y-2">
+          <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Select Project Type</label>
+          <select [(ngModel)]="enterpriseProjectType" class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all appearance-none cursor-pointer">
+            <option *ngFor="let opt of enterpriseOptions" [value]="opt" class="bg-[#050505] text-white">{{opt}}</option>
+          </select>
+          <p class="text-[9px] text-white/40 mt-2 leading-relaxed">
+            *After checkout, we will contact you directly to discuss the exact specifications and determine the final pricing for any extra features. You may request a full refund via email if you decide not to proceed *before* the final agreement is made.
+          </p>
+        </div>
+
         <button (click)="openContract(tier)" 
                 class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
           Get Started
