@@ -28,6 +28,10 @@
   ],
   "crons": [
     {
+      "path": "/api/cron/check-refunds",
+      "schedule": "0 12 * * *"
+    },
+    {
       "path": "/api/cron/daily-renewals",
       "schedule": "0 8 * * *"
     }
