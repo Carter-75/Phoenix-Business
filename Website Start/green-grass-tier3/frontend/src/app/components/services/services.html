@@ -1,0 +1,22 @@
+<section class="py-32 bg-gg-surface/40 relative z-10 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="tilt-target text-center mb-24">
+      <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">Automated Excellence</h2>
+      <p class="text-xl text-gg-text/50 max-w-2xl mx-auto">Our four pillars of scalable, sustainable turf management.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div *ngFor="let service of services; let i = index" #serviceCard class="group glass rounded-3xl overflow-hidden relative min-h-[400px] flex items-end p-8 border border-white/5 hover:border-gg-secondary/50 transition-colors duration-500">
+        <div class="absolute inset-0 z-0">
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent z-10"></div>
+          <img [src]="service.img" onerror="this.src='assets/image1.png'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="">
+        </div>
+        <div class="relative z-20">
+          <span class="text-gg-secondary font-bold tracking-widest mb-2 block">0{{ i + 1 }}</span>
+          <h3 class="text-3xl font-bold text-white mb-4">{{ service.title }}</h3>
+          <p class="text-gg-text/70 leading-relaxed">{{ service.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

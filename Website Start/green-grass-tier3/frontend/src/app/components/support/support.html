@@ -1,0 +1,45 @@
+<section class="py-32 bg-black/40 border-t border-white/5 relative z-10 overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-gg-secondary/10 to-transparent pointer-events-none"></div>
+
+  <div class="max-w-4xl mx-auto px-4 relative z-10">
+    <div class="tilt-target text-center mb-16">
+      <h2 class="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter">Enterprise Support</h2>
+      <p class="text-xl text-gg-text/50 font-light">Priority routing for Tier 3 accounts.</p>
+    </div>
+
+    <!-- Success Message UI -->
+    <div *ngIf="successMessage" class="glass rounded-3xl mb-8 p-6 border border-gg-secondary/50 bg-gg-secondary/10 text-gg-secondary text-center font-bold tracking-wide animate-fade-in shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+      {{ successMessage }}
+    </div>
+
+    <form (submit)="mockSubmit($event)" class="glass rounded-3xl p-10 md:p-12 border border-white/5 relative group">
+      <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 relative z-10">
+        <div>
+          <label class="block text-sm font-bold text-white mb-3 tracking-widest uppercase text-xs">Authorized Contact</label>
+          <input type="text" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-gg-secondary focus:ring-1 focus:ring-gg-secondary transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-white mb-3 tracking-widest uppercase text-xs">Secure Email</label>
+          <input type="email" required class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-gg-secondary focus:ring-1 focus:ring-gg-secondary transition-all">
+        </div>
+      </div>
+      <div class="mb-8 relative z-10">
+        <label class="block text-sm font-bold text-white mb-3 tracking-widest uppercase text-xs">Incident Routing</label>
+        <select required class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-gg-secondary focus:ring-1 focus:ring-gg-secondary transition-all appearance-none">
+          <option value="hardware">Hardware / Fleet Maintenance</option>
+          <option value="software">Dashboard / API Connectivity</option>
+          <option value="billing">Enterprise Billing</option>
+        </select>
+      </div>
+      <div class="mb-10 relative z-10">
+        <label class="block text-sm font-bold text-white mb-3 tracking-widest uppercase text-xs">Diagnostic Message</label>
+        <textarea required rows="5" class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-gg-secondary focus:ring-1 focus:ring-gg-secondary transition-all"></textarea>
+      </div>
+      <button type="submit" class="w-full bg-white text-black font-black tracking-wide py-5 rounded-2xl hover:bg-gg-secondary hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] relative z-10">
+        Dispatch Ticket
+      </button>
+    </form>
+  </div>
+</section>

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { environment } from '../../environments/environment';
 
@@ -75,8 +75,23 @@ import { environment } from '../../environments/environment';
           <div *ngIf="!loadingContracts() && contracts().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
             
             <div *ngFor="let contract of contracts()" class="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
+              
+              <!-- Review Corner Wrapper -->
+              <div *ngIf="!contract.reviewInfo?.hasReview" class="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-2 rounded-bl-lg cursor-pointer hover:bg-orange-500 transition-colors z-20 flex items-center gap-2" (click)="goToReview()">
+                <i class="fa-solid fa-star"></i> Leave Review
+              </div>
+              
+              <div *ngIf="contract.reviewInfo?.hasReview && contract.reviewInfo?.rating <= 3.5 && !contract.reviewInfo?.dismissedLowRating" class="absolute top-0 right-0 bg-slate-800 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-2 rounded-bl-lg flex items-center gap-2 z-20 border-b border-l border-white/10">
+                <span class="cursor-pointer hover:text-orange-400 transition-colors" (click)="goToReview()">Update Review ({{contract.reviewInfo?.rating}}★)</span>
+                <i class="fa-solid fa-xmark cursor-pointer hover:text-red-400 text-xs ml-1" (click)="dismissLowRating(contract.reviewInfo?.reviewId)"></i>
+              </div>
+              
+              <div *ngIf="contract.reviewInfo?.hasReview && (contract.reviewInfo?.rating > 3.5 || contract.reviewInfo?.dismissedLowRating)" class="absolute top-0 right-0 bg-green-500/20 text-green-500 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-bl-lg z-20">
+                <i class="fa-solid fa-check mr-1"></i> Reviewed
+              </div>
+
               <!-- Status Badge -->
-              <div class="absolute top-0 right-0 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-bl-lg"
+              <div class="inline-block text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-lg mb-2"
                    [ngClass]="{
                      'bg-green-500 text-white': contract.status === 'active',
                      'bg-blue-500 text-white': contract.status === 'bought-out',
@@ -85,7 +100,7 @@ import { environment } from '../../environments/environment';
                 {{ contract.status }}
               </div>
 
-              <h3 class="text-xl font-black text-white mb-1 pr-16">{{ contract.projectName || 'Phoenix Digital Services' }}</h3>
+              <h3 class="text-xl font-black text-white mb-1">{{ contract.projectName || 'Phoenix Digital Services' }}</h3>
               <p class="text-xs text-orange-500 font-bold uppercase tracking-widest mb-6">{{ contract.contractType }}</p>
 
               <div class="flex flex-col gap-3 mt-auto">
@@ -194,6 +209,7 @@ import { environment } from '../../environments/environment';
 export class DashboardComponent implements OnInit {
   api = inject(ApiService);
   route = inject(ActivatedRoute);
+  router = inject(Router);
 
   isSuccess = signal(false);
   isCancellationSuccess = signal(false);
@@ -228,15 +244,50 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchContracts() {
+    // We will fetch contracts, then reviews, and merge them
     this.api.get<any[]>('auth/contracts').subscribe({
       next: (res) => {
-        this.contracts.set(res);
-        this.loadingContracts.set(false);
+        const rawContracts = res;
+        this.api.get<any[]>('reviews/status').subscribe({
+          next: (reviewStatuses) => {
+            const merged = rawContracts.map(c => {
+              const reviewInfo = reviewStatuses.find(r => r.contractId === c._id);
+              return { ...c, reviewInfo };
+            });
+            this.contracts.set(merged);
+            this.loadingContracts.set(false);
+          },
+          error: () => {
+            // fallback
+            this.contracts.set(rawContracts);
+            this.loadingContracts.set(false);
+          }
+        });
       },
       error: (err) => {
         console.error('Failed to load contracts', err);
         this.loadingContracts.set(false);
       }
+    });
+  }
+
+  goToReview() {
+    this.router.navigate(['/leave-review']);
+  }
+
+  dismissLowRating(reviewId: string) {
+    if (!reviewId) return;
+    this.api.patch(`reviews/${reviewId}/dismiss`, {}).subscribe({
+      next: () => {
+        // update locally
+        this.contracts.update(arr => arr.map(c => {
+          if (c.reviewInfo && c.reviewInfo.reviewId === reviewId) {
+            c.reviewInfo.dismissedLowRating = true;
+          }
+          return c;
+        }));
+      },
+      error: (err) => console.error('Failed to dismiss', err)
     });
   }
 

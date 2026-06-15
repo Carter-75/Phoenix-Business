@@ -6,6 +6,8 @@ import { TermsComponent } from './legal/terms-of-service.component';
 import { RefundPolicyComponent } from './legal/refund-policy.component';
 import { PrivacyPolicyComponent } from './legal/privacy-policy.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { LeaveReviewComponent } from './leave-review/leave-review.component';
+import { AdminReviewsComponent } from './admin-reviews/admin-reviews.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -16,6 +18,8 @@ export const routes: Routes = [
   { path: 'refunds', component: RefundPolicyComponent },
   { path: 'privacy', component: PrivacyPolicyComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'leave-review', component: LeaveReviewComponent },
+  { path: 'admin-reviews', component: AdminReviewsComponent },
   
   { path: '**', redirectTo: 'home' }
 ];

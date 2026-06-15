@@ -26,29 +26,38 @@ All websites must be built exclusively on the Phoenix Stack. Do NOT use PHP, Wor
 ---
 ### THE TIER SYSTEM & PRICING
 
-**Tier 1: Starter Landing Page**
+**Tier 1: Starter Multi-Page Website**
 - **Price**: $1,499 Setup + $99/Month
 - **Timeline**: Maximum 2 weeks.
-- **Scope**: A high-impact, single-page or simple multi-page static website. Includes basic hosting and maintenance, but **no free ongoing edits**.
+- **Scope**: A high-impact multi-page website using Angular Routing. Includes basic hosting and maintenance, but **no free ongoing edits**.
 - **Allowed Script Options**: Tailwind CSS, Confetti, Lenis Smooth Scroll. No advanced animations (GSAP/Anime/Three.js) or Authentication.
 
 **Tier 2: Interactive Dynamic Website**
 - **Price**: $3,499 Setup + $299/Month
 - **Timeline**: Maximum 3 weeks.
-- **Scope**: A dynamic website requiring data persistence, basic user interaction, and premium animations. Includes **On-Demand Edits** (Small content and image updates). 
+- **Scope**: A dynamic multi-page website requiring data persistence, basic user interaction, and premium animations. Includes **On-Demand Edits**. 
 - **Allowed Script Options**: Tailwind CSS, Anime.js, Confetti, GSAP, Lenis Smooth Scroll, Local Authentication. No 3D (Three.js) or Physics (Matter.js).
 
 **Tier 3: Premium Web App / Portal**
 - **Price**: $7,999 Setup + $599/Month
 - **Timeline**: Maximum 4 weeks.
-- **Scope**: A complex web application scaling revenue through data-driven improvements and intelligent automation. Includes **Priority Support & Advanced Edits** (Layout adjustments, new features).
+- **Scope**: A complex web application. Includes **Priority Support**. Must look VASTLY superior to Tier 2. Use advanced tools like Three.js 3D scenes or complex GSAP scroll pinning to justify the Enterprise pricing. Do not copy Tier 2 layouts.
 - **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
 
 **Tier 4: Enterprise Custom**
 - **Price**: $14,999 Setup + $999/Month
 - **Timeline**: Varies significantly depending on scope.
-- **Scope**: Fully custom enterprise architecture built for scale. This can include massive web applications, browser games, automated workflows, and non-website software projects. *Note: The client is fully responsible for paying any extra third-party software fees, API costs, or asset costs incurred for arbitrary custom requests.* Includes **10 Hours/Month** of priority custom development.
+- **Scope**: Fully custom enterprise architecture built for scale. Includes **10 Hours/Month** of priority custom development.
 - **Allowed Script Options**: ALL script options enabled. Tailwind, Matter.js, Anime.js, Confetti, GSAP, Three.js, Lenis, Both Local & Google Auth.
+
+---
+### DESIGN & CONTENT RULES
+1. **Tier Terminology:** NEVER use the word "Tier" anywhere in the user-facing website text, HTML, or UI.
+2. **Strict Tech Stack Compliance:** You MUST strictly obey the "Allowed Script Options" for the selected Tier.
+3. **Multi-Page Architecture (MANDATORY):** All generated websites MUST be Multi-Page Applications using Angular Routing (`RouterModule`). Do NOT build long, anchor-scrolling single-page sites. Every section (Services, Reviews, Support, etc.) must be its own dedicated route/page.
+4. **Navigation & Footer Strictness:** The Top Navigation MUST house all primary page routes (e.g., Home, Services, Reviews, Support, Portal). The Footer MUST be strictly reserved for Legal/Policy pages (Privacy, Terms). Do not put main navigation links in the footer.
+5. **REAL DATA ONLY:** You MUST strictly use the real client data (text files, images, brand assets) provided to you. Do NOT use placeholder text (Lorem Ipsum), fake testimonials, or fake business data. If data is not provided, explicitly ask the user for it.
+6. **Functional Forms:** Forms must be structured perfectly for backend integration and wired to use the client's real contact email or API endpoints. If no data is provided, use basic mock behavior (`alert('Feature unavailable')`). Do not create fake stack traces in the console.
 
 ---
 ### SCRIPT EXECUTION INSTRUCTIONS
