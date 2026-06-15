@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../services/api.service';
+import { ApiService } from '../../services/api.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -81,7 +81,7 @@ export class ReviewPopupComponent implements OnInit {
 
   checkEligibility() {
     this.api.get<any[]>('reviews/status').subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.rawItems.set(res);
         if (this.reviewItems().length > 0 && !this.cornerDismissed()) {
           // Check if we should auto-route to /leave-review (if coming from checkout)
@@ -95,7 +95,7 @@ export class ReviewPopupComponent implements OnInit {
           this.showCornerPopup.set(false);
         }
       },
-      error: (err) => console.error('Error checking review eligibility:', err)
+      error: (err: any) => console.error('Error checking review eligibility:', err)
     });
   }
 

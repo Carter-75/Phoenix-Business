@@ -26,6 +26,10 @@ export class ApiService {
     return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, { withCredentials: true });
   }
 
+  patch<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.patch<T>(`${this.apiUrl}/${endpoint}`, body, { withCredentials: true });
+  }
+
   download(endpoint: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${endpoint}`, { withCredentials: true, responseType: 'blob' });
   }

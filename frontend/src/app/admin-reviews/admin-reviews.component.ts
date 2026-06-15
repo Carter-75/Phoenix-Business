@@ -107,13 +107,13 @@ export class AdminReviewsComponent implements OnInit {
 
   ngOnInit() {
     this.api.get<any[]>('reviews/all').subscribe({
-      next: (res) => {
+      next: (res: any) => {
         // Initialize editing state
-        const withState = res.map(r => ({ ...r, isEditingReply: false, draftReply: '', saving: false }));
+        const withState = res.map((r: any) => ({ ...r, isEditingReply: false, draftReply: '', saving: false }));
         this.reviews.set(withState);
         this.loading.set(false);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to load admin reviews', err);
         this.loading.set(false);
       }
@@ -122,13 +122,13 @@ export class AdminReviewsComponent implements OnInit {
 
   saveReply(review: any) {
     review.saving = true;
-    this.api.patch(\`reviews/\${review._id}/admin-comment\`, { adminComment: review.draftReply }).subscribe({
-      next: (res) => {
+    this.api.patch<any>(`reviews/${review._id}/admin-comment`, { adminComment: review.draftReply }).subscribe({
+      next: (res: any) => {
         review.adminComment = res.adminComment;
         review.isEditingReply = false;
         review.saving = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to save reply', err);
         review.saving = false;
         alert('Failed to save reply');

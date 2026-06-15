@@ -259,12 +259,12 @@ export class LeaveReviewComponent implements OnInit {
 
     if (active.hasReview) {
       // UPDATE existing review
-      this.api.patch(`reviews/${active.reviewId}`, {
+      this.api.patch<any>(`reviews/${active.reviewId}`, {
         rating: this.rating(),
         message: this.message()
       }).subscribe({
-        next: (res) => this.handleSuccess('Review updated successfully!', res),
-        error: (err) => this.handleError(err)
+        next: (res: any) => this.handleSuccess('Review updated successfully!', res),
+        error: (err: any) => this.handleError(err)
       });
     } else {
       // CREATE new review
@@ -274,7 +274,7 @@ export class LeaveReviewComponent implements OnInit {
         return;
       }
 
-      this.api.post('reviews', {
+      this.api.post<any>('reviews', {
         contractId: active.contractId,
         projectName: active.projectName,
         businessName: this.businessName(),
@@ -283,8 +283,8 @@ export class LeaveReviewComponent implements OnInit {
         rating: this.rating(),
         message: this.message()
       }).subscribe({
-        next: (res) => this.handleSuccess('Review submitted successfully!', res),
-        error: (err) => this.handleError(err)
+        next: (res: any) => this.handleSuccess('Review submitted successfully!', res),
+        error: (err: any) => this.handleError(err)
       });
     }
   }

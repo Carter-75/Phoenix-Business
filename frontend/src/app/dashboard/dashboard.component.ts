@@ -277,7 +277,7 @@ export class DashboardComponent implements OnInit {
 
   dismissLowRating(reviewId: string) {
     if (!reviewId) return;
-    this.api.patch(`reviews/${reviewId}/dismiss`, {}).subscribe({
+    this.api.patch<any>(`reviews/${reviewId}/dismiss`, {}).subscribe({
       next: () => {
         // update locally
         this.contracts.update(arr => arr.map(c => {
@@ -287,7 +287,7 @@ export class DashboardComponent implements OnInit {
           return c;
         }));
       },
-      error: (err) => console.error('Failed to dismiss', err)
+      error: (err: any) => console.error('Failed to dismiss', err)
     });
   }
 
