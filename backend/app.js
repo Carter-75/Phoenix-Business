@@ -171,6 +171,7 @@ const stripeRouter = require('./routes/stripe');
 const indexRouter = require('./routes/index');
 const cronRouter = require('./routes/cron');
 const reviewsRouter = require('./routes/reviews');
+const botRouter = require('./routes/bot');
 
 // Mount routes at both /api and root to handle Vercel routing flexibility
 const featureRoutes = [
@@ -179,6 +180,7 @@ const featureRoutes = [
   { path: '/stripe', router: stripeRouter },
   { path: '/cron', router: cronRouter },
   { path: '/reviews', router: reviewsRouter },
+  { path: '/bot', router: botRouter },
   { path: '/', router: indexRouter }
 ];
 
