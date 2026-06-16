@@ -297,7 +297,12 @@ export class DashboardComponent implements OnInit {
     this.downloadingPdfId.set(contractId);
 
     this.api.download(`auth/contract/pdf/${contractId}`).subscribe({
-      next: (blob) => {
+      next: (blob: any) => {
+        if (blob.type === 'application/json') {
+          alert('PDF not available for this contract.');
+          this.downloadingPdfId.set(null);
+          return;
+        }
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

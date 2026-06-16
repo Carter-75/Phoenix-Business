@@ -73,7 +73,12 @@ router.get('/google', (req, res, next) => {
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/services' }),
   (req, res) => {
-    const returnUrl = req.query.state || '/dashboard';
+    let returnUrl = req.query.state || '/dashboard';
+    
+    // Open Redirect Protection
+    if (!returnUrl.startsWith('/')) {
+        returnUrl = '/dashboard';
+    }
     
     // Successful authentication or pending registration, redirect to returnUrl
     res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}${returnUrl}`);
@@ -205,6 +210,11 @@ router.get('/contracts', async (req, res) => {
 // @desc    Public "Kill Switch" API for client websites to check if they should be online.
 router.get('/public/site-status/:email', async (req, res) => {
   try {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey !== process.env.KILL_SWITCH_API_KEY) {
+      return res.status(403).json({ authorized: false, reason: 'Invalid API Key' });
+    }
+
     const { email } = req.params;
     const User = require('../models/User');
     const Contract = require('../models/Contract');

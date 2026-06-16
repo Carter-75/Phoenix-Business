@@ -126,7 +126,12 @@ router.get('/check-refunds', async (req, res) => {
             });
         });
 
+        const timeoutId = setTimeout(() => {
+            finish(504, 'IMAP connection timed out (9s)');
+        }, 9000);
+
         imap.once('error', (err) => {
+            clearTimeout(timeoutId);
             console.error('IMAP connection error:', err);
             finish(500, `IMAP connection error: ${err.message}`);
         });

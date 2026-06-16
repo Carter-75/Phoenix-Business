@@ -100,8 +100,7 @@ router.get('/unsubscribe', async (req, res) => {
     try {
         await Lead.findOneAndUpdate(
             { email: email.toLowerCase() },
-            { status: 'unsubscribed' },
-            { upsert: true }
+            { status: 'unsubscribed' }
         );
         res.send('<h1>You have been successfully unsubscribed.</h1><p>You will no longer receive automated outreach or guides from Phoenix.</p>');
     } catch (error) {
