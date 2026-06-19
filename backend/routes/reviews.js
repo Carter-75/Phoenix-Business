@@ -123,6 +123,27 @@ router.patch('/:reviewId', async (req, res) => {
   }
 });
 
+// @route   DELETE /api/reviews/:reviewId
+// @desc    Delete an existing review
+router.delete('/:reviewId', async (req, res) => {
+  try {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const review = await Review.findOne({ _id: req.params.reviewId, userId: req.user._id });
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found' });
+    }
+
+    await Review.deleteOne({ _id: review._id });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error deleting review:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // @route   PATCH /api/reviews/:reviewId/dismiss
 // @desc    Dismiss a low rating prompt forever
 router.patch('/:reviewId/dismiss', async (req, res) => {

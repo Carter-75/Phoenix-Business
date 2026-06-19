@@ -62,6 +62,9 @@ import { RouterLink } from '@angular/router';
                   <button *ngIf="editingReviewId() !== review._id" (click)="startEdit(review)" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-pen text-xs"></i>
                   </button>
+                  <button *ngIf="editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                  </button>
                   <button *ngIf="editingReviewId() === review._id" (click)="cancelEdit()" class="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-500 transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-xs"></i>
                   </button>
@@ -311,6 +314,23 @@ export class ReviewsComponent implements OnInit {
       error: (err) => {
         console.error('Failed to update review', err);
         alert('Failed to update review.');
+        this.saving.set(false);
+      }
+    });
+  }
+
+  deleteReview(reviewId: string) {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+    
+    this.saving.set(true);
+    this.api.delete<any>(`reviews/${reviewId}`).subscribe({
+      next: () => {
+        this.allReviews.update(reviews => reviews.filter(r => r._id !== reviewId));
+        this.saving.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to delete review', err);
+        alert('Failed to delete review.');
         this.saving.set(false);
       }
     });
