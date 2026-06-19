@@ -73,6 +73,9 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 <div>
                   <div class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Reviewing Order</div>
                   <h3 class="text-white font-black text-lg leading-tight">{{ activeItem()?.projectName || 'Custom Project' }}</h3>
+                  <div class="text-xs text-slate-400 mt-1" *ngIf="api.currentUser()">
+                    <i class="fa-solid fa-user-circle mr-1"></i> Posting as <strong>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</strong> <span *ngIf="api.currentUser()?.businessName">({{ api.currentUser()?.businessName }})</span>
+                  </div>
                 </div>
               </div>
               

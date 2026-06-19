@@ -33,7 +33,13 @@ import { ApiService } from '../../services/api.service';
           <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
             Login
           </a>
-          <button *ngIf="api.currentUser()" (click)="api.logout()" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/10 hover:text-red-500 transition-all">
+
+          <div *ngIf="api.currentUser()" class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+            <i class="fa-solid fa-user-circle text-[#D4AF37]"></i> 
+            <span>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName" class="text-slate-500">({{ api.currentUser()?.businessName }})</span></span>
+          </div>
+
+          <button *ngIf="api.currentUser()" (click)="api.logout()" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-red-500 transition-all">
             Logout
           </button>
           
@@ -66,6 +72,13 @@ import { ApiService } from '../../services/api.service';
         <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
           Login
         </a>
+
+        <div *ngIf="api.currentUser()" class="text-xs font-bold uppercase tracking-[0.1em] text-slate-500 text-center flex flex-col gap-1 items-center">
+          <i class="fa-solid fa-user-circle text-2xl text-slate-600 mb-1"></i>
+          <span>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</span>
+          <span *ngIf="api.currentUser()?.businessName" class="text-slate-600">({{ api.currentUser()?.businessName }})</span>
+        </div>
+
         <button *ngIf="api.currentUser()" (click)="api.logout(); closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">
           Logout
         </button>

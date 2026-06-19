@@ -559,10 +559,10 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             
             // Console Debugging
             if (performance.now() - bird.lastLogTime > 1000) {
-                const wpDist = bird.position.distanceTo(bird.targetWaypoint);
-                console.log(`[Phoenix:${bird.theme}] Pos: (${bird.position.x.toFixed(1)}, ${bird.position.y.toFixed(1)}, ${bird.position.z.toFixed(1)}) | ` +
-                            `WP: (${bird.targetWaypoint.x.toFixed(1)}, ${bird.targetWaypoint.y.toFixed(1)}, ${bird.targetWaypoint.z.toFixed(1)}) | ` +
-                            `Dist: ${wpDist.toFixed(1)} | Turn: ${maxTurnForce.toFixed(5)}`);
+                // const wpDist = bird.position.distanceTo(bird.targetWaypoint);
+                // console.log(`[Phoenix:${bird.theme}] Pos: (${bird.position.x.toFixed(1)}, ${bird.position.y.toFixed(1)}, ${bird.position.z.toFixed(1)}) | ` +
+                //             `WP: (${bird.targetWaypoint.x.toFixed(1)}, ${bird.targetWaypoint.y.toFixed(1)}, ${bird.targetWaypoint.z.toFixed(1)}) | ` +
+                //             `Dist: ${wpDist.toFixed(1)} | Turn: ${maxTurnForce.toFixed(5)}`);
                 bird.lastLogTime = performance.now();
             }
           }

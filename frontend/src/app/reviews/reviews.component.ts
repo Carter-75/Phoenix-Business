@@ -19,7 +19,10 @@ import { RouterLink } from '@angular/router';
             <i class="fa-solid fa-star text-3xl"></i>
           </div>
           <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Ratings</span></h1>
-          <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed">Real feedback from verified businesses scaling their revenue with Phoenix Studio infrastructure.</p>
+          <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed mb-6">Real feedback from verified businesses scaling their revenue with Phoenix Studio infrastructure.</p>
+          <div *ngIf="api.currentUser()" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <i class="fa-solid fa-user-circle text-orange-500"></i> Logged in as: {{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName">({{ api.currentUser()?.businessName }})</span>
+          </div>
         </header>
 
         <!-- Filters -->
@@ -109,7 +112,7 @@ import { RouterLink } from '@angular/router';
                     {{ review.firstName.charAt(0) }}
                   </div>
                   <div>
-                    <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }}</p>
+                    <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }} <span *ngIf="review.businessName" class="text-slate-500 font-normal">({{ review.businessName }})</span></p>
                     <p class="text-slate-400 text-xs">{{ review.projectName }} &bull; {{ review.createdAt | date:'MMM yyyy' }}</p>
                   </div>
                 </div>
@@ -159,7 +162,7 @@ import { RouterLink } from '@angular/router';
                   {{ review.firstName.charAt(0) }}
                 </div>
                 <div>
-                  <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }}</p>
+                  <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }} <span *ngIf="review.businessName" class="text-slate-500 font-normal">({{ review.businessName }})</span></p>
                   <p class="text-slate-400 text-xs">{{ review.projectName }} &bull; {{ review.createdAt | date:'MMM yyyy' }}</p>
                 </div>
               </div>
