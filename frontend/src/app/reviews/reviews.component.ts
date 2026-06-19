@@ -69,13 +69,11 @@ import { RouterLink } from '@angular/router';
 
                 <div class="flex gap-1 mb-6">
                    <ng-container *ngIf="editingReviewId() !== review._id">
-                     <i *ngFor="let star of [1,2,3,4,5]" 
-                        class="fa-solid text-sm"
-                        [ngClass]="{
-                      'fa-star text-orange-500': review.rating >= star,
-                      'fa-star-half-stroke text-orange-500': review.rating < star && review.rating > star - 1,
-                      'fa-star text-white/10': review.rating <= star - 1
-                        }"></i>
+                     <ng-container *ngFor="let star of [1,2,3,4,5]">
+                       <i *ngIf="review.rating >= star" class="fa-solid fa-star text-sm text-orange-500"></i>
+                       <i *ngIf="review.rating < star && review.rating > star - 1" class="fa-solid fa-star-half-stroke text-sm text-orange-500"></i>
+                       <i *ngIf="review.rating <= star - 1" class="fa-solid fa-star text-sm text-white/10"></i>
+                     </ng-container>
                    </ng-container>
                    
                    <ng-container *ngIf="editingReviewId() === review._id">
@@ -146,13 +144,11 @@ import { RouterLink } from '@angular/router';
             <div *ngFor="let review of filteredOtherReviews()" class="bg-white/5 border border-white/10 hover:border-white/20 transition-colors rounded-2xl p-6 sm:p-8 break-inside-avoid">
               
               <div class="flex gap-1 mb-6">
-                 <i *ngFor="let star of [1,2,3,4,5]" 
-                    class="fa-solid text-sm"
-                    [ngClass]="{
-                      'fa-star text-orange-500': review.rating >= star,
-                      'fa-star-half-stroke text-orange-500': review.rating < star && review.rating > star - 1,
-                      'fa-star text-white/10': review.rating <= star - 1
-                    }"></i>
+                 <ng-container *ngFor="let star of [1,2,3,4,5]">
+                   <i *ngIf="review.rating >= star" class="fa-solid fa-star text-sm text-orange-500"></i>
+                   <i *ngIf="review.rating < star && review.rating > star - 1" class="fa-solid fa-star-half-stroke text-sm text-orange-500"></i>
+                   <i *ngIf="review.rating <= star - 1" class="fa-solid fa-star text-sm text-white/10"></i>
+                 </ng-container>
               </div>
 
               <p *ngIf="review.message?.trim()" class="text-base text-white mb-8 leading-relaxed font-medium">"{{ review.message }}"</p>
