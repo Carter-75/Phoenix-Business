@@ -89,6 +89,9 @@ export class ServicesComponent implements OnInit {
   isAnimatingDiscount = signal(false);
   appliedDiscountPercentage = signal(0);
 
+  activeDropdownTier = signal<string | null>(null);
+  cardDiscountCode = signal<string>('');
+
   constructor() {}
 
   isFormValid() {
@@ -270,6 +273,12 @@ export class ServicesComponent implements OnInit {
     } else {
       this.modalStep.set('auth');
     }
+  }
+
+  openContractWithDiscount(tier: ServiceTier, code: string) {
+    this.discountCode.set(code.trim().toUpperCase());
+    this.openContract(tier);
+    this.activeDropdownTier.set(null);
   }
 
   closeContract() {

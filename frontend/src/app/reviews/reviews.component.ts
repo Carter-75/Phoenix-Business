@@ -97,7 +97,7 @@ import { RouterLink } from '@angular/router';
                 </div>
 
                 <ng-container *ngIf="editingReviewId() !== review._id">
-                  <p class="text-lg text-white mb-8 leading-relaxed font-medium">"{{ review.message }}"</p>
+                  <p *ngIf="review.message?.trim()" class="text-lg text-white mb-8 leading-relaxed font-medium">"{{ review.message }}"</p>
                 </ng-container>
 
                 <ng-container *ngIf="editingReviewId() === review._id">
@@ -155,7 +155,7 @@ import { RouterLink } from '@angular/router';
                     }"></i>
               </div>
 
-              <p class="text-base text-white mb-8 leading-relaxed font-medium">"{{ review.message }}"</p>
+              <p *ngIf="review.message?.trim()" class="text-base text-white mb-8 leading-relaxed font-medium">"{{ review.message }}"</p>
 
               <div class="flex items-center gap-4 mt-auto">
                 <div class="w-10 h-10 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-black uppercase">
@@ -202,8 +202,21 @@ export class ReviewsComponent implements OnInit {
 
   otherReviews = computed(() => {
     const user = this.api.currentUser();
-    if (!user) return this.allReviews();
-    return this.allReviews().filter(r => r.userId !== user._id);
+    let allOthers = this.allReviews();
+    if (user) {
+      allOthers = allOthers.filter(r => r.userId !== user._id);
+    }
+    
+    // Group by businessName and take the highest rating
+    const bestByBusiness = new Map<string, any>();
+    for (const r of allOthers) {
+      const key = r.businessName;
+      if (!bestByBusiness.has(key) || bestByBusiness.get(key).rating < r.rating) {
+        bestByBusiness.set(key, r);
+      }
+    }
+    
+    return Array.from(bestByBusiness.values());
   });
 
   filteredOtherReviews = computed(() => {
@@ -233,9 +246,9 @@ export class ReviewsComponent implements OnInit {
 
   getEditStarClipPath(starIndex: number) {
     const current = this.hoverEditRating() > 0 ? this.hoverEditRating() : this.editRating();
-    if (current >= starIndex) return 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
-    if (current >= starIndex - 0.5) return 'polygon(0 0, 50% 0, 50% 100%, 0 100%)';
-    return 'polygon(0 0, 0 0, 0 100%, 0 100%)';
+    if (current >= starIndex) return 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)';
+    if (current >= starIndex - 0.5) return 'polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)';
+    return 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)';
   }
 
   startEdit(review: any) {

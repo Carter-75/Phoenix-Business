@@ -264,9 +264,9 @@ export class LeaveReviewComponent implements OnInit {
 
   getStarClipPath(starIndex: number) {
     const current = this.hoverRating() > 0 ? this.hoverRating() : this.rating();
-    if (current >= starIndex) return 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
-    if (current >= starIndex - 0.5) return 'polygon(0 0, 50% 0, 50% 100%, 0 100%)';
-    return 'polygon(0 0, 0 0, 0 100%, 0 100%)';
+    if (current >= starIndex) return 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)';
+    if (current >= starIndex - 0.5) return 'polygon(0% 0%, 50% 0%, 50% 100%, 0% 100%)';
+    return 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)';
   }
 
   setRating(val: number) {

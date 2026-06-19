@@ -34,14 +34,21 @@ import { ApiService } from '../../services/api.service';
             Login
           </a>
 
-          <div *ngIf="api.currentUser()" class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-            <i class="fa-solid fa-user-circle text-[#D4AF37]"></i> 
-            <span>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName" class="text-slate-500">({{ api.currentUser()?.businessName }})</span></span>
+          <!-- Profile Dropdown Container -->
+          <div *ngIf="api.currentUser()" class="relative group hidden lg:block cursor-pointer py-4">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-colors">
+              <i class="fa-solid fa-user-circle text-[#D4AF37]"></i> 
+              <span>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName" class="text-slate-500">({{ api.currentUser()?.businessName }})</span></span>
+              <i class="fa-solid fa-chevron-down text-[8px] ml-1 transition-transform group-hover:rotate-180"></i>
+            </div>
+            
+            <!-- Dropdown Menu -->
+            <div class="absolute right-0 top-full mt-[-8px] w-full min-w-[160px] bg-[#05050A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden">
+              <button (click)="api.logout()" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-red-500 hover:bg-white/5 transition-all flex items-center gap-3">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+              </button>
+            </div>
           </div>
-
-          <button *ngIf="api.currentUser()" (click)="api.logout()" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-red-500 transition-all">
-            Logout
-          </button>
           
           <!-- Hamburger Button -->
           <button (click)="toggleMobileMenu()" class="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 z-[110] relative">

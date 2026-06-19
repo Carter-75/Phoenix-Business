@@ -61,10 +61,24 @@
           </p>
         </div>
 
-        <button (click)="openContract(tier)" 
-                class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
-          Get Started
-        </button>
+        <div *ngIf="activeDropdownTier() !== tier.id">
+          <button (click)="activeDropdownTier.set(tier.id); cardDiscountCode.set('')" 
+                  class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
+            Get Started
+          </button>
+        </div>
+
+        <div *ngIf="activeDropdownTier() === tier.id" class="animate-in fade-in slide-in-from-top-4 duration-300 space-y-4 p-5 bg-[#050505] border border-orange-600/30 rounded-xl mt-4 relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-b from-orange-600/5 to-transparent pointer-events-none"></div>
+          <div class="relative z-10">
+            <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 block text-center mb-3">Discount / Access Code (Optional)</label>
+            <input [(ngModel)]="cardDiscountCode" type="text" placeholder="ENTER CODE" class="w-full bg-white/[0.05] border border-white/10 px-4 py-3 text-center text-xs font-black uppercase tracking-widest outline-none focus:border-green-500 transition-all text-green-400 mb-4 rounded-lg">
+            <div class="flex gap-3">
+              <button (click)="activeDropdownTier.set(null)" class="w-1/3 py-4 bg-white/5 hover:bg-white/10 text-white/50 text-[10px] font-black uppercase tracking-widest transition-colors rounded-lg">Cancel</button>
+              <button (click)="openContractWithDiscount(tier, cardDiscountCode())" class="w-2/3 py-4 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest transition-colors rounded-lg">Proceed</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -155,8 +169,8 @@
               </label>
             </div>
 
-            <div class="space-y-2 pt-6 pb-2">
-              <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Discount / Access Code (Optional)</label>
+            <div class="space-y-2 pt-6 pb-2" *ngIf="discountCode() || discountError()">
+              <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Applied Discount Code</label>
               <input [(ngModel)]="discountCode" type="text" placeholder="ENTER CODE"
                      class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-green-500 transition-all text-green-400">
               <p *ngIf="discountError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest mt-2 ml-4">{{discountError()}}</p>
