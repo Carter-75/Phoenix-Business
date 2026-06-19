@@ -475,6 +475,7 @@ const sendReceiptEmail = async (userEmail, userName, amountTotal, projectType, p
                     <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
                 </ul>
                 <p>A copy of your signed Master Service Agreement and our legal policies are attached to this email for your records.</p>
+                <p><strong>Important Note on Cancellations:</strong> Your contract requires a strict 30-to-60 day notice window for penalty-free cancellation prior to your renewal date. You can easily manage your subscription and request cancellation by logging into your client dashboard on our website.</p>
                 <p>If you have any questions, please reply directly to this email.</p>
                 <br><br>
                 ${process.env.EMAIL_SIGNATURE || ''}

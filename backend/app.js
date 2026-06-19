@@ -131,23 +131,17 @@ app.use(passport.session());
 
 // --- DB Wait Middleware ---
 const dbCheck = async (req, res, next) => {
-  if (mongoose.connection.readyState === 1) return next();
-  if (mongoose.connection.readyState === 0) await connectDB();
-
-  let attempts = 0;
-  const interval = setInterval(() => {
-    attempts++;
-    if (mongoose.connection.readyState === 1) {
-      clearInterval(interval);
-      return next();
-    }
-    if (attempts >= 30) {
-      clearInterval(interval);
-      return res.status(503).json({
-        error: 'Database connection timeout. Please refresh or check MONGODB_URI.'
-      });
-    }
-  }, 100);
+  if (mongoose.connection.readyState !== 1) {
+    await connectDB();
+  }
+  
+  if (mongoose.connection.readyState === 1) {
+    return next();
+  } else {
+    return res.status(503).json({
+      error: 'Database connection timeout. Please refresh or check MONGODB_URI.'
+    });
+  }
 };
 
 // --- Routes ---
@@ -173,7 +167,7 @@ const cronRouter = require('./routes/cron');
 const reviewsRouter = require('./routes/reviews');
 const botRouter = require('./routes/bot');
 
-// Mount routes at both /api and root to handle Vercel routing flexibility
+// Mount routes
 const featureRoutes = [
   { path: '/auth', router: authRouter },
   { path: '/leads', router: leadsRouter },
@@ -187,8 +181,6 @@ const featureRoutes = [
 featureRoutes.forEach(route => {
   // Mount with /api prefix and DB check
   app.use(`/api${route.path}`, dbCheck, route.router);
-  // Mount at root as fallback
-  app.use(route.path, dbCheck, route.router);
 });
 
 // --- Final Handling ---

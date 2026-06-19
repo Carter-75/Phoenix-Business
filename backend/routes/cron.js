@@ -147,7 +147,7 @@ router.get('/daily-renewals', async (req, res) => {
     try {
         const today = new Date();
         const targetDate = new Date(today);
-        targetDate.setDate(targetDate.getDate() + 30);
+        targetDate.setDate(targetDate.getDate() + 60);
         
         const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
         const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
@@ -168,14 +168,14 @@ router.get('/daily-renewals', async (req, res) => {
                 const mailOptions = {
                     from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
                     to: contract.userId.email,
-                    subject: 'Notice: Your Annual Contract will Auto-Renew in 30 Days',
+                    subject: 'Notice: Your Annual Contract will Auto-Renew in 60 Days',
                     html: `
                         <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
                             <h2 style="color: #2563eb;">Notice of Contract Auto-Renewal</h2>
                             <p>Hi ${contract.userId.firstName || contract.userId.name || 'there'},</p>
-                            <p>This is a courtesy reminder that your 12-month service agreement for the <b>${contract.contractType}</b> plan is set to automatically renew in exactly 30 days.</p>
+                            <p>This is a courtesy reminder that your 12-month service agreement for the <b>${contract.contractType}</b> plan is set to automatically renew in exactly 60 days.</p>
                             <p>Your subscription will seamlessly continue for another 12-month period, ensuring uninterrupted service, hosting, and priority support.</p>
-                            <p>If you wish to make any changes to your subscription or cancel before the renewal takes place, please log into your client portal or reply directly to this email.</p>
+                            <p><strong>Cancellation Window:</strong> Your penalty-free cancellation window is now open for the next 30 days. If you wish to make any changes to your subscription or cancel before the renewal takes place, please log into your client portal on our website.</p>
                             <p>Thank you for being a valued client!</p>
                             <br><br>
                             ${process.env.EMAIL_SIGNATURE || ''}
@@ -184,7 +184,7 @@ router.get('/daily-renewals', async (req, res) => {
                 };
 
                 await transporter.sendMail(mailOptions);
-                console.log(`[CRON] Sent 30-day renewal notice to ${contract.userId.email}`);
+                console.log(`[CRON] Sent 60-day renewal notice to ${contract.userId.email}`);
                 emailsSent++;
             }
         }
