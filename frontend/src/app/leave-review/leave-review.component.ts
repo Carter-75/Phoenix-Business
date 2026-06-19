@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal, effect, computed } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-leave-review',
@@ -21,7 +21,19 @@ import { RouterLink } from '@angular/router';
            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
         </div>
 
-        <div *ngIf="!loading() && reviewItems().length === 0" class="bg-white/5 border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
+        <!-- Token Invalid State -->
+        <div *ngIf="!loading() && reviewToken() && rawItems().length === 0" class="bg-white/5 border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
+          <div class="w-20 h-20 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6">
+            <i class="fa-solid fa-xmark text-4xl"></i>
+          </div>
+          <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Invalid Link</h3>
+          <p class="text-slate-400 text-sm mb-8">{{ formError() || 'This review link is invalid or has already been used.' }}</p>
+          <a routerLink="/home" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
+            Return to Home
+          </a>
+        </div>
+
+        <div *ngIf="!loading() && !reviewToken() && reviewItems().length === 0" class="bg-white/5 border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
           <div class="w-20 h-20 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-6">
             <i class="fa-solid fa-check text-4xl"></i>
           </div>
@@ -89,7 +101,7 @@ import { RouterLink } from '@angular/router';
                        [ngStyle]="{'clip-path': getStarClipPath(star)}"></i>
                     
                     <div class="absolute inset-0 flex">
-                      <div class="w-1/2 h-full" (mouseenter)="hoverRating.set(star - 0.5)" (click)="$event.stopPropagation(); setRating(star - 0.5)"></div>
+                      <div class="w-1/2 h-full" (mouseenter)="hoverRating.set(Math.max(1, star - 0.5))" (click)="$event.stopPropagation(); setRating(Math.max(1, star - 0.5))"></div>
                       <div class="w-1/2 h-full" (mouseenter)="hoverRating.set(star)" (click)="$event.stopPropagation(); setRating(star)"></div>
                     </div>
                   </div>
@@ -141,9 +153,12 @@ import { RouterLink } from '@angular/router';
 })
 export class LeaveReviewComponent implements OnInit {
   api = inject(ApiService);
+  route = inject(ActivatedRoute);
 
   loading = signal(true);
   rawItems = signal<any[]>([]);
+  reviewToken = signal<string | null>(null);
+  Math = Math;
   
   reviewItems = computed(() => {
     return this.rawItems().filter(item => {
@@ -185,22 +200,49 @@ export class LeaveReviewComponent implements OnInit {
           this.rating.set(active.rating || 0);
           this.message.set(active.message || '');
         } else {
-          // New review, prefill from user profile
+          // New review, prefill from user profile or token response
           const user = this.api.currentUser();
           this.rating.set(0);
           this.message.set('');
-          if (user) {
-            this.businessName.set(user.businessName || '');
-            this.firstName.set(user.firstName || '');
-            this.lastName.set(user.lastName || '');
-          }
+          
+          if (!this.businessName() && user) this.businessName.set(user.businessName || '');
+          if (!this.firstName() && user) this.firstName.set(user.firstName || '');
+          if (!this.lastName() && user) this.lastName.set(user.lastName || '');
         }
       }
     }, { allowSignalWrites: true });
   }
 
   ngOnInit() {
-    this.fetchStatus();
+    const token = this.route.snapshot.paramMap.get('token');
+    if (token) {
+      this.reviewToken.set(token);
+      this.fetchTokenStatus(token);
+    } else {
+      this.fetchStatus();
+    }
+  }
+
+  fetchTokenStatus(token: string) {
+    this.loading.set(true);
+    this.api.get<any>(`reviews/token/${token}`).subscribe({
+      next: (res) => {
+        this.rawItems.set([{
+          ...res,
+          hasReview: false
+        }]);
+        this.businessName.set(res.businessName);
+        this.firstName.set(res.firstName);
+        this.lastName.set(res.lastName);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.formError.set(err.error?.message || 'Invalid review link.');
+        this.rawItems.set([]);
+        this.loading.set(false);
+      }
+    });
   }
 
   fetchStatus() {
@@ -257,6 +299,27 @@ export class LeaveReviewComponent implements OnInit {
 
     this.submitting.set(true);
 
+    if (this.reviewToken()) {
+      // Unauthenticated submission using token
+      if (!this.businessName() || !this.firstName()) {
+        this.formError.set('Business Name and First Name are required.');
+        this.submitting.set(false);
+        return;
+      }
+
+      this.api.post<any>(`reviews/token/${this.reviewToken()}`, {
+        businessName: this.businessName(),
+        firstName: this.firstName(),
+        lastName: this.lastName(),
+        rating: this.rating(),
+        message: this.message()
+      }).subscribe({
+        next: (res: any) => this.handleSuccess('Review submitted successfully!', res),
+        error: (err: any) => this.handleError(err)
+      });
+      return;
+    }
+
     if (active.hasReview) {
       // UPDATE existing review
       this.api.patch<any>(`reviews/${active.reviewId}`, {
@@ -294,8 +357,12 @@ export class LeaveReviewComponent implements OnInit {
     this.formSuccess.set(msg);
     
     setTimeout(() => {
-      // Re-fetch to update the active item pool
-      this.fetchStatus();
+      if (this.reviewToken()) {
+        this.reviewToken.set(null); // Force it to show success message and no longer try to use token
+        this.rawItems.set([]); // Show all caught up
+      } else {
+        this.fetchStatus();
+      }
       this.currentIndex.set(0); // Reset to first item
     }, 1500);
   }

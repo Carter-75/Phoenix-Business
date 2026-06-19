@@ -26,7 +26,7 @@ import { environment } from '../../environments/environment';
               <i class="fa-solid fa-circle-exclamation text-orange-500 mt-1"></i>
               <div>
                 <h3 class="text-white font-bold mb-2">Check Your Spam Folder</h3>
-                <p class="text-slate-400 text-sm">We've just sent your welcome packet and a digital copy of your service agreement. If you don't see it in your inbox within 5 minutes, please check your spam or junk folder.</p>
+                <p class="text-slate-400 text-sm">We've just sent your welcome packet and a digital copy of your service agreement. If you don't see it in your inbox within 5 minutes, please check your spam or junk folder. <strong class="text-orange-400">Additionally, you will receive an email in a few weeks with a unique link to rate your finished project. Please keep an eye on your inbox (and spam folder) for that as well.</strong></p>
               </div>
             </div>
           </div>

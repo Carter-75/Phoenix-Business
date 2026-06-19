@@ -169,6 +169,20 @@ router.patch('/:reviewId/admin-comment', async (req, res) => {
   }
 });
 
+// @route   GET /api/reviews/public
+// @desc    Get all reviews for public viewing
+router.get('/public', async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .select('_id userId projectName businessName firstName lastName rating message adminComment createdAt')
+      .sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (err) {
+    console.error('Error fetching public reviews:', err);
+    res.status(500).json([]);
+  }
+});
+
 // @route   GET /api/reviews/all
 // @desc    Get all reviews for admin dashboard
 router.get('/all', async (req, res) => {
@@ -184,6 +198,79 @@ router.get('/all', async (req, res) => {
   } catch (err) {
     console.error('Error fetching all reviews:', err);
     res.status(500).json([]);
+  }
+// @route   GET /api/reviews/token/:token
+// @desc    Get contract details by token (public)
+router.get('/token/:token', async (req, res) => {
+  try {
+    const contract = await Contract.findOne({ reviewToken: req.params.token }).populate('userId');
+    if (!contract) {
+      return res.status(404).json({ message: 'Invalid or expired review link.' });
+    }
+
+    const existingReview = await Review.findOne({ contractId: contract._id });
+    if (existingReview) {
+      return res.status(400).json({ message: 'A review has already been submitted for this project.' });
+    }
+
+    res.json({
+      contractId: contract._id,
+      projectName: contract.projectName || contract.contractType,
+      businessName: contract.userId ? contract.userId.businessName : '',
+      firstName: contract.userId ? contract.userId.firstName : '',
+      lastName: contract.userId ? contract.userId.lastName : ''
+    });
+  } catch (err) {
+    console.error('Error fetching by token:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// @route   POST /api/reviews/token/:token
+// @desc    Submit a review using a token
+router.post('/token/:token', async (req, res) => {
+  try {
+    const contract = await Contract.findOne({ reviewToken: req.params.token });
+    if (!contract) {
+      return res.status(404).json({ message: 'Invalid or expired review link.' });
+    }
+
+    const existingReview = await Review.findOne({ contractId: contract._id });
+    if (existingReview) {
+      return res.status(400).json({ message: 'A review has already been submitted for this project.' });
+    }
+
+    const { businessName, firstName, lastName, rating, message } = req.body;
+
+    if (!businessName || !firstName || rating == null) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+
+    const newReview = new Review({
+      userId: contract.userId,
+      contractId: contract._id,
+      projectName: contract.projectName || contract.contractType,
+      businessName,
+      firstName,
+      lastName,
+      rating,
+      message,
+      dismissedLowRating: false
+    });
+
+    await newReview.save();
+    
+    contract.reviewToken = null;
+    await contract.save();
+
+    res.status(201).json(newReview);
+  } catch (err) {
+    console.error('Error submitting review by token:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

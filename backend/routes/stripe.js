@@ -50,12 +50,51 @@ const verifyStripe = (req, res, next) => {
 };
 
 /**
+ * POST /api/stripe/validate-discount
+ * Validates a dynamic discount code
+ */
+router.post('/validate-discount', async (req, res) => {
+    try {
+        const { code, email } = req.body;
+        if (!code) return res.status(400).json({ error: 'Code is required' });
+
+        const upperCode = code.toUpperCase().trim();
+        
+        // 1. Check if it's an unlimited code
+        const dcVal = process.env[`DC_${upperCode}`];
+        if (dcVal) {
+            return res.json({ valid: true, percentage: parseInt(dcVal), type: 'unlimited' });
+        }
+
+        // 2. Check if it's a limited code
+        const dclVal = process.env[`DCL_${upperCode}`];
+        if (dclVal) {
+            // Need to ensure the user hasn't used it
+            let user = req.user;
+            if (!user && email) {
+                 const User = require('../models/User');
+                 user = await User.findOne({ email: email.toLowerCase() });
+            }
+            if (user && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
+                return res.status(400).json({ error: 'You have already used this discount code.' });
+            }
+            return res.json({ valid: true, percentage: parseInt(dclVal), type: 'limited' });
+        }
+
+        return res.status(400).json({ error: 'Invalid discount code.' });
+    } catch (err) {
+        console.error('DISCOUNT VALIDATION ERROR:', err.message);
+        res.status(500).json({ error: 'Validation failed.' });
+    }
+});
+
+/**
  * POST /api/stripe/checkout
  * Generates a dynamic Stripe Checkout session for services.
  */
 router.post('/checkout', verifyStripe, async (req, res) => {
     try {
-        const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp } = req.body;
+        const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp, discountCode } = req.body;
         const user = req.user;
 
         // Pricing logic pulled from environment variables with safe defaults (in cents)
@@ -81,9 +120,37 @@ router.post('/checkout', verifyStripe, async (req, res) => {
             prices.enterprise_monthly = 400; // $4.00
         }
 
-        const discountPercentage = process.env.TEST_MODE === 'true' ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+        let baseDiscountPercentage = process.env.TEST_MODE === 'true' ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+        let extraDiscountPercentage = 0;
+        let appliedDiscountCode = '';
+
+        if (discountCode) {
+            const upperCode = discountCode.toUpperCase().trim();
+            const dcVal = process.env[`DC_${upperCode}`];
+            const dclVal = process.env[`DCL_${upperCode}`];
+            
+            if (dcVal) {
+                extraDiscountPercentage = parseInt(dcVal);
+                appliedDiscountCode = upperCode;
+            } else if (dclVal) {
+                // For checkout, we re-verify they haven't used it
+                let dbUser = user;
+                if (!dbUser && email) {
+                    const User = require('../models/User');
+                    dbUser = await User.findOne({ email: email.toLowerCase() });
+                }
+                if (dbUser && dbUser.usedDiscountCodes && dbUser.usedDiscountCodes.includes(upperCode)) {
+                    return res.status(400).json({ error: 'You have already used this discount code.' });
+                }
+                extraDiscountPercentage = parseInt(dclVal);
+                appliedDiscountCode = `DCL_${upperCode}`; // Prefix internally so webhook knows it's limited
+            }
+        }
+
+        const totalDiscountPercentage = Math.min(100, baseDiscountPercentage + extraDiscountPercentage);
+
         const applyDiscount = (amount) => {
-            return Math.round(amount * (1 - (discountPercentage / 100)));
+            return Math.round(amount * (1 - (totalDiscountPercentage / 100)));
         };
 
         let line_items = [];
@@ -200,7 +267,8 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 initial_message: message,
                 userId: user ? user._id.toString() : 'guest',
                 acceptedContract: acceptedContract ? 'true' : 'false',
-                contractTimestamp: contractTimestamp || new Date().toISOString()
+                contractTimestamp: contractTimestamp || new Date().toISOString(),
+                discountCode: appliedDiscountCode
             },
         };
 
@@ -556,7 +624,16 @@ router.post('/webhook', async (req, res) => {
                 }
             }
 
-            const { userId, tier, acceptedContract, contractTimestamp, setupFee, monthlyFee } = session.metadata || {};
+            const { userId, tier, acceptedContract, contractTimestamp, setupFee, monthlyFee, discountCode } = session.metadata || {};
+
+            // If a limited discount code was used, save it to the user so they can't use it again
+            if (discountCode && discountCode.startsWith('DCL_') && userId !== 'guest') {
+                const actualCode = discountCode.replace('DCL_', '');
+                const User = require('../models/User');
+                await User.findByIdAndUpdate(userId, {
+                    $addToSet: { usedDiscountCodes: actualCode }
+                }).catch(err => console.error('[STRIPE] Failed to add used discount code:', err));
+            }
 
             // Automate 12-month subscription schedule if a subscription exists
             if (session.subscription) {
@@ -623,7 +700,8 @@ router.post('/webhook', async (req, res) => {
                         acceptedAt: new Date(contractTimestamp),
                         status: 'active',
                         expiresAt: expiresAt,
-                        pdfSnapshot: pdfBuffer
+                        pdfSnapshot: pdfBuffer,
+                        reviewToken: require('crypto').randomUUID()
                     });
                     await newContract.save();
                 }

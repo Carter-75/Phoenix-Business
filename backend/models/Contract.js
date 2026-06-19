@@ -14,7 +14,9 @@ const contractSchema = new mongoose.Schema({
   projectName: { type: String }, // E.g., "Carter's Plumbing - Essential Care"
   tier: { type: String }, // 'simple', 'essential', 'professional'
   setupFeePaid: { type: Number }, // In cents
-  monthlyFee: { type: Number } // In cents
+  monthlyFee: { type: Number }, // In cents
+  reviewToken: { type: String, unique: true, sparse: true },
+  reviewEmailSent: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('Contract', contractSchema);

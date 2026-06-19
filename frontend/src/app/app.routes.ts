@@ -8,6 +8,7 @@ import { PrivacyPolicyComponent } from './legal/privacy-policy.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LeaveReviewComponent } from './leave-review/leave-review.component';
 import { AdminReviewsComponent } from './admin-reviews/admin-reviews.component';
+import { ReviewsComponent } from './reviews/reviews.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -19,6 +20,8 @@ export const routes: Routes = [
   { path: 'privacy', component: PrivacyPolicyComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'leave-review', component: LeaveReviewComponent },
+  { path: 'leave-review/:token', component: LeaveReviewComponent },
+  { path: 'reviews', component: ReviewsComponent },
   { path: 'admin-reviews', component: AdminReviewsComponent },
   
   { path: '**', redirectTo: 'home' }

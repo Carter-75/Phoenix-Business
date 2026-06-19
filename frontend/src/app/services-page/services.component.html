@@ -155,8 +155,15 @@
               </label>
             </div>
 
+            <div class="space-y-2 pt-6 pb-2">
+              <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Discount / Access Code (Optional)</label>
+              <input [(ngModel)]="discountCode" type="text" placeholder="ENTER CODE"
+                     class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-green-500 transition-all text-green-400">
+              <p *ngIf="discountError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest mt-2 ml-4">{{discountError()}}</p>
+            </div>
+
             <button (click)="proceedToCheckout()" 
-                    [disabled]="!isFormValid() || checkoutLoading()"
+                    [disabled]="!isFormValid() || checkoutLoading() || isAnimatingDiscount()"
                     class="premium-btn w-full !py-8 flex items-center justify-center gap-4 disabled:opacity-30 disabled:cursor-not-allowed">
               <span *ngIf="!checkoutLoading()">Confirm & Launch Project</span>
               <span *ngIf="checkoutLoading()" class="flex items-center gap-3">
@@ -178,6 +185,36 @@
         <a routerLink="/dashboard" class="premium-btn !px-12 flex items-center justify-center">
           Access Dashboard
         </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discount Sci-Fi Animation Overlay -->
+  <div *ngIf="isAnimatingDiscount()" class="fixed inset-0 z-[300] flex items-center justify-center bg-[#020205] overflow-hidden">
+    <!-- Sci-fi grid / scanline effect -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(34,197,94,0.02)_1px,transparent_1px)] bg-[size:100%_4px] opacity-50"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020205_100%)]"></div>
+    
+    <div class="relative z-10 w-full max-w-3xl px-8 border-l-4 border-green-500 py-12 bg-green-500/5 backdrop-blur-sm">
+      <div class="flex items-center gap-6 mb-8">
+        <div class="relative">
+          <i class="fas fa-shield-check text-5xl text-green-500 animate-pulse"></i>
+          <div class="absolute inset-0 border-2 border-green-500 rounded-full animate-ping opacity-30"></div>
+        </div>
+        <div>
+          <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-[0.2em] text-green-500 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+            Override Accepted
+          </h2>
+          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-green-400/60 mt-2">SYSTEM SECURE BRIDGE</p>
+        </div>
+      </div>
+      
+      <div class="space-y-4 font-mono text-xs sm:text-sm text-green-400">
+        <p class="animate-[typing_0.5s_steps(40,end)] overflow-hidden whitespace-nowrap">> Validating access code signature...</p>
+        <p class="animate-[typing_0.5s_steps(40,end)_0.5s_both] overflow-hidden whitespace-nowrap">> Match found. Authorization granted.</p>
+        <p class="animate-[typing_0.5s_steps(40,end)_1s_both] overflow-hidden whitespace-nowrap">> Compiling contract adjustments...</p>
+        <p class="animate-[typing_0.5s_steps(40,end)_1.5s_both] overflow-hidden whitespace-nowrap text-white font-bold bg-green-500/20 px-4 py-2 mt-4 inline-block border border-green-500/30">> APPLYING ADDITIONAL {{appliedDiscountPercentage()}}% REDUCTION</p>
+        <p class="animate-[typing_0.5s_steps(40,end)_2.2s_both] overflow-hidden whitespace-nowrap">> Initializing secure payment gateway...</p>
       </div>
     </div>
   </div>

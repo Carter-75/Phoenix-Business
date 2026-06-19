@@ -84,6 +84,11 @@ export class ServicesComponent implements OnInit {
   authError = signal<string | null>(null);
   isNewUser = false; // Memory-only flag for email signups
 
+  discountCode = signal('');
+  discountError = signal<string | null>(null);
+  isAnimatingDiscount = signal(false);
+  appliedDiscountPercentage = signal(0);
+
   constructor() {}
 
   isFormValid() {
@@ -104,7 +109,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '99',
       setup: '1349',
       baseSetup: '1499',
-      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery.',
+      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery. You will receive an email 3 weeks after purchase to rate the project.',
       checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
       features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Standard Contact Forms'],
       featured: false
@@ -116,7 +121,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '299',
       setup: '3149',
       baseSetup: '3499',
-      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery.',
+      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery. You will receive an email 4 weeks after purchase to rate the project.',
       checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
       features: ['30-Day Subscription Trial', 'Everything in Simple Launch', 'Max 3-Week Delivery', '2 Hours/Mo Custom Edits', 'Hosting & 24/7 Monitoring', 'Google Business Management'],
       featured: true
@@ -128,7 +133,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '599',
       setup: '7199',
       baseSetup: '7999',
-      description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery.',
+      description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery. You will receive an email 5 weeks after purchase to rate the project.',
       checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
       features: ['30-Day Subscription Trial', 'Everything in Essential Care', 'Max 4-Week Delivery', '5 Hours/Mo Custom Edits', 'Monthly Analytics & SEO', 'AI Chatbot Upkeep'],
       featured: false
@@ -140,7 +145,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '999',
       setup: '13499',
       baseSetup: '14999',
-      description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope.',
+      description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope. You will receive an email to rate the project 1 week after expected completion.',
       checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
       featured: false
@@ -271,6 +276,10 @@ export class ServicesComponent implements OnInit {
     this.showContract.set(false);
     this.selectedTier.set(null);
     this.hasAccepted = false;
+    this.discountCode.set('');
+    this.discountError.set(null);
+    this.isAnimatingDiscount.set(false);
+    this.appliedDiscountPercentage.set(0);
     sessionStorage.removeItem('checkout_tier');
   }
 
@@ -343,22 +352,46 @@ export class ServicesComponent implements OnInit {
       businessName: user?.businessName || this.businessName,
       acceptedContract: true,
       contractTimestamp: new Date().toISOString(),
-      projectType: tier.id === 'enterprise' ? this.enterpriseProjectType : tier.title
+      projectType: tier.id === 'enterprise' ? this.enterpriseProjectType : tier.title,
+      discountCode: this.discountCode()
     };
 
-    this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, payload).subscribe({
-      next: (res) => {
-        // OPEN IN NEW TAB as requested
-        window.open(res.url, '_blank');
-        this.checkoutLoading.set(false);
-        this.closeContract();
-      },
-      error: (err) => {
-        this.checkoutLoading.set(false);
-        console.error('Stripe error:', err);
-        alert('Failed to initialize secure payment session.');
-      }
-    });
+    const doCheckout = () => {
+      this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, payload).subscribe({
+        next: (res) => {
+          window.open(res.url, '_blank');
+          this.checkoutLoading.set(false);
+          this.closeContract();
+        },
+        error: (err) => {
+          this.checkoutLoading.set(false);
+          console.error('Stripe error:', err);
+          alert('Failed to initialize secure payment session.');
+        }
+      });
+    };
+
+    if (this.discountCode()) {
+      this.discountError.set(null);
+      this.api.post('stripe/validate-discount', { code: this.discountCode(), email: payload.email }).subscribe({
+        next: (res: any) => {
+          if (res.valid) {
+            this.appliedDiscountPercentage.set(res.percentage);
+            this.isAnimatingDiscount.set(true);
+            setTimeout(() => {
+              this.isAnimatingDiscount.set(false);
+              doCheckout();
+            }, 3000);
+          }
+        },
+        error: (err) => {
+          this.checkoutLoading.set(false);
+          this.discountError.set(err.error?.error || 'Invalid discount code.');
+        }
+      });
+    } else {
+      doCheckout();
+    }
   }
 
   loginWithGoogle() {

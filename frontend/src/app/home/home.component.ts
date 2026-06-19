@@ -50,21 +50,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   ];
 
-  testimonials = [
-    {
-      text: "We needed a site that didn't just look good but actually handled our traffic during launches. Phoenix delivered a rock-solid platform that has significantly increased our sales conversion rate.", 
-      author: 'Verified Partner', 
-      role: 'Growth Specialist',
-      stars: 5
-    },
-    {
-      text: 'Working with Phoenix was the best decision for our rebranding. The technical precision and attention to detail they brought to our subscription platform is unmatched in the industry.', 
-      author: 'Business Owner', 
-      role: 'Technical Director',
-      stars: 4
-    }
-  ];
-
   constructor() {
     afterNextRender(() => {
       this.initAnimations();

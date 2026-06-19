@@ -143,8 +143,11 @@ router.get('/check-refunds', async (req, res) => {
 // @route   GET /api/cron/daily-renewals
 // @desc    Triggered by Vercel Cron every day at 8:00 AM server time
 router.get('/daily-renewals', async (req, res) => {
-    console.log('[CRON] Running daily cron job for contract renewals...');
+    console.log('[CRON] Running daily cron job for contract renewals and review requests...');
     try {
+        const transporter = getTransporter();
+
+        // 1. RENEWALS
         const today = new Date();
         const targetDate = new Date(today);
         targetDate.setDate(targetDate.getDate() + 60);
@@ -160,9 +163,7 @@ router.get('/daily-renewals', async (req, res) => {
             }
         }).populate('userId');
 
-        let emailsSent = 0;
-        const transporter = getTransporter();
-
+        let renewalEmailsSent = 0;
         for (const contract of expiringContracts) {
             if (contract.userId && contract.userId.email) {
                 const mailOptions = {
@@ -185,11 +186,64 @@ router.get('/daily-renewals', async (req, res) => {
 
                 await transporter.sendMail(mailOptions);
                 console.log(`[CRON] Sent 60-day renewal notice to ${contract.userId.email}`);
-                emailsSent++;
+                renewalEmailsSent++;
             }
         }
 
-        res.json({ message: `Renewal cron finished. Sent ${emailsSent} emails.` });
+        // 2. REVIEW REQUESTS
+        const reviewContracts = await Contract.find({
+            status: 'active',
+            reviewEmailSent: false,
+            reviewToken: { $exists: true, $ne: null }
+        }).populate('userId');
+
+        let reviewEmailsSent = 0;
+
+        for (const contract of reviewContracts) {
+            if (!contract.userId || !contract.userId.email || !contract.acceptedAt) continue;
+
+            const daysSinceAccepted = Math.floor((new Date() - new Date(contract.acceptedAt)) / (1000 * 60 * 60 * 24));
+            
+            let waitDays = 35; // Default 5 weeks
+            if (contract.tier === 'simple') waitDays = 21; // 3 weeks
+            else if (contract.tier === 'essential') waitDays = 28; // 4 weeks
+            else if (contract.tier === 'professional') waitDays = 35; // 5 weeks
+            else if (contract.tier === 'enterprise') waitDays = 35; // 5 weeks (default)
+
+            if (daysSinceAccepted >= waitDays) {
+                // Using hardcoded base URL as requested: phoenixwebsites.ai
+                const reviewUrl = `https://phoenixwebsites.ai/leave-review/${contract.reviewToken}`;
+                const mailOptions = {
+                    from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
+                    to: contract.userId.email,
+                    subject: 'How did we do? Rate your Phoenix website!',
+                    html: `
+                        <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                            <h2 style="color: #ea580c;">We'd Love Your Feedback!</h2>
+                            <p>Hi ${contract.userId.firstName || contract.userId.name || 'there'},</p>
+                            <p>It's been a few weeks since we kicked off your <b>${contract.projectName || contract.contractType}</b> project, and we want to know how things are going.</p>
+                            <p>Your feedback is incredibly important to us and helps us improve our services.</p>
+                            <p>Please take 60 seconds to rate your experience by clicking the secure link below:</p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${reviewUrl}" style="background-color: #ea580c; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Leave a Quick Review</a>
+                            </div>
+                            <p>Thank you for choosing Phoenix!</p>
+                            <br><br>
+                            ${process.env.EMAIL_SIGNATURE || ''}
+                        </div>
+                    `
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`[CRON] Sent review request notice to ${contract.userId.email}`);
+                
+                contract.reviewEmailSent = true;
+                await contract.save();
+                reviewEmailsSent++;
+            }
+        }
+
+        res.json({ message: `Renewal cron finished. Sent ${renewalEmailsSent} renewal emails and ${reviewEmailsSent} review emails.` });
     } catch (err) {
         console.error('Error in daily contract renewal cron:', err);
         res.status(500).json({ error: err.message });

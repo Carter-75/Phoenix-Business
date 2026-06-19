@@ -21,6 +21,10 @@ module.exports = {
         slideInRight: {
           'from': { opacity: '0', transform: 'translateX(30px)' },
           'to': { opacity: '1', transform: 'translateX(0)' },
+        },
+        typing: {
+          'from': { width: '0' },
+          'to': { width: '100%' },
         }
       },
       animation: {

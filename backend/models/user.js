@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
   termsAcceptedFullText: { type: String },
   stripeCustomerId: { type: String },
   subscriptionStatus: { type: String, default: 'none' },
+  usedDiscountCodes: [{ type: String }],
   createdAt: { type: Date, default: Date.now }
 });
 
