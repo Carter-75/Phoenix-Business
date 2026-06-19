@@ -203,16 +203,52 @@ export class ReviewsComponent implements OnInit {
       allOthers = allOthers.filter(r => r.userId !== user._id);
     }
     
-    // Group by businessName and take the highest rating
-    const bestByBusiness = new Map<string, any>();
+    const byBusiness = new Map<string, any[]>();
     for (const r of allOthers) {
-      const key = r.businessName;
-      if (!bestByBusiness.has(key) || bestByBusiness.get(key).rating < r.rating) {
-        bestByBusiness.set(key, r);
+      const key = r.businessName || r.userId || r._id;
+      if (!byBusiness.has(key)) byBusiness.set(key, []);
+      byBusiness.get(key)!.push(r);
+    }
+    
+    let result: any[] = [];
+    
+    for (const reviews of byBusiness.values()) {
+      const highQualityReviews = reviews.filter(r => r.rating >= 4 && r.message && r.message.trim().length > 0);
+      
+      let bestReview = reviews[0];
+      let bestScore = -1;
+      
+      for (const r of reviews) {
+        const hasText = r.message && r.message.trim().length > 0;
+        let score = r.rating;
+        // +0.6 means a 4 with text (4.6) beats a 4.5 no-text (4.5), 
+        // but a 4 with text (4.6) loses to a 5 no-text (5.0).
+        if (r.rating >= 4 && hasText) {
+          score += 0.6;
+        } else {
+          score += (hasText ? 0.1 : 0);
+        }
+        
+        if (score > bestScore) {
+          bestScore = score;
+          bestReview = r;
+        }
+      }
+      
+      const bestIsHighQuality = bestReview.rating >= 4 && bestReview.message && bestReview.message.trim().length > 0;
+      
+      if (highQualityReviews.length >= 2 && bestIsHighQuality) {
+        // User rule: if >=2 high quality reviews AND they aren't outpaced by a better rating (like a 5 no-text), show ALL reviews for this business
+        result.push(...reviews);
+      } else {
+        // Pick the single best one
+        if (bestReview) {
+          result.push(bestReview);
+        }
       }
     }
     
-    return Array.from(bestByBusiness.values());
+    return result;
   });
 
   filteredOtherReviews = computed(() => {
