@@ -179,8 +179,10 @@ const featureRoutes = [
 ];
 
 featureRoutes.forEach(route => {
-  // Mount with /api prefix and DB check
+  // Mount with /api prefix for local dev and full paths
   app.use(`/api${route.path}`, dbCheck, route.router);
+  // Mount at root for Vercel experimentalServices which strips routePrefix
+  app.use(route.path, dbCheck, route.router);
 });
 
 // --- Final Handling ---
