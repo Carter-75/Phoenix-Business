@@ -199,6 +199,8 @@ router.get('/all', async (req, res) => {
     console.error('Error fetching all reviews:', err);
     res.status(500).json([]);
   }
+});
+
 // @route   GET /api/reviews/token/:token
 // @desc    Get contract details by token (public)
 router.get('/token/:token', async (req, res) => {

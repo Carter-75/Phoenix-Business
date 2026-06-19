@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   template: `
     <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
