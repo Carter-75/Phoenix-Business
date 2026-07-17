@@ -216,7 +216,7 @@ router.get('/public/site-status/:email', async (req, res) => {
     }
 
     const { email } = req.params;
-    const User = require('../models/User');
+    const User = require('../models/user');
     const Contract = require('../models/Contract');
     
     const user = await User.findOne({ email: email.toLowerCase() });

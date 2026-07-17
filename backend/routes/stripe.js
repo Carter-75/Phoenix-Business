@@ -72,7 +72,7 @@ router.post('/validate-discount', async (req, res) => {
             // Need to ensure the user hasn't used it
             let user = req.user;
             if (!user && email) {
-                 const User = require('../models/User');
+                 const User = require('../models/user');
                  user = await User.findOne({ email: email.toLowerCase() });
             }
             if (user && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
@@ -136,7 +136,7 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 // For checkout, we re-verify they haven't used it
                 let dbUser = user;
                 if (!dbUser && email) {
-                    const User = require('../models/User');
+                    const User = require('../models/user');
                     dbUser = await User.findOne({ email: email.toLowerCase() });
                 }
                 if (dbUser && dbUser.usedDiscountCodes && dbUser.usedDiscountCodes.includes(upperCode)) {
@@ -652,7 +652,7 @@ router.post('/webhook', async (req, res) => {
             // If a limited discount code was used, save it to the user so they can't use it again
             if (discountCode && discountCode.startsWith('DCL_') && userId !== 'guest') {
                 const actualCode = discountCode.replace('DCL_', '');
-                const User = require('../models/User');
+                const User = require('../models/user');
                 await User.findByIdAndUpdate(userId, {
                     $addToSet: { usedDiscountCodes: actualCode }
                 }).catch(err => console.error('[STRIPE] Failed to add used discount code:', err));
