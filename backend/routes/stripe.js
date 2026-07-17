@@ -247,50 +247,27 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 setupFee = applyDiscount(prices.enterprise_setup);
                 monthlyFee = applyDiscount(prices.enterprise_monthly);
                 break;
-            case 'data-starter':
+            case 'data':
                 mode = 'payment';
+                const dataPrice = applyDiscount(parseInt(process.env.PRICE_DATA || '24900'));
+                const cartItems = req.body.cartItems || [];
+                const dataQty = Math.max(1, cartItems.length);
                 line_items.push({
                     price_data: {
                         currency: 'usd',
-                        product_data: { name: 'Data Intelligence - Starter', description: 'AI-enriched public data access (50 records/day, 2 sources). One-time purchase, non-refundable.', tax_code: 'txcd_10103100' },
-                        unit_amount: applyDiscount(parseInt(process.env.PRICE_DATA_STARTER || '14900')),
+                        product_data: { name: 'Data Intelligence Block', description: `AI-enriched public data — ${dataQty} block(s). One-time purchase, non-refundable.`, tax_code: 'txcd_10103100' },
+                        unit_amount: dataPrice,
                     },
-                    quantity: 1,
+                    quantity: dataQty,
                 });
-                setupFee = applyDiscount(parseInt(process.env.PRICE_DATA_STARTER || '14900'));
-                monthlyFee = 0;
-                break;
-            case 'data-pro':
-                mode = 'payment';
-                line_items.push({
-                    price_data: {
-                        currency: 'usd',
-                        product_data: { name: 'Data Intelligence - Pro', description: 'Full AI data pipeline (200 records/day, all sources, auto-outreach). One-time purchase, non-refundable.', tax_code: 'txcd_10103100' },
-                        unit_amount: applyDiscount(parseInt(process.env.PRICE_DATA_PRO || '49900')),
-                    },
-                    quantity: 1,
-                });
-                setupFee = applyDiscount(parseInt(process.env.PRICE_DATA_PRO || '49900'));
-                monthlyFee = 0;
-                break;
-            case 'data-website-bundle':
-                mode = 'payment';
-                line_items.push({
-                    price_data: {
-                        currency: 'usd',
-                        product_data: { name: 'Data Intelligence + Website Bundle', description: 'Full data pipeline + custom website build & hosting. One-time purchase, non-refundable.', tax_code: 'txcd_10103100' },
-                        unit_amount: applyDiscount(parseInt(process.env.PRICE_DATA_BUNDLE || '79900')),
-                    },
-                    quantity: 1,
-                });
-                setupFee = applyDiscount(parseInt(process.env.PRICE_DATA_BUNDLE || '79900'));
+                setupFee = dataPrice * dataQty;
                 monthlyFee = 0;
                 break;
             default:
                 return res.status(400).json({ error: 'Invalid service tier selected.' });
         }
 
-        const isDataTier = ['data-starter', 'data-pro', 'data-website-bundle'].includes(tier);
+        const isDataTier = tier === 'data';
         const baseUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
 
         const sessionConfig = {
@@ -729,9 +706,9 @@ router.post('/webhook', async (req, res) => {
                         monthlyFee: parseInt(monthlyFee || '0')
                     });
 
-                    const isDataTier = ['data-starter', 'data-pro', 'data-website-bundle'].includes(tier);
+                    const isDataTier = tier === 'data';
                     const contractType = isDataTier 
-                        ? `Data Intelligence Purchase - ${tier}` 
+                        ? 'Data Intelligence Purchase' 
                         : (tier === 'simple' ? 'Yearly Service Agreement - Simple' : `Yearly Service Agreement - ${tier}`);
                     const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
 
@@ -753,8 +730,184 @@ router.post('/webhook', async (req, res) => {
                         reviewToken: require('crypto').randomUUID()
                     });
                     await newContract.save();
+
+                    // --- DATA TIER: Create DataPurchase records + deliver data via email ---
+                    if (isDataTier && user) {
+                        try {
+                            const DataPurchase = require('../models/DataPurchase');
+                            let DataRecord;
+                            try { DataRecord = require('mongoose').model('DataRecord'); } catch(e) { DataRecord = null; }
+
+                            const cartBlocks = user.cart || [];
+                            
+                            if (cartBlocks.length > 0 && DataRecord) {
+                                // Collect ALL record IDs across all cart blocks
+                                const allRecordIds = [];
+                                const purchases = [];
+
+                                for (const block of cartBlocks) {
+                                    const purchase = new DataPurchase({
+                                        userId: user._id,
+                                        recordIds: block.recordIds || [],
+                                        searchQuery: block.searchQuery || '',
+                                        filters: block.filters || {},
+                                        status: 'paid',
+                                        stripeSessionId: session.id,
+                                        paidAt: new Date(),
+                                        deliveryEmail: user.email,
+                                        totalRecords: (block.recordIds || []).length,
+                                        amountPaid: parseInt(process.env.PRICE_DATA || '24900'),
+                                        blockLabel: block.blockLabel || 'Data Block'
+                                    });
+                                    await purchase.save();
+                                    purchases.push(purchase);
+                                    allRecordIds.push(...(block.recordIds || []));
+                                }
+
+                                // Fetch full records with contact info
+                                const uniqueIds = [...new Set(allRecordIds.map(id => id.toString()))];
+                                const fullRecords = await DataRecord.find({ 
+                                    _id: { $in: uniqueIds } 
+                                }).select('-raw').lean();
+
+                                // Build CSV
+                                const csvHeader = 'Company,Project Type,Budget,City,State,Contact Name,Email,Phone,Summary';
+                                const csvRows = fullRecords.map(r => {
+                                    const s = r.structured || {};
+                                    const loc = s.location || {};
+                                    const c = s.contactInfo || {};
+                                    return [
+                                        `"${(s.companyName || '').replace(/"/g, '""')}"`,
+                                        `"${(s.projectType || '').replace(/"/g, '""')}"`,
+                                        s.estimatedBudget || 0,
+                                        `"${(loc.city || '').replace(/"/g, '""')}"`,
+                                        `"${(loc.state || '').replace(/"/g, '""')}"`,
+                                        `"${(c.name || '').replace(/"/g, '""')}"`,
+                                        `"${(c.email || '').replace(/"/g, '""')}"`,
+                                        `"${(c.phone || '').replace(/"/g, '""')}"`,
+                                        `"${(s.executiveSummary || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+                                    ].join(',');
+                                });
+                                const csvContent = [csvHeader, ...csvRows].join('\n');
+
+                                // Build HTML email
+                                const outreachService = require('../services/outreach.service');
+                                
+                                // Generate AI summary paragraph using persona from DB
+                                let aiParagraph = '';
+                                try {
+                                    aiParagraph = await outreachService.generateDataDeliverySummary(fullRecords, user.firstName);
+                                } catch (aiErr) {
+                                    console.error('[DATA DELIVERY] AI paragraph failed, using fallback:', aiErr.message);
+                                    aiParagraph = `Hi ${user.firstName || 'there'}, your data is ready! You've got ${fullRecords.length} AI-enriched records with full contact details, budget data, and executive summaries. Open the attached CSV in Excel or Google Sheets to start reaching out.`;
+                                }
+
+                                const persona = await outreachService.getPersona();
+                                const portalBase = process.env.PROD_FRONTEND_URL || 'https://phoenixwebsites.ai';
+
+                                // Generate HMAC tokens for per-record direct links
+                                const crypto = require('crypto');
+                                const tokenSecret = process.env.JWT_SECRET || 'phoenix-data-secret';
+
+                                const recordTableRows = fullRecords.slice(0, 50).map(r => {
+                                    const s = r.structured || {};
+                                    const loc = s.location || {};
+                                    const c = s.contactInfo || {};
+                                    const budget = s.estimatedBudget >= 1000000 
+                                        ? `$${(s.estimatedBudget / 1000000).toFixed(1)}M`
+                                        : s.estimatedBudget >= 1000 
+                                            ? `$${(s.estimatedBudget / 1000).toFixed(0)}K`
+                                            : `$${s.estimatedBudget || 0}`;
+                                    const viewToken = crypto.createHmac('sha256', tokenSecret).update(r._id.toString()).digest('hex').substring(0, 24);
+                                    const viewLink = `${portalBase}/data/${r._id}?token=${viewToken}`;
+                                    return `<tr>
+                                        <td style="padding:10px;border-bottom:1px solid #333"><a href="${viewLink}" style="color:#fff;text-decoration:none;font-weight:bold">${s.companyName || 'N/A'}</a></td>
+                                        <td style="padding:10px;border-bottom:1px solid #333">${s.projectType || 'N/A'}</td>
+                                        <td style="padding:10px;border-bottom:1px solid #333;color:#10b981;font-weight:bold">${budget}</td>
+                                        <td style="padding:10px;border-bottom:1px solid #333">${loc.city || ''}${loc.state ? ', ' + loc.state : ''}</td>
+                                        <td style="padding:10px;border-bottom:1px solid #333">${c.name || '—'}<br><a href="mailto:${c.email}" style="color:#ea580c">${c.email || '—'}</a><br>${c.phone || '—'}</td>
+                                    </tr>`;
+                                }).join('');
+
+                                const deliveryHtml = `
+                                <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:800px;margin:0 auto;background:#0a0a0a;color:#fff;border-radius:16px;overflow:hidden">
+                                    <div style="background:linear-gradient(135deg,#ea580c 0%,#eab308 100%);padding:40px;text-align:center">
+                                        <h1 style="margin:0;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:2px">Your Data Is Ready</h1>
+                                        <p style="margin:10px 0 0;opacity:0.9;font-size:14px">${fullRecords.length} records • ${purchases.length} block(s) • Purchased ${new Date().toLocaleDateString()}</p>
+                                    </div>
+                                    <div style="padding:30px">
+                                        <p style="color:#ccc;font-size:14px;line-height:1.8;margin-bottom:24px">${aiParagraph.replace(/\n/g, '<br>')}</p>
+                                        
+                                        <div style="overflow-x:auto;margin:24px 0">
+                                            <table style="width:100%;border-collapse:collapse;font-size:13px;color:#ddd">
+                                                <thead>
+                                                    <tr style="background:#1a1a1a">
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Company</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Project</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Budget</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Location</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Contact</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>${recordTableRows}</tbody>
+                                            </table>
+                                        </div>
+                                        ${fullRecords.length > 50 ? '<p style="color:#666;font-size:12px;text-align:center">Showing first 50 records. Full data in attached CSV.</p>' : ''}
+                                        
+                                        <div style="text-align:center;margin:30px 0">
+                                            <a href="${portalBase}/data" style="display:inline-block;padding:16px 40px;border-radius:14px;background:linear-gradient(135deg,#ea580c,#d97706);color:white;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:2px;text-decoration:none">View All Records on Portal</a>
+                                        </div>
+
+                                        <div style="background:#1a1a1a;border-radius:12px;padding:20px;margin-top:24px;text-align:center">
+                                            <p style="color:#999;font-size:12px;margin:0">Click any company name above to view the full unlocked record, or visit</p>
+                                            <a href="${portalBase}/data" style="color:#ea580c;font-size:14px;font-weight:bold;text-decoration:none">${portalBase}/data</a>
+                                            <p style="color:#666;font-size:11px;margin:10px 0 0">Your Library tab shows all your purchases with full contact info.</p>
+                                        </div>
+                                        
+                                        <p style="color:#666;font-size:11px;margin-top:30px;text-align:center">This purchase is non-refundable. All data sourced from public records under FOIA.</p>
+                                        <p style="color:#444;font-size:11px;text-align:center;margin-top:8px">— ${persona.senderName}, ${persona.companyName}</p>
+                                    </div>
+                                </div>`;
+
+                                // Send delivery email
+                                const nodemailer = require('nodemailer');
+                                const deliveryTransporter = nodemailer.createTransport({
+                                    host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                                    port: parseInt(process.env.SMTP_PORT || '465'),
+                                    secure: true,
+                                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                                });
+
+                                await deliveryTransporter.sendMail({
+                                    from: `"${persona.companyName} Data Intelligence" <${process.env.EMAIL_USER}>`,
+                                    to: user.email,
+                                    subject: `Your ${persona.companyName} Data Intelligence — ${fullRecords.length} Records Ready`,
+                                    html: deliveryHtml,
+                                    attachments: [{
+                                        filename: `${persona.companyName.toLowerCase().replace(/\s+/g, '-')}-data-${new Date().toISOString().slice(0,10)}.csv`,
+                                        content: csvContent,
+                                        contentType: 'text/csv'
+                                    }]
+                                });
+
+                                // Mark purchases as delivered
+                                for (const p of purchases) {
+                                    p.status = 'delivered';
+                                    p.deliveredAt = new Date();
+                                    await p.save();
+                                }
+
+                                // Clear the user's cart
+                                user.cart = [];
+                                await user.save();
+
+                                console.log(`[DATA DELIVERY] ${fullRecords.length} records sent to ${user.email} (${purchases.length} blocks)`);
+                            }
+                        } catch (dataErr) {
+                            console.error('[DATA DELIVERY] Failed to deliver data:', dataErr.message);
+                        }
+                    }
                 }
-            }
 
             if (userToEmail || session.customer_details?.email) {
                 const emailTarget = userToEmail?.email || session.customer_details?.email;
@@ -1056,9 +1209,7 @@ router.get('/pricing', (req, res) => {
             enterprise_setup: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
             enterprise_monthly: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900'),
             // Data Intelligence Tiers (One-Time, Non-Refundable)
-            data_starter: isTestMode ? 100 : parseInt(process.env.PRICE_DATA_STARTER || '14900'),
-            data_pro: isTestMode ? 200 : parseInt(process.env.PRICE_DATA_PRO || '49900'),
-            data_bundle: isTestMode ? 300 : parseInt(process.env.PRICE_DATA_BUNDLE || '79900')
+            data: isTestMode ? 100 : parseInt(process.env.PRICE_DATA || '24900')
         }
     });
 });

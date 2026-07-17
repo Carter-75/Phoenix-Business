@@ -95,7 +95,7 @@ Cancellation stops future charges but does not entitle the client to a refund of
     };
 
     // Data Services Addendum — only included for data-inclusive tiers
-    const dataServiceTiers = ['data-starter', 'data-pro', 'data-website-bundle'];
+    const dataServiceTiers = ['data'];
     if (dataServiceTiers.includes(tier)) {
         policies.DATA_SERVICES_AGREEMENT = `
 DATA SERVICES AGREEMENT
@@ -122,9 +122,7 @@ Data may NOT be used for:
 - Circumvention of any law, regulation, or third-party terms of service
 
 5. Payment & Refund Policy
-${tier === 'data-starter' ? '- Plan: Data Intelligence Starter ($149 — up to 50 records/day, 2 sources)' : ''}
-${tier === 'data-pro' ? '- Plan: Data Intelligence Pro ($499 — up to 200 records/day, all sources, auto-outreach)' : ''}
-${tier === 'data-website-bundle' ? '- Plan: Data Intelligence + Website Bundle ($799 — 200 records/day, all sources, auto-outreach, custom website)' : ''}
+- Plan: Data Intelligence ($149 — AI-enriched public records with full contact info, budgets, and AI summaries. Buy again anytime for fresh data.)
 - Payment Type: ONE-TIME PURCHASE via Stripe.
 - ALL DATA INTELLIGENCE PURCHASES ARE FINAL AND NON-REFUNDABLE. By completing payment, you acknowledge that you are purchasing immediate access to digital data services and expressly waive any right to a refund, chargeback, or credit.
 - Chargebacks: Filing a chargeback on a completed data purchase constitutes a breach of this agreement and may result in immediate termination of access and collection action.

@@ -153,41 +153,17 @@ export class ServicesComponent implements OnInit {
       features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
       featured: false
     },
-    // --- Data Intelligence Tiers (One-Time, Non-Refundable) ---
+    // --- Data Intelligence (One-Time, Non-Refundable, Rebuyable) ---
     {
-      id: 'data-starter',
-      title: 'Data Starter',
-      cost: '149',
+      id: 'data',
+      title: 'Data Intelligence',
+      cost: '249',
       baseCost: null,
       setup: null,
       baseSetup: null,
-      description: 'AI-enriched public data access. Up to 50 records/day from 2 sources (building permits, gov contracts). One-time purchase, instant access, non-refundable.',
+      description: 'AI-enriched public records — building permits, government contracts, and business filings. Each purchase delivers a fresh chunk of structured data with contact info, budgets, and AI summaries. Buy as many times as you need. One-time, non-refundable.',
       checkoutUrl: '#',
-      features: ['One-Time Purchase', '50 Records/Day', '2 Data Sources', 'CSV Export', 'AI-Enriched Summaries', 'Contact Information'],
-      featured: false
-    },
-    {
-      id: 'data-pro',
-      title: 'Data Pro',
-      cost: '499',
-      baseCost: null,
-      setup: null,
-      baseSetup: null,
-      description: 'Full AI data pipeline with all sources and auto-outreach capability. Up to 200 records/day. One-time purchase, instant access, non-refundable.',
-      checkoutUrl: '#',
-      features: ['One-Time Purchase', '200 Records/Day', 'All Data Sources', 'Auto-Outreach', 'API Access', 'Priority Support'],
-      featured: true
-    },
-    {
-      id: 'data-website-bundle',
-      title: 'Data + Website Bundle',
-      cost: '799',
-      baseCost: null,
-      setup: null,
-      baseSetup: null,
-      description: 'Full data intelligence pipeline plus a custom website build and hosting. The complete digital infrastructure package. One-time purchase, non-refundable.',
-      checkoutUrl: '#',
-      features: ['One-Time Purchase', 'Everything in Data Pro', 'Custom Website Build', 'Hosting Included', 'Full-Stack Integration', 'Dedicated Support'],
+      features: ['One-Time Purchase', 'Buy Again Anytime', 'All Data Sources', 'AI-Enriched Summaries', 'Full Contact Information', 'CSV Export'],
       featured: false
     }
   ]);
@@ -207,10 +183,8 @@ export class ServicesComponent implements OnInit {
           if (t.id === 'essential') { baseCostCents = data.basePrices.essential_monthly; baseSetupCents = data.basePrices.essential_setup; }
           if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
           if (t.id === 'enterprise') { baseCostCents = data.basePrices.enterprise_monthly; baseSetupCents = data.basePrices.enterprise_setup; }
-          // Data tiers: one-time price only (no setup, no monthly)
-          if (t.id === 'data-starter') { baseCostCents = data.basePrices.data_starter; }
-          if (t.id === 'data-pro') { baseCostCents = data.basePrices.data_pro; }
-          if (t.id === 'data-website-bundle') { baseCostCents = data.basePrices.data_bundle; }
+          // Data tier: one-time price only (no setup, no monthly)
+          if (t.id === 'data') { baseCostCents = data.basePrices.data; }
           
           return {
             ...t,
@@ -241,8 +215,13 @@ export class ServicesComponent implements OnInit {
       const isGenericLogin = sessionStorage.getItem('generic_login');
       
       if (savedTierId) {
-        const tier = this.tiers().find(t => t.id === savedTierId);
         sessionStorage.removeItem('checkout_tier');
+        // Data tier: redirect to data portal (it handles its own flow)
+        if (savedTierId === 'data') {
+          this.router.navigate(['/data']);
+          return;
+        }
+        const tier = this.tiers().find(t => t.id === savedTierId);
         if (tier) {
           if (user && user.hasFinalizedProfile) {
             // User is fully registered, go straight to Stripe
@@ -292,6 +271,12 @@ export class ServicesComponent implements OnInit {
   }
 
   openContract(tier: ServiceTier) {
+    // Data tier → redirect to the data portal (it handles its own login + cart flow)
+    if (tier.id === 'data') {
+      this.router.navigate(['/data']);
+      return;
+    }
+
     const user = this.api.currentUser();
     
     if (user && user.hasFinalizedProfile) {

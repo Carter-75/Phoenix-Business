@@ -17,6 +17,27 @@ const userSchema = new mongoose.Schema({
   stripeCustomerId: { type: String },
   subscriptionStatus: { type: String, default: 'none' },
   usedDiscountCodes: [{ type: String }],
+  // Data Intelligence — Saved Searches & Cart
+  savedSearches: [{
+    query: { type: String, default: '' },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    source: { type: String, default: '' },
+    label: { type: String, default: '' },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  cart: [{
+    recordIds: [{ type: mongoose.Schema.Types.ObjectId }],
+    searchQuery: { type: String, default: '' },
+    filters: {
+      city: { type: String, default: '' },
+      state: { type: String, default: '' },
+      source: { type: String, default: '' }
+    },
+    blockLabel: { type: String, default: '' },
+    totalRecords: { type: Number, default: 0 },
+    addedAt: { type: Date, default: Date.now }
+  }],
   createdAt: { type: Date, default: Date.now }
 });
 
