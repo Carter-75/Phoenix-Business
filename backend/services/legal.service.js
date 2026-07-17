@@ -93,6 +93,65 @@ Promotional "Limited Trial" periods allow cancellation to prevent future charges
 Cancellation stops future charges but does not entitle the client to a refund of past payments.
         `
     };
+
+    // Data Services Addendum — only included for data-inclusive tiers
+    const dataServiceTiers = ['data-starter', 'data-pro', 'data-website-bundle'];
+    if (dataServiceTiers.includes(tier)) {
+        policies.DATA_SERVICES_AGREEMENT = `
+DATA SERVICES AGREEMENT
+Last Updated: ${currentDate}
+
+1. Service Description
+Phoenix ("we", "us") provides access to AI-enriched data records sourced from publicly available government databases, including but not limited to: municipal building permit databases, SAM.gov federal contract awards, state secretary of state filings, and other public records accessible under the Freedom of Information Act (FOIA) and equivalent state transparency laws. 
+
+2. Data Source Legality
+All data ingested by the Phoenix Data Intelligence pipeline is sourced exclusively from public records that are freely available without copyright restriction. We do not scrape, harvest, or otherwise collect any data protected by copyright, paywall, terms of service restriction, or privacy regulation (GDPR, CCPA, etc.). Raw source data is uncopyrighted government work product.
+
+3. AI Processing & Accuracy Disclaimer
+Records are processed by artificial intelligence (specifically, OpenAI GPT-4o models) and may contain errors, hallucinations, or incomplete data. Phoenix does not guarantee the accuracy, completeness, timeliness, or correctness of any individual data record. Clients are solely responsible for independently verifying any information before taking business action based on enriched data.
+
+4. Permitted Use
+Data accessed through Phoenix Data Intelligence may be used for:
+- Internal business purposes and market research
+- Lead generation and outreach campaigns
+- Strategic planning and competitive analysis
+
+Data may NOT be used for:
+- Bulk resale or redistribution of raw data records
+- Harassment, discrimination, stalking, or any unlawful purpose
+- Circumvention of any law, regulation, or third-party terms of service
+
+5. Payment & Refund Policy
+${tier === 'data-starter' ? '- Plan: Data Intelligence Starter ($149 — up to 50 records/day, 2 sources)' : ''}
+${tier === 'data-pro' ? '- Plan: Data Intelligence Pro ($499 — up to 200 records/day, all sources, auto-outreach)' : ''}
+${tier === 'data-website-bundle' ? '- Plan: Data Intelligence + Website Bundle ($799 — 200 records/day, all sources, auto-outreach, custom website)' : ''}
+- Payment Type: ONE-TIME PURCHASE via Stripe.
+- ALL DATA INTELLIGENCE PURCHASES ARE FINAL AND NON-REFUNDABLE. By completing payment, you acknowledge that you are purchasing immediate access to digital data services and expressly waive any right to a refund, chargeback, or credit.
+- Chargebacks: Filing a chargeback on a completed data purchase constitutes a breach of this agreement and may result in immediate termination of access and collection action.
+
+6. Delivery & Access
+- Upon successful payment, access to your purchased data tier is activated immediately.
+- You will receive a confirmation email with your purchase receipt and a link to your data portal.
+- Data access is perpetual for the records delivered during your active access period.
+
+7. Privacy & Security
+- We do not share your enriched data with other clients or third parties.
+- Aggregated, anonymized usage statistics may be used for internal analytics.
+
+8. Intellectual Property
+- You retain ownership of any insights, reports, or derivative works you create from enriched data.
+- Phoenix retains ownership of the pipeline, algorithms, AI processing logic, and platform infrastructure.
+- The raw source data (government records) is public domain and not owned by either party.
+
+9. Limitation of Liability
+Phoenix's total aggregate liability under this Data Services Agreement is strictly limited to the total amount paid by the client for the specific data purchase giving rise to the claim.
+
+10. Governing Law
+This agreement is governed by the laws of the State of Wisconsin.
+        `;
+    }
+
+    return policies;
 };
 
 /**

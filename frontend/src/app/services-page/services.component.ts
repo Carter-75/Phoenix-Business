@@ -77,7 +77,7 @@ export class ServicesComponent implements OnInit {
     'Other / Let\'s Discuss'
   ];
   
-  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2, 3 & 4) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
+  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2, 3 & 4) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. Data Intelligence tiers are one-time, non-refundable purchases. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
   
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
@@ -152,6 +152,43 @@ export class ServicesComponent implements OnInit {
       checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
       featured: false
+    },
+    // --- Data Intelligence Tiers (One-Time, Non-Refundable) ---
+    {
+      id: 'data-starter',
+      title: 'Data Starter',
+      cost: '149',
+      baseCost: null,
+      setup: null,
+      baseSetup: null,
+      description: 'AI-enriched public data access. Up to 50 records/day from 2 sources (building permits, gov contracts). One-time purchase, instant access, non-refundable.',
+      checkoutUrl: '#',
+      features: ['One-Time Purchase', '50 Records/Day', '2 Data Sources', 'CSV Export', 'AI-Enriched Summaries', 'Contact Information'],
+      featured: false
+    },
+    {
+      id: 'data-pro',
+      title: 'Data Pro',
+      cost: '499',
+      baseCost: null,
+      setup: null,
+      baseSetup: null,
+      description: 'Full AI data pipeline with all sources and auto-outreach capability. Up to 200 records/day. One-time purchase, instant access, non-refundable.',
+      checkoutUrl: '#',
+      features: ['One-Time Purchase', '200 Records/Day', 'All Data Sources', 'Auto-Outreach', 'API Access', 'Priority Support'],
+      featured: true
+    },
+    {
+      id: 'data-website-bundle',
+      title: 'Data + Website Bundle',
+      cost: '799',
+      baseCost: null,
+      setup: null,
+      baseSetup: null,
+      description: 'Full data intelligence pipeline plus a custom website build and hosting. The complete digital infrastructure package. One-time purchase, non-refundable.',
+      checkoutUrl: '#',
+      features: ['One-Time Purchase', 'Everything in Data Pro', 'Custom Website Build', 'Hosting Included', 'Full-Stack Integration', 'Dedicated Support'],
+      featured: false
     }
   ]);
 
@@ -170,6 +207,10 @@ export class ServicesComponent implements OnInit {
           if (t.id === 'essential') { baseCostCents = data.basePrices.essential_monthly; baseSetupCents = data.basePrices.essential_setup; }
           if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
           if (t.id === 'enterprise') { baseCostCents = data.basePrices.enterprise_monthly; baseSetupCents = data.basePrices.enterprise_setup; }
+          // Data tiers: one-time price only (no setup, no monthly)
+          if (t.id === 'data-starter') { baseCostCents = data.basePrices.data_starter; }
+          if (t.id === 'data-pro') { baseCostCents = data.basePrices.data_pro; }
+          if (t.id === 'data-website-bundle') { baseCostCents = data.basePrices.data_bundle; }
           
           return {
             ...t,

@@ -1,0 +1,228 @@
+<!-- Single Record View (Shareable Link) -->
+<div *ngIf="showSingleView() && singleRecord()" class="min-h-screen py-12 px-6">
+  <div class="max-w-3xl mx-auto">
+    <button (click)="backToSearch()" class="mb-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">
+      ← Back to Search
+    </button>
+
+    <div class="rounded-2xl bg-white/[0.03] border border-white/10 p-8 space-y-6">
+      <!-- Header -->
+      <div>
+        <span class="px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[9px] font-black uppercase tracking-widest text-orange-400 inline-block mb-4">
+          {{ getSourceLabel(singleRecord().sourceType) }}
+        </span>
+        <h1 class="text-3xl font-black tracking-tight">{{ singleRecord().companyName }}</h1>
+        <p class="text-sm text-white/50 mt-1">{{ singleRecord().projectType }}</p>
+      </div>
+
+      <!-- Budget & Location -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Estimated Budget</p>
+          <p class="text-3xl font-black text-emerald-400">{{ formatBudget(singleRecord().estimatedBudget) }}</p>
+        </div>
+        <div class="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Location</p>
+          <p class="text-lg font-bold">{{ singleRecord().location?.city }}<span *ngIf="singleRecord().location?.state">, {{ singleRecord().location?.state }}</span></p>
+          <p *ngIf="singleRecord().location?.zip" class="text-xs text-white/40">{{ singleRecord().location?.zip }}</p>
+        </div>
+      </div>
+
+      <!-- AI Summary -->
+      <div class="p-5 rounded-xl bg-white/[0.03] border border-white/5">
+        <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">AI Analysis</p>
+        <p class="text-sm text-white/80 leading-relaxed">{{ singleRecord().executiveSummary }}</p>
+      </div>
+
+      <!-- Tags -->
+      <div *ngIf="singleRecord().tags?.length" class="flex flex-wrap gap-2">
+        <span *ngFor="let tag of singleRecord().tags" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] text-white/50">{{ tag }}</span>
+      </div>
+
+      <!-- Contact Info — Locked -->
+      <div *ngIf="singleRecord().contactRedacted" class="p-6 rounded-xl bg-orange-500/5 border border-orange-500/20 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-4">
+          <span class="text-2xl">🔒</span>
+        </div>
+        <h3 class="text-lg font-black uppercase tracking-tight mb-2">Contact Information Locked</h3>
+        <p class="text-sm text-white/50 mb-6 max-w-md mx-auto">Full contact details including email, phone, and address are available with a Data Intelligence purchase.</p>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <div class="flex items-center gap-2 text-white/30 text-[10px]">
+            <span *ngIf="singleRecord().hasContact">✉️ Email Available</span>
+            <span *ngIf="singleRecord().hasPhone">📞 Phone Available</span>
+          </div>
+        </div>
+        <button (click)="openCheckout('data-starter')" class="mt-6 px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-sm font-black uppercase tracking-wider hover:shadow-xl hover:shadow-orange-600/30 transition-all">
+          Unlock Full Record — From $149
+        </button>
+      </div>
+
+      <p class="text-[10px] text-white/20 text-center">Record ID: {{ singleRecord()._id }} • {{ formatDate(singleRecord().date) }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Search View -->
+<div *ngIf="!showSingleView()" class="min-h-screen">
+  <!-- Hero -->
+  <section class="relative py-20 px-6 text-center overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-orange-600/10 rounded-full blur-[120px]"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-yellow-500/8 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 max-w-3xl mx-auto">
+      <span class="text-[10px] font-black uppercase tracking-widest text-orange-400 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 inline-block mb-8">Data Intelligence</span>
+      <h1 class="text-5xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.9] mb-6">
+        AI-Enriched<br>
+        <span class="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">Public Records</span>
+      </h1>
+      <p class="text-lg text-white/50 leading-relaxed mb-10 max-w-xl mx-auto">
+        Building permits, government contracts, and business filings — structured, analyzed, and ready for action.
+      </p>
+
+      <!-- Stats -->
+      <div *ngIf="stats()" class="flex items-center justify-center gap-8">
+        <div class="text-center">
+          <p class="text-3xl font-black text-orange-400">{{ stats().totalRecords }}</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mt-1">Records</p>
+        </div>
+        <div class="w-px h-10 bg-white/10"></div>
+        <div class="text-center">
+          <p class="text-3xl font-black text-emerald-400">{{ stats().totalCities }}</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mt-1">Cities</p>
+        </div>
+        <div class="w-px h-10 bg-white/10"></div>
+        <div class="text-center">
+          <p class="text-3xl font-black text-blue-400">{{ stats().recentRecords }}</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mt-1">This Week</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search -->
+  <section class="max-w-7xl mx-auto px-6 pb-12">
+    <div class="rounded-2xl bg-white/[0.02] border border-white/5 p-6 mb-8">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[250px]">
+          <label class="text-[10px] font-black uppercase tracking-widest text-white/40 block mb-2">Search</label>
+          <input [(ngModel)]="searchQuery" (keyup.enter)="search(1)" placeholder="Company, project type, keyword..."
+                 class="w-full px-5 py-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/30 focus:border-orange-500/50 focus:outline-none transition-colors" />
+        </div>
+        <div class="w-32">
+          <label class="text-[10px] font-black uppercase tracking-widest text-white/40 block mb-2">City</label>
+          <input [(ngModel)]="cityFilter" placeholder="Chicago" class="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/30 focus:border-orange-500/50 focus:outline-none" />
+        </div>
+        <div class="w-24">
+          <label class="text-[10px] font-black uppercase tracking-widest text-white/40 block mb-2">State</label>
+          <input [(ngModel)]="stateFilter" placeholder="IL" class="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/30 focus:border-orange-500/50 focus:outline-none" />
+        </div>
+        <div class="w-40">
+          <label class="text-[10px] font-black uppercase tracking-widest text-white/40 block mb-2">Source</label>
+          <select [(ngModel)]="sourceFilter" class="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-orange-500/50 focus:outline-none portal-select">
+            <option value="">All Sources</option>
+            <option value="building-permits">Building Permits</option>
+            <option value="gov-contracts">Gov Contracts</option>
+          </select>
+        </div>
+        <button (click)="search(1)" class="px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-orange-600/20 transition-all">
+          Search
+        </button>
+        <button (click)="clearFilters()" class="px-6 py-4 rounded-xl bg-white/5 border border-white/10 text-white/40 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading()" class="text-center py-20">
+      <div class="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Searching records...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && records().length === 0" class="text-center py-20">
+      <p class="text-5xl mb-6 opacity-20">🔍</p>
+      <h3 class="text-2xl font-black uppercase tracking-tighter mb-2">No Records Found</h3>
+      <p class="text-white/40 text-sm">Try adjusting your search or filters.</p>
+    </div>
+
+    <!-- Results Grid -->
+    <div *ngIf="!isLoading() && records().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div *ngFor="let record of records()" (click)="viewRecord(record)"
+           class="rounded-2xl bg-white/[0.02] border border-white/5 p-6 cursor-pointer hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300 group">
+        <div class="flex items-center justify-between mb-4">
+          <span class="px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[9px] font-black uppercase tracking-widest text-orange-400">
+            {{ getSourceLabel(record.sourceType) }}
+          </span>
+          <span class="text-[10px] text-white/30">{{ formatDate(record.date) }}</span>
+        </div>
+        <h3 class="text-lg font-bold mb-1 group-hover:text-orange-400 transition-colors truncate">{{ record.companyName }}</h3>
+        <p class="text-xs text-white/50 mb-3">{{ record.projectType }}</p>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2 text-xs text-white/40">
+            📍 {{ record.city }}<span *ngIf="record.state">, {{ record.state }}</span>
+          </div>
+          <span class="text-sm font-bold text-emerald-400">{{ formatBudget(record.estimatedBudget) }}</span>
+        </div>
+        <p class="text-xs text-white/30 leading-relaxed mb-4 line-clamp-2">{{ record.summary }}</p>
+        <div *ngIf="record.tags?.length" class="flex flex-wrap gap-1 mb-4">
+          <span *ngFor="let tag of record.tags.slice(0, 3)" class="px-2 py-0.5 rounded-full bg-white/5 text-[9px] text-white/40">{{ tag }}</span>
+        </div>
+        <div class="flex items-center gap-3 pt-4 border-t border-white/5">
+          <div class="flex items-center gap-1.5" [class]="record.hasContact ? 'text-emerald-400' : 'text-white/20'">
+            <span class="text-[9px] font-bold uppercase">{{ record.hasContact ? '✉️ Email' : 'No Email' }}</span>
+          </div>
+          <div class="flex items-center gap-1.5" [class]="record.hasPhone ? 'text-emerald-400' : 'text-white/20'">
+            <span class="text-[9px] font-bold uppercase">{{ record.hasPhone ? '📞 Phone' : 'No Phone' }}</span>
+          </div>
+          <span class="ml-auto text-lg opacity-30 group-hover:opacity-80 transition-opacity">🔒</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages() > 1" class="flex items-center justify-center gap-4 py-8">
+      <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+              class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-white disabled:opacity-30 transition-all">
+        ←
+      </button>
+      <span class="text-[10px] font-black uppercase tracking-widest text-white/40">
+        Page {{ currentPage() }} of {{ totalPages() }}
+      </span>
+      <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+              class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-white disabled:opacity-30 transition-all">
+        →
+      </button>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="mt-16 mb-12 text-center rounded-2xl bg-gradient-to-b from-orange-600/10 to-transparent border border-orange-600/20 p-12">
+      <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">Unlock Full Access</h2>
+      <p class="text-white/50 mb-8 max-w-lg mx-auto">Get complete contact information, AI-generated summaries, and full record access. One-time purchase, instant access, no recurring fees.</p>
+      <div class="flex flex-wrap items-center justify-center gap-6">
+        <div class="text-center px-8 py-6 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:border-orange-500/30 transition-all" (click)="openCheckout('data-starter')">
+          <p class="text-2xl font-black text-orange-400">$149</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Starter</p>
+          <p class="text-[9px] text-white/30 mt-1">One-Time</p>
+        </div>
+        <div class="text-center px-8 py-6 rounded-2xl bg-orange-500/10 border border-orange-500/30 ring-2 ring-orange-500/20 cursor-pointer hover:ring-orange-500/40 transition-all" (click)="openCheckout('data-pro')">
+          <p class="text-2xl font-black text-orange-400">$499</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Pro</p>
+          <p class="text-[9px] text-orange-400 mt-1">Most Popular</p>
+        </div>
+        <div class="text-center px-8 py-6 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:border-orange-500/30 transition-all" (click)="openCheckout('data-website-bundle')">
+          <p class="text-2xl font-black text-orange-400">$799</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Data + Website</p>
+          <p class="text-[9px] text-white/30 mt-1">One-Time</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer note -->
+  <p class="text-center text-[10px] text-white/15 font-bold uppercase tracking-widest pb-8">
+    Phoenix Data Intelligence — All data sourced from public records under FOIA
+  </p>
+</div>

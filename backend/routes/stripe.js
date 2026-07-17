@@ -247,15 +247,61 @@ router.post('/checkout', verifyStripe, async (req, res) => {
                 setupFee = applyDiscount(prices.enterprise_setup);
                 monthlyFee = applyDiscount(prices.enterprise_monthly);
                 break;
+            case 'data-starter':
+                mode = 'payment';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Data Intelligence - Starter', description: 'AI-enriched public data access (50 records/day, 2 sources). One-time purchase, non-refundable.', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(parseInt(process.env.PRICE_DATA_STARTER || '14900')),
+                    },
+                    quantity: 1,
+                });
+                setupFee = applyDiscount(parseInt(process.env.PRICE_DATA_STARTER || '14900'));
+                monthlyFee = 0;
+                break;
+            case 'data-pro':
+                mode = 'payment';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Data Intelligence - Pro', description: 'Full AI data pipeline (200 records/day, all sources, auto-outreach). One-time purchase, non-refundable.', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(parseInt(process.env.PRICE_DATA_PRO || '49900')),
+                    },
+                    quantity: 1,
+                });
+                setupFee = applyDiscount(parseInt(process.env.PRICE_DATA_PRO || '49900'));
+                monthlyFee = 0;
+                break;
+            case 'data-website-bundle':
+                mode = 'payment';
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: { name: 'Data Intelligence + Website Bundle', description: 'Full data pipeline + custom website build & hosting. One-time purchase, non-refundable.', tax_code: 'txcd_10103100' },
+                        unit_amount: applyDiscount(parseInt(process.env.PRICE_DATA_BUNDLE || '79900')),
+                    },
+                    quantity: 1,
+                });
+                setupFee = applyDiscount(parseInt(process.env.PRICE_DATA_BUNDLE || '79900'));
+                monthlyFee = 0;
+                break;
             default:
                 return res.status(400).json({ error: 'Invalid service tier selected.' });
         }
 
+        const isDataTier = ['data-starter', 'data-pro', 'data-website-bundle'].includes(tier);
+        const baseUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
+
         const sessionConfig = {
             line_items: line_items,
             mode: mode,
-            success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?success=true`,
-            cancel_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/services?canceled=true`,
+            success_url: isDataTier 
+                ? `${baseUrl}/data?purchase=success` 
+                : `${baseUrl}/dashboard?success=true`,
+            cancel_url: isDataTier 
+                ? `${baseUrl}/data?canceled=true` 
+                : `${baseUrl}/services?canceled=true`,
             customer_email: email || (user ? user.email : undefined),
             metadata: {
                 tier,
@@ -683,11 +729,14 @@ router.post('/webhook', async (req, res) => {
                         monthlyFee: parseInt(monthlyFee || '0')
                     });
 
-                    const contractType = tier === 'simple' ? 'Yearly Service Agreement - Simple' : `Yearly Service Agreement - ${tier}`;
+                    const isDataTier = ['data-starter', 'data-pro', 'data-website-bundle'].includes(tier);
+                    const contractType = isDataTier 
+                        ? `Data Intelligence Purchase - ${tier}` 
+                        : (tier === 'simple' ? 'Yearly Service Agreement - Simple' : `Yearly Service Agreement - ${tier}`);
                     const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
 
-                    // All tiers now expire in 1 year.
-                    let expiresAt = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+                    // Data tiers: no expiration (perpetual access). Website tiers: 1 year.
+                    let expiresAt = isDataTier ? null : new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
                     const newContract = new Contract({
                         userId: user._id,
@@ -759,7 +808,7 @@ router.post('/webhook', async (req, res) => {
                                 <li><strong>Tier:</strong> ${tier || 'Unknown'}</li>
                                 <li><strong>Amount Paid Today:</strong> $${(session.amount_total / 100).toFixed(2)}</li>
                             </ul>
-                            <p>You can view their full billing details and manage their subscription in the Stripe Dashboard.</p>
+                            <p>You can view their full billing details in the Stripe Dashboard.</p>
                         </div>
                     `
                     }).catch(err => console.error('Admin alert email failed:', err));
@@ -1005,7 +1054,11 @@ router.get('/pricing', (req, res) => {
             professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
             professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900'),
             enterprise_setup: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
-            enterprise_monthly: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900')
+            enterprise_monthly: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900'),
+            // Data Intelligence Tiers (One-Time, Non-Refundable)
+            data_starter: isTestMode ? 100 : parseInt(process.env.PRICE_DATA_STARTER || '14900'),
+            data_pro: isTestMode ? 200 : parseInt(process.env.PRICE_DATA_PRO || '49900'),
+            data_bundle: isTestMode ? 300 : parseInt(process.env.PRICE_DATA_BUNDLE || '79900')
         }
     });
 });

@@ -22,6 +22,7 @@ import { ApiService } from '../../services/api.service';
           <a routerLink="/home" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
           <a routerLink="/about" routerLinkActive="text-white !after:w-full" class="nav-link">About</a>
           <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Services</a>
+          <a routerLink="/data" routerLinkActive="text-white !after:w-full" class="nav-link">Data</a>
           <a routerLink="/reviews" routerLinkActive="text-white !after:w-full" class="nav-link">Reviews</a>
           <a href="https://carter-portfolio.fyi" target="_blank" class="nav-link !text-orange-500/80 hover:!text-orange-500 flex items-center gap-2">
             Carter's Portfolio
@@ -68,6 +69,7 @@ import { ApiService } from '../../services/api.service';
         <a routerLink="/home" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
         <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
         <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
+        <a routerLink="/data" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Data</a>
         <a routerLink="/reviews" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Reviews</a>
         
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>

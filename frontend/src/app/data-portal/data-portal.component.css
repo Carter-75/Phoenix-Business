@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.portal-select option {
+  background: #0a0a0f;
+  color: white;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

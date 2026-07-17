@@ -175,6 +175,7 @@ const featureRoutes = [
   { path: '/cron', router: cronRouter },
   { path: '/reviews', router: reviewsRouter },
   { path: '/bot', router: botRouter },
+  { path: '/data-portal', router: require('./routes/data-portal') },
   { path: '/', router: indexRouter }
 ];
 

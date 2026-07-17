@@ -24,5 +24,15 @@ export const routes: Routes = [
   { path: 'reviews', component: ReviewsComponent },
   { path: 'admin-reviews', component: AdminReviewsComponent },
   
+  // Data Intelligence Portal — public, shareable links
+  { 
+    path: 'data', 
+    loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent)
+  },
+  { 
+    path: 'data/:id', 
+    loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent)
+  },
+
   { path: '**', redirectTo: 'home' }
 ];
