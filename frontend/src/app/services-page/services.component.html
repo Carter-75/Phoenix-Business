@@ -32,7 +32,7 @@
           <div class="flex items-baseline gap-2">
             <span *ngIf="discountPercentage() > 0" class="text-xl font-bold line-through text-white/30 mr-1">${{tier.baseCost}}</span>
             <span class="text-4xl font-black" [class.text-orange-500]="discountPercentage() > 0">${{tier.cost}}</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-white/30">/ Month</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-white/30">{{ tier.id === 'data' ? '/ Block' : '/ Month' }}</span>
           </div>
           <div *ngIf="tier.setup" class="flex flex-col mt-2">
             <span *ngIf="discountPercentage() > 0" class="text-[10px] font-bold line-through text-white/30">+ ${{tier.baseSetup}} SETUP FEE</span>
