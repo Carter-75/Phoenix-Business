@@ -908,6 +908,7 @@ router.post('/webhook', async (req, res) => {
                         }
                     }
                 }
+            }
 
             if (userToEmail || session.customer_details?.email) {
                 const emailTarget = userToEmail?.email || session.customer_details?.email;
