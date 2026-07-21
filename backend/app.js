@@ -1,8 +1,16 @@
 // --- Environment and Dependencies ---
 const path = require('path');
 const fs = require('fs');
-const dns = require('node:dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']);
+
+// Set custom DNS resolvers only in local development if needed, never in serverless (Vercel/AWS Lambda)
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'production') {
+  try {
+    const dns = require('node:dns');
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (e) {
+    // Ignore DNS override errors
+  }
+}
 
 const resolveEnvPath = () => {
   const candidates = [
@@ -62,22 +70,25 @@ app.use(cookieParser());
 // --- MongoDB Connection Logic ---
 const mongoURI = process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/^["']|["']$/g, '') : null;
 
+let cachedDbPromise = null;
+
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
   if (!mongoURI) {
     console.warn('WARN: No MONGODB_URI found in environment!');
     return;
   }
-  try {
+  if (!cachedDbPromise) {
     console.log('INFO: Connecting to MongoDB...');
-    await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 5000,
+    cachedDbPromise = mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 8000,
       connectTimeoutMS: 10000
+    }).catch(err => {
+      cachedDbPromise = null;
+      console.error('ERROR: MongoDB Connection Failed:', err.message);
     });
-    console.log('OK: Connected to MongoDB');
-  } catch (err) {
-    console.error('ERROR: MongoDB Connection Failed:', err.message);
   }
+  await cachedDbPromise;
 };
 
 // Initial connection
@@ -146,7 +157,7 @@ const dbCheck = async (req, res, next) => {
 
 // --- Routes ---
 
-// 1. Health/Diagnostics (No DB Check required to allow status reporting)
+// 1. Health/Diagnostics & Public Pricing (No DB Check required to allow fast responses)
 const healthHandler = async (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
   res.json({
@@ -157,6 +168,26 @@ const healthHandler = async (req, res) => {
   });
 };
 app.get(['/health', '/api/health'], healthHandler);
+
+// Public pricing endpoint (No DB check required)
+const pricingHandler = (req, res) => {
+  const isTestMode = process.env.TEST_MODE === 'true';
+  res.json({
+    discountPercentage: isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
+    basePrices: {
+      simple_setup: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'),
+      simple_monthly: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_MONTHLY || '9900'),
+      essential_setup: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
+      essential_monthly: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
+      professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
+      professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900'),
+      enterprise_setup: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
+      enterprise_monthly: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900'),
+      data: isTestMode ? 100 : parseInt(process.env.PRICE_DATA || '24900')
+    }
+  });
+};
+app.get(['/stripe/pricing', '/api/stripe/pricing'], pricingHandler);
 
 // 2. Feature Routes (Apply DB check to these)
 const authRouter = require('./routes/auth');
