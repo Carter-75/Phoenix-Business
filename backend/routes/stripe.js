@@ -798,8 +798,7 @@ router.post('/webhook', async (req, res) => {
                                 try {
                                     aiParagraph = await outreachService.generateDataDeliverySummary(fullRecords, user.firstName);
                                 } catch (aiErr) {
-                                    console.error('[DATA DELIVERY] AI paragraph failed, using fallback:', aiErr.message);
-                                    aiParagraph = `Hi ${user.firstName || 'there'}, your data is ready! You've got ${fullRecords.length} AI-enriched records with full contact details, budget data, and executive summaries. Open the attached CSV in Excel or Google Sheets to start reaching out.`;
+                                    console.error('[DATA DELIVERY] AI paragraph failed:', aiErr.message);
                                 }
 
                                 const persona = await outreachService.getPersona();

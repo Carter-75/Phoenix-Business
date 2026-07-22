@@ -140,19 +140,16 @@ require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --- DB Wait Middleware ---
+// --- DB Connection Middleware (Non-blocking for maximum serverless resilience) ---
 const dbCheck = async (req, res, next) => {
   if (mongoose.connection.readyState !== 1) {
-    await connectDB();
+    try {
+      await connectDB();
+    } catch (err) {
+      console.warn('[DB Check] Connection attempt in middleware:', err.message);
+    }
   }
-  
-  if (mongoose.connection.readyState === 1) {
-    return next();
-  } else {
-    return res.status(503).json({
-      error: 'Database connection timeout. Please refresh or check MONGODB_URI.'
-    });
-  }
+  next();
 };
 
 // --- Routes ---

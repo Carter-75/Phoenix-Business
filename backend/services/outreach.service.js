@@ -303,7 +303,7 @@ Rules:
       return completion.choices[0].message.content.trim();
     } catch (err) {
       console.error('[OutreachService] AI summary generation failed:', err.message);
-      return `Hi ${buyerFirstName || 'there'}, your data is ready! You've got ${records.length} AI-enriched records with full contact details, budget data, and executive summaries. Open the attached CSV in Excel or Google Sheets to start reaching out. You can always grab more blocks at phoenixwebsites.ai/data.`;
+      throw err;
     }
   }
 }
