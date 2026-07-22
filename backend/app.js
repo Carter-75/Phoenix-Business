@@ -115,7 +115,7 @@ if (mongoURI) {
   if (MongoStore.default) ActualMongoStore = MongoStore.default;
 
   const storeOptions = {
-    mongoUrl: mongoURI,
+    clientPromise: connectDB().then(() => mongoose.connection.getClient()),
     ttl: 14 * 24 * 60 * 60,
     autoRemove: 'native'
   };
@@ -123,7 +123,7 @@ if (mongoURI) {
   try {
     if (typeof ActualMongoStore.create === 'function') {
       sessionConfig.store = ActualMongoStore.create(storeOptions);
-      console.log('OK: Session Store initialized with MongoStore.create');
+      console.log('OK: Session Store initialized with MongoStore.create (clientPromise)');
     } else {
       sessionConfig.store = new ActualMongoStore(storeOptions);
       console.log('OK: Session Store initialized with new MongoStore (fallback)');
