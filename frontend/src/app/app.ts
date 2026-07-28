@@ -36,6 +36,7 @@ export class App implements OnInit {
   discountPercentage = signal(0);
 
   ngOnInit() {
+    this.api.checkStatus().subscribe();
     this.api.get<any>('stripe/pricing').subscribe({
       next: (data) => this.discountPercentage.set(data.discountPercentage || 0),
       error: () => {}

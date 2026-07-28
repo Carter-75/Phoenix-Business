@@ -16,6 +16,8 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const DataPurchase = require('../models/DataPurchase');
+const dataFetcher = require('../services/data-fetcher.service');
+const inventory = require('../services/inventory.service');
 
 // --- DataRecord Schema (mirrors the Cold Email schema, same MongoDB collection) ---
 let DataRecord;
@@ -46,12 +48,17 @@ try {
       executiveSummary: { type: String, default: '' },
       tags: [String]
     },
-    status: { type: String, enum: ['raw', 'processing', 'processed', 'published', 'failed', 'sent-to-outreach'], default: 'raw' },
+    status: { type: String, enum: ['raw', 'processing', 'processed', 'published', 'failed', 'sent-to-outreach', 'reserved', 'sold'], default: 'raw' },
     failureReason: { type: String },
     publishedUrl: { type: String },
     publishedAt: { type: Date },
     linkedLeadId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead' },
-    processedAt: { type: Date }
+    processedAt: { type: Date },
+    // Reservation fields (backend-authoritative)
+    reservedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    reservedUntil: { type: Date, default: null },
+    // Sold tracking
+    soldAt: { type: Date, default: null }
   }, { timestamps: true });
 
   DataRecordSchema.index({ userId: 1, sourceType: 1, sourceId: 1 }, { unique: true });
@@ -62,6 +69,9 @@ try {
     'structured.executiveSummary': 'text',
     'structured.location.city': 'text'
   });
+  // Index for efficient expired reservation cleanup
+  DataRecordSchema.index({ reservedUntil: 1 }, { sparse: true });
+  DataRecordSchema.index({ soldAt: 1 }, { sparse: true });
 
   DataRecord = mongoose.model('DataRecord', DataRecordSchema);
 }
@@ -116,7 +126,7 @@ router.get('/search', async (req, res) => {
 
     const isInitialLoad = !req.query.q && !req.query.city && !req.query.state && !req.query.source && !req.query.projectType;
 
-    const query = { status: { $ne: 'failed' } };
+    const query = { status: { $nin: ['failed', 'sold'] }, soldAt: null };
 
     if (req.query.q) {
       query.$or = [
@@ -323,16 +333,17 @@ router.get('/record/:id/seo', async (req, res) => {
 router.get('/stats', async (req, res) => {
   try {
     const [totalRecords, totalCities, recentRecords] = await Promise.all([
-      DataRecord.countDocuments({ status: { $ne: 'failed' } }),
-      DataRecord.distinct('structured.location.city', { status: { $ne: 'failed' } }),
+      DataRecord.countDocuments({ status: { $nin: ['failed', 'sold'] }, soldAt: null }),
+      DataRecord.distinct('structured.location.city', { status: { $nin: ['failed', 'sold'] }, soldAt: null }),
       DataRecord.countDocuments({ 
-        status: { $ne: 'failed' },
+        status: { $nin: ['failed', 'sold'] },
+        soldAt: null,
         createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
       })
     ]);
 
     const sourceCounts = await DataRecord.aggregate([
-      { $match: { status: { $ne: 'failed' } } },
+      { $match: { status: { $nin: ['failed', 'sold'] }, soldAt: null } },
       { $group: { _id: '$sourceType', count: { $sum: 1 } } }
     ]);
 
@@ -349,7 +360,398 @@ router.get('/stats', async (req, res) => {
 });
 
 // ==================================================================
+//                   SSE SEARCH STREAM + LIVE FETCH
+// ==================================================================
 
+/**
+ * GET /api/data-portal/search-stream
+ * Server-Sent Events endpoint for progressive search results.
+ * Flow: existing DB → LLM expansion → live API fetch → permanent insert
+ */
+router.get('/search-stream', async (req, res) => {
+  // Clean expired reservations on every request (cheap atomic query)
+  inventory.cleanExpiredReservations().catch(() => {});
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+
+  const sendEvent = (type, data) => {
+    res.write(`data: ${JSON.stringify({ type, ...data })}\n\n`);
+  };
+
+  try {
+    const userQuery = req.query.q || '';
+    const city = req.query.city || '';
+    const state = req.query.state || '';
+    const source = req.query.source || '';
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
+
+    // Step 1: Search existing MongoDB records
+    const dbQuery = { status: { $nin: ['failed', 'sold'] }, soldAt: null };
+    if (userQuery) {
+      dbQuery.$or = [
+        { 'structured.companyName': new RegExp(userQuery.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i') },
+        { 'structured.projectType': new RegExp(userQuery.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i') },
+        { 'structured.executiveSummary': new RegExp(userQuery.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i') },
+        { 'structured.location.city': new RegExp(userQuery.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i') },
+        { 'structured.tags': new RegExp(userQuery.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i') }
+      ];
+    }
+    if (city) dbQuery['structured.location.city'] = new RegExp(city.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i');
+    if (state) dbQuery['structured.location.state'] = new RegExp(state.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'), 'i');
+    if (source) dbQuery.sourceType = source;
+
+    const existingRecords = await DataRecord.find(dbQuery)
+      .select('structured.companyName structured.projectType structured.estimatedBudget structured.location structured.tags structured.executiveSummary structured.contactInfo sourceType createdAt')
+      .sort('-createdAt')
+      .limit(limit)
+      .lean();
+
+    // Stream existing records one-by-one
+    const seenIds = new Set();
+    for (const r of existingRecords) {
+      seenIds.add(r._id.toString());
+      sendEvent('record', {
+        record: {
+          _id: r._id,
+          companyName: r.structured?.companyName || 'Unknown',
+          projectType: r.structured?.projectType || 'N/A',
+          estimatedBudget: r.structured?.estimatedBudget || 0,
+          city: r.structured?.location?.city || '',
+          state: r.structured?.location?.state || '',
+          tags: r.structured?.tags || [],
+          summary: r.structured?.executiveSummary
+            ? r.structured.executiveSummary.substring(0, 120) + '...'
+            : 'AI-enriched record available',
+          sourceType: r.sourceType,
+          date: r.createdAt,
+          hasContact: !!(r.structured?.contactInfo?.email),
+          hasPhone: !!(r.structured?.contactInfo?.phone),
+          portalUrl: `/data/${r._id}`
+        },
+        source: 'database'
+      });
+    }
+
+    sendEvent('progress', { message: `Found ${existingRecords.length} existing records`, phase: 'database' });
+
+    // Step 2: If results are insufficient, use LLM to expand query and fetch live
+    if (existingRecords.length < limit && (userQuery || city || state)) {
+      let expandedParams = { keywords: userQuery, city, state, sources: [] };
+
+      // LLM query expansion
+      if (userQuery && process.env.OPENAI_API_KEY) {
+        try {
+          const { OpenAI } = require('openai');
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content: `You are a search query expander for a public records database. Given a user query, output a JSON object with:
+- keywords: string (refined search terms)
+- city: string (extracted city or empty)
+- state: string (2-letter state code or empty)
+- sources: string[] (which data sources to query: "edgar" for SEC filings, "usaspending" for federal contracts, "chicago" for Chicago permits, "nyc" for NYC permits)
+Only output valid JSON, no markdown.`
+              },
+              { role: 'user', content: `User query: "${userQuery}"${city ? ` City: ${city}` : ''}${state ? ` State: ${state}` : ''}${source ? ` Source filter: ${source}` : ''}` }
+            ],
+            max_tokens: 150,
+            temperature: 0.3
+          });
+
+          const parsed = JSON.parse(completion.choices[0].message.content.trim());
+          expandedParams = { ...expandedParams, ...parsed };
+          sendEvent('progress', { message: 'AI expanded search parameters', phase: 'llm', params: expandedParams });
+        } catch (llmErr) {
+          console.error('[SearchStream] LLM expansion failed:', llmErr.message);
+        }
+      }
+
+      // Step 3: Determine which sources to query
+      let sourcesToQuery = expandedParams.sources || [];
+      if (sourcesToQuery.length === 0) {
+        // Default: query based on the source filter, or all sources
+        if (source === 'sec-filings') sourcesToQuery = ['edgar'];
+        else if (source === 'gov-contracts') sourcesToQuery = ['usaspending'];
+        else if (source === 'building-permits') sourcesToQuery = ['chicago', 'nyc'];
+        else sourcesToQuery = ['edgar', 'usaspending', 'chicago', 'nyc'];
+      }
+
+      const fetchLimit = Math.ceil((limit - existingRecords.length) / sourcesToQuery.length);
+
+      sendEvent('progress', { message: `Fetching live data from ${sourcesToQuery.length} source(s)...`, phase: 'fetching' });
+
+      // Step 4: Fetch from real sources in parallel
+      const fetchPromises = sourcesToQuery.map(src =>
+        dataFetcher.fetchAndUpsert(src, expandedParams.keywords || userQuery, fetchLimit)
+          .catch(err => { console.error(`[SearchStream] ${src} fetch failed:`, err.message); return []; })
+      );
+
+      const fetchResults = await Promise.allSettled(fetchPromises);
+
+      // Apply inventory pruning (records already inserted, so pass 0)
+      let newRecordCount = 0;
+      for (const r of fetchResults) {
+        if (r.status === 'fulfilled') newRecordCount += r.value.length;
+      }
+      if (newRecordCount > 0) {
+        inventory.prune(0).catch(err => console.error('[SearchStream] Prune error:', err.message));
+      }
+
+      // Stream new records one-by-one
+      for (const result of fetchResults) {
+        if (result.status !== 'fulfilled') continue;
+        for (const doc of result.value) {
+          if (seenIds.has(doc._id.toString())) continue;
+          seenIds.add(doc._id.toString());
+          sendEvent('record', {
+            record: {
+              _id: doc._id,
+              companyName: doc.structured?.companyName || 'Unknown',
+              projectType: doc.structured?.projectType || 'N/A',
+              estimatedBudget: doc.structured?.estimatedBudget || 0,
+              city: doc.structured?.location?.city || '',
+              state: doc.structured?.location?.state || '',
+              tags: doc.structured?.tags || [],
+              summary: doc.structured?.executiveSummary
+                ? doc.structured.executiveSummary.substring(0, 120) + '...'
+                : 'Live-fetched public record',
+              sourceType: doc.sourceType,
+              date: doc.createdAt,
+              hasContact: !!(doc.structured?.contactInfo?.email),
+              hasPhone: !!(doc.structured?.contactInfo?.phone),
+              portalUrl: `/data/${doc._id}`
+            },
+            source: 'live-fetch'
+          });
+        }
+      }
+    }
+
+    // Final stats event
+    const totalInDb = await DataRecord.countDocuments({ status: { $nin: ['failed', 'sold'] }, soldAt: null });
+    sendEvent('done', { total: seenIds.size, totalInDb });
+
+  } catch (err) {
+    console.error('[SearchStream] Error:', err.message);
+    sendEvent('error', { message: 'Search stream failed.' });
+  }
+
+  res.end();
+});
+
+// ==================================================================
+//                    RESERVATION SYSTEM
+// ==================================================================
+
+const RESERVATION_DURATION_MS = 10 * 60 * 1000; // 10 minutes
+
+/**
+ * POST /api/data-portal/reserve
+ * Atomically reserve records for checkout. Race-condition safe.
+ * Body: { recordIds: string[] }
+ */
+router.post('/reserve', requireAuth, async (req, res) => {
+  try {
+    const { recordIds } = req.body;
+    if (!recordIds || !Array.isArray(recordIds) || recordIds.length === 0) {
+      return res.status(400).json({ message: 'No record IDs provided.' });
+    }
+
+    // Clean expired reservations first
+    await inventory.cleanExpiredReservations();
+
+    const userId = req.user._id;
+    const expiresAt = new Date(Date.now() + RESERVATION_DURATION_MS);
+    const reserved = [];
+    const failed = [];
+
+    // Atomic reservation: each record individually with conditions
+    for (const id of recordIds) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        failed.push({ id, reason: 'invalid_id' });
+        continue;
+      }
+
+      // Atomic findOneAndUpdate: only succeeds if record is available
+      const result = await DataRecord.findOneAndUpdate(
+        {
+          _id: id,
+          soldAt: null,
+          $or: [
+            { reservedBy: null },
+            { reservedBy: userId }, // Allow re-reserving own records
+            { reservedUntil: { $lt: new Date() } } // Expired reservation
+          ]
+        },
+        {
+          $set: {
+            reservedBy: userId,
+            reservedUntil: expiresAt,
+            status: 'reserved'
+          }
+        },
+        { new: true }
+      );
+
+      if (result) {
+        reserved.push(result._id.toString());
+      } else {
+        failed.push({ id, reason: 'unavailable' });
+      }
+    }
+
+    if (reserved.length === 0) {
+      return res.status(409).json({
+        message: 'None of the selected records could be reserved.',
+        failedRecords: failed
+      });
+    }
+
+    res.json({
+      message: `Reserved ${reserved.length} record(s) for 10 minutes.`,
+      reservedRecords: reserved,
+      failedRecords: failed,
+      expiresAt: expiresAt.toISOString(),
+      secondsRemaining: RESERVATION_DURATION_MS / 1000
+    });
+  } catch (err) {
+    console.error('[DataPortal] Reserve error:', err.message);
+    res.status(500).json({ message: 'Failed to reserve records.' });
+  }
+});
+
+/**
+ * POST /api/data-portal/reserve/extend
+ * Extend an existing reservation by +10 minutes.
+ * Body: { recordIds: string[] }
+ */
+router.post('/reserve/extend', requireAuth, async (req, res) => {
+  try {
+    const { recordIds } = req.body;
+    if (!recordIds || !Array.isArray(recordIds)) {
+      return res.status(400).json({ message: 'No record IDs provided.' });
+    }
+
+    const userId = req.user._id;
+    const newExpiresAt = new Date(Date.now() + RESERVATION_DURATION_MS);
+
+    const objectIds = recordIds
+      .filter(id => mongoose.Types.ObjectId.isValid(id))
+      .map(id => new mongoose.Types.ObjectId(id));
+
+    const result = await DataRecord.updateMany(
+      {
+        _id: { $in: objectIds },
+        reservedBy: userId
+      },
+      {
+        $set: { reservedUntil: newExpiresAt }
+      }
+    );
+
+    res.json({
+      message: `Extended reservation for ${result.modifiedCount} record(s).`,
+      expiresAt: newExpiresAt.toISOString(),
+      secondsRemaining: RESERVATION_DURATION_MS / 1000,
+      extended: result.modifiedCount
+    });
+  } catch (err) {
+    console.error('[DataPortal] Reserve extend error:', err.message);
+    res.status(500).json({ message: 'Failed to extend reservation.' });
+  }
+});
+
+/**
+ * POST /api/data-portal/reserve/abandon
+ * Release reserved records immediately.
+ * Body: { recordIds: string[] }
+ */
+router.post('/reserve/abandon', requireAuth, async (req, res) => {
+  try {
+    const { recordIds } = req.body;
+    if (!recordIds || !Array.isArray(recordIds)) {
+      return res.status(400).json({ message: 'No record IDs provided.' });
+    }
+
+    const userId = req.user._id;
+    const objectIds = recordIds
+      .filter(id => mongoose.Types.ObjectId.isValid(id))
+      .map(id => new mongoose.Types.ObjectId(id));
+
+    const result = await DataRecord.updateMany(
+      {
+        _id: { $in: objectIds },
+        reservedBy: userId
+      },
+      {
+        $set: {
+          reservedBy: null,
+          reservedUntil: null,
+          status: 'processed'
+        }
+      }
+    );
+
+    res.json({
+      message: `Released ${result.modifiedCount} record(s).`,
+      released: result.modifiedCount
+    });
+  } catch (err) {
+    console.error('[DataPortal] Reserve abandon error:', err.message);
+    res.status(500).json({ message: 'Failed to abandon reservation.' });
+  }
+});
+
+/**
+ * GET /api/data-portal/reserve/status
+ * Check reservation time remaining (backend-authoritative).
+ */
+router.get('/reserve/status', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const reserved = await DataRecord.find(
+      { reservedBy: userId, reservedUntil: { $gt: new Date() } },
+      { _id: 1, reservedUntil: 1 }
+    ).lean();
+
+    if (reserved.length === 0) {
+      return res.json({
+        hasReservation: false,
+        recordIds: [],
+        expiresAt: null,
+        secondsRemaining: 0
+      });
+    }
+
+    // Use the earliest expiry (all should be the same, but be safe)
+    const earliestExpiry = reserved.reduce((min, r) =>
+      r.reservedUntil < min ? r.reservedUntil : min,
+      reserved[0].reservedUntil
+    );
+
+    const secondsRemaining = Math.max(0, Math.floor((new Date(earliestExpiry) - Date.now()) / 1000));
+
+    res.json({
+      hasReservation: true,
+      recordIds: reserved.map(r => r._id.toString()),
+      expiresAt: earliestExpiry,
+      secondsRemaining
+    });
+  } catch (err) {
+    console.error('[DataPortal] Reserve status error:', err.message);
+    res.status(500).json({ message: 'Failed to check reservation status.' });
+  }
+});
 
 // ==================================================================
 //              AUTHENTICATED ENDPOINTS (Cart, Searches, Purchases)

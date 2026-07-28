@@ -1,3 +1,68 @@
+<!-- ========== CHECKOUT REVIEW SCREEN ========== -->
+<div *ngIf="showCheckoutReview()" class="checkout-review-overlay">
+  <div class="checkout-review-container">
+    <div class="checkout-review-header">
+      <h2 class="text-3xl font-black uppercase tracking-tighter">Review & Checkout</h2>
+      <div class="reservation-timer" [class.warning]="reservationSecondsLeft() <= 60">
+        <span class="timer-icon">⏱️</span>
+        <span class="timer-label">Reservation expires in</span>
+        <span class="timer-value">{{ reservationCountdown() }}</span>
+      </div>
+    </div>
+
+    <div class="checkout-review-body">
+      <div class="checkout-summary-card">
+        <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-3">Your Reserved Data</p>
+        <div *ngFor="let item of cart(); let i = index" class="review-cart-item">
+          <div>
+            <p class="font-bold text-sm">{{ item.blockLabel }}</p>
+            <p class="text-xs text-white/40">{{ item.totalRecords }} records</p>
+          </div>
+          <span class="text-orange-400 font-bold">${{ pricePerBlock() }}</span>
+        </div>
+        <div class="review-total">
+          <span class="text-sm font-bold text-white/60">Total</span>
+          <span class="text-2xl font-black text-orange-400">${{ cartTotalPrice() }}</span>
+        </div>
+      </div>
+
+      <div class="discount-input-row mt-4">
+        <input [(ngModel)]="discountCode" placeholder="Discount code" class="discount-input" />
+      </div>
+
+      <div class="checkout-review-actions">
+        <button (click)="proceedToPayment()" [disabled]="checkoutLoading()" class="proceed-payment-btn">
+          {{ checkoutLoading() ? 'Processing...' : 'Proceed to Payment — $' + cartTotalPrice() }}
+        </button>
+        <button (click)="abandonReservation()" class="abandon-btn">
+          Cancel & Release Records
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== FORCED RESERVATION MODAL ========== -->
+<div *ngIf="showReservationModal()" class="reservation-modal-overlay" id="reservation-modal">
+  <div class="reservation-modal">
+    <div class="reservation-modal-icon">⚠️</div>
+    <h3 class="text-2xl font-black uppercase tracking-tighter mb-2">Reservation Expiring</h3>
+    <p class="text-sm text-white/50 mb-4">Your reserved records will be released in:</p>
+    <div class="reservation-modal-timer" [class.critical]="reservationSecondsLeft() <= 30">
+      {{ reservationCountdown() }}
+    </div>
+    <p class="text-xs text-white/30 mb-6">After expiry, other users may claim these records.</p>
+    <div class="reservation-modal-actions">
+      <button (click)="extendReservation()" class="extend-btn">
+        Extend Reservation +10 min
+      </button>
+      <button (click)="abandonReservation()" class="leave-btn">
+        Abandon / Leave
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Cart Slide-out Panel -->
 <div class="cart-overlay" [class.open]="cartOpen()" (click)="toggleCart()"></div>
 <div class="cart-panel" [class.open]="cartOpen()">
@@ -187,6 +252,7 @@
             <option value="">All Sources</option>
             <option value="building-permits">Building Permits</option>
             <option value="gov-contracts">Gov Contracts</option>
+            <option value="sec-filings">SEC Filings</option>
           </select>
         </div>
         <button (click)="search(1)" class="px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest hover:shadow-lg hover:shadow-orange-600/20 transition-all">
@@ -230,9 +296,15 @@
     </div>
 
     <!-- Loading -->
-    <div *ngIf="isLoading()" class="text-center py-20">
+    <div *ngIf="isLoading() && records().length === 0" class="text-center py-20">
       <div class="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
       <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Searching records...</p>
+    </div>
+
+    <!-- Streaming Progress Bar -->
+    <div *ngIf="isStreaming()" class="stream-progress-bar">
+      <div class="stream-progress-inner"></div>
+      <span class="stream-progress-text">{{ streamProgress() }}</span>
     </div>
 
     <!-- Empty State -->
@@ -243,7 +315,7 @@
     </div>
 
     <!-- Results Grid -->
-    <div *ngIf="!isLoading() && records().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div *ngIf="records().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <div *ngFor="let record of records()" (click)="viewRecord(record)"
            class="rounded-2xl bg-white/[0.02] border border-white/5 p-6 cursor-pointer hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300 group">
         <div class="flex items-center justify-between mb-4">

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -57,7 +57,7 @@ interface DataPurchase {
   templateUrl: './data-portal.component.html',
   styleUrl: './data-portal.component.css'
 })
-export class DataPortalComponent implements OnInit {
+export class DataPortalComponent implements OnInit, OnDestroy {
   public api = inject(ApiService);
   private meta = inject(Meta);
   private title = inject(Title);
@@ -106,6 +106,21 @@ export class DataPortalComponent implements OnInit {
   // Checkout
   checkoutLoading = signal(false);
   discountCode = '';
+
+  // Reservation system
+  reservationExpiresAt = signal<Date | null>(null);
+  reservationSecondsLeft = signal(0);
+  showReservationModal = signal(false);
+  reservationCountdown = signal('');
+  reservedRecordIds = signal<string[]>([]);
+  showCheckoutReview = signal(false);
+  reservationPollingInterval: any = null;
+  reservationCountdownInterval: any = null;
+
+  // SSE streaming
+  isStreaming = signal(false);
+  streamProgress = signal('');
+  private eventSource: EventSource | null = null;
 
   // Tabs
   activeTab = signal<'search' | 'library'>('search');
@@ -165,6 +180,14 @@ export class DataPortalComponent implements OnInit {
   }
 
   search(page = 1) {
+    const hasActiveFilters = this.searchQuery || this.cityFilter || this.stateFilter || this.sourceFilter;
+
+    // Use SSE streaming for active user searches, regular API for initial load
+    if (hasActiveFilters && page === 1) {
+      this.searchStream();
+      return;
+    }
+
     this.isLoading.set(true);
     const params = new URLSearchParams();
     params.set('page', page.toString());
@@ -185,6 +208,75 @@ export class DataPortalComponent implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  /** SSE progressive search — streams records one-by-one from backend */
+  searchStream() {
+    // Close any existing stream
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+
+    this.isLoading.set(true);
+    this.isStreaming.set(true);
+    this.records.set([]);
+    this.streamProgress.set('Searching database...');
+
+    const params = new URLSearchParams();
+    params.set('limit', '20');
+    if (this.searchQuery) params.set('q', this.searchQuery);
+    if (this.cityFilter) params.set('city', this.cityFilter);
+    if (this.stateFilter) params.set('state', this.stateFilter);
+    if (this.sourceFilter) params.set('source', this.sourceFilter);
+
+    const url = `/api/data-portal/search-stream?${params.toString()}`;
+    this.eventSource = new EventSource(url);
+
+    const allIds: string[] = [];
+
+    this.eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === 'record') {
+          this.records.update(current => [...current, data.record]);
+          allIds.push(data.record._id);
+          this.blockRecordIds.set([...allIds]);
+          this.blockSize.set(allIds.length);
+          this.isLoading.set(false); // Show results as soon as first record arrives
+        } else if (data.type === 'progress') {
+          this.streamProgress.set(data.message || '');
+          if (data.phase === 'fetching') {
+            this.streamProgress.set('Fetching live public data...');
+          }
+        } else if (data.type === 'done') {
+          this.isStreaming.set(false);
+          this.isLoading.set(false);
+          this.streamProgress.set('');
+          this.totalPages.set(1);
+          this.currentPage.set(1);
+          this.eventSource?.close();
+          this.eventSource = null;
+        } else if (data.type === 'error') {
+          this.isStreaming.set(false);
+          this.isLoading.set(false);
+          this.streamProgress.set('');
+          this.eventSource?.close();
+          this.eventSource = null;
+        }
+      } catch (e) {
+        // Parse error — ignore
+      }
+    };
+
+    this.eventSource.onerror = () => {
+      this.isStreaming.set(false);
+      this.isLoading.set(false);
+      this.streamProgress.set('');
+      this.eventSource?.close();
+      this.eventSource = null;
+    };
   }
 
   clearFilters() {
@@ -295,6 +387,7 @@ export class DataPortalComponent implements OnInit {
 
   // ---- Checkout ----
 
+  /** Initiate checkout: reserve records first, then show review screen */
   checkout() {
     if (!this.api.currentUser()) {
       sessionStorage.setItem('checkout_tier', 'data');
@@ -304,6 +397,38 @@ export class DataPortalComponent implements OnInit {
 
     if (this.cart().length === 0) return;
 
+    this.checkoutLoading.set(true);
+
+    // Collect all record IDs from cart
+    const allIds: string[] = [];
+    for (const block of this.cart()) {
+      allIds.push(...(block.recordIds || []));
+    }
+
+    // Reserve records first
+    this.api.post<any>('data-portal/reserve', { recordIds: allIds }).subscribe({
+      next: (res) => {
+        this.reservedRecordIds.set(res.reservedRecords || []);
+        this.reservationExpiresAt.set(new Date(res.expiresAt));
+        this.reservationSecondsLeft.set(res.secondsRemaining);
+        this.showCheckoutReview.set(true);
+        this.checkoutLoading.set(false);
+        this.startReservationCountdown();
+        this.startReservationPolling();
+      },
+      error: (err) => {
+        this.checkoutLoading.set(false);
+        if (err.status === 409) {
+          alert('Some records are already reserved by another user. Please remove them from your cart and try again.');
+        } else {
+          alert('Failed to reserve records. Please try again.');
+        }
+      }
+    });
+  }
+
+  /** Proceed from review screen to actual Stripe checkout */
+  proceedToPayment() {
     this.checkoutLoading.set(true);
     const user = this.api.currentUser();
 
@@ -327,6 +452,117 @@ export class DataPortalComponent implements OnInit {
         alert('Failed to initialize checkout. Please try again.');
       }
     });
+  }
+
+  /** Start the countdown timer for the reservation */
+  startReservationCountdown() {
+    this.clearCountdownInterval();
+    this.reservationCountdownInterval = setInterval(() => {
+      const expiresAt = this.reservationExpiresAt();
+      if (!expiresAt) return;
+
+      const remaining = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
+      this.reservationSecondsLeft.set(remaining);
+
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      this.reservationCountdown.set(`${mins}:${secs.toString().padStart(2, '0')}`);
+
+      // Show forced modal at 60 seconds
+      if (remaining <= 60 && remaining > 0 && this.showCheckoutReview()) {
+        this.showReservationModal.set(true);
+      }
+
+      // Reservation expired
+      if (remaining <= 0) {
+        this.handleReservationExpired();
+      }
+    }, 1000);
+  }
+
+  /** Poll backend for authoritative reservation status */
+  startReservationPolling() {
+    this.clearPollingInterval();
+    this.reservationPollingInterval = setInterval(() => {
+      this.api.get<any>('data-portal/reserve/status').subscribe({
+        next: (res) => {
+          if (!res.hasReservation) {
+            this.handleReservationExpired();
+          } else {
+            this.reservationSecondsLeft.set(res.secondsRemaining);
+            this.reservationExpiresAt.set(new Date(res.expiresAt));
+          }
+        },
+        error: () => {}
+      });
+    }, 30000); // Poll every 30 seconds
+  }
+
+  /** Extend the reservation by +10 minutes */
+  extendReservation() {
+    this.api.post<any>('data-portal/reserve/extend', {
+      recordIds: this.reservedRecordIds()
+    }).subscribe({
+      next: (res) => {
+        this.reservationExpiresAt.set(new Date(res.expiresAt));
+        this.reservationSecondsLeft.set(res.secondsRemaining);
+        this.showReservationModal.set(false);
+      },
+      error: () => {
+        alert('Failed to extend reservation.');
+      }
+    });
+  }
+
+  /** Abandon the reservation and exit checkout */
+  abandonReservation() {
+    this.api.post<any>('data-portal/reserve/abandon', {
+      recordIds: this.reservedRecordIds()
+    }).subscribe({
+      next: () => this.exitCheckout(),
+      error: () => this.exitCheckout()
+    });
+  }
+
+  /** Handle reservation expiry (timer hit 0 or backend says no reservation) */
+  handleReservationExpired() {
+    this.showReservationModal.set(false);
+    this.exitCheckout();
+  }
+
+  /** Exit the checkout review screen and clean up */
+  exitCheckout() {
+    this.showCheckoutReview.set(false);
+    this.showReservationModal.set(false);
+    this.reservedRecordIds.set([]);
+    this.reservationExpiresAt.set(null);
+    this.reservationSecondsLeft.set(0);
+    this.reservationCountdown.set('');
+    this.clearCountdownInterval();
+    this.clearPollingInterval();
+  }
+
+  private clearCountdownInterval() {
+    if (this.reservationCountdownInterval) {
+      clearInterval(this.reservationCountdownInterval);
+      this.reservationCountdownInterval = null;
+    }
+  }
+
+  private clearPollingInterval() {
+    if (this.reservationPollingInterval) {
+      clearInterval(this.reservationPollingInterval);
+      this.reservationPollingInterval = null;
+    }
+  }
+
+  ngOnDestroy() {
+    this.clearCountdownInterval();
+    this.clearPollingInterval();
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
   }
 
   // ---- Saved Searches ----
@@ -423,6 +659,7 @@ export class DataPortalComponent implements OnInit {
     switch (sourceType) {
       case 'building-permits': return 'Building Permit';
       case 'gov-contracts': return 'Gov Contract';
+      case 'sec-filings': return 'SEC Filing';
       default: return sourceType;
     }
   }

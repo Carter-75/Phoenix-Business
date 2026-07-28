@@ -901,6 +901,33 @@ router.post('/webhook', async (req, res) => {
                                 await user.save();
 
                                 console.log(`[DATA DELIVERY] ${fullRecords.length} records sent to ${user.email} (${purchases.length} blocks)`);
+
+                                // --- INVENTORY: Mark records as sold + fetch replacements ---
+                                try {
+                                    // Atomically mark all purchased records as sold
+                                    await DataRecord.updateMany(
+                                        { _id: { $in: uniqueIds } },
+                                        { $set: { soldAt: new Date(), status: 'sold', reservedBy: null, reservedUntil: null } }
+                                    );
+                                    console.log(`[INVENTORY] Marked ${uniqueIds.length} records as sold.`);
+
+                                    // Fetch one random real replacement for each sold record
+                                    const dataFetcherService = require('../services/data-fetcher.service');
+                                    const inventoryService = require('../services/inventory.service');
+                                    
+                                    for (let i = 0; i < Math.min(uniqueIds.length, 10); i++) {
+                                        dataFetcherService.fetchRandom().catch(err =>
+                                            console.error('[INVENTORY] Replacement fetch failed:', err.message)
+                                        );
+                                    }
+
+                                    // Run pruning after replacements
+                                    inventoryService.prune(0).catch(err =>
+                                        console.error('[INVENTORY] Post-purchase prune failed:', err.message)
+                                    );
+                                } catch (invErr) {
+                                    console.error('[INVENTORY] Post-purchase inventory update failed:', invErr.message);
+                                }
                             }
                         } catch (dataErr) {
                             console.error('[DATA DELIVERY] Failed to deliver data:', dataErr.message);

@@ -250,4 +250,19 @@ router.get('/daily-renewals', async (req, res) => {
     }
 });
 
+/**
+ * GET /api/cron/clean-reservations
+ * Cleans expired checkout reservations. Run every 5 minutes.
+ */
+router.get('/clean-reservations', async (req, res) => {
+    try {
+        const inventory = require('../services/inventory.service');
+        const cleaned = await inventory.cleanExpiredReservations();
+        res.json({ message: `Cleaned ${cleaned} expired reservations.` });
+    } catch (err) {
+        console.error('[CRON] Clean reservations error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

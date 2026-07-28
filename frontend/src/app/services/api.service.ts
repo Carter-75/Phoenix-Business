@@ -9,14 +9,7 @@ export class ApiService {
   private http = inject(HttpClient);
   public currentUser = signal<any>(null);
 
-  // Dynamic API URL mapping
-  private get apiUrl(): string {
-    const isProd = ('false' as string) === 'true';
-    if (isProd) {
-      return '/api';
-    }
-    return '/api';
-  }
+  private readonly apiUrl = '/api';
 
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { withCredentials: true });
