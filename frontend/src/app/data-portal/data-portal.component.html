@@ -172,11 +172,6 @@
 <!-- Main View -->
 <div *ngIf="!showSingleView()" class="min-h-screen">
 
-  <!-- Floating Cart Button -->
-  <button *ngIf="cart().length > 0" (click)="toggleCart()" class="cart-fab" id="cart-fab">
-    🛒
-    <span class="cart-badge">{{ cart().length }}</span>
-  </button>
 
   <!-- Hero -->
   <section class="relative py-20 px-6 text-center overflow-hidden">

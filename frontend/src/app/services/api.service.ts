@@ -154,17 +154,8 @@ export class ApiService {
     });
   }
 
-  /** Get total item count across all cart types */
+  /** Get total item count (number of cart entries — blocks + services) */
   getCartItemCount(): number {
-    const cart = this.dataCart();
-    let count = 0;
-    for (const item of cart) {
-      if (item.type === 'service') {
-        count += 1;
-      } else {
-        count += (item.recordIds || []).length;
-      }
-    }
-    return count;
+    return this.dataCart().length;
   }
 }
