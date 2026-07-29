@@ -243,7 +243,16 @@ router.get('/daily-renewals', async (req, res) => {
             }
         }
 
-        res.json({ message: `Renewal cron finished. Sent ${renewalEmailsSent} renewal emails and ${reviewEmailsSent} review emails.` });
+        // 3. CLEAN EXPIRED RESERVATIONS (merged — was a separate cron)
+        let cleanedReservations = 0;
+        try {
+            const inventory = require('../services/inventory.service');
+            cleanedReservations = await inventory.cleanExpiredReservations();
+        } catch (cleanErr) {
+            console.error('[CRON] Clean reservations sub-task error:', cleanErr.message);
+        }
+
+        res.json({ message: `Renewal cron finished. Sent ${renewalEmailsSent} renewal emails, ${reviewEmailsSent} review emails, cleaned ${cleanedReservations} expired reservations.` });
     } catch (err) {
         console.error('Error in daily contract renewal cron:', err);
         res.status(500).json({ error: err.message });
