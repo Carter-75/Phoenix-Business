@@ -211,12 +211,54 @@ export class ServicesComponent implements OnInit {
 
     // Handle return from Google Login / Resume flow
     this.api.checkStatus().subscribe(user => {
+      // Check for unified pending intent first
+      const intent = this.api.getPendingIntent();
+      
+      if (intent) {
+        if (intent.type === 'data') {
+          // Data intents are handled by the data portal
+          this.router.navigate(['/data']);
+          return;
+        }
+        
+        if (intent.type === 'service' && intent.action === 'add-to-cart' && intent.tierId) {
+          // Service add-to-cart intent — add to cart and show confirmation
+          if (user) {
+            this.addServiceToCartApi(intent.tierId, intent.tierName || '', intent.projectType);
+          }
+          return;
+        }
+
+        if (intent.type === 'service' && intent.action === 'buy-now' && intent.tierId) {
+          const tier = this.tiers().find(t => t.id === intent.tierId);
+          if (tier && user) {
+            if (intent.discountCode) {
+              this.discountCode.set(intent.discountCode);
+            }
+            if (user.hasFinalizedProfile) {
+              this.firstName = user.firstName;
+              this.lastName = user.lastName;
+              this.checkoutLoading.set(true);
+              this.triggerStripe(tier);
+            } else {
+              this.selectedTier.set(tier);
+              this.showContract.set(true);
+              this.modalStep.set('onboarding');
+              this.firstName = user.firstName || '';
+              this.lastName = user.lastName || '';
+              this.businessName = user.businessName || '';
+            }
+          }
+          return;
+        }
+      }
+
+      // Legacy fallback: check old sessionStorage keys
       const savedTierId = sessionStorage.getItem('checkout_tier');
       const isGenericLogin = sessionStorage.getItem('generic_login');
       
       if (savedTierId) {
         sessionStorage.removeItem('checkout_tier');
-        // Data tier: redirect to data portal (it handles its own flow)
         if (savedTierId === 'data') {
           this.router.navigate(['/data']);
           return;
@@ -224,20 +266,14 @@ export class ServicesComponent implements OnInit {
         const tier = this.tiers().find(t => t.id === savedTierId);
         if (tier) {
           if (user && user.hasFinalizedProfile) {
-            // User is fully registered, go straight to Stripe
             this.firstName = user.firstName;
             this.lastName = user.lastName;
             this.checkoutLoading.set(true);
             this.triggerStripe(tier);
           } else {
-            // Always open the modal if we have an intent but missing profile
             this.selectedTier.set(tier);
             this.showContract.set(true);
-            
-            // If logged in, go to onboarding. If not, go to auth.
             this.modalStep.set(user ? 'onboarding' : 'auth');
-            
-            // Pre-fill fields if user exists
             if (user) {
               this.firstName = user.firstName || '';
               this.lastName = user.lastName || '';
@@ -316,6 +352,41 @@ export class ServicesComponent implements OnInit {
     this.isAnimatingDiscount.set(false);
     this.appliedDiscountPercentage.set(0);
     sessionStorage.removeItem('checkout_tier');
+  }
+
+  /** Add a service tier to cart (login-first pattern) */
+  addTierToCart(tier: ServiceTier) {
+    const intent: any = {
+      action: 'add-to-cart',
+      type: 'service',
+      tierId: tier.id,
+      tierName: tier.title,
+    };
+
+    if (!this.api.ensureLoggedIn(intent, '/services')) return;
+
+    this.addServiceToCartApi(tier.id, tier.title);
+  }
+
+  /** Internal: call the API to add a service tier to the user's cart */
+  private addServiceToCartApi(tierId: string, tierName: string, projectType?: string) {
+    this.api.post<any>('data-portal/cart/add-service', {
+      tierId,
+      tierName,
+      tierDescription: '',
+      projectType: projectType || ''
+    }).subscribe({
+      next: (res) => {
+        this.api.dataCart.set(res.cart || []);
+        // Brief confirmation
+        alert(`${tierName} added to cart!`);
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          alert(err.error?.message || 'This service is already in your cart.');
+        }
+      }
+    });
   }
 
   proceedToCheckout() {
@@ -431,7 +502,14 @@ export class ServicesComponent implements OnInit {
 
   loginWithGoogle() {
     if (this.selectedTier()) {
-      sessionStorage.setItem('checkout_tier', this.selectedTier()!.id);
+      // Save buy-now intent for this tier (legacy flow goes through openContract)
+      this.api.savePendingIntent({
+        action: 'buy-now',
+        type: 'service',
+        tierId: this.selectedTier()!.id,
+        tierName: this.selectedTier()!.title,
+        discountCode: this.discountCode() || undefined
+      });
     } else {
       sessionStorage.setItem('generic_login', 'true');
     }

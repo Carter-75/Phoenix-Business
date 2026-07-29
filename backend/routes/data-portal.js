@@ -824,6 +824,53 @@ router.post('/cart/add', requireAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/data-portal/cart/add-service
+ * Body: { tierId, tierName, tierDescription, projectType }
+ */
+router.post('/cart/add-service', requireAuth, async (req, res) => {
+  try {
+    const { tierId, tierName, tierDescription, projectType } = req.body;
+
+    if (!tierId || !tierName) {
+      return res.status(400).json({ message: 'Tier ID and name required.' });
+    }
+
+    // Prevent duplicate service tiers
+    const user = await User.findById(req.user._id).select('cart');
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+    
+    const alreadyInCart = (user.cart || []).some(item => item.type === 'service' && item.tierId === tierId);
+    if (alreadyInCart) {
+      return res.status(409).json({ message: `${tierName} is already in your cart.`, cart: user.cart });
+    }
+
+    const cartItem = {
+      type: 'service',
+      tierId,
+      tierName,
+      tierDescription: tierDescription || '',
+      projectType: projectType || '',
+      addedAt: new Date()
+    };
+
+    const updated = await User.findByIdAndUpdate(
+      req.user._id,
+      { $push: { cart: cartItem } },
+      { new: true, select: 'cart' }
+    );
+
+    res.json({
+      message: `${tierName} added to cart.`,
+      cart: updated.cart,
+      totalItems: updated.cart.length
+    });
+  } catch (err) {
+    console.error('[DataPortal] Cart add-service error:', err.message);
+    res.status(500).json({ message: 'Failed to add service to cart.' });
+  }
+});
+
+/**
  * DELETE /api/data-portal/cart/:index
  */
 router.delete('/cart/:index', requireAuth, async (req, res) => {

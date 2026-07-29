@@ -56,7 +56,9 @@ async function getProtectedIds() {
   const DataRecord = getDataRecordModel();
   const protectedIds = new Set();
 
-  // 1. Records in user carts
+  // 1. Records in user carts — PERMANENT GUARANTEE: records in any user's
+  //    cart are NEVER deleted by pruning. This is the primary data protection
+  //    mechanism. Service-type cart items have no recordIds and are naturally skipped.
   try {
     const usersWithCarts = await User.find(
       { 'cart.0': { $exists: true } },

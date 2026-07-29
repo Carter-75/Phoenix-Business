@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, computed, effect } from '@angular/core';
+import { PendingIntent, CartItem } from '../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,14 +22,7 @@ interface PortalRecord {
   portalUrl: string;
 }
 
-interface CartItem {
-  recordIds: string[];
-  searchQuery: string;
-  filters: { city: string; state: string; source: string };
-  blockLabel: string;
-  totalRecords: number;
-  addedAt: string;
-}
+// CartItem imported from ApiService (shared type)
 
 interface SavedSearch {
   query: string;
@@ -86,6 +80,11 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   // Cart
   cart = signal<CartItem[]>([]);
   cartOpen = signal(false);
+
+  // Sync local cart → shared API service cart (for navbar badge)
+  private cartSync = effect(() => {
+    this.api.dataCart.set(this.cart());
+  });
   cartLoading = signal(false);
   pricePerBlock = signal(249); // Default, updated from backend
   basePrice = signal(249); // Pre-discount price
@@ -138,6 +137,13 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       this.router.navigate([], { replaceUrl: true, queryParams: {} });
     }
 
+    // Check for cart=open (from navbar cart button)
+    const cartParam = this.route.snapshot.queryParamMap.get('cart');
+    if (cartParam === 'open') {
+      this.cartOpen.set(true);
+      this.router.navigate([], { replaceUrl: true, queryParams: {} });
+    }
+
     // Check if there's a record ID in the route (shareable link: /data/:id)
     const recordId = this.route.snapshot.paramMap.get('id');
     if (recordId) {
@@ -167,6 +173,40 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       if (this.activeTab() === 'library') {
         this.loadPurchases();
       }
+      // Resume pending intent after login redirect
+      this.resumePendingIntent();
+    }
+  }
+
+  /** Resume a pending intent that was saved before login redirect */
+  private resumePendingIntent() {
+    const intent = this.api.getPendingIntent();
+    if (!intent || intent.type !== 'data') return;
+
+    if (intent.action === 'add-to-cart' && intent.recordIds?.length) {
+      // Auto-add the block to cart
+      const label = [
+        intent.searchQuery || 'All records',
+        intent.filters?.city ? `in ${intent.filters.city}` : '',
+        intent.filters?.state ? `, ${intent.filters.state}` : '',
+        intent.filters?.source ? `(${intent.filters.source})` : ''
+      ].filter(Boolean).join(' ');
+
+      this.api.post('data-portal/cart/add', {
+        recordIds: intent.recordIds,
+        searchQuery: intent.searchQuery || '',
+        filters: intent.filters || {},
+        blockLabel: intent.blockLabel || label
+      }).subscribe({
+        next: (res: any) => {
+          this.cart.set(res.cart || []);
+          this.cartOpen.set(true);
+        },
+        error: () => {}
+      });
+    } else if (intent.action === 'buy-now' && intent.recordIds?.length) {
+      // Auto-start checkout with these records
+      this.buyNowWithIds(intent.recordIds);
     }
   }
 
@@ -332,31 +372,23 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   }
 
   addToCart() {
-    if (!this.api.currentUser()) {
-      // Save intent and redirect to login flow
-      sessionStorage.setItem('data_cart_intent', JSON.stringify({
-        recordIds: this.blockRecordIds(),
-        searchQuery: this.searchQuery,
-        filters: { city: this.cityFilter, state: this.stateFilter, source: this.sourceFilter }
-      }));
-      sessionStorage.setItem('checkout_tier', 'data');
-      this.router.navigate(['/services'], { queryParams: { login: 'true' } });
-      return;
-    }
-
-    this.cartLoading.set(true);
-    const label = [
-      this.searchQuery || 'All records',
-      this.cityFilter ? `in ${this.cityFilter}` : '',
-      this.stateFilter ? `, ${this.stateFilter}` : '',
-      this.sourceFilter ? `(${this.sourceFilter})` : ''
-    ].filter(Boolean).join(' ');
-
-    this.api.post('data-portal/cart/add', {
+    const intent: PendingIntent = {
+      action: 'add-to-cart',
+      type: 'data',
       recordIds: this.blockRecordIds(),
       searchQuery: this.searchQuery,
       filters: { city: this.cityFilter, state: this.stateFilter, source: this.sourceFilter },
-      blockLabel: label
+      blockLabel: this.buildBlockLabel()
+    };
+
+    if (!this.api.ensureLoggedIn(intent, '/data')) return;
+
+    this.cartLoading.set(true);
+    this.api.post('data-portal/cart/add', {
+      recordIds: intent.recordIds,
+      searchQuery: intent.searchQuery,
+      filters: intent.filters,
+      blockLabel: intent.blockLabel
     }).subscribe({
       next: (res: any) => {
         this.cart.set(res.cart || []);
@@ -365,6 +397,56 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       },
       error: () => this.cartLoading.set(false)
     });
+  }
+
+  /** Buy Now: skip cart, go straight to checkout review with current block */
+  buyNow() {
+    const intent: PendingIntent = {
+      action: 'buy-now',
+      type: 'data',
+      recordIds: this.blockRecordIds(),
+      searchQuery: this.searchQuery,
+      filters: { city: this.cityFilter, state: this.stateFilter, source: this.sourceFilter },
+      blockLabel: this.buildBlockLabel()
+    };
+
+    if (!this.api.ensureLoggedIn(intent, '/data')) return;
+
+    this.buyNowWithIds(intent.recordIds!);
+  }
+
+  /** Internal: start checkout reservation for specific record IDs */
+  private buyNowWithIds(recordIds: string[]) {
+    this.checkoutLoading.set(true);
+    this.api.post<any>('data-portal/reserve', { recordIds }).subscribe({
+      next: (res) => {
+        this.reservedRecordIds.set(res.reservedRecords || []);
+        this.reservationExpiresAt.set(new Date(res.expiresAt));
+        this.reservationSecondsLeft.set(res.secondsRemaining);
+        this.showCheckoutReview.set(true);
+        this.checkoutLoading.set(false);
+        this.startReservationCountdown();
+        this.startReservationPolling();
+      },
+      error: (err) => {
+        this.checkoutLoading.set(false);
+        if (err.status === 409) {
+          alert('Some records are already reserved by another user. Please try again.');
+        } else {
+          alert('Failed to reserve records. Please try again.');
+        }
+      }
+    });
+  }
+
+  /** Build a human-readable label for the current search block */
+  private buildBlockLabel(): string {
+    return [
+      this.searchQuery || 'All records',
+      this.cityFilter ? `in ${this.cityFilter}` : '',
+      this.stateFilter ? `, ${this.stateFilter}` : '',
+      this.sourceFilter ? `(${this.sourceFilter})` : ''
+    ].filter(Boolean).join(' ');
   }
 
   removeFromCart(index: number) {
@@ -389,11 +471,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
 
   /** Initiate checkout: reserve records first, then show review screen */
   checkout() {
-    if (!this.api.currentUser()) {
-      sessionStorage.setItem('checkout_tier', 'data');
-      this.router.navigate(['/services'], { queryParams: { login: 'true' } });
-      return;
-    }
+    if (!this.api.ensureLoggedIn({ action: 'buy-now', type: 'data' }, '/data')) return;
 
     if (this.cart().length === 0) return;
 

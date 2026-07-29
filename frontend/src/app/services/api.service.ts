@@ -1,15 +1,53 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { Router } from '@angular/router';
+
+// Unified pending intent for login-then-action flow
+export interface PendingIntent {
+  action: 'add-to-cart' | 'buy-now';
+  type: 'data' | 'service';
+  // Data-specific
+  recordIds?: string[];
+  searchQuery?: string;
+  filters?: { city?: string; state?: string; source?: string };
+  blockLabel?: string;
+  // Service-specific
+  tierId?: string;
+  tierName?: string;
+  projectType?: string;
+  discountCode?: string;
+}
+
+// Cart item that supports both data blocks and service tiers
+export interface CartItem {
+  type: 'data' | 'service';
+  // Data block fields
+  recordIds?: string[];
+  searchQuery?: string;
+  filters?: { city?: string; state?: string; source?: string };
+  blockLabel?: string;
+  totalRecords?: number;
+  // Service tier fields
+  tierId?: string;
+  tierName?: string;
+  tierDescription?: string;
+  projectType?: string;
+  // Common
+  addedAt?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private http = inject(HttpClient);
+  private router = inject(Router);
   public currentUser = signal<any>(null);
+  public dataCart = signal<CartItem[]>([]);
 
   private readonly apiUrl = '/api';
+  private readonly INTENT_KEY = 'phoenix_pending_intent';
 
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { withCredentials: true });
@@ -56,7 +94,77 @@ export class ApiService {
   logout(): void {
     this.http.get(`${this.apiUrl}/auth/logout`, { withCredentials: true }).subscribe();
     this.currentUser.set(null);
+    this.dataCart.set([]);
     sessionStorage.removeItem('checkout_tier');
+    sessionStorage.removeItem(this.INTENT_KEY);
     localStorage.removeItem('member_email');
+  }
+
+  // --- Unified Pending Intent System ---
+
+  /** Save an intent to sessionStorage before redirecting to login */
+  savePendingIntent(intent: PendingIntent): void {
+    sessionStorage.setItem(this.INTENT_KEY, JSON.stringify(intent));
+  }
+
+  /** Retrieve and clear the pending intent (called after login) */
+  getPendingIntent(): PendingIntent | null {
+    const raw = sessionStorage.getItem(this.INTENT_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(this.INTENT_KEY);
+    // Also clean up legacy keys
+    sessionStorage.removeItem('checkout_tier');
+    sessionStorage.removeItem('data_cart_intent');
+    sessionStorage.removeItem('generic_login');
+    try {
+      return JSON.parse(raw) as PendingIntent;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Clear pending intent without reading */
+  clearPendingIntent(): void {
+    sessionStorage.removeItem(this.INTENT_KEY);
+  }
+
+  /**
+   * Ensure the user is logged in, then execute the callback.
+   * If not logged in, saves the intent and redirects to login.
+   * Returns true if the user IS logged in (callback was called), false if redirected.
+   */
+  ensureLoggedIn(intent: PendingIntent, returnTo: string = '/services'): boolean {
+    if (this.currentUser()) {
+      return true; // Already logged in — caller should proceed
+    }
+    // Save intent and redirect to login
+    this.savePendingIntent(intent);
+    this.router.navigate(['/services'], { queryParams: { login: 'true' } });
+    return false; // Redirected — caller should stop
+  }
+
+  // --- Cart Helpers ---
+
+  /** Load cart from backend API */
+  loadCart(): void {
+    if (!this.currentUser()) return;
+    this.get<any>('data-portal/cart').subscribe({
+      next: (res) => this.dataCart.set(res.cart || []),
+      error: () => {}
+    });
+  }
+
+  /** Get total item count across all cart types */
+  getCartItemCount(): number {
+    const cart = this.dataCart();
+    let count = 0;
+    for (const item of cart) {
+      if (item.type === 'service') {
+        count += 1;
+      } else {
+        count += (item.recordIds || []).length;
+      }
+    }
+    return count;
   }
 }

@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
   }],
   cart: [{
+    type: { type: String, enum: ['data', 'service'], default: 'data' },
+    // Data block fields
     recordIds: [{ type: mongoose.Schema.Types.ObjectId }],
     searchQuery: { type: String, default: '' },
     filters: {
@@ -36,6 +38,12 @@ const userSchema = new mongoose.Schema({
     },
     blockLabel: { type: String, default: '' },
     totalRecords: { type: Number, default: 0 },
+    // Service tier fields
+    tierId: { type: String },
+    tierName: { type: String },
+    tierDescription: { type: String },
+    projectType: { type: String },
+    // Common
     addedAt: { type: Date, default: Date.now }
   }],
   createdAt: { type: Date, default: Date.now }

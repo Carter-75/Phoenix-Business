@@ -1,5 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
@@ -29,8 +29,22 @@ import { ApiService } from '../../services/api.service';
           </a>
         </div>
 
-        <!-- Auth Action and Mobile Toggle -->
+        <!-- Auth Action, Cart, and Mobile Toggle -->
         <div class="flex items-center gap-6 sm:gap-8">
+          <!-- Global Cart Button -->
+          <button *ngIf="cartCount() > 0" (click)="openCart()" class="relative group cursor-pointer" title="View Cart">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+              </svg>
+              <span class="text-[9px] font-black uppercase tracking-widest text-orange-400">Cart</span>
+            </div>
+            <!-- Badge -->
+            <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[9px] font-black px-1 shadow-lg shadow-orange-500/40 animate-pulse">
+              {{ cartCount() }}
+            </span>
+          </button>
+
           <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
             Login
           </a>
@@ -76,6 +90,14 @@ import { ApiService } from '../../services/api.service';
         
         <a href="https://carter-portfolio.fyi" target="_blank" class="text-xl font-black uppercase tracking-[0.2em] text-orange-500/80 hover:text-orange-500 transition-colors">Carter's Portfolio</a>
 
+        <!-- Mobile Cart Button -->
+        <button *ngIf="cartCount() > 0" (click)="openCart(); closeMobileMenu()" class="flex items-center gap-3 text-xl font-black uppercase tracking-[0.2em] text-orange-400 hover:text-orange-300 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+          </svg>
+          Cart ({{ cartCount() }})
+        </button>
+
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
         
         <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
@@ -97,14 +119,27 @@ import { ApiService } from '../../services/api.service';
 })
 export class NavbarComponent implements OnInit {
   public api = inject(ApiService);
+  private router = inject(Router);
   scrolled = signal(false);
   mobileMenuOpen = signal(false);
 
+  // Computed cart count from shared API service signal (handles both data + service items)
+  cartCount = computed(() => this.api.getCartItemCount());
+
   ngOnInit() {
-    this.api.checkStatus().subscribe();
+    this.api.checkStatus().subscribe({
+      next: (user) => {
+        if (user) this.api.loadCart();
+      }
+    });
     window.addEventListener('scroll', () => {
       this.scrolled.set(window.scrollY > 50);
     });
+  }
+
+  /** Navigate to data portal with cart open */
+  openCart() {
+    this.router.navigate(['/data'], { queryParams: { cart: 'open' } });
   }
 
   scrollToAudit() {
@@ -113,8 +148,6 @@ export class NavbarComponent implements OnInit {
     if (audit) {
       audit.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // If not on home page, navigate home then scroll? 
-      // For now, keep it simple.
       window.location.href = '/home#audit';
     }
   }
