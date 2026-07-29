@@ -62,9 +62,9 @@
         </div>
 
         <div *ngIf="activeDropdownTier() !== tier.id">
-          <button (click)="activeDropdownTier.set(tier.id); cardDiscountCode.set('')" 
+          <button (click)="tier.id === 'data' ? navigateToData() : activeDropdownTier.set(tier.id); tier.id !== 'data' && cardDiscountCode.set('')" 
                   class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
-            Get Started
+            {{ tier.id === 'data' ? 'Browse Data' : 'Get Started' }}
           </button>
         </div>
 

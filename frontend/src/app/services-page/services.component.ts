@@ -592,4 +592,9 @@ export class ServicesComponent implements OnInit {
     this.doc.head.appendChild(script);
     this.destroyRef.onDestroy(() => script.remove());
   }
+
+  /** Navigate to the data portal page */
+  navigateToData() {
+    this.router.navigate(['/data']);
+  }
 }
