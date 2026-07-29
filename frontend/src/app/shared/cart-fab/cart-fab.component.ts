@@ -1,6 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -9,7 +8,7 @@ import { ApiService } from '../../services/api.service';
   imports: [CommonModule],
   template: `
     <!-- Floating Cart Button (top-right, matches AI bot style) -->
-    <button *ngIf="cartCount() > 0" (click)="openCart()" 
+    <button *ngIf="cartCount() > 0" (click)="api.toggleCart()" 
             class="fixed top-20 right-6 z-[200] w-14 h-14 bg-orange-600 hover:bg-orange-500 rounded-full shadow-2xl flex items-center justify-center text-white transition-all hover:scale-110 hover:-translate-y-1 cursor-pointer"
             title="View Cart">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -23,12 +22,7 @@ import { ApiService } from '../../services/api.service';
   `
 })
 export class CartFabComponent {
-  private api = inject(ApiService);
-  private router = inject(Router);
+  api = inject(ApiService);
 
   cartCount = computed(() => this.api.getCartItemCount());
-
-  openCart() {
-    this.router.navigate(['/data'], { queryParams: { cart: 'open' } });
-  }
 }

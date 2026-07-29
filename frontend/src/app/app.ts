@@ -7,12 +7,13 @@ import { FooterComponent } from './shared/footer/footer.component';
 import { ReviewPopupComponent } from './shared/review-popup/review-popup.component';
 import { AiBotComponent } from './shared/ai-bot/ai-bot.component';
 import { CartFabComponent } from './shared/cart-fab/cart-fab.component';
+import { CartDrawerComponent } from './shared/cart-drawer/cart-drawer.component';
 import { ApiService } from './services/api.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, NavbarComponent, BackgroundAnimationComponent, FooterComponent, ReviewPopupComponent, AiBotComponent, CartFabComponent],
+  imports: [CommonModule, RouterOutlet, NavbarComponent, BackgroundAnimationComponent, FooterComponent, ReviewPopupComponent, AiBotComponent, CartFabComponent, CartDrawerComponent],
   template: `
     <div *ngIf="discountPercentage() > 0" class="bg-orange-600 text-white text-center py-2 px-4 text-[10px] sm:text-xs font-black uppercase tracking-widest fixed top-0 w-full z-[100] shadow-xl">
       🚀 Business Opening Deal: {{discountPercentage()}}% Off All Plans & Services!
@@ -29,6 +30,7 @@ import { ApiService } from './services/api.service';
     <router-outlet></router-outlet>
     <app-review-popup></app-review-popup>
     <app-cart-fab></app-cart-fab>
+    <app-cart-drawer></app-cart-drawer>
     <app-ai-bot></app-ai-bot>
     <app-footer></app-footer>
   `,

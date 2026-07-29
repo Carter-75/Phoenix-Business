@@ -43,6 +43,8 @@ const userSchema = new mongoose.Schema({
     tierName: { type: String },
     tierDescription: { type: String },
     projectType: { type: String },
+    price: { type: Number },
+    monthlyPrice: { type: String },
     // Common
     addedAt: { type: Date, default: Date.now }
   }],

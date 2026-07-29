@@ -63,47 +63,7 @@
   </div>
 </div>
 
-<!-- Cart Slide-out Panel -->
-<div class="cart-overlay" [class.open]="cartOpen()" (click)="toggleCart()"></div>
-<div class="cart-panel" [class.open]="cartOpen()">
-  <div class="cart-header">
-    <h3>Your Cart</h3>
-    <button (click)="toggleCart()" class="cart-close">✕</button>
-  </div>
 
-  <div *ngIf="cart().length === 0" class="cart-empty">
-    <p class="cart-empty-icon">🛒</p>
-    <p>Your cart is empty</p>
-    <p class="cart-empty-sub">Search for data and add blocks to your cart</p>
-  </div>
-
-  <div *ngIf="cart().length > 0" class="cart-items">
-    <div *ngFor="let item of cart(); let i = index" class="cart-item">
-      <div class="cart-item-info">
-        <p class="cart-item-label">{{ item.blockLabel }}</p>
-        <p class="cart-item-count">{{ item.totalRecords }} records</p>
-      </div>
-      <div class="cart-item-actions">
-        <span class="cart-item-price">${{ pricePerBlock() }}</span>
-        <button (click)="removeFromCart(i)" class="cart-item-remove">✕</button>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="cart().length > 0" class="cart-footer">
-    <div class="cart-total">
-      <span>Total</span>
-      <span class="cart-total-amount">${{ cartTotalPrice() }}</span>
-    </div>
-    <div class="discount-input-row">
-      <input [(ngModel)]="discountCode" placeholder="Discount code" class="discount-input" />
-    </div>
-    <button (click)="checkout()" [disabled]="checkoutLoading()" class="cart-checkout-btn">
-      {{ checkoutLoading() ? 'Processing...' : 'Checkout — $' + cartTotalPrice() }}
-    </button>
-    <button (click)="clearCart()" class="cart-clear-btn">Clear Cart</button>
-  </div>
-</div>
 
 <!-- Single Record View (Shareable Link) -->
 <div *ngIf="showSingleView() && singleRecord()" class="min-h-screen pt-32 pb-12 px-6 relative z-10">

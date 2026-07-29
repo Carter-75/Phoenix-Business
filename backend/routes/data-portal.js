@@ -829,7 +829,7 @@ router.post('/cart/add', requireAuth, async (req, res) => {
  */
 router.post('/cart/add-service', requireAuth, async (req, res) => {
   try {
-    const { tierId, tierName, tierDescription, projectType } = req.body;
+    const { tierId, tierName, tierDescription, projectType, price, monthlyPrice } = req.body;
 
     if (!tierId || !tierName) {
       return res.status(400).json({ message: 'Tier ID and name required.' });
@@ -850,6 +850,8 @@ router.post('/cart/add-service', requireAuth, async (req, res) => {
       tierName,
       tierDescription: tierDescription || '',
       projectType: projectType || '',
+      price: price || 0,
+      monthlyPrice: monthlyPrice || '',
       addedAt: new Date()
     };
 

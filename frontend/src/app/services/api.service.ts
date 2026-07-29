@@ -33,6 +33,8 @@ export interface CartItem {
   tierName?: string;
   tierDescription?: string;
   projectType?: string;
+  price?: number;       // Display price (setup cost for services, block price for data)
+  monthlyPrice?: string; // Monthly cost string for service tiers (e.g. "$99/mo")
   // Common
   addedAt?: string;
 }
@@ -45,6 +47,8 @@ export class ApiService {
   private router = inject(Router);
   public currentUser = signal<any>(null);
   public dataCart = signal<CartItem[]>([]);
+  public cartOpen = signal<boolean>(false);
+  public appliedDiscount = signal<{ code: string; percentage: number } | null>(null);
 
   private readonly apiUrl = '/api';
   private readonly INTENT_KEY = 'phoenix_pending_intent';
@@ -157,5 +161,26 @@ export class ApiService {
   /** Get total item count (number of cart entries — blocks + services) */
   getCartItemCount(): number {
     return this.dataCart().length;
+  }
+
+  /** Remove a single item from cart by index */
+  removeCartItem(index: number) {
+    this.delete<any>(`data-portal/cart/${index}`).subscribe({
+      next: (res) => this.dataCart.set(res.cart || []),
+      error: () => {}
+    });
+  }
+
+  /** Clear all items from cart */
+  clearCart() {
+    this.delete<any>('data-portal/cart').subscribe({
+      next: () => this.dataCart.set([]),
+      error: () => {}
+    });
+  }
+
+  /** Toggle the global cart drawer */
+  toggleCart() {
+    this.cartOpen.update(v => !v);
   }
 }

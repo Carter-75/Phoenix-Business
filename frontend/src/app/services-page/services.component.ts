@@ -365,20 +365,25 @@ export class ServicesComponent implements OnInit {
 
     if (!this.api.ensureLoggedIn(intent, '/services')) return;
 
-    this.addServiceToCartApi(tier.id, tier.title);
+    // Parse setup price from cost string (e.g. "$1,499" → 1499)
+    const setupPrice = tier.setup ? parseInt(tier.setup.replace(/[^0-9]/g, '')) : 0;
+    const monthlyStr = tier.cost ? `${tier.cost}/mo` : '';
+
+    this.addServiceToCartApi(tier.id, tier.title, setupPrice, monthlyStr);
   }
 
   /** Internal: call the API to add a service tier to the user's cart */
-  private addServiceToCartApi(tierId: string, tierName: string, projectType?: string) {
+  private addServiceToCartApi(tierId: string, tierName: string, price?: number, monthlyPrice?: string, projectType?: string) {
     this.api.post<any>('data-portal/cart/add-service', {
       tierId,
       tierName,
       tierDescription: '',
-      projectType: projectType || ''
+      projectType: projectType || '',
+      price: price || 0,
+      monthlyPrice: monthlyPrice || ''
     }).subscribe({
       next: (res) => {
         this.api.dataCart.set(res.cart || []);
-        // Brief confirmation
         alert(`${tierName} added to cart!`);
       },
       error: (err) => {

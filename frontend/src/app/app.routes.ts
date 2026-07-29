@@ -34,5 +34,11 @@ export const routes: Routes = [
     loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent)
   },
 
+  // Checkout Review — full page
+  {
+    path: 'checkout',
+    loadComponent: () => import('./checkout/checkout.component').then(m => m.CheckoutComponent)
+  },
+
   { path: '**', redirectTo: 'home' }
 ];

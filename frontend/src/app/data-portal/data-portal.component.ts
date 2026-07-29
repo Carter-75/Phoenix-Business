@@ -137,13 +137,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       this.router.navigate([], { replaceUrl: true, queryParams: {} });
     }
 
-    // Check for cart=open (from floating cart button — reactive so it works even when already on /data)
-    this.route.queryParams.subscribe(params => {
-      if (params['cart'] === 'open') {
-        this.cartOpen.set(true);
-        this.router.navigate([], { replaceUrl: true, queryParams: {} });
-      }
-    });
+
 
     // Check if there's a record ID in the route (shareable link: /data/:id)
     const recordId = this.route.snapshot.paramMap.get('id');
