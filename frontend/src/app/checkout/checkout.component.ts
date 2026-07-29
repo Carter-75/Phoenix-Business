@@ -192,57 +192,26 @@ export class CheckoutComponent implements OnInit {
     const user = this.api.currentUser();
     const discount = this.appliedDiscount();
 
-    // Separate data and service items
-    const dataItems = this.cartItems().filter(i => i.type !== 'service');
-    const serviceItems = this.cartItems().filter(i => i.type === 'service');
-
-    // For now, handle the primary checkout (data or services)
-    if (dataItems.length > 0) {
-      this.api.post<{ url: string }>('stripe/checkout', {
-        tier: 'data',
-        email: user?.email,
-        name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-        businessName: user?.businessName || '',
-        acceptedContract: true,
-        contractTimestamp: new Date().toISOString(),
-        projectType: 'Data Intelligence',
-        cartItems: dataItems,
-        discountCode: discount?.code || undefined
-      }).subscribe({
-        next: (res) => {
-          window.open(res.url, '_blank');
-          this.paymentLoading.set(false);
-        },
-        error: () => {
-          this.paymentLoading.set(false);
-          alert('Failed to initialize checkout. Please try again.');
-        }
-      });
-    } else if (serviceItems.length > 0) {
-      // Service checkout
-      const firstService = serviceItems[0];
-      this.api.post<{ url: string }>('stripe/checkout', {
-        tier: firstService.tierId,
-        email: user?.email,
-        name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
-        businessName: user?.businessName || '',
-        acceptedContract: true,
-        contractTimestamp: new Date().toISOString(),
-        projectType: firstService.projectType || '',
-        discountCode: discount?.code || undefined
-      }).subscribe({
-        next: (res) => {
-          window.open(res.url, '_blank');
-          this.paymentLoading.set(false);
-        },
-        error: () => {
-          this.paymentLoading.set(false);
-          alert('Failed to initialize checkout. Please try again.');
-        }
-      });
-    }
+    // Send ALL cart items in one unified request
+    this.api.post<{ url: string }>('stripe/unified-checkout', {
+      cartItems: this.cartItems(),
+      email: user?.email,
+      name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+      businessName: user?.businessName || '',
+      acceptedContract: true,
+      contractTimestamp: new Date().toISOString(),
+      discountCode: discount?.code || undefined
+    }).subscribe({
+      next: (res) => {
+        window.location.href = res.url;
+        this.paymentLoading.set(false);
+      },
+      error: (err) => {
+        this.paymentLoading.set(false);
+        alert(err.error?.error || 'Failed to initialize checkout. Please try again.');
+      }
+    });
   }
-
   goBack() {
     window.history.back();
   }
