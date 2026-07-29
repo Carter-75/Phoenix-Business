@@ -128,14 +128,54 @@ router.get('/search', async (req, res) => {
 
     const query = { status: { $nin: ['failed', 'sold'] }, soldAt: null };
 
+    // AI-powered query expansion for better relevance
+    let searchTerms = [];
     if (req.query.q) {
-      query.$or = [
-        { 'structured.companyName': new RegExp(req.query.q, 'i') },
-        { 'structured.projectType': new RegExp(req.query.q, 'i') },
-        { 'structured.executiveSummary': new RegExp(req.query.q, 'i') },
-        { 'structured.location.city': new RegExp(req.query.q, 'i') },
-        { 'structured.tags': new RegExp(req.query.q, 'i') }
-      ];
+      const userQ = req.query.q.trim();
+      searchTerms.push(userQ); // Always include the original query
+
+      // Use AI to expand short/vague queries into related industry terms
+      if (process.env.OPENAI_API_KEY && userQ.length <= 30) {
+        try {
+          const { OpenAI } = require('openai');
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+          const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content: `You expand a user's search query for a public records database (government contracts, building permits, SEC filings, business licenses). Given a query, return a JSON array of 5-10 related search terms that would help find relevant records. Include the original term, industry-specific terms, synonyms, and related business categories. Only output a valid JSON array of strings, nothing else.`
+              },
+              { role: 'user', content: userQ }
+            ],
+            max_tokens: 120,
+            temperature: 0.3
+          });
+
+          const expanded = JSON.parse(completion.choices[0].message.content.trim());
+          if (Array.isArray(expanded)) {
+            searchTerms = [...new Set([userQ, ...expanded])]; // Dedupe
+          }
+        } catch (aiErr) {
+          console.error('[Search] AI expansion failed, using original query:', aiErr.message);
+        }
+      }
+
+      // Build $or across all expanded terms
+      const orConditions = [];
+      for (const term of searchTerms) {
+        const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escaped, 'i');
+        orConditions.push(
+          { 'structured.companyName': regex },
+          { 'structured.projectType': regex },
+          { 'structured.executiveSummary': regex },
+          { 'structured.location.city': regex },
+          { 'structured.tags': regex }
+        );
+      }
+      query.$or = orConditions;
     }
     if (req.query.city) {
       query['structured.location.city'] = new RegExp(req.query.city, 'i');
