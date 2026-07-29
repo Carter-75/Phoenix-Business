@@ -224,7 +224,7 @@ export class ServicesComponent implements OnInit {
         if (intent.type === 'service' && intent.action === 'add-to-cart' && intent.tierId) {
           // Service add-to-cart intent — add to cart and show confirmation
           if (user) {
-            this.addServiceToCartApi(intent.tierId, intent.tierName || '', intent.projectType);
+            this.addServiceToCartApi(intent.tierId, intent.tierName || '', undefined, undefined, intent.projectType);
           }
           return;
         }
