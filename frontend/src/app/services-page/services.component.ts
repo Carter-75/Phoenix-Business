@@ -365,9 +365,10 @@ export class ServicesComponent implements OnInit {
 
     if (!this.api.ensureLoggedIn(intent, '/services')) return;
 
-    // Parse setup price from cost string (e.g. "$1,499" → 1499)
+    // Parse setup price from cost string (e.g. "1499" → 1499)
     const setupPrice = tier.setup ? parseInt(tier.setup.replace(/[^0-9]/g, '')) : 0;
-    const monthlyStr = tier.cost ? `${tier.cost}/mo` : '';
+    // Format monthly with dollar sign — tier.cost is already the discounted price from env vars
+    const monthlyStr = tier.cost ? `$${Number(tier.cost).toLocaleString()}/mo` : '';
 
     this.addServiceToCartApi(tier.id, tier.title, setupPrice, monthlyStr);
   }
