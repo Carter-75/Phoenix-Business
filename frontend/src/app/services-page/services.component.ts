@@ -113,7 +113,7 @@ export class ServicesComponent implements OnInit {
       setup: '1349',
       baseSetup: '1499',
       description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery. You will receive an email 3 weeks after purchase to rate the project.',
-      checkoutUrl: 'https://buy.stripe.com/14k7sMc6adTkg6scMN',
+      checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Standard Contact Forms'],
       featured: false
     },
@@ -125,7 +125,7 @@ export class ServicesComponent implements OnInit {
       setup: '3149',
       baseSetup: '3499',
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery. You will receive an email 4 weeks after purchase to rate the project.',
-      checkoutUrl: 'https://buy.stripe.com/cNifZia226SUbUe0O28so05',
+      checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Simple Launch', 'Max 3-Week Delivery', '2 Hours/Mo Custom Edits', 'Hosting & 24/7 Monitoring', 'Google Business Management'],
       featured: true
     },
@@ -137,7 +137,7 @@ export class ServicesComponent implements OnInit {
       setup: '7199',
       baseSetup: '7999',
       description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery. You will receive an email 5 weeks after purchase to rate the project.',
-      checkoutUrl: 'https://buy.stripe.com/6oU7sM0rs0uw1fAaoC8so06',
+      checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Essential Care', 'Max 4-Week Delivery', '5 Hours/Mo Custom Edits', 'Monthly Analytics & SEO', 'AI Chatbot Upkeep'],
       featured: false
     },

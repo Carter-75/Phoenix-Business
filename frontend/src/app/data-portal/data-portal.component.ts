@@ -121,6 +121,9 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   streamProgress = signal('');
   private eventSource: EventSource | null = null;
 
+  // Error Banner State
+  errorMessage = signal<string | null>(null);
+
   // Tabs
   activeTab = signal<'search' | 'library'>('search');
 
@@ -137,8 +140,6 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       this.router.navigate([], { replaceUrl: true, queryParams: {} });
     }
 
-
-
     // Check if there's a record ID in the route (shareable link: /data/:id)
     const recordId = this.route.snapshot.paramMap.get('id');
     if (recordId) {
@@ -148,7 +149,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       this.search();
     }
 
-    // Fetch dynamic pricing from backend
+    // Fetch dynamic pricing from backend — no silent fallback
     this.api.get<any>('stripe/pricing').subscribe({
       next: (pricing) => {
         const rawCents = pricing.basePrices?.data || 24900;
@@ -158,7 +159,10 @@ export class DataPortalComponent implements OnInit, OnDestroy {
         const discounted = Math.round(rawCents * (1 - discount / 100));
         this.pricePerBlock.set(Math.round(discounted / 100));
       },
-      error: () => {} // Fallback to default
+      error: (err) => {
+        console.error('Data Portal: Failed to fetch pricing from server', err);
+        this.errorMessage.set('Unable to load current pricing from server. Please check your connection or refresh.');
+      }
     });
 
     // Load user-specific data if logged in
@@ -294,6 +298,8 @@ export class DataPortalComponent implements OnInit, OnDestroy {
           this.eventSource?.close();
           this.eventSource = null;
         } else if (data.type === 'error') {
+          console.error('Data stream error from server:', data.message || 'Stream error');
+          this.errorMessage.set(data.message || 'Live data search stream was interrupted. Please try again.');
           this.isStreaming.set(false);
           this.isLoading.set(false);
           this.streamProgress.set('');
@@ -305,7 +311,9 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.eventSource.onerror = () => {
+    this.eventSource.onerror = (err) => {
+      console.error('Data stream connection error occurred:', err);
+      this.errorMessage.set('Live data stream connection was lost. Please check your network or try again.');
       this.isStreaming.set(false);
       this.isLoading.set(false);
       this.streamProgress.set('');
