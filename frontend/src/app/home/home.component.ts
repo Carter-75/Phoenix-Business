@@ -12,6 +12,8 @@ gsap.registerPlugin(ScrollTrigger);
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { PhoenixSettingsService } from '../services/phoenix-settings.service';
 
+import { VoiceCallService } from '../services/voice-call.service';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -21,6 +23,7 @@ import { PhoenixSettingsService } from '../services/phoenix-settings.service';
 export class HomeComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
   public settings = inject(PhoenixSettingsService);
+  public voiceCall = inject(VoiceCallService);
   
   submitting = signal(false);
   success = signal(false);

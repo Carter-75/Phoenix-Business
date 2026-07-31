@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
       </div>
       
       <div class="flex flex-wrap justify-center gap-6 sm:gap-12 text-[10px] font-black uppercase tracking-[0.4em] text-white/30">
+        <a href="tel:+17603347874" class="hover:text-orange-500 text-orange-400/80 transition-colors flex items-center gap-2">📞 +1 (760) 334-7874</a>
         <a routerLink="/terms" class="hover:text-white transition-colors">Terms</a>
         <a routerLink="/privacy" class="hover:text-white transition-colors">Privacy</a>
         <a routerLink="/refunds" class="hover:text-white transition-colors">Refunds</a>

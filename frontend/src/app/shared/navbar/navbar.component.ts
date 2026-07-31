@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { VoiceCallService } from '../../services/voice-call.service';
 
 @Component({
   selector: 'app-navbar',
@@ -30,6 +31,12 @@ import { ApiService } from '../../services/api.service';
         </div>
 
         <div class="flex items-center gap-6 sm:gap-8">
+          <!-- Web Call Button -->
+          <button (click)="voiceCall.startCall()" class="px-3.5 py-1.5 rounded-full bg-orange-600/20 border border-orange-500/40 hover:bg-orange-600 text-orange-400 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+            <i class="fas fa-phone"></i>
+            <span class="hidden sm:inline">Call AI</span>
+          </button>
+
           <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
             Login
           </a>
@@ -97,6 +104,7 @@ import { ApiService } from '../../services/api.service';
 })
 export class NavbarComponent implements OnInit {
   public api = inject(ApiService);
+  public voiceCall = inject(VoiceCallService);
   private router = inject(Router);
   scrolled = signal(false);
   mobileMenuOpen = signal(false);

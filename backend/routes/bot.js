@@ -117,4 +117,23 @@ router.post('/chat', botRateLimiter, async (req, res) => {
   }
 });
 
+// @route   GET /api/bot/realtime-session
+// @desc    Get session credentials for xAI Realtime Voice Agent
+router.get('/realtime-session', (req, res) => {
+  const apiKey = process.env.XAI_API_KEY;
+  const agentId = process.env.XAI_AGENT_ID || 'agent_srRaCLNslwuGkwD9';
+
+  if (!apiKey) {
+    return res.status(500).json({ 
+      error: 'XAI_API_KEY is missing from server environment. Please set XAI_API_KEY in your Vercel or .env.local settings.' 
+    });
+  }
+
+  res.json({
+    agentId,
+    apiKey,
+    wssUrl: `wss://api.x.ai/v1/realtime?agent_id=${agentId}`
+  });
+});
+
 module.exports = router;
