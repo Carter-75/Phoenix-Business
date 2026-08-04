@@ -161,6 +161,7 @@ export class LeaveReviewComponent implements OnInit {
   loading = signal(true);
   rawItems = signal<any[]>([]);
   reviewToken = signal<string | null>(null);
+  targetContractId = signal<string | null>(null);
   Math = Math;
   
   reviewItems = computed(() => {
@@ -218,6 +219,12 @@ export class LeaveReviewComponent implements OnInit {
 
   ngOnInit() {
     const token = this.route.snapshot.paramMap.get('token');
+    // Check for contractId query param (deep-link from ratings page)
+    const contractId = this.route.snapshot.queryParamMap.get('contractId');
+    if (contractId) {
+      this.targetContractId.set(contractId);
+    }
+
     if (token) {
       this.reviewToken.set(token);
       this.fetchTokenStatus(token);
@@ -254,6 +261,16 @@ export class LeaveReviewComponent implements OnInit {
       next: (res) => {
         this.rawItems.set(res);
         this.loading.set(false);
+
+        // Auto-select carousel item if contractId query param was provided
+        const target = this.targetContractId();
+        if (target) {
+          const items = this.reviewItems();
+          const idx = items.findIndex((item: any) => item.contractId === target);
+          if (idx >= 0) {
+            this.currentIndex.set(idx);
+          }
+        }
       },
       error: (err) => {
         console.error(err);

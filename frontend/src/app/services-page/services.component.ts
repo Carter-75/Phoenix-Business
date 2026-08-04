@@ -21,6 +21,7 @@ interface ServiceTier {
   features: string[];
   featured?: boolean;
   checkoutUrl: string;
+  color: string;
 }
 
 @Component({
@@ -29,7 +30,19 @@ interface ServiceTier {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ScrollRevealDirective, FormsModule, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  templateUrl: './services.component.html'
+  templateUrl: './services.component.html',
+  styles: [`
+    @keyframes tierEnter {
+      from { opacity: 0; transform: translateY(18px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .tier-enter {
+      animation: tierEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .tier-enter:hover {
+      box-shadow: 0 0 50px -15px var(--tc), 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+  `]
 })
 export class ServicesComponent implements OnInit {
   private meta = inject(Meta);
@@ -115,7 +128,8 @@ export class ServicesComponent implements OnInit {
       description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery. You will receive an email 3 weeks after purchase to rate the project.',
       checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Standard Contact Forms'],
-      featured: false
+      featured: false,
+      color: '#34d399'
     },
     {
       id: 'essential',
@@ -127,7 +141,8 @@ export class ServicesComponent implements OnInit {
       description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery. You will receive an email 4 weeks after purchase to rate the project.',
       checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Simple Launch', 'Max 3-Week Delivery', '2 Hours/Mo Custom Edits', 'Hosting & 24/7 Monitoring', 'Google Business Management'],
-      featured: true
+      featured: true,
+      color: '#f97316'
     },
     {
       id: 'professional',
@@ -139,7 +154,8 @@ export class ServicesComponent implements OnInit {
       description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery. You will receive an email 5 weeks after purchase to rate the project.',
       checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Essential Care', 'Max 4-Week Delivery', '5 Hours/Mo Custom Edits', 'Monthly Analytics & SEO', 'AI Chatbot Upkeep'],
-      featured: false
+      featured: false,
+      color: '#818cf8'
     },
     {
       id: 'enterprise',
@@ -151,7 +167,8 @@ export class ServicesComponent implements OnInit {
       description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope. You will receive an email to rate the project 1 week after expected completion.',
       checkoutUrl: '#',
       features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
-      featured: false
+      featured: false,
+      color: '#c084fc'
     },
     // --- Data Intelligence (One-Time, Non-Refundable, Rebuyable) ---
     {
@@ -164,7 +181,8 @@ export class ServicesComponent implements OnInit {
       description: 'AI-enriched public records — building permits, government contracts, and business filings. Each purchase delivers a fresh chunk of structured data with contact info, budgets, and AI summaries. Buy as many times as you need. One-time, non-refundable.',
       checkoutUrl: '#',
       features: ['One-Time Purchase', 'Buy Again Anytime', 'All Data Sources', 'AI-Enriched Summaries', 'Full Contact Information', 'CSV Export'],
-      featured: false
+      featured: false,
+      color: '#22d3ee'
     }
   ]);
 

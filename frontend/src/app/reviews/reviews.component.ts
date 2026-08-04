@@ -2,12 +2,12 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api.service';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
@@ -24,6 +24,41 @@ import { RouterLink } from '@angular/router';
             <i class="fa-solid fa-user-circle text-orange-500"></i> Logged in as: {{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName">({{ api.currentUser()?.businessName }})</span>
           </div>
         </header>
+
+        <!-- UNREVIEWED PURCHASES DROPDOWN -->
+        <div *ngIf="api.currentUser() && unreviewedOrders().length > 0 && !loading()" class="mb-10">
+          <button (click)="dropdownOpen.set(!dropdownOpen())" class="w-full flex items-center justify-between gap-4 px-6 py-4 bg-orange-600/5 border border-orange-500/20 hover:border-orange-500/40 rounded-2xl transition-all group cursor-pointer">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-pen-to-square text-sm"></i>
+              </div>
+              <div class="text-left">
+                <p class="text-white font-black uppercase tracking-widest text-xs group-hover:text-orange-400 transition-colors">You have {{ unreviewedOrders().length }} unreviewed purchase{{ unreviewedOrders().length > 1 ? 's' : '' }}</p>
+                <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-0.5">Tap to expand &bull; rate your recent orders</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-down text-orange-500 transition-transform duration-300" [class.rotate-180]="dropdownOpen()"></i>
+          </button>
+
+          <div *ngIf="dropdownOpen()" class="mt-3 bg-[#050505] border border-white/10 rounded-2xl overflow-hidden shadow-2xl" style="animation: slideDown 0.25s ease-out forwards;">
+            <div class="divide-y divide-white/5">
+              <div *ngFor="let order of unreviewedOrders()" class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-white/[0.03] transition-colors">
+                <div class="flex items-center gap-4 min-w-0">
+                  <div class="w-9 h-9 rounded-lg bg-white/5 text-slate-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-box-open text-xs"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-white font-bold text-sm truncate">{{ order.projectName || 'Custom Project' }}</p>
+                    <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-0.5">No rating yet</p>
+                  </div>
+                </div>
+                <a [routerLink]="['/leave-review']" [queryParams]="{ contractId: order.contractId }" class="shrink-0 flex items-center gap-2 px-4 py-2 bg-orange-600/10 hover:bg-orange-600/20 border border-orange-500/20 hover:border-orange-500/40 rounded-xl text-orange-500 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap">
+                  Rate Now <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Filters -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-white/10">
@@ -177,15 +212,26 @@ import { RouterLink } from '@angular/router';
 
       </div>
     </section>
-  `
+  `,
+  styles: [`
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; transform: translateY(-8px); }
+      to { opacity: 1; max-height: 600px; transform: translateY(0); }
+    }
+  `]
 })
 export class ReviewsComponent implements OnInit {
   api = inject(ApiService);
+  private router = inject(Router);
   Math = Math; // for template usage
 
   allReviews = signal<any[]>([]);
   loading = signal(true);
   selectedFilter = signal<number>(0);
+
+  // Unreviewed purchases dropdown
+  unreviewedOrders = signal<any[]>([]);
+  dropdownOpen = signal(false);
 
   editingReviewId = signal<string | null>(null);
   editRating = signal<number>(5);
@@ -276,6 +322,20 @@ export class ReviewsComponent implements OnInit {
         console.error('Failed to load public reviews', err);
         this.loading.set(false);
       }
+    });
+
+    // Fetch unreviewed purchases if logged in
+    if (this.api.currentUser()) {
+      this.fetchUnreviewedOrders();
+    }
+  }
+
+  fetchUnreviewedOrders() {
+    this.api.get<any[]>('reviews/status').subscribe({
+      next: (items) => {
+        this.unreviewedOrders.set(items.filter((item: any) => !item.hasReview));
+      },
+      error: (err) => console.error('Failed to load unreviewed orders', err)
     });
   }
 

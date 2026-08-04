@@ -19,12 +19,13 @@ import { VoiceCallService } from '../../services/voice-call.service';
         </a>
 
         <!-- Navigation Pages -->
-        <div class="hidden md:flex items-center gap-12 lg:gap-16">
+        <div class="hidden lg:flex items-center gap-6 xl:gap-10">
           <a routerLink="/home" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
           <a routerLink="/about" routerLinkActive="text-white !after:w-full" class="nav-link">About</a>
           <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Services</a>
           <a routerLink="/data" routerLinkActive="text-white !after:w-full" class="nav-link">Data</a>
           <a routerLink="/reviews" routerLinkActive="text-white !after:w-full" class="nav-link">Reviews</a>
+          <a *ngIf="api.currentUser()" routerLink="/dashboard" routerLinkActive="text-white !after:w-full" class="nav-link">Dashboard</a>
           <a href="https://carter-portfolio.fyi" target="_blank" class="nav-link !text-orange-500/80 hover:!text-orange-500 flex items-center gap-2">
             Carter's Portfolio
           </a>
@@ -51,6 +52,9 @@ import { VoiceCallService } from '../../services/voice-call.service';
             
             <!-- Dropdown Menu -->
             <div class="absolute right-0 top-full mt-[-8px] w-full min-w-[160px] bg-[#05050A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden">
+              <a routerLink="/dashboard" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all flex items-center gap-3 no-underline">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+              </a>
               <button (click)="api.logout()" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-red-500 hover:bg-white/5 transition-all flex items-center gap-3">
                 <i class="fa-solid fa-right-from-bracket"></i> Logout
               </button>
@@ -58,7 +62,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
           </div>
           
           <!-- Hamburger Button -->
-          <button (click)="toggleMobileMenu()" class="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 z-[110] relative">
+          <button (click)="toggleMobileMenu()" class="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 z-[110] relative">
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.rotate-45]="mobileMenuOpen()" [class.translate-y-[7px]]="mobileMenuOpen()"></div>
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.opacity-0]="mobileMenuOpen()"></div>
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.-rotate-45]="mobileMenuOpen()" [class.-translate-y-[7px]]="mobileMenuOpen()"></div>
@@ -81,6 +85,10 @@ import { VoiceCallService } from '../../services/voice-call.service';
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
         
         <a href="https://carter-portfolio.fyi" target="_blank" class="text-xl font-black uppercase tracking-[0.2em] text-orange-500/80 hover:text-orange-500 transition-colors">Carter's Portfolio</a>
+
+        <a *ngIf="api.currentUser()" routerLink="/dashboard" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors flex items-center gap-3">
+          <i class="fa-solid fa-gauge text-base"></i> Dashboard
+        </a>
 
 
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
