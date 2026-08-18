@@ -48,7 +48,25 @@ export class ApiService {
   public currentUser = signal<any>(null);
   public dataCart = signal<CartItem[]>([]);
   public cartOpen = signal<boolean>(false);
-  public appliedDiscount = signal<{ code: string; percentage: number } | null>(null);
+  public appliedDiscount = signal<{ code: string; percentage: number } | null>(this.getSavedDiscount());
+
+  private getSavedDiscount() {
+    try {
+      const saved = localStorage.getItem('phoenix_saved_discount');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  public setDiscount(discount: { code: string; percentage: number } | null) {
+    this.appliedDiscount.set(discount);
+    if (discount) {
+      localStorage.setItem('phoenix_saved_discount', JSON.stringify(discount));
+    } else {
+      localStorage.removeItem('phoenix_saved_discount');
+    }
+  }
 
   private readonly apiUrl = '/api';
   private readonly INTENT_KEY = 'phoenix_pending_intent';

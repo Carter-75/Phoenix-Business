@@ -156,6 +156,15 @@ export class CheckoutComponent implements OnInit {
       },
       error: () => {}
     });
+
+    const savedDiscount = this.appliedDiscount();
+    if (savedDiscount) {
+      this.api.post<any>('stripe/validate-discount', { code: savedDiscount.code }).subscribe({
+        error: () => {
+          this.api.setDiscount(null);
+        }
+      });
+    }
   }
 
   removeItem(index: number) {
@@ -171,7 +180,7 @@ export class CheckoutComponent implements OnInit {
     this.api.post<any>('stripe/validate-discount', { code }).subscribe({
       next: (res) => {
         if (res.valid) {
-          this.api.appliedDiscount.set({ code, percentage: res.percentage });
+          this.api.setDiscount({ code, percentage: res.percentage });
           this.discountInput = '';
         }
         this.discountLoading.set(false);
@@ -184,7 +193,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   removeDiscount() {
-    this.api.appliedDiscount.set(null);
+    this.api.setDiscount(null);
   }
 
   proceedToPayment() {
