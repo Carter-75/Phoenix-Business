@@ -68,11 +68,11 @@ import { RouterLink, Router } from '@angular/router';
           <div class="flex items-center gap-4 w-full sm:w-auto">
             <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hidden sm:block whitespace-nowrap">Filter By Rating</label>
             <select [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)" class="bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest outline-none focus:border-orange-500 transition-colors w-full sm:w-auto cursor-pointer">
-              <option [ngValue]="0">All Ratings</option>
-              <option [ngValue]="5">5.0 Stars</option>
-              <option [ngValue]="4.5">4.5+ Stars</option>
-              <option [ngValue]="4">4.0+ Stars</option>
-              <option [ngValue]="3">3.0+ Stars</option>
+              <option [ngValue]="0" class="bg-slate-950 text-white">All Ratings</option>
+              <option [ngValue]="5" class="bg-slate-950 text-white">5.0 Stars</option>
+              <option [ngValue]="4.5" class="bg-slate-950 text-white">4.5+ Stars</option>
+              <option [ngValue]="4" class="bg-slate-950 text-white">4.0+ Stars</option>
+              <option [ngValue]="3" class="bg-slate-950 text-white">3.0+ Stars</option>
             </select>
           </div>
         </div>
