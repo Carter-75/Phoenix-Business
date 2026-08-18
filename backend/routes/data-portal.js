@@ -1094,4 +1094,75 @@ router.get('/purchases/:id', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/data-portal/feed
+ * Data Integration Feed — serves full structured data records for Cold Emailing Website
+ * Returns verified records with contact info for cold outreach integration.
+ */
+router.get('/feed', async (req, res) => {
+  try {
+    // Optional API Key protection if configured in environment
+    const apiKey = req.headers['x-api-key'] || req.query.apiKey;
+    if (process.env.PHOENIX_API_KEY && apiKey !== process.env.PHOENIX_API_KEY) {
+      return res.status(401).json({ message: 'Invalid or missing API key for Phoenix Data Feed.' });
+    }
+
+    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
+    const query = { status: { $nin: ['failed'] } };
+
+    if (req.query.sourceType) {
+      query.sourceType = req.query.sourceType;
+    }
+    if (req.query.city) {
+      query['structured.location.city'] = new RegExp(req.query.city, 'i');
+    }
+    if (req.query.state) {
+      query['structured.location.state'] = new RegExp(req.query.state, 'i');
+    }
+    if (req.query.minBudget) {
+      query['structured.estimatedBudget'] = { $gte: parseFloat(req.query.minBudget) };
+    }
+
+    const records = await DataRecord.find(query)
+      .select('-raw')
+      .sort('-createdAt')
+      .limit(limit)
+      .lean();
+
+    res.json({
+      success: true,
+      source: 'Phoenix Data Portal',
+      count: records.length,
+      records: records.map(r => ({
+        sourceId: r._id.toString(),
+        sourceType: r.sourceType || 'phoenix-data',
+        sourceUrl: r.publishedUrl || `https://phoenixwebsites.ai/data/${r._id}`,
+        raw: {
+          _meta: {
+            region: `${r.structured?.location?.city || ''}, ${r.structured?.location?.state || ''}`.trim(),
+            cityName: r.structured?.location?.city || '',
+            state: r.structured?.location?.state || '',
+            fetchedAt: new Date().toISOString()
+          },
+          _mapped: {
+            contactName: r.structured?.contactInfo?.name || '',
+            contactEmail: r.structured?.contactInfo?.email || '',
+            contactPhone: r.structured?.contactInfo?.phone || '',
+            companyName: r.structured?.companyName || '',
+            projectType: r.structured?.projectType || '',
+            estimatedCost: r.structured?.estimatedBudget || 0,
+            address: r.structured?.location?.fullAddress || '',
+            description: r.structured?.executiveSummary || '',
+            issueDate: r.createdAt
+          }
+        },
+        structured: r.structured
+      }))
+    });
+  } catch (err) {
+    console.error('[DataPortal] Feed error:', err.message);
+    res.status(500).json({ message: 'Failed to fetch data feed.' });
+  }
+});
+
 module.exports = router;

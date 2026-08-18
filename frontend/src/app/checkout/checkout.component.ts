@@ -203,7 +203,7 @@ export class CheckoutComponent implements OnInit {
       discountCode: discount?.code || undefined
     }).subscribe({
       next: (res) => {
-        window.location.href = res.url;
+        window.open(res.url, '_blank');
         this.paymentLoading.set(false);
       },
       error: (err) => {
