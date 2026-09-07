@@ -368,33 +368,32 @@ export class DataPortalComponent implements OnInit, OnDestroy {
         this.fetchStats();
         this.search();
       }
-    }
 
-    // Fetch dynamic pricing from backend — no silent fallback
-    this.api.get<any>('stripe/pricing').subscribe({
-      next: (pricing) => {
-        const rawCents = pricing.basePrices?.data || 24900;
-        const discount = pricing.discountPercentage || 0;
-        this.basePrice.set(Math.round(rawCents / 100));
-        this.discountPercent.set(discount);
-        const discounted = Math.round(rawCents * (1 - discount / 100));
-        this.pricePerBlock.set(Math.round(discounted / 100));
-      },
-      error: (err) => {
-        console.error('Data Portal: Failed to fetch pricing from server', err);
-        this.errorMessage.set('Unable to load current pricing from server. Please check your connection or refresh.');
-      }
-    });
+      // Fetch dynamic pricing from backend (data blocks mode only)
+      this.api.get<any>('stripe/pricing').subscribe({
+        next: (pricing) => {
+          const rawCents = pricing.basePrices?.data || 24900;
+          const discount = pricing.discountPercentage || 0;
+          this.basePrice.set(Math.round(rawCents / 100));
+          this.discountPercent.set(discount);
+          const discounted = Math.round(rawCents * (1 - discount / 100));
+          this.pricePerBlock.set(Math.round(discounted / 100));
+        },
+        error: (err) => {
+          console.warn('Data Portal: Could not fetch pricing from server, using defaults.', err);
+        }
+      });
 
-    // Load user-specific data if logged in
-    if (this.api.currentUser()) {
-      this.loadCart();
-      this.loadSavedSearches();
-      if (this.activeTab() === 'library') {
-        this.loadPurchases();
+      // Load user-specific data if logged in
+      if (this.api.currentUser()) {
+        this.loadCart();
+        this.loadSavedSearches();
+        if (this.activeTab() === 'library') {
+          this.loadPurchases();
+        }
+        // Resume pending intent after login redirect
+        this.resumePendingIntent();
       }
-      // Resume pending intent after login redirect
-      this.resumePendingIntent();
     }
   }
 
