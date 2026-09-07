@@ -7,6 +7,456 @@
   <button (click)="errorMessage.set(null)" class="text-red-400 hover:text-white text-xs font-bold px-2 py-1 cursor-pointer">✕</button>
 </div>
 
+<!-- ========================================================================= -->
+<!-- CARTER'S PROFESSIONAL DATA ENTRY & OPERATIONS SHOWCASE                    -->
+<!-- Active when showDataBlocks() is false                                     -->
+<!-- ========================================================================= -->
+<ng-container *ngIf="!showDataBlocks()">
+  <div class="min-h-screen relative overflow-hidden bg-[#050508] text-white selection:bg-orange-500 selection:text-white">
+    
+    <!-- Background Ambient Glows -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-orange-600/10 rounded-full blur-[140px]"></div>
+      <div class="absolute top-[30%] right-[-15%] w-[50%] h-[50%] bg-amber-500/8 rounded-full blur-[140px]"></div>
+      <div class="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-yellow-500/5 rounded-full blur-[160px]"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative pt-36 sm:pt-44 pb-20 px-6 sm:px-12 text-center max-w-6xl mx-auto">
+      <div class="flex items-center justify-center gap-4 mb-6">
+        <div class="w-12 h-[1px] bg-orange-600"></div>
+        <span class="text-orange-500 font-black uppercase tracking-[0.4em] text-xs">Data Operations & Hygiene</span>
+        <div class="w-12 h-[1px] bg-orange-600"></div>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.95] mb-6">
+        Precision Data Entry,<br>
+        <span class="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
+          Cleaning & Modeling
+        </span>
+      </h1>
+
+      <p class="text-base sm:text-xl text-white/60 leading-relaxed mb-10 max-w-3xl mx-auto font-normal">
+        Transform disorganized spreadsheets, scanned physical documents, and messy web feeds into pristine, analysis-ready assets. Led by Carter — Microsoft Office Specialist (Excel, Word, PowerPoint) & Full-Stack Developer with a 99.9% precision guarantee.
+      </p>
+
+      <!-- Trust Badges -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mb-10">
+        <div class="px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold flex items-center gap-2">
+          <span class="text-emerald-400 font-black">✓</span> 99.9% Accuracy Guarantee
+        </div>
+        <div class="px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold flex items-center gap-2">
+          <span>★</span> MOS Certified (Excel, Word, PPT)
+        </div>
+        <div class="px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold flex items-center gap-2">
+          <span class="text-blue-400">⚡</span> 24–48hr Fast Turnaround
+        </div>
+        <div class="px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold flex items-center gap-2">
+          <span class="text-purple-400">🔒</span> 100% NDA & Privacy Compliant
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button (click)="openInquiry('Professional Cleanse & Modeling')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-xs font-black uppercase tracking-widest hover:shadow-xl hover:shadow-orange-600/30 hover:scale-[1.02] transition-all cursor-pointer">
+          Request A Custom Quote →
+        </button>
+        <a href="#packages" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 text-xs font-black uppercase tracking-widest transition-all">
+          Explore Packages
+        </a>
+        <a href="#calculator" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white hover:bg-white/10 text-xs font-black uppercase tracking-widest transition-all">
+          Cost Calculator
+        </a>
+      </div>
+
+      <!-- Key Metrics Stats Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-16 p-6 sm:p-8 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm">
+        <div class="text-center">
+          <p class="text-3xl sm:text-4xl font-black text-orange-400">99.9%</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Verification Accuracy</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl sm:text-4xl font-black text-emerald-400">&lt; 24hr</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Express Turnaround</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl sm:text-4xl font-black text-yellow-400">50K+</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Records Normalized</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl sm:text-4xl font-black text-blue-400">MOS</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Certified Excel Specialist</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Capabilities Grid -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-12 py-20 border-t border-white/5">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-500">Expertise & Disciplines</span>
+        <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight mt-2">
+          Comprehensive Data Operations
+        </h2>
+        <p class="text-white/50 text-sm mt-4">
+          From manual digitization of physical invoices to automated Python web-scraping scripts and complex multi-sheet Excel workbooks, every dataset is treated with rigorous attention to detail.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let cap of capabilities" class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300 group">
+          <div class="text-3xl mb-4 group-hover:scale-110 transition-transform inline-block">
+            {{ cap.icon }}
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">{{ cap.title }}</h3>
+          <p class="text-sm text-white/50 leading-relaxed">{{ cap.description }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Packages & Pricing Section -->
+    <section id="packages" class="max-w-7xl mx-auto px-6 sm:px-12 py-20 border-t border-white/5">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-500">Transparent Market Pricing</span>
+        <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight mt-2">
+          Service Packages & Flat Rates
+        </h2>
+        <p class="text-white/50 text-sm mt-4">
+          Competitive 2025–2026 market rates. Choose between predictable flat-rate packages or flexible hourly engagements tailored to your exact volume.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div *ngFor="let tier of dataServiceTiers" 
+             class="relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-500"
+             [ngClass]="tier.featured ? 'bg-gradient-to-b from-orange-500/10 via-white/[0.03] to-transparent border-2 border-orange-500/40 shadow-2xl shadow-orange-500/10' : 'bg-white/[0.02] border border-white/10 hover:border-white/20'">
+          
+          <!-- Featured Ribbon -->
+          <div *ngIf="tier.featured" class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-[9px] font-black uppercase tracking-widest shadow-md">
+            {{ tier.badge }}
+          </div>
+
+          <div>
+            <div class="flex justify-between items-start mb-6">
+              <div>
+                <h3 class="text-2xl font-black text-white">{{ tier.title }}</h3>
+                <p class="text-xs text-white/40 mt-1">{{ tier.tagline }}</p>
+              </div>
+            </div>
+
+            <!-- Price Display -->
+            <div class="mb-8 p-6 rounded-2xl bg-white/[0.03] border border-white/5">
+              <div class="flex items-baseline gap-2">
+                <span class="text-4xl sm:text-5xl font-black" [style.color]="tier.color">${{ tier.flatRate }}</span>
+                <span class="text-xs text-white/40 font-bold uppercase tracking-widest">/ flat package</span>
+              </div>
+              <div class="mt-2 flex items-center justify-between text-xs text-white/50 border-t border-white/5 pt-2">
+                <span>Or hourly: <strong class="text-white">${{ tier.hourlyRate }}/hr</strong></span>
+                <span class="text-orange-400 font-medium">⚡ {{ tier.turnaround }}</span>
+              </div>
+              <p class="text-[11px] text-white/30 mt-2 font-mono">Scope: {{ tier.unit }}</p>
+            </div>
+
+            <!-- Features List -->
+            <ul class="space-y-3.5 mb-8">
+              <li *ngFor="let feat of tier.features" class="flex items-start gap-3 text-xs text-white/70">
+                <span class="text-orange-400 font-bold mt-0.5">✓</span>
+                <span>{{ feat }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- CTA Button -->
+          <button (click)="openInquiry(tier.title)" 
+                  class="w-full py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer"
+                  [ngClass]="tier.featured ? 'bg-gradient-to-r from-orange-600 to-yellow-500 text-white hover:shadow-lg hover:shadow-orange-600/30' : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'">
+            Inquire For {{ tier.title }} →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Scope & Cost Calculator -->
+    <section id="calculator" class="max-w-5xl mx-auto px-6 sm:px-12 py-20 border-t border-white/5">
+      <div class="rounded-3xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/10 p-8 sm:p-12">
+        <div class="text-center max-w-2xl mx-auto mb-10">
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-500">Interactive Estimator</span>
+          <h2 class="text-3xl font-black uppercase tracking-tight mt-2">Project Scope & Cost Calculator</h2>
+          <p class="text-white/50 text-xs sm:text-sm mt-3">
+            Estimate turnaround time and pricing based on your dataset volume and required technical depth.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <!-- Controls (7 cols) -->
+          <div class="lg:col-span-7 space-y-6">
+            <!-- Record Count Slider -->
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="text-xs font-black uppercase tracking-widest text-white/60">Estimated Volume (Records / Rows)</label>
+                <span class="text-lg font-black text-orange-400">{{ estimatedRecords() | number }} records</span>
+              </div>
+              <input type="range" min="250" max="25000" step="250" [(ngModel)]="estimatedRecords" class="w-full data-slider" />
+              <!-- Quick Preset Chips -->
+              <div class="flex flex-wrap gap-2 mt-3">
+                <button *ngFor="let p of [500, 1000, 2500, 5000, 10000, 25000]" 
+                        (click)="setRecordsPreset(p)"
+                        class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer"
+                        [ngClass]="estimatedRecords() === p ? 'bg-orange-500 text-white' : 'bg-white/5 hover:bg-white/10 text-white/40'">
+                  {{ p | number }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Complexity Selector -->
+            <div>
+              <label class="text-xs font-black uppercase tracking-widest text-white/60 block mb-3">Service Depth & Complexity</label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button (click)="selectedComplexity.set('basic')" 
+                        class="p-4 rounded-xl text-left border transition-all cursor-pointer"
+                        [ngClass]="selectedComplexity() === 'basic' ? 'bg-orange-500/10 border-orange-500 text-white' : 'bg-white/5 border-white/5 text-white/40 hover:text-white'">
+                  <p class="font-bold text-xs text-white">Basic Entry</p>
+                  <p class="text-[10px] text-white/40 mt-1">Manual transcription, formatting & basic check</p>
+                </button>
+                <button (click)="selectedComplexity.set('cleanse')" 
+                        class="p-4 rounded-xl text-left border transition-all cursor-pointer"
+                        [ngClass]="selectedComplexity() === 'cleanse' ? 'bg-orange-500/10 border-orange-500 text-white' : 'bg-white/5 border-white/5 text-white/40 hover:text-white'">
+                  <p class="font-bold text-xs text-white">Cleanse & Excel</p>
+                  <p class="text-[10px] text-white/40 mt-1">Deduplication, formulas, validation & modeling</p>
+                </button>
+                <button (click)="selectedComplexity.set('pipeline')" 
+                        class="p-4 rounded-xl text-left border transition-all cursor-pointer"
+                        [ngClass]="selectedComplexity() === 'pipeline' ? 'bg-orange-500/10 border-orange-500 text-white' : 'bg-white/5 border-white/5 text-white/40 hover:text-white'">
+                  <p class="font-bold text-xs text-white">Automation Script</p>
+                  <p class="text-[10px] text-white/40 mt-1">Python/SQL scraping, ETL pipelines & DB sync</p>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result Display Card (5 cols) -->
+          <div class="lg:col-span-5 p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-orange-500/10 to-transparent border border-orange-500/30 text-center">
+            <p class="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-2">Estimated Investment</p>
+            <p class="text-4xl sm:text-5xl font-black text-white">${{ calculatedEstimate().cost }}</p>
+            <p class="text-xs text-white/40 mt-1">Based on ~{{ calculatedEstimate().hours }} engineering hours</p>
+            
+            <div class="mt-6 space-y-2 text-xs border-t border-white/10 pt-4 text-left">
+              <div class="flex justify-between text-white/60">
+                <span>Estimated Turnaround:</span>
+                <strong class="text-emerald-400">{{ calculatedEstimate().turnaround }}</strong>
+              </div>
+              <div class="flex justify-between text-white/60">
+                <span>Recommended Package:</span>
+                <strong class="text-white">{{ calculatedEstimate().recommendedTier }}</strong>
+              </div>
+            </div>
+
+            <button (click)="openInquiry(calculatedEstimate().recommendedTier)" 
+                    class="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-orange-600/30 transition-all cursor-pointer">
+              Book This Scope →
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Carter / Quality Guarantee -->
+    <section class="max-w-7xl mx-auto px-6 sm:px-12 py-20 border-t border-white/5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-500">Quality Workflow</span>
+          <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight mt-2 mb-6">
+            Dual AI + Human-in-the-Loop Precision
+          </h2>
+          <p class="text-white/60 text-sm leading-relaxed mb-6">
+            Many generic data entry freelancers rely on crude automated tools that corrupt dates, scramble phone formatting, and miss subtle errors. Carter's process combines modern AI prompting for rapid structuring with meticulous human manual auditing for guaranteed precision.
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold shrink-0">1</div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Schema Blueprint</h4>
+                <p class="text-xs text-white/40">We define exact target columns, date formats, normalization rules, and data types before processing.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold shrink-0">2</div>
+              <div>
+                <h4 class="text-sm font-bold text-white">AI-Assisted Fast Parsing</h4>
+                <p class="text-xs text-white/40">High-volume documents, receipts, or scrapes are structured at machine speed using structured LLM schemas.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold shrink-0">3</div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Human-in-the-Loop Audit (Carter)</h4>
+                <p class="text-xs text-white/40">Every record is audited, verified, and cross-referenced to eliminate hallucinated or corrupted entries.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 font-bold shrink-0">4</div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Mathematical Integrity Checks</h4>
+                <p class="text-xs text-white/40">Excel checksums, VLOOKUP/XLOOKUP validations, and hash deduplication guarantee zero anomalies.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carter Profile Summary Card -->
+        <div class="p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/10">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-600 to-yellow-500 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-orange-600/20">
+              C
+            </div>
+            <div>
+              <h3 class="text-xl font-black text-white">Carter</h3>
+              <p class="text-xs text-orange-400 font-bold uppercase tracking-widest">Full-Stack Developer & MOS Specialist</p>
+            </div>
+          </div>
+          <p class="text-xs text-white/60 leading-relaxed mb-6">
+            Studying B.S. in Computer Science at UW-La Crosse (Graduating December 2026). Certified in Microsoft Office Specialist (MOS) suites and specialized in building resilient web applications, data pipelines, and intelligent automations.
+          </p>
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <p class="text-[10px] uppercase font-bold text-white/40">Office Certifications</p>
+              <p class="text-xs font-bold text-white mt-0.5">Excel • Word • PowerPoint</p>
+            </div>
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <p class="text-[10px] uppercase font-bold text-white/40">Technical Stack</p>
+              <p class="text-xs font-bold text-white mt-0.5">Python • SQL • Mongo • TS</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <a href="https://carter-portfolio.fyi" target="_blank" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-center text-xs font-bold uppercase tracking-widest text-white/80 hover:text-white transition-all">
+              View Carter's Full Portfolio →
+            </a>
+            <button (click)="openInquiry()" class="w-full py-3 rounded-xl bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/40 text-center text-xs font-bold uppercase tracking-widest text-orange-400 hover:text-white transition-all cursor-pointer">
+              Direct Inquiry via Email
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final Call to Action -->
+    <section class="max-w-4xl mx-auto px-6 py-20 text-center">
+      <div class="p-10 sm:p-14 rounded-3xl bg-gradient-to-b from-orange-600/15 via-orange-600/5 to-transparent border border-orange-500/30 relative overflow-hidden">
+        <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tighter mb-4">
+          Ready to Clean & Structure Your Data?
+        </h2>
+        <p class="text-sm sm:text-base text-white/60 max-w-xl mx-auto mb-8">
+          Send over your raw files, spreadsheets, or project instructions for an immediate turnaround estimate and sample verification.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button (click)="openInquiry('Professional Cleanse & Modeling')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-xs font-black uppercase tracking-widest hover:shadow-xl hover:shadow-orange-600/30 transition-all cursor-pointer">
+            Launch Data Inquiry →
+          </button>
+          <a href="mailto:partnership@carter-portfolio.fyi" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white text-xs font-black uppercase tracking-widest transition-all">
+            partnership@carter-portfolio.fyi
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Reversion Footer Bar -->
+    <footer class="max-w-7xl mx-auto px-6 py-12 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30">
+      <div class="flex items-center gap-4">
+        <span>Phoenix Data Operations © 2026</span>
+        <span>•</span>
+        <a href="https://carter-portfolio.fyi" target="_blank" class="hover:text-orange-400 transition-colors">Carter's Portfolio</a>
+      </div>
+      <!-- REVERSION TRIGGER BUTTON -->
+      <button (click)="toggleLegacyDataBlocks()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] font-mono uppercase tracking-wider text-white/40 hover:text-orange-400 transition-colors cursor-pointer border border-white/5">
+        🛠️ Toggle Legacy Data Blocks Marketplace View (Admin Revert)
+      </button>
+    </footer>
+
+  </div>
+</ng-container>
+
+<!-- Inquiry / Booking Modal -->
+<div *ngIf="showInquiryModal()" class="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+  <div class="bg-[#0b0b12] border border-white/15 rounded-3xl max-w-lg w-full p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <span class="text-[9px] font-black uppercase tracking-[0.3em] text-orange-500">Fast Response</span>
+        <h3 class="text-2xl font-black text-white mt-1">Start Your Data Project</h3>
+      </div>
+      <button (click)="closeInquiry()" class="text-white/40 hover:text-white text-xl p-2 cursor-pointer">✕</button>
+    </div>
+
+    <div *ngIf="inquirySent()" class="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center mb-6">
+      <p class="text-2xl mb-2">✉️</p>
+      <h4 class="text-emerald-400 font-bold text-sm">Email Client Launched!</h4>
+      <p class="text-xs text-white/60 mt-1">
+        Your email client has opened with all project details pre-filled. If it did not open automatically, you can copy the details below or email directly.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="text-[10px] font-black uppercase tracking-widest text-white/50 block mb-1.5">Your Name</label>
+        <input [(ngModel)]="inquiryName" placeholder="e.g. Alex Miller" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-orange-500/50 focus:outline-none" />
+      </div>
+
+      <div>
+        <label class="text-[10px] font-black uppercase tracking-widest text-white/50 block mb-1.5">Your Email</label>
+        <input [(ngModel)]="inquiryEmail" type="email" placeholder="alex@company.com" class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-orange-500/50 focus:outline-none" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-white/50 block mb-1.5">Package Scope</label>
+          <select [(ngModel)]="inquiryProjectScope" class="w-full px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:border-orange-500/50 focus:outline-none portal-select">
+            <option value="Starter Entry & Conversion">Starter Entry ($129)</option>
+            <option value="Professional Cleanse & Modeling">Professional Cleanse ($299)</option>
+            <option value="Enterprise Automation & Pipelines">Enterprise Automation ($599+)</option>
+            <option value="Custom Project Scope">Custom Scope / Hourly</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] font-black uppercase tracking-widest text-white/50 block mb-1.5">Estimated Records</label>
+          <input [(ngModel)]="inquiryRecordCount" placeholder="e.g. 2,500 records" class="w-full px-3 py-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:border-orange-500/50 focus:outline-none" />
+        </div>
+      </div>
+
+      <div>
+        <label class="text-[10px] font-black uppercase tracking-widest text-white/50 block mb-1.5">Project Instructions / Links</label>
+        <textarea [(ngModel)]="inquiryNotes" rows="3" placeholder="Tell us about your files, columns to standardize, or deadlines..." class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:border-orange-500/50 focus:outline-none"></textarea>
+      </div>
+
+      <div class="pt-2 flex flex-col gap-2.5">
+        <button (click)="submitInquiry()" class="w-full py-4 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-xs font-black uppercase tracking-widest hover:shadow-lg hover:shadow-orange-600/30 transition-all cursor-pointer">
+          Send Inquiry via Email →
+        </button>
+        <button (click)="copyInquiryDetails()" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer">
+          {{ copySuccess() ? '✓ Copied Details to Clipboard!' : 'Copy Details to Clipboard' }}
+        </button>
+      </div>
+
+      <p class="text-[10px] text-white/30 text-center mt-2">
+        Or email directly: <strong class="text-orange-400">partnership@carter-portfolio.fyi</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ========================================================================= -->
+<!-- ORIGINAL DATA BLOCKS MARKETPLACE (PRESERVED FOR INSTANT REVERSION)        -->
+<!-- To revert, change showDataBlocks to true in data-portal.component.ts      -->
+<!-- Or navigate to /data?view=blocks                                          -->
+<!-- ========================================================================= -->
+<ng-container *ngIf="showDataBlocks()">
+  <!-- Legacy Mode Banner with quick switch back -->
+  <div class="fixed top-24 left-1/2 -translate-x-1/2 z-[250] bg-orange-600/90 border border-orange-400 text-white px-5 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-3 text-xs font-black uppercase tracking-wider">
+    <span>⚠️ Legacy Data Blocks Marketplace Active</span>
+    <button (click)="toggleLegacyDataBlocks()" class="underline hover:text-yellow-200 cursor-pointer">Switch to Data Services View</button>
+  </div>
+
+
+
 <!-- ========== CHECKOUT REVIEW SCREEN ========== -->
 <div *ngIf="showCheckoutReview()" class="checkout-review-overlay">
   <div class="checkout-review-container">
@@ -430,3 +880,5 @@
     Phoenix Data Intelligence — All data sourced from public records under FOIA
   </p>
 </div>
+
+</ng-container>

@@ -906,3 +906,37 @@
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Custom Range Slider for Scope Estimator */
+.data-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  height: 8px;
+  outline: none;
+}
+.data-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #eab308);
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.6);
+  border: 2px solid #ffffff;
+  transition: transform 0.15s ease;
+}
+.data-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.data-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #eab308);
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.6);
+  border: 2px solid #ffffff;
+}

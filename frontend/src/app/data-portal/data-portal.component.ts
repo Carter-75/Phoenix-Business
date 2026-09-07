@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, computed, effect } from '
 import { PendingIntent, CartItem } from '../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../services/api.service';
 
@@ -47,11 +47,219 @@ interface DataPurchase {
 @Component({
   selector: 'app-data-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './data-portal.component.html',
   styleUrl: './data-portal.component.css'
 })
 export class DataPortalComponent implements OnInit, OnDestroy {
+  // =========================================================================
+  // REVERSION TOGGLE (EASY TO REVERT)
+  // Set to `true` to re-enable the original Data Blocks Marketplace view.
+  // Set to `false` to display Carter's Data Entry & Operations Services showcase.
+  // Can also be toggled in real-time by passing ?view=blocks in the URL or using the admin switch.
+  // =========================================================================
+  showDataBlocks = signal<boolean>(false);
+
+  // Service Packages & Pricing Benchmarks (Researched 2025-2026 Competitive Market Rates)
+  readonly dataServiceTiers = [
+    {
+      id: 'starter',
+      title: 'Starter Entry & Conversion',
+      tagline: 'Ideal for small business digitization, scanned paperwork & routine list hygiene.',
+      hourlyRate: 29,
+      flatRate: 129,
+      unit: 'Up to 1,000 records or 15 document pages',
+      turnaround: '24 - 48 Hours',
+      badge: 'Fast Turnaround',
+      color: '#34d399',
+      features: [
+        'High-speed manual typing & data extraction',
+        'PDF, physical scans, forms & receipts transcribed to Excel / Sheets',
+        'Standardized data formatting (dates, phone numbers, addresses, casing)',
+        'Basic deduplication & record sanity validation',
+        'Structured delivery (.xlsx, .csv, or Google Sheets)',
+        '1 round of verification edits included'
+      ]
+    },
+    {
+      id: 'professional',
+      title: 'Professional Cleanse & Modeling',
+      tagline: 'Deep data cleansing, schema standardization & executive spreadsheet engineering.',
+      hourlyRate: 59,
+      flatRate: 299,
+      unit: 'Up to 5,000 records',
+      turnaround: '48 Hours',
+      badge: 'Most Popular',
+      featured: true,
+      color: '#f97316',
+      features: [
+        'Deep data hygiene, deduplication & address/name normalization',
+        'MOS-Certified Excel architecture (XLOOKUP, INDEX/MATCH, dynamic arrays)',
+        'Data validation rules, error guards, dropdowns & automated alerts',
+        'Word & PowerPoint executive reporting & corporate asset formatting',
+        'Human-in-the-loop AI-assisted cross-referencing for 99.9% accuracy',
+        '2 full revision cycles + 14-day quality warranty'
+      ]
+    },
+    {
+      id: 'enterprise',
+      title: 'Enterprise Automation & Pipelines',
+      tagline: 'Automated extraction scripts, ETL pipelines & high-volume database migrations.',
+      hourlyRate: 95,
+      flatRate: 599,
+      unit: 'Up to 25,000+ records / recurring batch',
+      turnaround: 'Priority 24 - 48 Hours',
+      badge: 'High-Volume Scale',
+      color: '#818cf8',
+      features: [
+        'Custom Python & TypeScript data extraction / web scraping scripts',
+        'Power Query & automated multi-source synchronization',
+        'SQL / MongoDB staging, migration scripts & relational schema design',
+        'Complete data hygiene audit report with anomaly flags',
+        'Direct developer communication & custom delivery formats',
+        'Priority SLAs & ongoing scheduled updates available'
+      ]
+    }
+  ];
+
+  // Core Capabilities
+  readonly capabilities = [
+    {
+      icon: '📊',
+      title: 'MOS-Certified Excel Engineering',
+      description: 'Advanced workbook architecture, complex lookup formulas (XLOOKUP, INDEX/MATCH), automated dropdowns, conditional logic, and executive Pivot Table dashboards.'
+    },
+    {
+      icon: '🧹',
+      title: 'Deep Data Hygiene & Deduplication',
+      description: 'Eliminating duplicate entries, repairing broken schemas, normalizing telephone/address/date standards, and validating domains/emails with 99.9% precision.'
+    },
+    {
+      icon: '📄',
+      title: 'Document & Receipt Digitization',
+      description: 'Accurate transcription from physical paperwork, PDFs, scanned invoices, handwritten notes, and legacy databases into structured digital records.'
+    },
+    {
+      icon: '🗄️',
+      title: 'Database Staging & SQL / Mongo ETL',
+      description: 'Structuring, migrating, and seeding clean datasets into MongoDB, PostgreSQL, MySQL, or cloud CRMs (HubSpot, Salesforce, Airtable).'
+    },
+    {
+      icon: '📑',
+      title: 'Executive Word & PowerPoint Assets',
+      description: 'MOS-certified document formatting for board presentations, sales pitch decks, investor tear-sheets, and executive Word documentation.'
+    },
+    {
+      icon: '🤖',
+      title: 'AI Prompting & Human-in-the-Loop QA',
+      description: 'Accelerated processing using advanced AI prompting techniques paired with rigorous manual verification so zero hallucinated or flawed data slips through.'
+    }
+  ];
+
+  // Interactive Project Cost & Scope Estimator
+  estimatedRecords = signal<number>(2500);
+  selectedComplexity = signal<'basic' | 'cleanse' | 'pipeline'>('cleanse');
+
+  calculatedEstimate = computed(() => {
+    const records = this.estimatedRecords();
+    const comp = this.selectedComplexity();
+
+    if (comp === 'basic') {
+      const cost = Math.max(129, Math.round(records * 0.10));
+      const hours = Math.max(3, Math.round(records / 300));
+      return {
+        cost,
+        hours,
+        turnaround: records > 5000 ? '3 - 4 Days' : '24 - 48 Hours',
+        recommendedTier: 'Starter Entry & Conversion'
+      };
+    } else if (comp === 'cleanse') {
+      const cost = Math.max(299, Math.round(records * 0.12));
+      const hours = Math.max(5, Math.round(records / 250));
+      return {
+        cost,
+        hours,
+        turnaround: records > 8000 ? '4 - 5 Days' : '48 Hours',
+        recommendedTier: 'Professional Cleanse & Modeling'
+      };
+    } else {
+      const cost = Math.max(599, Math.round(350 + records * 0.04));
+      const hours = Math.max(8, Math.round(records / 1000 + 6));
+      return {
+        cost,
+        hours,
+        turnaround: records > 20000 ? '5 - 7 Days' : '2 - 3 Days',
+        recommendedTier: 'Enterprise Automation & Pipelines'
+      };
+    }
+  });
+
+  // Inquiry / Contact Modal
+  showInquiryModal = signal<boolean>(false);
+  inquiryName = '';
+  inquiryEmail = '';
+  inquiryProjectScope = 'Professional Cleanse & Modeling';
+  inquiryRecordCount = '1,000 - 5,000 records';
+  inquiryNotes = '';
+  inquirySent = signal<boolean>(false);
+  copySuccess = signal<boolean>(false);
+
+  openInquiry(tierTitle?: string) {
+    if (tierTitle) {
+      this.inquiryProjectScope = tierTitle;
+    }
+    this.inquirySent.set(false);
+    this.copySuccess.set(false);
+    this.showInquiryModal.set(true);
+  }
+
+  closeInquiry() {
+    this.showInquiryModal.set(false);
+  }
+
+  setRecordsPreset(count: number) {
+    this.estimatedRecords.set(count);
+  }
+
+  submitInquiry() {
+    const subject = encodeURIComponent(`[Data Inquiry] ${this.inquiryProjectScope} (${this.inquiryRecordCount})`);
+    const body = encodeURIComponent(
+      `Hi Carter,\n\nI'm interested in your Data Entry & Operations services.\n\n` +
+      `Client Name: ${this.inquiryName || 'Not provided'}\n` +
+      `Contact Email: ${this.inquiryEmail || 'Not provided'}\n` +
+      `Selected Package / Scope: ${this.inquiryProjectScope}\n` +
+      `Estimated Volume: ${this.inquiryRecordCount}\n\n` +
+      `Project Details / Instructions:\n${this.inquiryNotes || 'None specified'}\n\n` +
+      `Sent via Phoenix Data Portal`
+    );
+    window.open(`mailto:partnership@carter-portfolio.fyi?subject=${subject}&body=${body}`, '_blank');
+    this.inquirySent.set(true);
+  }
+
+  copyInquiryDetails() {
+    const text = 
+      `Data Operations Inquiry\n` +
+      `----------------------\n` +
+      `Name: ${this.inquiryName || 'Not provided'}\n` +
+      `Email: ${this.inquiryEmail || 'Not provided'}\n` +
+      `Scope: ${this.inquiryProjectScope}\n` +
+      `Estimated Records: ${this.inquiryRecordCount}\n` +
+      `Details: ${this.inquiryNotes || 'None'}\n\n` +
+      `Direct Email: partnership@carter-portfolio.fyi`;
+    navigator.clipboard.writeText(text).then(() => {
+      this.copySuccess.set(true);
+      setTimeout(() => this.copySuccess.set(false), 3000);
+    });
+  }
+
+  toggleLegacyDataBlocks() {
+    this.showDataBlocks.update(v => !v);
+    if (this.showDataBlocks() && this.records().length === 0) {
+      this.fetchStats();
+      this.search();
+    }
+  }
+
   public api = inject(ApiService);
   private meta = inject(Meta);
   private title = inject(Title);
@@ -128,25 +336,38 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   activeTab = signal<'search' | 'library'>('search');
 
   ngOnInit() {
-    this.title.setTitle('Data Intelligence — AI-Enriched Public Records | Phoenix');
-    this.meta.updateTag({ name: 'description', content: 'Search AI-enriched building permits, government contracts, and public records. Real-time data intelligence for businesses. One-time purchase, instant access.' });
-    this.meta.updateTag({ property: 'og:title', content: 'Phoenix Data Intelligence' });
-    this.meta.updateTag({ property: 'og:description', content: 'AI-enriched public records for businesses. Building permits, government contracts, and more.' });
-
-    // Check for purchase success redirect
-    const purchaseSuccess = this.route.snapshot.queryParamMap.get('purchase');
-    if (purchaseSuccess === 'success') {
-      this.activeTab.set('library');
-      this.router.navigate([], { replaceUrl: true, queryParams: {} });
+    // Support URL query param to easily preview legacy data blocks: /data?view=blocks
+    const viewParam = this.route.snapshot.queryParamMap.get('view');
+    if (viewParam === 'blocks') {
+      this.showDataBlocks.set(true);
     }
 
-    // Check if there's a record ID in the route (shareable link: /data/:id)
-    const recordId = this.route.snapshot.paramMap.get('id');
-    if (recordId) {
-      this.loadSingleRecord(recordId);
+    if (!this.showDataBlocks()) {
+      this.title.setTitle('Data Operations & Hygiene — Precision Data Entry, Cleaning & Modeling | Carter');
+      this.meta.updateTag({ name: 'description', content: 'Professional data entry, spreadsheet engineering, deduplication, and database preparation by Carter. MOS Certified in Excel, Word, and PowerPoint with 99.9% precision.' });
+      this.meta.updateTag({ property: 'og:title', content: 'Carter | Professional Data Entry & Operations' });
+      this.meta.updateTag({ property: 'og:description', content: 'Transform raw, messy datasets into structured, pristine spreadsheets and databases. Fast turnaround, MOS-certified precision.' });
     } else {
-      this.fetchStats();
-      this.search();
+      this.title.setTitle('Data Intelligence — AI-Enriched Public Records | Phoenix');
+      this.meta.updateTag({ name: 'description', content: 'Search AI-enriched building permits, government contracts, and public records. Real-time data intelligence for businesses. One-time purchase, instant access.' });
+      this.meta.updateTag({ property: 'og:title', content: 'Phoenix Data Intelligence' });
+      this.meta.updateTag({ property: 'og:description', content: 'AI-enriched public records for businesses. Building permits, government contracts, and more.' });
+
+      // Check for purchase success redirect
+      const purchaseSuccess = this.route.snapshot.queryParamMap.get('purchase');
+      if (purchaseSuccess === 'success') {
+        this.activeTab.set('library');
+        this.router.navigate([], { replaceUrl: true, queryParams: {} });
+      }
+
+      // Check if there's a record ID in the route (shareable link: /data/:id)
+      const recordId = this.route.snapshot.paramMap.get('id');
+      if (recordId) {
+        this.loadSingleRecord(recordId);
+      } else {
+        this.fetchStats();
+        this.search();
+      }
     }
 
     // Fetch dynamic pricing from backend — no silent fallback
