@@ -285,19 +285,18 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   stateFilter = '';
   sourceFilter = '';
 
-  // Cart
-  cart = signal<CartItem[]>([]);
-  cartOpen = signal(false);
-
-  // Sync local cart → shared API service cart (for navbar badge)
-  private cartSync = effect(() => {
-    this.api.dataCart.set(this.cart());
-  });
+  // Cart (synchronized with shared ApiService)
+  cart = computed(() => this.api.dataCart());
   cartLoading = signal(false);
   pricePerBlock = signal(249); // Default, updated from backend
   basePrice = signal(249); // Pre-discount price
   discountPercent = signal(0);
-  cartTotalPrice = computed(() => this.cart().length * this.pricePerBlock());
+  cartTotalPrice = computed(() => {
+    return this.cart().reduce((sum, item) => {
+      if (item.type === 'service') return sum + (item.price || 0);
+      return sum + (item.price || this.pricePerBlock());
+    }, 0);
+  });
 
   // Saved searches
   savedSearches = signal<SavedSearch[]>([]);
@@ -336,9 +335,10 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   activeTab = signal<'search' | 'library'>('search');
 
   ngOnInit() {
-    // Support URL query param to easily preview legacy data blocks: /data?view=blocks
+    // Support URL query param to easily preview legacy data blocks: /data?view=blocks or direct record link /data/:id
     const viewParam = this.route.snapshot.queryParamMap.get('view');
-    if (viewParam === 'blocks') {
+    const recordIdParam = this.route.snapshot.paramMap.get('id');
+    if (viewParam === 'blocks' || recordIdParam) {
       this.showDataBlocks.set(true);
     }
 
@@ -418,8 +418,8 @@ export class DataPortalComponent implements OnInit, OnDestroy {
         blockLabel: intent.blockLabel || label
       }).subscribe({
         next: (res: any) => {
-          this.cart.set(res.cart || []);
-          this.cartOpen.set(true);
+          this.api.dataCart.set(res.cart || []);
+          this.api.cartOpen.set(true);
         },
         error: () => {}
       });
@@ -588,10 +588,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   // ---- Cart ----
 
   loadCart() {
-    this.api.get<any>('data-portal/cart').subscribe({
-      next: (res) => this.cart.set(res.cart || []),
-      error: () => {}
-    });
+    this.api.loadCart();
   }
 
   addToCart() {
@@ -614,9 +611,9 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       blockLabel: intent.blockLabel
     }).subscribe({
       next: (res: any) => {
-        this.cart.set(res.cart || []);
+        this.api.dataCart.set(res.cart || []);
         this.cartLoading.set(false);
-        this.cartOpen.set(true);
+        this.api.cartOpen.set(true);
       },
       error: () => this.cartLoading.set(false)
     });
@@ -673,21 +670,15 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   }
 
   removeFromCart(index: number) {
-    this.api.delete(`data-portal/cart/${index}`).subscribe({
-      next: (res: any) => this.cart.set(res.cart || []),
-      error: () => {}
-    });
+    this.api.removeCartItem(index);
   }
 
   clearCart() {
-    this.api.delete('data-portal/cart').subscribe({
-      next: () => this.cart.set([]),
-      error: () => {}
-    });
+    this.api.clearCart();
   }
 
   toggleCart() {
-    this.cartOpen.update(v => !v);
+    this.api.toggleCart();
   }
 
   // ---- Checkout ----

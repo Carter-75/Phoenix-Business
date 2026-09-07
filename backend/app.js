@@ -217,7 +217,7 @@ featureRoutes.forEach(route => {
 // --- Final Handling ---
 
 // Root welcome
-app.get('/', (req, res) => {
+app.get(['/', '/api'], (req, res) => {
   res.send(`API for ${PROJECT_NAME} is running`);
 });
 
