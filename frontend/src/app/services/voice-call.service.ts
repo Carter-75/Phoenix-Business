@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 
 export interface VoiceCallSession {
   agentId: string;
-  apiKey: string;
+  clientSecret: string;
   wssUrl: string;
 }
 
@@ -53,12 +53,11 @@ export class VoiceCallService {
       this.audioContext = new AudioCtx({ sampleRate: 24000 });
       this.nextPlayTime = this.audioContext.currentTime;
 
-      // Note: Browser native WebSockets connecting directly to xAI Realtime
-      // Subprotocol array can pass auth or custom query param if needed
-      const wsUrl = `${session.wssUrl}&api_key=${encodeURIComponent(session.apiKey)}`;
-      
-      // Fallback: Connect via WebSocket
-      this.ws = new WebSocket(wsUrl);
+      // Note: Browser native WebSockets cannot set Authorization headers.
+      // xAI requires passing the ephemeral client secret via Sec-WebSocket-Protocol.
+      this.ws = new WebSocket(session.wssUrl, [
+        `xai-client-secret.${session.clientSecret}`
+      ]);
 
       this.ws.onopen = () => {
         this.isConnecting.set(false);

@@ -118,8 +118,8 @@ router.post('/chat', botRateLimiter, async (req, res) => {
 });
 
 // @route   GET /api/bot/realtime-session
-// @desc    Get session credentials for xAI Realtime Voice Agent
-router.get('/realtime-session', (req, res) => {
+// @desc    Get ephemeral client secret for xAI Realtime Voice Agent (browser-safe)
+router.get('/realtime-session', async (req, res) => {
   const apiKey = process.env.XAI_API_KEY;
   const agentId = process.env.XAI_AGENT_ID || 'agent_srRaCLNslwuGkwD9';
 
@@ -129,11 +129,34 @@ router.get('/realtime-session', (req, res) => {
     });
   }
 
-  res.json({
-    agentId,
-    apiKey,
-    wssUrl: `wss://api.x.ai/v1/realtime?agent_id=${agentId}`
-  });
+  try {
+    // Generate a short-lived ephemeral token — never send the raw API key to the browser
+    const response = await fetch('https://api.x.ai/v1/realtime/client_secrets', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ expires_after: { seconds: 300 } }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error('xAI client_secrets error:', response.status, errBody);
+      return res.status(502).json({ error: 'Failed to generate xAI voice session token.' });
+    }
+
+    const data = await response.json();
+
+    res.json({
+      agentId,
+      clientSecret: data.client_secret,
+      wssUrl: `wss://api.x.ai/v1/realtime?agent_id=${agentId}`
+    });
+  } catch (err) {
+    console.error('xAI realtime-session error:', err);
+    res.status(500).json({ error: 'Internal error creating voice session.' });
+  }
 });
 
 module.exports = router;
