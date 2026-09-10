@@ -1,3 +1,4 @@
+import { ConversionService } from '../services/conversion.service';
 import { Component, signal, inject, OnInit, afterNextRender, OnDestroy } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import gsap from 'gsap';
@@ -21,6 +22,7 @@ import { VoiceCallService } from '../services/voice-call.service';
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private conversions = inject(ConversionService);
   private api = inject(ApiService);
   isPaintingPage = inject(ActivatedRoute).snapshot.routeConfig?.path === 'painting-websites';
   public settings = inject(PhoenixSettingsService);
@@ -86,15 +88,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
 
     this.submitting.set(true);
-    this.api.post('leads/capture', payload).subscribe({
-      next: () => {
+    this.api.post<{requestId: string}>('leads/capture', payload).subscribe({
+      next: (result) => {
         this.submitting.set(false);
         this.success.set(true);
         form.reset();
         // Fire only after the server confirms durable capture. No contact data enters analytics.
-        const w = window as Window & { dataLayer?: unknown[] };
-        w.dataLayer = w.dataLayer || [];
-        w.dataLayer.push({ event: 'audit_request_saved', offer: 'website_audit' });
+        this.conversions.lead(result.requestId);
       },
       error: (err) => {
         this.submitting.set(false);

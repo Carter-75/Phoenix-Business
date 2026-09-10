@@ -30,7 +30,7 @@ function createCaptureHandler({ Request, notify }) {
       notification = 'sent';
       await Request.updateOne({ _id: record._id }, { $set: { notification } });
     } catch { /* The CRM exposes pending notifications for manual recovery. */ }
-    return res.status(201).json({ status: 'saved', notification, message: 'Your request is saved.' });
+    return res.status(201).json({ status: 'saved', requestId: String(record._id), notification, message: 'Your request is saved.' });
   };
 }
 module.exports = { createCaptureHandler };

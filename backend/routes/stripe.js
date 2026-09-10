@@ -5,6 +5,8 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = require('stripe')(stripeSecretKey);
 const User = require('../models/user');
 const Contract = require('../models/Contract');
+const { createCheckoutVerification } = require('../services/checkout-verification');
+router.get('/checkout-status', createCheckoutVerification(stripe));
 
 /**
  * Helper function to send SMS alert to admin via Email-to-SMS (Spam Evading Format)
@@ -43,6 +45,7 @@ const sendAdminSMS = async (message) => {
  * Middleware to verify Stripe configuration
  */
 const verifyStripe = (req, res, next) => {
+    if (process.env.TEST_MODE === 'true' && !stripeSecretKey?.startsWith('sk_test_')) return res.status(503).json({ error: 'Test prices require Stripe test credentials.' });
     if (!stripeSecretKey) {
         console.error('STRIPE: Secret key missing in environment.');
         return res.status(503).json({ error: 'Stripe is not configured on the server.' });
@@ -276,7 +279,7 @@ router.post('/checkout', retiredDataSales, verifyStripe, async (req, res) => {
             mode: mode,
             success_url: isDataTier 
                 ? `${baseUrl}/data?purchase=success` 
-                : `${baseUrl}/dashboard?success=true`,
+                : `${baseUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: isDataTier 
                 ? `${baseUrl}/data?canceled=true` 
                 : `${baseUrl}/services?canceled=true`,
@@ -430,7 +433,7 @@ router.post('/unified-checkout', retiredDataSales, verifyStripe, async (req, res
         const sessionConfig = {
             line_items,
             mode,
-            success_url: `${baseUrl}/dashboard?success=true`,
+            success_url: `${baseUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${baseUrl}/checkout?canceled=true`,
             customer_email: email || (user ? user.email : undefined),
             metadata: {

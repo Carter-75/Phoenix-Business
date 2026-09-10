@@ -22,6 +22,7 @@ export const routes: Routes = [
   { path: 'terms', component: TermsComponent },
   { path: 'refunds', component: RefundPolicyComponent },
   { path: 'privacy', component: PrivacyPolicyComponent },
+  { path: 'checkout-success', loadComponent: () => import('./checkout-success/checkout-success.component').then(m => m.CheckoutSuccessComponent) },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'leave-review', component: LeaveReviewComponent },
   { path: 'leave-review/:token', component: LeaveReviewComponent },

@@ -1,3 +1,4 @@
+import { ConversionService } from '../services/conversion.service';
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -39,6 +40,7 @@ import { SeoService } from '../services/seo.service';
   `
 })
 export class DataCleanupComponent {
+  private conversions = inject(ConversionService);
   private api = inject(ApiService);
   busy = signal(false);
   saved = signal(false);
@@ -54,14 +56,13 @@ export class DataCleanupComponent {
     if (!form.reportValidity()) return;
     this.busy.set(true); this.saved.set(false); this.error.set('');
     const params = new URLSearchParams(location.search);
-    this.api.post('leads/capture', {
+    this.api.post<{requestId: string}>('leads/capture', {
       name: data.get('name'), email: data.get('email'), businessName: data.get('businessName'),
       message: '[Data cleanup request] ' + String(data.get('message') || ''),
       attribution: Object.fromEntries(['utm_source','utm_medium','utm_campaign','utm_content'].map(key => [key, params.get(key)]))
     }).subscribe({
-      next: () => { this.busy.set(false); this.saved.set(true); form.reset();
-        const w = window as Window & {dataLayer?: unknown[]};
-        (w.dataLayer ||= []).push({event:'data_cleanup_request_saved',offer:'client_data_cleanup'});
+      next: (result) => { this.busy.set(false); this.saved.set(true); form.reset();
+        this.conversions.lead(result.requestId);
       },
       error: err => { this.busy.set(false); this.error.set(err.error?.error || 'We could not save your request. Please try again.'); }
     });
