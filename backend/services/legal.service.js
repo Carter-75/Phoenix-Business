@@ -9,7 +9,7 @@ const getDynamicPolicies = (contractData = {}) => {
 
     let commitmentText = '';
     if (tier === 'simple') {
-        commitmentText = `- One-Time Project: Engagement terminates upon delivery of final assets and full payment of $${(setupFee / 100).toFixed(2)}. No long-term commitment required.`;
+        commitmentText = `- Simple Launch Subscription: You agree to a one-time setup fee of $${(setupFee / 100).toFixed(2)} and recurring monthly payments of $${(monthlyFee / 100).toFixed(2)}. The first monthly payment is due after the 30-day subscription trial. The setup fee is due at checkout. The twelve-month commitment, renewal, cancellation, and separate website buyout provisions below apply.`;
     } else {
         commitmentText = `- Subscription Service: This subscription requires a mandatory minimum commitment of twelve (12) consecutive months. You have agreed to a $${(setupFee / 100).toFixed(2)} setup fee and $${(monthlyFee / 100).toFixed(2)} monthly payments.\n- Price Lock Guarantee: Your monthly subscription price for this specific website project is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee for this project will never go up. Note that this guarantee applies strictly on a per-project basis; any additional websites or distinct projects you commission from Phoenix will be subject to the pricing and a separate contract applicable at that time.`;
     }

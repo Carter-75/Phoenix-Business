@@ -760,6 +760,7 @@ router.post('/webhook', async (req, res) => {
         }
     } catch (err) {
         console.error('Failed to check for processed event:', err.message);
+        return res.status(503).json({ error: 'Payment processing is temporarily unavailable.' });
     }
 
     // Best Practice for long running servers is returning early, BUT on Vercel Serverless, 
@@ -767,8 +768,10 @@ router.post('/webhook', async (req, res) => {
     
     // Process the event
     try {
-        if (event.type === 'checkout.session.completed') {
+        if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
             const session = event.data.object;
+            // Delayed payment methods can complete checkout before money is paid.
+            if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return res.json({ received: true, pending: true });
 
             if (session.metadata && session.metadata.action === 'cancellation_payment') {
                 try {
