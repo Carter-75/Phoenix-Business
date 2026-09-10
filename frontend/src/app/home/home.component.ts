@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit, afterNextRender, OnDestroy } from '@
 import { ApiService } from '../services/api.service';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../shared/pipes/safe.pipe';
@@ -22,11 +22,13 @@ import { VoiceCallService } from '../services/voice-call.service';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private api = inject(ApiService);
+  isPaintingPage = inject(ActivatedRoute).snapshot.routeConfig?.path === 'painting-websites';
   public settings = inject(PhoenixSettingsService);
   public voiceCall = inject(VoiceCallService);
   
   submitting = signal(false);
   success = signal(false);
+  errorMessage = signal('');
   
   // Secret Menu
   secretClickCount = signal(0);
@@ -43,7 +45,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       name: 'Premium Cookies', 
       type: 'Retail Experience', 
       url: 'https://example2-cookies.vercel.app/',
-      desc: 'High-performance retail site designed for maximum conversion.'
+      desc: 'Retail design demo with product browsing.'
     },
     {
       name: 'Craft Coffee', 
@@ -68,6 +70,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onSubmitLead(event: Event) {
     event.preventDefault();
+    if (this.submitting()) return;
+    this.success.set(false);
+    this.errorMessage.set('');
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
     
@@ -76,7 +81,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       email: formData.get('email'),
       businessName: formData.get('businessName'),
       message: formData.get('requirements'),
-      guideType: 'Technical Audit Request'
+      website: formData.get('website'),
+      attribution: Object.fromEntries(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].map(key => [key, new URLSearchParams(location.search).get(key)]))
     };
 
     this.submitting.set(true);
@@ -85,11 +91,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.submitting.set(false);
         this.success.set(true);
         form.reset();
-        setTimeout(() => this.success.set(false), 5000);
+        // Fire only after the server confirms durable capture. No contact data enters analytics.
+        const w = window as Window & { dataLayer?: unknown[] };
+        w.dataLayer = w.dataLayer || [];
+        w.dataLayer.push({ event: 'audit_request_saved', offer: 'website_audit' });
       },
       error: (err) => {
         this.submitting.set(false);
-        alert('Failed to send request. Please check your connection.');
+        this.errorMessage.set(err.error?.error || 'Your request could not be saved. Please try again.');
       }
     });
   }

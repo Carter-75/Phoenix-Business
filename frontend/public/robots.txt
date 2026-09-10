@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /growth-crm
+Disallow: /dashboard
+Disallow: /checkout
+Sitemap: https://phoenixwebsites.ai/sitemap.xml

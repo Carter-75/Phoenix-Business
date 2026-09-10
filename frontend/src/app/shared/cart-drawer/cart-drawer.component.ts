@@ -22,7 +22,7 @@ import { ApiService, CartItem } from '../../services/api.service';
       <div *ngIf="cartItems().length === 0" class="cart-empty">
         <p class="cart-empty-icon">🛒</p>
         <p>Your cart is empty</p>
-        <p class="cart-empty-sub">Add data blocks or service plans to get started</p>
+        <p class="cart-empty-sub">Choose a service plan to get started</p>
       </div>
 
       <!-- Cart Items -->

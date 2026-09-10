@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const ownerOnly = require('../middleware/growth-admin');
 const Review = require('../models/Review');
 const Contract = require('../models/Contract');
 
@@ -168,7 +169,7 @@ router.patch('/:reviewId/dismiss', async (req, res) => {
 
 // @route   PATCH /api/reviews/:reviewId/admin-comment
 // @desc    Add an admin comment to a review
-router.patch('/:reviewId/admin-comment', async (req, res) => {
+router.patch('/:reviewId/admin-comment', ownerOnly, async (req, res) => {
   try {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -206,7 +207,7 @@ router.get('/public', async (req, res) => {
 
 // @route   GET /api/reviews/all
 // @desc    Get all reviews for admin dashboard
-router.get('/all', async (req, res) => {
+router.get('/all', ownerOnly, async (req, res) => {
   try {
     // Add admin check if you have an isAdmin field. For now checking authentication.
     if (!req.isAuthenticated()) {

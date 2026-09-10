@@ -30,11 +30,12 @@
 
         <h3 class="fluid-h3 mb-4">{{tier.title}}</h3>
         <div class="mb-12 flex flex-col">
-          <div class="flex items-baseline gap-2">
+          <div *ngIf="tier.id !== 'data'; else dataQuote" class="flex items-baseline gap-2">
             <span *ngIf="discountPercentage() > 0" class="text-xl font-bold line-through text-white/30 mr-1">${{tier.baseCost}}</span>
             <span class="text-4xl font-black" [class.text-orange-500]="discountPercentage() > 0">${{tier.cost}}</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-white/30">{{ tier.id === 'data' ? '/ Block' : '/ Month' }}</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-white/30">/ Month</span>
           </div>
+          <ng-template #dataQuote><p class="text-2xl font-bold">Quote after review</p><p class="text-sm text-white/60 mt-2">Tell us about your files and the result you need.</p></ng-template>
           <div *ngIf="tier.setup" class="flex flex-col mt-2">
             <span *ngIf="discountPercentage() > 0" class="text-[10px] font-bold line-through text-white/30">+ ${{tier.baseSetup}} SETUP FEE</span>
             <span class="text-[10px] font-black uppercase tracking-widest text-orange-500">+ ${{tier.setup}} SETUP FEE</span>
@@ -65,7 +66,7 @@
         <div *ngIf="activeDropdownTier() !== tier.id">
           <button (click)="tier.id === 'data' ? navigateToData() : activeDropdownTier.set(tier.id); tier.id !== 'data' && cardDiscountCode.set('')" 
                   class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
-            {{ tier.id === 'data' ? 'Browse Data' : 'Get Started' }}
+            {{ tier.id === 'data' ? 'Request Data Cleanup' : 'Get Started' }}
           </button>
         </div>
 

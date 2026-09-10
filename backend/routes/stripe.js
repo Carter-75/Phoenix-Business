@@ -1,3 +1,4 @@
+const retiredDataSales = require('../middleware/retired-data-sales');
 const express = require('express');
 const router = express.Router();
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -92,7 +93,7 @@ router.post('/validate-discount', async (req, res) => {
  * POST /api/stripe/checkout
  * Generates a dynamic Stripe Checkout session for services.
  */
-router.post('/checkout', verifyStripe, async (req, res) => {
+router.post('/checkout', retiredDataSales, verifyStripe, async (req, res) => {
     try {
         const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp, discountCode } = req.body;
         const user = req.user;
@@ -317,7 +318,7 @@ router.post('/checkout', verifyStripe, async (req, res) => {
  * Uses subscription mode if any service tiers are present (data becomes one-time add-on).
  * Uses payment mode if only data blocks.
  */
-router.post('/unified-checkout', verifyStripe, async (req, res) => {
+router.post('/unified-checkout', retiredDataSales, verifyStripe, async (req, res) => {
     try {
         const { cartItems, email, name, businessName, acceptedContract, contractTimestamp, discountCode } = req.body;
         const user = req.user;

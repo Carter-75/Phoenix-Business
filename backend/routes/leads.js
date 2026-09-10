@@ -6,7 +6,10 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'mail.privateemail.com',
     port: parseInt(process.env.SMTP_PORT || '465'),
-    secure: true, // true for 465, false for other ports
+    secure: parseInt(process.env.SMTP_PORT || '465') === 465,
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 8000,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -19,74 +22,34 @@ const Lead = require('../models/Lead');
  * @route POST /api/leads/capture
  * @desc Capture a lead and send a free guide
  */
-router.post('/capture', async (req, res) => {
-    const { email, name, businessName, guideType } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ error: 'Email is required' });
-    }
-
+const Request = require('../models/AuditRequest');
+const ownerOnly = require('../middleware/growth-admin');
+const { createCaptureHandler } = require('../services/capture.service');
+const { rateLimit } = require('express-rate-limit');
+router.post('/capture', rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, standardHeaders: 'draft-8', legacyHeaders: false }), createCaptureHandler({
+    Request,
+    notify: data => transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER,
+        replyTo: data.email,
+        subject: 'New Phoenix website audit request',
+        text: `Name: ${data.name}\nEmail: ${data.email}\nBusiness: ${data.businessName}\nWebsite: ${data.website}\nProject details: ${data.message}`
+    })
+}));
+router.get('/requests', ownerOnly, async (req, res) => {
+    try { res.json(await Request.find().sort({ createdAt: -1 }).limit(100).lean()); }
+    catch { res.status(503).json({ error: 'Cannot load requests.' }); }
+});
+router.patch('/requests/:id', ownerOnly, async (req, res) => {
+    if (!/^[a-f0-9]{24}$/i.test(req.params.id)) return res.status(400).json({ error: 'Invalid request ID.' });
+    const { stage, nextAction, nextActionAt } = req.body;
+    if (!['new', 'qualified', 'call_booked', 'proposal', 'won', 'lost'].includes(stage) || typeof nextAction !== 'string' || nextAction.length > 1000) return res.status(400).json({ error: 'Invalid stage or next action.' });
+    if (nextActionAt && !Number.isFinite(Date.parse(nextActionAt))) return res.status(400).json({ error: 'Invalid date.' });
     try {
-        // Check if already unsubscribed
-        const existingLead = await Lead.findOne({ email: email.toLowerCase() });
-        if (existingLead && existingLead.status === 'unsubscribed') {
-            return res.status(400).json({ error: 'This email has been unsubscribed.' });
-        }
-
-        // 1. Save or Update the lead in DB
-        if (!existingLead) {
-            await Lead.create({
-                email: email.toLowerCase(),
-                name,
-                businessName,
-                status: 'pending',
-                source: 'portfolio',
-                sourceEmail: process.env.EMAIL_USER
-            });
-        }
-
-        // 2. Send the guide to the user
-        const userMailOptions = {
-            from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: 'Your Free AI Implementation Guide & SaaS Checklist',
-            html: `
-                <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                    <h2 style="color: #2563eb;">Hi ${name || 'there'},</h2>
-                    <p>Thank you for requesting my <b>AI Implementation Guide & SaaS Scaling Checklist</b>.</p>
-                    <p>This guide covers the 5 critical pillars of production-grade AI integration that $10k+ agencies use to scale high-concurrency applications.</p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://www.carter-portfolio.fyi/assets/guides/ai-saas-checklist.pdf" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Download The Guide</a>
-                    </div>
-                    <p>If you're ready to automate your revenue engines or have questions about your specific technical roadmap, just reply to this email.</p>
-                    <br><br>
-                    ${process.env.EMAIL_SIGNATURE || ''}
-                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                    <p style="font-size: 11px; color: #999;">
-                        <a href="${process.env.PROD_BACKEND_URL || 'http://localhost:3000'}/api/leads/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a>
-                    </p>
-                </div>
-            `
-        };
-
-        // 3. Send notification to Carter
-        const adminMailOptions = {
-            from: `"Phoenix Lead Bot" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_USER,
-            subject: `🔥 New Lead: ${name || 'Unknown'} (${email})`,
-            text: `New lead capture from web:\nName: ${name}\nBusiness: ${businessName}\nEmail: ${email}\nGuide: ${guideType || 'General'}`
-        };
-
-        await Promise.all([
-            transporter.sendMail(userMailOptions),
-            transporter.sendMail(adminMailOptions)
-        ]);
-
-        res.json({ status: 'success', message: 'Guide sent and lead recorded.' });
-    } catch (error) {
-        console.error('Lead Capture Error:', error);
-        res.status(500).json({ error: 'Failed to process lead capture' });
-    }
+        const item = await Request.findByIdAndUpdate(req.params.id, { $set: { stage, nextAction, nextActionAt: nextActionAt || null } }, { new: true, runValidators: true });
+        if (!item) return res.status(404).json({ error: 'Request not found.' });
+        res.json(item);
+    } catch { res.status(503).json({ error: 'Cannot save changes.' }); }
 });
 
 /**
@@ -112,7 +75,7 @@ router.get('/unsubscribe', async (req, res) => {
  * @route POST /api/leads/test-outreach
  * @desc Trigger a test outreach email (debug menu)
  */
-router.post('/test-outreach', async (req, res) => {
+router.post('/test-outreach', ownerOnly, async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
 

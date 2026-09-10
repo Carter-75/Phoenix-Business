@@ -13,6 +13,10 @@ import { ReviewsComponent } from './reviews/reviews.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
+  { path: 'website-audit', component: HomeComponent },
+  { path: 'painting-websites', component: HomeComponent },
+  { path: 'growth-crm', loadComponent: () => import('./growth-crm/growth-crm.component').then(m => m.GrowthCrmComponent) },
+  { path: 'data-cleanup', loadComponent: () => import('./data-cleanup/data-cleanup.component').then(m => m.DataCleanupComponent) },
   { path: 'about', component: AboutComponent },
   { path: 'services', component: ServicesComponent },
   { path: 'terms', component: TermsComponent },
@@ -25,10 +29,7 @@ export const routes: Routes = [
   { path: 'admin-reviews', component: AdminReviewsComponent },
   
   // Data Intelligence Portal — public, shareable links
-  { 
-    path: 'data', 
-    loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent)
-  },
+  { path: 'data', redirectTo: 'data-cleanup', pathMatch: 'full' },
   { 
     path: 'data/:id', 
     loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent)

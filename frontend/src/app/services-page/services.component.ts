@@ -90,7 +90,7 @@ export class ServicesComponent implements OnInit {
     'Other / Let\'s Discuss'
   ];
   
-  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2, 3 & 4) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. Data Intelligence tiers are one-time, non-refundable purchases. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
+  readonly TERMS_VERSION_TEXT = "I agree to the Terms of Service, Privacy Policy, and Refund Policy. I acknowledge that all Subscription Tiers (Tiers 1, 2, 3 & 4) require a mandatory 12-month commitment and include a non-refundable setup fee as detailed in the Terms. I also agree to allowlist hello@phoenixwebsites.ai and partnership@carter-portfolio.fyi to ensure important emails do not go to spam.";
   
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
@@ -173,14 +173,14 @@ export class ServicesComponent implements OnInit {
     // --- Data Intelligence (One-Time, Non-Refundable, Rebuyable) ---
     {
       id: 'data',
-      title: 'Data Intelligence',
-      cost: '249',
+      title: 'Data Cleanup & Organization',
+      cost: null,
       baseCost: null,
       setup: null,
       baseSetup: null,
-      description: 'AI-enriched public records — building permits, government contracts, and business filings. Each purchase delivers a fresh chunk of structured data with contact info, budgets, and AI summaries. Buy as many times as you need. One-time, non-refundable.',
+      description: 'Turn the files you already have into clear, organized information. We clean spreadsheets, standardize formats, and prepare useful reports with Microsoft tools and AI assistance. Scope and price are agreed before work starts.',
       checkoutUrl: '#',
-      features: ['One-Time Purchase', 'Buy Again Anytime', 'All Data Sources', 'AI-Enriched Summaries', 'Full Contact Information', 'CSV Export'],
+      features: ['Work On Your Own Files', 'Spreadsheet Cleanup', 'Consistent Formats', 'Duplicate Review', 'Clear Reports', 'Quote Before Work Starts'],
       featured: false,
       color: '#22d3ee'
     }
@@ -202,7 +202,7 @@ export class ServicesComponent implements OnInit {
           if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
           if (t.id === 'enterprise') { baseCostCents = data.basePrices.enterprise_monthly; baseSetupCents = data.basePrices.enterprise_setup; }
           // Data tier: one-time price only (no setup, no monthly)
-          if (t.id === 'data') { baseCostCents = data.basePrices.data; }
+          if (t.id === 'data') return t;
           
           return {
             ...t,
@@ -235,7 +235,7 @@ export class ServicesComponent implements OnInit {
       if (intent) {
         if (intent.type === 'data') {
           // Data intents are handled by the data portal
-          this.router.navigate(['/data']);
+          this.router.navigate(['/data-cleanup']);
           return;
         }
         
@@ -278,7 +278,7 @@ export class ServicesComponent implements OnInit {
       if (savedTierId) {
         sessionStorage.removeItem('checkout_tier');
         if (savedTierId === 'data') {
-          this.router.navigate(['/data']);
+          this.router.navigate(['/data-cleanup']);
           return;
         }
         const tier = this.tiers().find(t => t.id === savedTierId);
@@ -318,7 +318,7 @@ export class ServicesComponent implements OnInit {
 
     this.seo.updateMeta(
       'Care Plans & Growth Packages — Phoenix',
-      'Scalable web maintenance and growth plans. From $99/mo Essential Care to $149/mo Professional suites.'
+      'Website design and care plans from Phoenix. Review setup fees, monthly costs, scope, and contract terms before purchase.'
     );
     
     this.injectJsonLd();
@@ -327,7 +327,7 @@ export class ServicesComponent implements OnInit {
   openContract(tier: ServiceTier) {
     // Data tier → redirect to the data portal (it handles its own login + cart flow)
     if (tier.id === 'data') {
-      this.router.navigate(['/data']);
+      this.router.navigate(['/data-cleanup']);
       return;
     }
 
@@ -600,11 +600,7 @@ export class ServicesComponent implements OnInit {
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Web Maintenance & Growth Services',
-        itemListElement: [
-          { '@type': 'Offer', name: 'Simple Launch', price: '350', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Essential Care', price: '99', priceCurrency: 'USD' },
-          { '@type': 'Offer', name: 'Professional Growth', price: '149', priceCurrency: 'USD' }
-        ]
+        itemListElement: [{ '@type': 'Service', name: 'Website design and maintenance' }]
       }
     });
     this.doc.head.appendChild(script);
@@ -613,6 +609,6 @@ export class ServicesComponent implements OnInit {
 
   /** Navigate to the data portal page */
   navigateToData() {
-    this.router.navigate(['/data']);
+    this.router.navigate(['/data-cleanup']);
   }
 }

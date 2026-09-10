@@ -11,8 +11,8 @@
         </div>
         <div class="flex items-end gap-8 hero-reveal cursor-pointer" (click)="onTitleClick()">
           <h1 class="fluid-h1 font-black select-none">
-            PHOENIX<br>
-            <span class="text-white/20">STUDIO</span>
+            {{ isPaintingPage ? 'WEBSITES FOR' : 'WEBSITES FOR' }}<br>
+            <span class="text-white/70">{{ isPaintingPage ? 'PAINTING BUSINESSES' : 'LOCAL BUSINESS' }}</span>
           </h1>
           <img src="favicon.png" alt="Phoenix Studio Icon" class="w-24 h-24 sm:w-32 sm:h-32 object-contain mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
         </div>
@@ -21,11 +21,11 @@
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-end">
         <div class="hero-reveal">
           <p class="fluid-p max-w-xl mb-12">
-            We build fast, reliable websites and tools for growing businesses. Beautiful design meets powerful technology.
+            {{ isPaintingPage ? 'Make it easier for customers to request a painting estimate. Show your services, project photos, and service area in one clear website.' : 'Help customers understand your services and contact you. Work directly with Carter, a Wisconsin website developer.' }}
           </p>
           <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
-            <button routerLink="/services" class="premium-btn">See Pricing</button>
-            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-orange-600 transition-all border-b border-white/10">Get in Touch</button>
+            <button (click)="scrollToAudit()" class="premium-btn">Request a Free Website Audit</button>
+            <button routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-orange-600 transition-all border-b border-white/10">See Pricing</button>
           </div>
         </div>
 
@@ -84,8 +84,8 @@
   <section class="section-padding bg-white/[0.01]">
     <div class="max-w-[1400px] mx-auto">
       <div class="mb-24" appScrollReveal>
-        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Our Portfolio</span>
-        <h2 class="fluid-h2">SELECTED<br><span class="text-white/20">WORKS</span></h2>
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Design Examples</span>
+        <h2 class="fluid-h2">SELECTED<br><span class="text-white/20">DEMOS</span></h2>
       </div>
 
       <div class="space-y-12">
@@ -97,11 +97,11 @@
             <div class="p-8 sm:p-12 lg:p-20 flex flex-col justify-center">
               <span class="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] mb-4">{{ client.type }}</span>
               <h3 class="fluid-h3 mb-6">{{ client.name }}</h3>
-              <p class="text-white/40 text-sm leading-relaxed mb-6 max-w-md">{{ client.desc }}</p>
+              <p class="text-white/40 text-sm leading-relaxed mb-6 max-w-md">{{ client.desc }}</p><p class="text-sm text-white/70">Demonstration project. No client results are claimed.</p><a [href]="client.url" target="_blank" rel="noopener" class="text-orange-400 underline">Open demo</a>
             </div>
             
             <div class="h-[400px] lg:h-[600px] relative bg-black border-l border-white/5">
-              <iframe [src]="client.url | safe" class="w-full h-full border-none opacity-60 group-hover:opacity-100 transition-opacity duration-1000"></iframe>
+              <iframe loading="lazy" [title]="client.name + ' design demo'" [src]="client.url | safe" class="w-full h-full border-none opacity-60 group-hover:opacity-100 transition-opacity duration-1000"></iframe>
               <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none"></div>
             </div>
           </div>
@@ -116,7 +116,7 @@
     <div class="max-w-[1000px] mx-auto text-center">
       <div class="mb-20" appScrollReveal>
         <h2 class="fluid-h2 mb-8">Ready to <span class="text-white/20">Start?</span></h2>
-        <p class="fluid-p max-w-2xl mx-auto">Get a free checkup of your current website or start a new project with us.</p>
+        <p class="fluid-p max-w-2xl mx-auto">Request a short review of your mobile page, contact path, and service message. You will get three practical fixes. No purchase is required.</p>
       </div>
 
       <!-- AI Inbound Phone Call & Web Voice Assistant -->
@@ -148,31 +148,33 @@
       <div class="glass-card !p-8 sm:!p-12 lg:!p-24" appScrollReveal>
         <form (submit)="onSubmitLead($event)" class="grid sm:grid-cols-2 gap-8 text-left">
           <div class="space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Your Name</label>
-            <input name="name" type="text" placeholder="John Doe" required 
+            <label for="audit-name" class="text-sm text-white/80">Your Name</label>
+            <input id="audit-name" name="name" autocomplete="name" type="text" maxlength="120" placeholder="Your name" required 
                    class="w-full bg-white/[0.02] border border-white/0.05 px-6 py-4 sm:px-8 sm:py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
           <div class="space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Email Address</label>
-            <input name="email" type="email" placeholder="john@email.com" required 
+            <label for="audit-email" class="text-sm text-white/80">Email Address</label>
+            <input id="audit-email" name="email" autocomplete="email" type="email" maxlength="254" placeholder="you@business.com" required 
                    class="w-full bg-white/[0.02] border border-white/0.05 px-6 py-4 sm:px-8 sm:py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
+          <div class="space-y-2"><label for="audit-business" class="text-sm text-white/80">Business name</label><input id="audit-business" name="businessName" autocomplete="organization" maxlength="200" class="w-full bg-black border border-white/30 px-6 py-4"></div>
+          <div class="space-y-2"><label for="audit-website" class="text-sm text-white/80">Website (optional)</label><input id="audit-website" name="website" type="url" placeholder="https://example.com" maxlength="500" class="w-full bg-black border border-white/30 px-6 py-4"></div>
           <div class="sm:col-span-2 space-y-2">
-            <label class="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Project Details</label>
-            <textarea name="requirements" placeholder="Tell us about your project..." rows="4"
+            <label for="audit-requirements" class="text-sm text-white/80">Project Details</label>
+            <textarea id="audit-requirements" name="requirements" autocomplete="off" placeholder="Tell us about your project..." rows="4" maxlength="5000"
                       class="w-full bg-white/[0.02] border border-white/[0.05] px-6 py-4 sm:px-8 sm:py-6 text-sm font-medium focus:border-orange-600 outline-none transition-all resize-none"></textarea>
           </div>
           <div class="sm:col-span-2 mt-8">
             <button type="submit" [disabled]="submitting()" 
                     class="premium-btn w-full !py-8 flex items-center justify-center gap-4">
-              <span *ngIf="!submitting()">Send Message</span>
+              <span *ngIf="!submitting()">Request My Website Audit</span>
               <span *ngIf="submitting()" class="animate-pulse">Sending...</span>
             </button>
           </div>
         </form>
         
-        <p *ngIf="success()" class="mt-8 text-orange-600 text-xs font-black uppercase tracking-[0.4em] animate-bounce">
-          Message Sent. We will get back to you soon.
+        <p class="mt-6 text-sm text-white/80">We use these details to answer your request. This does not subscribe you to marketing emails. <a routerLink="/privacy" class="underline">Privacy policy</a></p><p *ngIf="errorMessage()" role="alert" class="mt-6 text-red-300">{{ errorMessage() }}</p><p *ngIf="success()" role="status" aria-live="polite" class="mt-8 text-orange-600 text-xs font-black uppercase tracking-[0.4em]">
+          Your request is saved. Carter will review it and contact you.
         </p>
       </div>
     </div>
