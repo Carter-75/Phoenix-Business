@@ -3,7 +3,7 @@ import { Component, signal, inject, OnInit, afterNextRender, OnDestroy } from '@
 import { ApiService } from '../services/api.service';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../shared/pipes/safe.pipe';
@@ -24,7 +24,6 @@ import { VoiceCallService } from '../services/voice-call.service';
 export class HomeComponent implements OnInit, OnDestroy {
   private conversions = inject(ConversionService);
   private api = inject(ApiService);
-  isPaintingPage = inject(ActivatedRoute).snapshot.routeConfig?.path === 'painting-websites';
   public settings = inject(PhoenixSettingsService);
   public voiceCall = inject(VoiceCallService);
   
