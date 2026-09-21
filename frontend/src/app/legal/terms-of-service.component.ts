@@ -26,19 +26,19 @@ import { ApiService } from '../services/api.service';
             <p>Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.</p>
             <ul class="list-disc ml-6 space-y-2">
               <li><strong>General Accounts:</strong> Users creating an account without a service selection are bound by general usage and privacy terms.</li>
-              <li><strong>Subscription Projects (Tiers 1, 2 & 3):</strong> All tiers require a mandatory 12-month commitment. The engagement includes ongoing services matching your selected tier, subject to auto-renewal unless canceled.</li>
-              <li><strong>Subscription Pricing (Tiers 1, 2, 3 & 4):</strong> All tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Tier 1 requires a $\{{prices().simple_setup}} setup fee and $\{{prices().simple_monthly}} monthly payments. Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments. Tier 4 requires an $\{{prices().enterprise_setup}} setup fee and $\{{prices().enterprise_monthly}} monthly payments.</li>
+              <li><strong>Subscription Projects (Tiers 1, 2, 3 & 4):</strong> All tiers require a mandatory 12-month commitment. The engagement includes ongoing services matching your selected tier, subject to auto-renewal unless canceled.</li>
+              <li><strong>Subscription Pricing (Tiers 1, 2, 3 & 4):</strong> All tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Setup is due at checkout. Monthly billing starts after the 30-day subscription trial. The trial delays monthly billing; it does not waive the commitment or cancellation fees. Tier 1 requires a $\{{prices().simple_setup}} setup fee and $\{{prices().simple_monthly}} monthly payments. Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments. Tier 4 requires an $\{{prices().enterprise_setup}} setup fee and $\{{prices().enterprise_monthly}} monthly payments.</li>
             </ul>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Automatic Renewal</h2>
-            <p>To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal must be provided via the client portal at least 30 days prior to the current contract's expiration date. Phoenix will provide a courtesy reminder notice via email exactly 30 days before your annual contract is set to renew. Once the automatic renewal occurs, you are bound to a new 12-month service agreement under these same terms. Additionally, you will receive standard automated reminders and receipts prior to each monthly subscription billing cycle.</p>
+            <p>To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal or cancellation must be provided via the client portal within a strict 30-day window (between 60 and 30 days prior to the current contract's expiration date). Phoenix will provide a courtesy reminder notice via email prior to this window. Once the automatic renewal occurs, or if notice is given less than 30 days prior to expiration, you are bound to a new 12-month service agreement under these same terms.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">4. Early Termination & Liquidated Damages</h2>
-            <p>Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." This fee is calculated as 50% of the remaining total contract value. This is not a penalty, but a reasonable pre-estimate of Phoenix's actual losses. This fee covers the costs of custom deployment, dedicated server reservation, and administrative overhead incurred at the project start.</p>
+            <p>Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." The fee depends on when notice is given:</p><p>- Too Early (More than 60 days before expiration): The fee is calculated as 50% of the remaining total contract value for the current term.</p><p>- In Window (60 to 30 days before expiration): No liquidated damages apply. The contract terminates at the end of the current term.</p><p>- Too Late (Less than 30 days before expiration): Because you missed the required notice window, you are liable for 50% of the remaining time in the current contract PLUS 50% of the subsequent 12-month auto-renewal contract (effectively a 6-month penalty).</p>
           </div>
 
           <div class="space-y-4">
@@ -104,7 +104,7 @@ import { ApiService } from '../services/api.service';
           <div class="flex flex-col sm:flex-row justify-between gap-8 items-start sm:items-center">
             <div>
               <p class="text-white/30 text-sm font-medium">Questions regarding this policy?</p>
-              <p class="text-white font-bold mt-1 tracking-widest uppercase">legal&#64;phoenix.com</p>
+              <p class="text-white font-bold mt-1 tracking-widest uppercase">hello&#64;phoenixwebsites.ai</p>
             </div>
             <a routerLink="/home" class="group flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white/50 hover:text-white transition-all">
               Return Home
@@ -138,7 +138,7 @@ export class TermsComponent implements OnInit {
     this.api.get<any>('stripe/pricing').subscribe({
       next: (data) => {
         const pct = data.discountPercentage || 0;
-        const formatPrice = (cents: number) => cents ? Math.round((cents / 100) * (1 - pct / 100)) : 0;
+        const formatPrice = (cents: number) => cents ? Math.round(cents * (1 - pct / 100)) / 100 : 0;
         
         this.prices.set({
           simple_setup: formatPrice(data.basePrices.simple_setup),

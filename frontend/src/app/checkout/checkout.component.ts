@@ -1,13 +1,13 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ApiService, CartItem } from '../services/api.service';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="min-h-screen pt-32 pb-20 px-6">
       <div class="max-w-2xl mx-auto">
@@ -26,7 +26,7 @@ import { ApiService, CartItem } from '../services/api.service';
           <p class="text-5xl mb-4 opacity-30">🛒</p>
           <p class="text-white/40 text-lg mb-4">Your cart is empty</p>
           <button (click)="goBack()" class="text-orange-400 text-sm font-bold uppercase tracking-widest hover:text-orange-300 transition-colors">
-            Browse Services & Data
+            Browse Services
           </button>
         </div>
 
@@ -46,7 +46,7 @@ import { ApiService, CartItem } from '../services/api.service';
               <ng-container *ngIf="item.type === 'service'">
                 <p class="font-bold text-white text-sm">{{ item.tierName || 'Service Plan' }}</p>
                 <p class="text-[10px] uppercase tracking-widest text-white/30 font-bold mt-1" *ngIf="item.monthlyPrice">
-                  {{ item.monthlyPrice }} · Recurring
+                  {{ monthlyTotal() | currency }} / month after the 30-day subscription trial
                 </p>
                 <p class="text-[10px] uppercase tracking-widest text-white/30 font-bold mt-1" *ngIf="!item.monthlyPrice">
                   Service Plan
@@ -54,7 +54,7 @@ import { ApiService, CartItem } from '../services/api.service';
               </ng-container>
             </div>
             <div class="flex items-center gap-4 ml-4">
-              <span class="text-xl font-black text-orange-500" *ngIf="item.price">\${{ item.price }}</span>
+              <span class="text-xl font-black text-orange-500" *ngIf="item.price">{{ subtotal() | currency }} setup</span>
               <span class="text-xl font-black text-orange-500" *ngIf="!item.price && item.type !== 'service'">\${{ dataBlockPrice }}</span>
               <button (click)="removeItem(i)" class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all text-xs flex items-center justify-center cursor-pointer">
                 ✕
@@ -97,16 +97,24 @@ import { ApiService, CartItem } from '../services/api.service';
         <!-- Total + Pay -->
         <div *ngIf="cartItems().length > 0" class="rounded-2xl bg-white/[0.03] border border-white/10 p-6">
           <div class="flex items-center justify-between mb-6">
-            <span class="text-white/50 font-bold text-sm uppercase tracking-widest">Total</span>
+            <span class="text-white/50 font-bold text-sm uppercase tracking-widest">Setup due today</span>
             <div class="text-right">
-              <span *ngIf="appliedDiscount()" class="text-white/30 line-through text-lg mr-3">\${{ subtotal() }}</span>
-              <span class="text-3xl font-black text-white">\${{ finalTotal() }}</span>
+              <span *ngIf="appliedDiscount()" class="text-white/30 line-through text-lg mr-3">{{ subtotal() | currency }}</span>
+              <span class="text-3xl font-black text-white">{{ finalTotal() | currency }}</span>
             </div>
           </div>
+          <p class="text-sm text-white/70 mb-4">Then {{ monthlyTotal() | currency }} per month after 30 days. The global {{ pricing()?.discountPercentage || 0 }}% discount applies to setup and monthly fees. Each website has a separate 12-month commitment and contract.</p>
+          <p *ngIf="cartItems().length !== 1" class="text-orange-400 mb-4">Check out one website plan at a time. Remove extra plans before continuing.</p>
+          <p class="text-sm text-white/70 mb-4">Non-renewal notice is due 60 to 30 days before expiry. Earlier cancellation costs 50% of the remaining current term. Later notice also adds 50% of the next 12-month term. The trial does not waive these fees.</p>
+          <label class="flex gap-3 text-sm text-white/80 mb-6">
+            <input type="checkbox" [(ngModel)]="acceptedContract" />
+            <span>I have read and accept the <a routerLink="/terms" target="_blank" class="underline">service terms</a>, <a routerLink="/privacy" target="_blank" class="underline">privacy policy</a> and <a routerLink="/refunds" target="_blank" class="underline">refund policy</a>, including the recurring charge, 12-month commitment, renewal and cancellation terms.</span>
+          </label>
+          <p *ngIf="pricingError()" class="text-red-400 mb-4">{{ pricingError() }}</p>
           <button (click)="proceedToPayment()" 
-                  [disabled]="paymentLoading()"
+                  [disabled]="paymentLoading() || !pricing() || !acceptedContract || cartItems().length !== 1"
                   class="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_8px_30px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-            {{ paymentLoading() ? 'Processing...' : 'Pay Now — $' + finalTotal() }}
+            {{ paymentLoading() ? 'Processing...' : 'Continue to secure payment' }}
           </button>
         </div>
 
@@ -127,34 +135,26 @@ export class CheckoutComponent implements OnInit {
   discountError = signal<string | null>(null);
   paymentLoading = signal(false);
 
-  subtotal = computed(() => {
-    let total = 0;
-    for (const item of this.cartItems()) {
-      if (item.type === 'service') {
-        total += item.price || 0;
-      } else {
-        total += item.price || this.dataBlockPrice;
-      }
-    }
-    return total;
-  });
-
-  finalTotal = computed(() => {
-    const sub = this.subtotal();
-    const discount = this.appliedDiscount();
-    if (discount) {
-      return Math.round(sub * (1 - discount.percentage / 100));
-    }
-    return sub;
-  });
+  acceptedContract = false;
+  pricing = signal<any>(null);
+  pricingError = signal('');
+  private amount(kind: 'setup' | 'monthly', extra = true): number {
+    const config = this.pricing();
+    if (!config) return 0;
+    const percent = Math.min(100, (config.discountPercentage || 0) + (extra ? this.appliedDiscount()?.percentage || 0 : 0));
+    return this.cartItems().reduce((total, item) => total + Math.round((config.basePrices[item.tierId + '_' + kind] || 0) * (1 - percent / 100)), 0) / 100;
+  }
+  subtotal = computed(() => this.amount('setup', false));
+  finalTotal = computed(() => this.amount('setup'));
+  monthlyTotal = computed(() => this.amount('monthly'));
 
   ngOnInit() {
     // Fetch dynamic pricing
     this.api.get<any>('stripe/pricing').subscribe({
       next: (data) => {
-        if (data.dataBlockPrice) this.dataBlockPrice = data.dataBlockPrice;
+        this.pricing.set(data);
       },
-      error: () => {}
+      error: () => this.pricingError.set("Current prices could not be loaded. Reload before paying.")
     });
 
     const savedDiscount = this.appliedDiscount();
@@ -197,6 +197,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   proceedToPayment() {
+    if (!this.acceptedContract || !this.pricing() || this.cartItems().length !== 1) return;
+    if (!this.api.currentUser()) { this.api.loginWithGoogle('/checkout'); return; }
     this.paymentLoading.set(true);
     const user = this.api.currentUser();
     const discount = this.appliedDiscount();
@@ -207,7 +209,7 @@ export class CheckoutComponent implements OnInit {
       email: user?.email,
       name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
       businessName: user?.businessName || '',
-      acceptedContract: true,
+      acceptedContract: this.acceptedContract,
       contractTimestamp: new Date().toISOString(),
       discountCode: discount?.code || undefined
     }).subscribe({

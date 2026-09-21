@@ -192,7 +192,7 @@ export class ServicesComponent implements OnInit {
       next: (data) => {
         this.discountPercentage.set(data.discountPercentage || 0);
         const formatBase = (cents: number) => cents ? Math.round(cents / 100).toString() : null;
-        const formatPrice = (cents: number, pct: number) => cents ? Math.round((cents / 100) * (1 - pct / 100)).toString() : null;
+        const formatPrice = (cents: number, pct: number) => cents ? (Math.round(cents * (1 - pct / 100)) / 100).toFixed(2) : null;
         
         this.tiers.update(currentTiers => currentTiers.map(t => {
           let baseCostCents = 0;
@@ -333,15 +333,7 @@ export class ServicesComponent implements OnInit {
 
     const user = this.api.currentUser();
     
-    if (user && user.hasFinalizedProfile) {
-      // User is fully registered. Go straight to Stripe!
-      this.firstName = user.firstName;
-      this.lastName = user.lastName;
-      this.checkoutLoading.set(true);
-      this.triggerStripe(tier);
-      return;
-    }
-
+    this.acceptedTerms = false;
     this.selectedTier.set(tier);
     this.showContract.set(true);
     
@@ -365,6 +357,7 @@ export class ServicesComponent implements OnInit {
     this.showContract.set(false);
     this.selectedTier.set(null);
     this.hasAccepted = false;
+    this.acceptedTerms = false;
     this.discountCode.set('');
     this.discountError.set(null);
     this.isAnimatingDiscount.set(false);
@@ -384,7 +377,7 @@ export class ServicesComponent implements OnInit {
     if (!this.api.ensureLoggedIn(intent, '/services')) return;
 
     // Parse setup price from cost string (e.g. "1499" → 1499)
-    const setupPrice = tier.setup ? parseInt(tier.setup.replace(/[^0-9]/g, '')) : 0;
+    const setupPrice = tier.setup ? Number(tier.setup.replace(/[^0-9.]/g, '')) : 0;
     // Format monthly with dollar sign — tier.cost is already the discounted price from env vars
     const monthlyStr = tier.cost ? `$${Number(tier.cost).toLocaleString()}/mo` : '';
 
@@ -471,6 +464,11 @@ export class ServicesComponent implements OnInit {
   }
 
   private triggerStripe(tier: ServiceTier) {
+    if (!this.acceptedTerms) {
+      this.checkoutLoading.set(false);
+      this.openContract(tier);
+      return;
+    }
     const user = this.api.currentUser();
     const finalFirstName = user?.firstName || this.firstName;
     const finalLastName = user?.lastName || this.lastName;
@@ -480,7 +478,7 @@ export class ServicesComponent implements OnInit {
       email: user?.email || this.userEmail,
       name: `${finalFirstName} ${finalLastName}`.trim(),
       businessName: user?.businessName || this.businessName,
-      acceptedContract: true,
+      acceptedContract: this.acceptedTerms,
       contractTimestamp: new Date().toISOString(),
       projectType: tier.id === 'enterprise' ? this.enterpriseProjectType : tier.title,
       discountCode: this.discountCode()

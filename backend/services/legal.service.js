@@ -11,7 +11,7 @@ const getDynamicPolicies = (contractData = {}) => {
     if (tier === 'simple') {
         commitmentText = `- Simple Launch Subscription: You agree to a one-time setup fee of $${(setupFee / 100).toFixed(2)} and recurring monthly payments of $${(monthlyFee / 100).toFixed(2)}. The first monthly payment is due after the 30-day subscription trial. The setup fee is due at checkout. The twelve-month commitment, renewal, cancellation, and separate website buyout provisions below apply.`;
     } else {
-        commitmentText = `- Subscription Service: This subscription requires a mandatory minimum commitment of twelve (12) consecutive months. You have agreed to a $${(setupFee / 100).toFixed(2)} setup fee and $${(monthlyFee / 100).toFixed(2)} monthly payments.\n- Price Lock Guarantee: Your monthly subscription price for this specific website project is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee for this project will never go up. Note that this guarantee applies strictly on a per-project basis; any additional websites or distinct projects you commission from Phoenix will be subject to the pricing and a separate contract applicable at that time.`;
+        commitmentText = `- Subscription Service: This subscription requires a mandatory minimum commitment of twelve (12) consecutive months. You have agreed to a $${(setupFee / 100).toFixed(2)} setup fee and $${(monthlyFee / 100).toFixed(2)} monthly payments. The setup fee is due at checkout. Monthly billing starts after the 30-day subscription trial.\n- Price Lock Guarantee: Your monthly subscription price for this specific website project is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee for this project will never go up. Note that this guarantee applies strictly on a per-project basis; any additional websites or distinct projects you commission from Phoenix will be subject to the pricing and a separate contract applicable at that time.`;
     }
 
     return {
@@ -45,13 +45,13 @@ Frontend client applications are deployed and hosted on **Vercel**, and any appl
 7. Payment & Non-Refundability
 Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a chargeback or payment dispute, Phoenix will immediately enact Section 6 infrastructure suspensions until the dispute is resolved.
 
-6. Limitation of Liability
+8. Limitation of Liability
 Phoenix liability is limited to the total amount paid by the client in the 3 months preceding any claim.
 
-7. Communications & Deliverability
+9. Communications & Deliverability
 It is the client's responsibility to maintain a valid, active email address on file and to whitelist communications from our domain. Any legal or administrative notice successfully dispatched from our servers is considered formally and legally delivered.
 
-8. Governing Law
+10. Governing Law
 This agreement is governed by the laws of the State of Wisconsin.
         `,
         PRIVACY_POLICY: `
@@ -84,13 +84,14 @@ We maintain a strict no-refund policy for all payments made due to the high-reso
 Engineering resources are immediately allocated upon subscription, including edge-network slots and isolated LLM data pipelines.
 
 3. Setup Fees
-All initial setup and startup fees are non-refundable.
+All initial setup and startup fees are non-refundable, subject to the exceptions below.
+The no-refund policy is subject to the published exceptions for failure to deliver the agreed core service, approved late-delivery refunds, and Tier 4 requests made before the final custom scope and extra fees are agreed. Send refund requests to partnership@carter-portfolio.fyi with the subject Refund Request.
 
 4. Trial Periods
-Promotional "Limited Trial" periods allow cancellation to prevent future charges, but setup fees remain non-refundable.
+The 30-day subscription trial delays the first monthly payment. It does not waive the 12-month commitment, setup fee, or cancellation fees. The strict notice window and early-termination terms in the service agreement still apply.
 
 5. Cancellation vs. Refund
-Cancellation stops future charges but does not entitle the client to a refund of past payments.
+Cancellation and non-renewal follow the 60-to-30-day notice window and fees in the service agreement. A cancellation request does not automatically remove unpaid fees or entitle you to a refund of past payments.
         `
     };
 

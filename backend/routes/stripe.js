@@ -96,10 +96,14 @@ router.post('/validate-discount', async (req, res) => {
  * POST /api/stripe/checkout
  * Generates a dynamic Stripe Checkout session for services.
  */
-router.post('/checkout', retiredDataSales, verifyStripe, async (req, res) => {
+const createServiceCheckout = async (req, res) => {
     try {
         const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp, discountCode } = req.body;
         const user = req.user;
+
+        if (!user) return res.status(401).json({ error: 'Sign in before checkout so your contract can be saved to your account.' });
+        if (acceptedContract !== true) return res.status(400).json({ error: 'Review and accept the service terms before checkout.' });
+        if (!['simple', 'essential', 'professional', 'enterprise'].includes(tier)) return res.status(400).json({ error: 'Choose a valid website plan.' });
 
         // Pricing logic pulled from environment variables with safe defaults (in cents)
         const prices = {
@@ -313,7 +317,8 @@ router.post('/checkout', retiredDataSales, verifyStripe, async (req, res) => {
         console.error('STRIPE ERROR:', err.message);
         res.status(500).json({ error: 'Failed to initialize checkout session.' });
     }
-});
+};
+router.post('/checkout', retiredDataSales, verifyStripe, createServiceCheckout);
 
 /**
  * POST /api/stripe/unified-checkout
@@ -322,145 +327,12 @@ router.post('/checkout', retiredDataSales, verifyStripe, async (req, res) => {
  * Uses payment mode if only data blocks.
  */
 router.post('/unified-checkout', retiredDataSales, verifyStripe, async (req, res) => {
-    try {
-        const { cartItems, email, name, businessName, acceptedContract, contractTimestamp, discountCode } = req.body;
-        const user = req.user;
-
-        if (!cartItems || cartItems.length === 0) {
-            return res.status(400).json({ error: 'Cart is empty.' });
-        }
-
-        // Pricing
-        const prices = {
-            simple_setup: parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'),
-            simple_monthly: parseInt(process.env.PRICE_SIMPLE_MONTHLY || '9900'),
-            essential_setup: parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
-            essential_monthly: parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
-            professional_setup: parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
-            professional_monthly: parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900'),
-            enterprise_setup: parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
-            enterprise_monthly: parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900'),
-            data: parseInt(process.env.PRICE_DATA || '24900')
-        };
-
-        if (process.env.TEST_MODE === 'true') {
-            Object.keys(prices).forEach(k => { prices[k] = k === 'data' ? 100 : (k.includes('setup') ? 200 : 100); });
-        }
-
-        // Discount logic
-        let baseDiscountPercentage = process.env.TEST_MODE === 'true' ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
-        let extraDiscountPercentage = 0;
-        let appliedDiscountCode = '';
-
-        if (discountCode) {
-            const upperCode = discountCode.toUpperCase().trim();
-            const dcVal = process.env[`DC_${upperCode}`];
-            const dclVal = process.env[`DCL_${upperCode}`];
-            if (dcVal) {
-                extraDiscountPercentage = parseInt(dcVal);
-                appliedDiscountCode = upperCode;
-            } else if (dclVal) {
-                let dbUser = user;
-                if (!dbUser && email) {
-                    dbUser = await User.findOne({ email: email.toLowerCase() });
-                }
-                if (dbUser && dbUser.usedDiscountCodes && dbUser.usedDiscountCodes.includes(upperCode)) {
-                    return res.status(400).json({ error: 'You have already used this discount code.' });
-                }
-                extraDiscountPercentage = parseInt(dclVal);
-                appliedDiscountCode = `DCL_${upperCode}`;
-            }
-        }
-
-        const totalDiscountPercentage = Math.min(100, baseDiscountPercentage + extraDiscountPercentage);
-        const applyDiscount = (amount) => Math.round(amount * (1 - (totalDiscountPercentage / 100)));
-
-        // Separate items
-        const dataItems = cartItems.filter(i => i.type !== 'service');
-        const serviceItems = cartItems.filter(i => i.type === 'service');
-        const hasServices = serviceItems.length > 0;
-        const hasData = dataItems.length > 0;
-
-        let line_items = [];
-        let mode = hasServices ? 'subscription' : 'payment';
-
-        // Add service line items (setup fee + monthly recurring)
-        const tierPriceMap = {
-            simple: { setup: prices.simple_setup, monthly: prices.simple_monthly, name: 'Simple Launch' },
-            essential: { setup: prices.essential_setup, monthly: prices.essential_monthly, name: 'Essential Care' },
-            professional: { setup: prices.professional_setup, monthly: prices.professional_monthly, name: 'Professional Growth' },
-            enterprise: { setup: prices.enterprise_setup, monthly: prices.enterprise_monthly, name: 'Enterprise Custom' }
-        };
-
-        for (const svc of serviceItems) {
-            const tierInfo = tierPriceMap[svc.tierId] || tierPriceMap.simple;
-            // Setup fee (one-time)
-            line_items.push({
-                price_data: {
-                    currency: 'usd',
-                    product_data: { name: `${tierInfo.name} - Setup Fee`, description: `Strategic Infrastructure: ${svc.projectType || 'Standard Build'}`, tax_code: 'txcd_10103100' },
-                    unit_amount: applyDiscount(tierInfo.setup),
-                },
-                quantity: 1,
-            });
-            // Monthly recurring
-            line_items.push({
-                price_data: {
-                    currency: 'usd',
-                    product_data: { name: `${tierInfo.name} - Monthly Subscription`, tax_code: 'txcd_10103100' },
-                    unit_amount: applyDiscount(tierInfo.monthly),
-                    recurring: { interval: 'month' }
-                },
-                quantity: 1,
-            });
-        }
-
-        // Add data blocks as one-time line items
-        if (hasData) {
-            const dataPrice = applyDiscount(prices.data);
-            line_items.push({
-                price_data: {
-                    currency: 'usd',
-                    product_data: { name: 'Data Intelligence Block', description: `AI-enriched public data — ${dataItems.length} block(s). One-time purchase, non-refundable.`, tax_code: 'txcd_10103100' },
-                    unit_amount: dataPrice,
-                },
-                quantity: dataItems.length,
-            });
-        }
-
-        const baseUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
-
-        const sessionConfig = {
-            line_items,
-            mode,
-            success_url: `${baseUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${baseUrl}/checkout?canceled=true`,
-            customer_email: email || (user ? user.email : undefined),
-            metadata: {
-                tier: hasServices ? serviceItems.map(s => s.tierId).join(',') : 'data',
-                hasData: hasData ? 'true' : 'false',
-                dataBlockCount: dataItems.length.toString(),
-                customer_name: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
-                business_name: businessName || (user ? user.businessName : ''),
-                userId: user ? user._id.toString() : 'guest',
-                acceptedContract: acceptedContract ? 'true' : 'false',
-                contractTimestamp: contractTimestamp || new Date().toISOString(),
-                discountCode: appliedDiscountCode,
-                cartType: hasServices && hasData ? 'mixed' : (hasServices ? 'service' : 'data')
-            },
-        };
-
-        if (mode === 'subscription') {
-            sessionConfig.subscription_data = { trial_period_days: 30 };
-        }
-
-        const session = await stripe.checkout.sessions.create(sessionConfig);
-        res.json({ url: session.url });
-
-    } catch (err) {
-        console.error('UNIFIED CHECKOUT ERROR:', err.message);
-        res.status(500).json({ error: 'Failed to initialize checkout session.' });
+    const items = req.body.cartItems;
+    if (!Array.isArray(items) || items.length !== 1 || items[0].type !== 'service') {
+        return res.status(400).json({ error: 'Check out one website plan at a time. Each project has its own contract.' });
     }
+    req.body = { ...req.body, tier: items[0].tierId, projectType: items[0].projectType || items[0].tierName };
+    return createServiceCheckout(req, res);
 });
 
 /**

@@ -33,17 +33,17 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Setup Fees</h2>
-            <p>All initial setup and startup fees are non-refundable.</p>
+            <p>All initial setup and startup fees are non-refundable, subject to the exceptions described in this policy.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">4. Trial Periods</h2>
-            <p>Certain promotional tiers may offer a 30-day "Limited Trial." During this period, you may cancel your subscription to prevent future charges, but any initial setup fees remain non-refundable.</p>
+            <p>The 30-day subscription trial delays the first monthly payment. It does not waive the 12-month commitment, setup fee, or cancellation fees. The strict notice window and early-termination terms in the service agreement still apply.</p>
           </div>
 
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Cancellation vs. Refund</h2>
-            <p>You may cancel your auto-renewal at any time via the client portal. Cancellation stops future charges but does not entitle the client to a refund of past payments or the current billing cycle.</p>
+            <p>Cancellation and non-renewal follow the 60-to-30-day notice window and fees in the service agreement. A cancellation request does not automatically remove unpaid fees or entitle you to a refund of past payments.</p>
           </div>
 
           <div class="space-y-4">
@@ -63,7 +63,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           <div class="flex flex-col sm:flex-row justify-between gap-8 items-start sm:items-center">
             <div>
               <p class="text-white/30 text-sm font-medium">Questions regarding this policy?</p>
-              <p class="text-white font-bold mt-1 tracking-widest uppercase">legal&#64;phoenix.com</p>
+              <p class="text-white font-bold mt-1 tracking-widest uppercase">hello&#64;phoenixwebsites.ai</p>
             </div>
             <a routerLink="/home" class="group flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white/50 hover:text-white transition-all">
               Return Home

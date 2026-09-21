@@ -19,9 +19,14 @@ import { RouterLink } from '@angular/router';
         <a routerLink="/refunds" class="hover:text-white transition-colors">Refunds</a>
       </div>
 
+      <nav aria-label="Phoenix community" class="flex flex-col items-center gap-3 text-sm text-white/70">
+        <a href="https://www.patreon.com/PhoenixWebsites" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Support Phoenix on Patreon</a>
+        <a href="https://www.youtube.com/channel/UCfawV121RAj1CYU69Nk69Rg" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Phoenix Studio on YouTube</a>
+        <a href="https://www.patreon.com/PhoenixWebsites/posts/welcome-to-start-169470655" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Discord access for Inner Circle members</a>
+      </nav>
       <div class="flex flex-col items-center gap-4">
         <div class="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 text-center">
-          © 2026 PHOENIX OPERATIONS — BASED IN WISCONSIN
+          © 2026 PHOENIX OPERATIONS | BASED IN WISCONSIN
         </div>
         <a href="https://carter-portfolio.fyi" target="_blank" class="text-[9px] font-black uppercase tracking-[0.4em] text-orange-600/60 hover:text-orange-600 transition-colors flex items-center gap-2">
           Developed by Carter
