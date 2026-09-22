@@ -185,10 +185,10 @@
             <button (click)="proceedToCheckout()" 
                     [disabled]="!isFormValid() || checkoutLoading() || isAnimatingDiscount()"
                     class="premium-btn w-full !py-8 flex items-center justify-center gap-4 disabled:opacity-30 disabled:cursor-not-allowed">
-              <span *ngIf="!checkoutLoading()">Confirm & Launch Project</span>
+              <span *ngIf="!checkoutLoading()">{{ selectedTier() ? 'Continue to secure payment' : 'Finish account setup' }}</span>
               <span *ngIf="checkoutLoading()" class="flex items-center gap-3">
                 <i class="fas fa-spinner animate-spin"></i>
-                Processing Secure Agreement...
+                {{ selectedTier() ? 'Preparing secure payment...' : 'Saving your account...' }}
               </span>
             </button>
           </div>
