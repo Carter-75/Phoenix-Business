@@ -3,4 +3,9 @@ Allow: /
 Disallow: /growth-crm
 Disallow: /dashboard
 Disallow: /checkout
+Disallow: /checkout-success
+Disallow: /admin-reviews
+Disallow: /leave-review
+
+# Sitemap
 Sitemap: https://phoenixwebsites.ai/sitemap.xml

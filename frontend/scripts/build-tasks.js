@@ -32,6 +32,18 @@ function normalizeOutput() {
   }
 }
 
+function runPrerender() {
+  const prerenderScript = path.join(__dirname, 'prerender.js');
+  if (fs.existsSync(prerenderScript)) {
+    console.log('[build-tasks] Running static route prerender generator...');
+    require('./prerender.js');
+  }
+}
+
 const task = process.argv[2];
-if (task === 'prebuild') replaceEnv();
-else if (task === 'postbuild') normalizeOutput();
+if (task === 'prebuild') {
+  replaceEnv();
+} else if (task === 'postbuild') {
+  normalizeOutput();
+  runPrerender();
+}

@@ -46,7 +46,23 @@ export class DataCleanupComponent {
   saved = signal(false);
   error = signal('');
   constructor() {
-    inject(SeoService).updateMeta('Data Cleanup & Organization | Phoenix', 'Clean and organize your own spreadsheets and files with Phoenix. Request a quote for Microsoft-tool and AI-assisted data work.');
+    inject(SeoService).updateMeta({
+      title: 'Data Cleanup & Organization Services | Phoenix Websites AI',
+      description: 'Clean, normalize, and organize messy spreadsheets and client-provided files with Microsoft tools and AI assistance by Phoenix Websites AI. Quote before work begins.',
+      canonicalUrl: 'https://phoenixwebsites.ai/data-cleanup',
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        'name': 'Data Cleanup & Organization',
+        'provider': {
+          '@type': 'Organization',
+          'name': 'Phoenix Websites AI',
+          'url': 'https://phoenixwebsites.ai'
+        },
+        'description': 'Spreadsheet normalization, deduplication, and reporting on client-provided data files with Microsoft tools and AI assistance.',
+        'areaServed': 'US'
+      }
+    });
   }
   submit(event: Event) {
     event.preventDefault();

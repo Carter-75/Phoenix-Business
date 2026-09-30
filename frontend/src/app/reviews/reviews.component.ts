@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
+import { SeoService } from '../services/seo.service';
 
 @Component({
   selector: 'app-reviews',
@@ -19,7 +20,7 @@ import { RouterLink, Router } from '@angular/router';
             <i class="fa-solid fa-star text-3xl"></i>
           </div>
           <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Ratings</span></h1>
-          <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed mb-6">Real feedback from verified businesses scaling their revenue with Phoenix Studio infrastructure.</p>
+          <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed mb-6">Real feedback from verified businesses scaling their web presence and systems with Phoenix Websites AI.</p>
           <div *ngIf="api.currentUser()" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <i class="fa-solid fa-user-circle text-orange-500"></i> Logged in as: {{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName">({{ api.currentUser()?.businessName }})</span>
           </div>
@@ -221,6 +222,7 @@ import { RouterLink, Router } from '@angular/router';
   `]
 })
 export class ReviewsComponent implements OnInit {
+  private seo = inject(SeoService);
   api = inject(ApiService);
   private router = inject(Router);
   Math = Math; // for template usage
@@ -312,6 +314,12 @@ export class ReviewsComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.seo.updateMeta({
+      title: 'Client Ratings & Verified Reviews | Phoenix Websites AI',
+      description: 'Read verified client ratings and feedback on custom website development, automation, and AI solutions by Phoenix Websites AI.',
+      canonicalUrl: 'https://phoenixwebsites.ai/reviews'
+    });
+
     this.api.get<any[]>('reviews/public').subscribe({
       next: (data) => {
         // filter out any empty messages if needed, but we require rating and message.

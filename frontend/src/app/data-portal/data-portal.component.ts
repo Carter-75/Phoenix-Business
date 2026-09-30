@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy, computed, effect } from '
 import { PendingIntent, CartItem } from '../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../services/api.service';
 
@@ -47,7 +47,7 @@ interface DataPurchase {
 @Component({
   selector: 'app-data-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './data-portal.component.html',
   styleUrl: './data-portal.component.css'
 })

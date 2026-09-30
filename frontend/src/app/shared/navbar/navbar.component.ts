@@ -20,7 +20,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
 
         <!-- Navigation Pages -->
         <div class="hidden lg:flex items-center gap-6 xl:gap-10">
-          <a routerLink="/home" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+          <a routerLink="/" routerLinkActive="text-white !after:w-full" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
           <a routerLink="/about" routerLinkActive="text-white !after:w-full" class="nav-link">About</a>
           <a routerLink="/services" routerLinkActive="text-white !after:w-full" class="nav-link">Services</a>
           <a routerLink="/data-cleanup" routerLinkActive="text-white !after:w-full" class="nav-link">Data Cleanup</a>
@@ -76,7 +76,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
          [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
          [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
       <div class="min-h-full w-full flex flex-col justify-start items-center pt-32 pb-20 gap-8 sm:gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
-        <a routerLink="/home" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
+        <a routerLink="/" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
         <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
         <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
         <a routerLink="/data-cleanup" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Data Cleanup</a>

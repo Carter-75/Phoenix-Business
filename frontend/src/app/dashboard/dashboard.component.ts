@@ -33,7 +33,7 @@ import { environment } from '../../environments/environment';
 
           <div class="flex flex-col sm:flex-row gap-6 justify-center">
 
-            <a routerLink="/home" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full flex items-center justify-center gap-3 text-white font-bold uppercase tracking-widest text-sm">
+            <a routerLink="/" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full flex items-center justify-center gap-3 text-white font-bold uppercase tracking-widest text-sm">
               Return Home
             </a>
           </div>
@@ -48,7 +48,7 @@ import { environment } from '../../environments/environment';
           <p class="text-xl text-slate-400 mb-12 font-medium">Your cancellation has been processed successfully.</p>
           
           <div class="flex justify-center">
-            <a routerLink="/home" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full flex items-center justify-center gap-3 text-white font-bold uppercase tracking-widest text-sm">
+            <a routerLink="/" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full flex items-center justify-center gap-3 text-white font-bold uppercase tracking-widest text-sm">
               Return Home
             </a>
           </div>

@@ -187,6 +187,24 @@ export class ServicesComponent implements OnInit {
   ]);
 
   ngOnInit() {
+    this.seo.updateMeta({
+      title: 'Website Plans & Services | Phoenix Websites AI',
+      description: 'Explore custom website development, business automation, AI solutions, and data cleanup by Phoenix Websites AI. Lifetime price lock on all website tiers.',
+      canonicalUrl: 'https://phoenixwebsites.ai/services',
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        'name': 'Website Development & Digital Services',
+        'provider': {
+          '@type': 'Organization',
+          'name': 'Phoenix Websites AI',
+          'url': 'https://phoenixwebsites.ai'
+        },
+        'description': 'Managed custom web development, workflow automation, AI assistants, and data cleaning.',
+        'areaServed': 'US'
+      }
+    });
+
     // Fetch Dynamic Pricing
     this.api.get<any>('stripe/pricing').subscribe({
       next: (data) => {

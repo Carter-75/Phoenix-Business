@@ -15,8 +15,42 @@
       </p>
     </header>
 
+    <!-- Dedicated Service Links -->
+    <section class="mb-20">
+      <div class="mb-8">
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] block mb-2">Specialized Solutions</span>
+        <h2 class="text-2xl sm:text-3xl font-black uppercase tracking-tight">Explore Dedicated Services</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a routerLink="/services/custom-websites" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">01 / Custom Web</div>
+          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Custom Websites</h3>
+          <p class="text-xs text-white/50 leading-relaxed">AI-assisted bespoke engineering, responsive UI, and managed hosting without DIY builders.</p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
+        </a>
+        <a routerLink="/services/automation" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">02 / Workflows</div>
+          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Process Automation</h3>
+          <p class="text-xs text-white/50 leading-relaxed">Lead routing, SMS/email alerts, and CRM pipelines that eliminate manual tasks.</p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
+        </a>
+        <a routerLink="/services/ai-solutions" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">03 / Intelligence</div>
+          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">AI Solutions</h3>
+          <p class="text-xs text-white/50 leading-relaxed">24/7 web voice assistants, grounded inquiry chatbots, and intelligent lead triage.</p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
+        </a>
+        <a routerLink="/data-cleanup" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">04 / Data</div>
+          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Data Cleanup</h3>
+          <p class="text-xs text-white/50 leading-relaxed">Spreadsheet normalization and error correction on your existing files with AI assistance.</p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
+        </a>
+      </div>
+    </section>
+
     <!-- Pricing Grid -->
-    <div class="grid lg:grid-cols-3 gap-5 mb-40">
+    <div class="grid lg:grid-cols-3 gap-5 mb-32">
       <div *ngFor="let tier of tiers(); let i = index" 
            class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-all duration-500 tier-enter rounded-2xl"
            [style.border-color]="tier.color + '28'"
@@ -87,6 +121,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Frequently Asked Questions -->
+    <section class="mb-32 max-w-4xl mx-auto">
+      <div class="text-center mb-16">
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] block mb-3">Clear Answers</span>
+        <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight">Frequently Asked Questions</h2>
+      </div>
+      <div class="space-y-6">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-2">How does Phoenix Websites AI differ from a DIY website builder?</h3>
+          <p class="text-sm text-white/70 leading-relaxed">
+            With DIY platforms (like Squarespace, Wix, or WordPress templates), you are expected to spend dozens of hours figuring out design, mobile responsiveness, plugins, and hosting. When you hire Phoenix Websites AI, you hire Carter to plan, engineer, launch, and maintain a custom-built website tailored specifically to your goals.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-2">How does AI assist in the development process?</h3>
+          <p class="text-sm text-white/70 leading-relaxed">
+            We use AI-assisted developer workflows to generate component scaffolding, run automated testing passes, and explore layout variations rapidly. This eliminates boilerplate delays and speeds up delivery while Carter directly engineers and tests the final architecture, security, and aesthetics.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-2">What are the delivery timelines?</h3>
+          <p class="text-sm text-white/70 leading-relaxed">
+            Every tier has a maximum delivery deadline from onboarding completion: Simple Launch delivers in 2 weeks maximum; Essential Care delivers in 3 weeks maximum; Professional Growth delivers in 4 weeks maximum. Enterprise Custom projects follow a custom milestone schedule agreed upon before work starts.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+          <h3 class="text-lg font-bold text-white mb-2">How does the Lifetime Price Lock Guarantee work?</h3>
+          <p class="text-sm text-white/70 leading-relaxed">
+            Your monthly subscription rate for your website contract is locked for life. As long as your plan remains active, your monthly fee for that website will never increase, protecting your business budget against future price inflation.
+          </p>
+        </div>
+      </div>
+    </section>
 
     <!-- Contract & Onboarding Modal -->
     <div *ngIf="showContract()" class="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-12 overflow-y-auto">

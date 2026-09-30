@@ -1,0 +1,40 @@
+# Phoenix Websites AI
+> Managed AI-assisted custom website development, business automation, AI solutions, and data cleaning.
+
+Phoenix Websites AI builds high-performance business websites, online shops, client portals, and automated digital tools. Customers hire Phoenix Websites AI to handle the entire project from design to code and hosting—distinguishing this service from a DIY website builder.
+
+- Primary Website: https://phoenixwebsites.ai/
+- Founder & Lead Engineer: Carter Moyer (https://carter-portfolio.fyi)
+- Location: Wisconsin, United States
+- Contact Email: hello@phoenixwebsites.ai
+- Phone: +1 (760) 334-7874
+
+## Core Services
+
+### 1. Custom Website Development
+- URL: https://phoenixwebsites.ai/services/custom-websites
+- Summary: Tailored business websites, e-commerce, and web applications built from scratch using Angular, Node/Express, and modern standards. AI accelerates development and scaffolding while Carter oversees all architecture, security, and quality assurance.
+- Tiers & Timelines:
+  - Simple Launch: Max 2-week delivery. Custom AI-assisted design, mobile & SEO optimized, basic maintenance & hosting.
+  - Essential Care: Max 3-week delivery. Includes 2 hours/month custom edits, hosting & 24/7 monitoring.
+  - Professional Growth: Max 4-week delivery. Includes 5 hours/month custom edits, analytics, and AI chatbot upkeep.
+  - Enterprise Custom: Timeline and pricing based on custom scope.
+
+### 2. Business Process Automation
+- URL: https://phoenixwebsites.ai/services/automation
+- Summary: Custom workflows connecting forms, lead routing, SMS/email alerts, and CRM integrations to eliminate repetitive manual work.
+- Process: Workflow audit, logic design, integration development, validation, and active monitoring.
+
+### 3. AI Solutions & Conversational Assistants
+- URL: https://phoenixwebsites.ai/services/ai-solutions
+- Summary: Practical, grounded AI tools including browser voice assistants (phone and web-call integration), 24/7 inquiry triage bots with strict business guardrails, and automated lead capture.
+
+### 4. Data Cleaning & Organization
+- URL: https://phoenixwebsites.ai/data-cleanup
+- Summary: Hands-on spreadsheet and file cleaning, format normalization, and reporting using Microsoft tools (Excel/PowerQuery) and AI assistance on client-provided files. (Phoenix does not sell third-party records or data lists).
+- Pricing: Transparent quote after reviewing file type and complexity.
+
+## Getting Started
+- Request a Free Website Audit: https://phoenixwebsites.ai/#audit
+- View Services & Plans: https://phoenixwebsites.ai/services
+- Verified Client Reviews: https://phoenixwebsites.ai/reviews

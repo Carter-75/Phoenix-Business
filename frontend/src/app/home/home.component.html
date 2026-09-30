@@ -7,21 +7,21 @@
       <header class="mb-12">
         <div class="flex items-center gap-4 mb-8 hero-reveal">
           <div class="w-12 h-[1px] bg-orange-600"></div>
-          <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-xs">Modern Web Design</span>
+          <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-xs">AI-Assisted Custom Web Development</span>
         </div>
         <div class="flex items-end gap-8 hero-reveal cursor-pointer" (click)="onTitleClick()">
           <h1 class="fluid-h1 font-black select-none">
             YOUR IDEA.<br>
             <span class="text-white/70">YOUR WEBSITE.</span>
           </h1>
-          <img src="favicon.png" alt="Phoenix Studio Icon" class="w-24 h-24 sm:w-32 sm:h-32 object-contain mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
+          <img src="/favicon.png" alt="Phoenix Websites AI Icon" width="96" height="96" class="w-24 h-24 sm:w-32 sm:h-32 object-contain mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
         </div>
       </header>
 
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-end">
         <div class="hero-reveal">
           <p class="fluid-p max-w-xl mb-12">
-            Business websites, online shops, portfolios, and custom web projects. Work directly with Carter to build a site around your goals, wherever you are in the USA.
+            Custom website development, business automation, AI tools, and data organization. You hire us to handle every phase of design, custom engineering, and managed hosting—not a DIY website builder. Work directly with Carter to build high-performance web systems tailored to your business.
           </p>
           <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
             <button (click)="scrollToAudit()" class="premium-btn">Request a Free Website Audit</button>
@@ -34,9 +34,12 @@
             <div class="absolute -inset-1.5 bg-gradient-to-tr from-orange-600/30 to-amber-500/20 rounded-[2rem] blur-xl opacity-50 group-hover:opacity-90 transition-opacity duration-700"></div>
             <div class="relative p-2.5 rounded-[2rem] bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden">
               <div class="relative overflow-hidden rounded-[1.5rem] w-64 h-72 sm:w-72 sm:h-80">
-                <img src="/carter.jpg" alt="Carter Moyer — Founder & Lead Developer" 
-                     class="w-full h-full object-cover filter brightness-95 contrast-105 group-hover:scale-[1.15] hover:scale-[1.15] transition-transform duration-500 ease-out"
-                     style="object-position: center 46%;">
+                <picture>
+                  <source srcset="/carter.webp" type="image/webp">
+                  <img src="/carter.jpg" alt="Carter Moyer — Founder & Lead Developer" width="288" height="320" fetchpriority="high"
+                       class="w-full h-full object-cover filter brightness-95 contrast-105 group-hover:scale-[1.15] hover:scale-[1.15] transition-transform duration-500 ease-out"
+                       style="object-position: center 46%;">
+                </picture>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
                 <div class="absolute bottom-4 left-4 right-4 text-left">
                   <div class="flex items-center gap-2 mb-1">
@@ -64,18 +67,66 @@
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">01 / Logic</span>
           <h3 class="fluid-h3 mb-6">Smart<br>Systems</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Automated tools and lead generation that work for you 24/7.</p>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Automated workflows, inquiry alerts, and customer triage that work for you 24/7.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">02 / Design</span>
           <h3 class="fluid-h3 mb-6">Modern<br>Aesthetics</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Websites that look professional and help your brand stand out.</p>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Bespoke websites designed to convert visitors and elevate your brand credibility.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
           <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">03 / Tech</span>
           <h3 class="fluid-h3 mb-6">Reliable<br>Builds</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Safe, fast, and secure websites designed to grow with your business.</p>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Ultra-fast, secure engineering on global edge infrastructure with managed care.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Services Showcase -->
+  <section class="section-padding bg-black/40 border-b border-white/[0.05]">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="mb-16" appScrollReveal>
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">What We Deliver</span>
+        <h2 class="fluid-h2">CORE SERVICES &amp;<br><span class="text-white/20">CAPABILITIES</span></h2>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a routerLink="/services/custom-websites" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">01 / Web</div>
+          <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Custom Websites</h3>
+          <p class="text-white/50 text-xs leading-relaxed mb-6">
+            Bespoke engineering for businesses, portfolios, and shops. You hire us to handle every phase without touching DIY templates.
+          </p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
+        </a>
+
+        <a routerLink="/services/automation" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">02 / Workflows</div>
+          <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Automation</h3>
+          <p class="text-white/50 text-xs leading-relaxed mb-6">
+            Instant lead notifications, SMS alerts, CRM connections, and webhook pipelines that save hours of manual entry.
+          </p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
+        </a>
+
+        <a routerLink="/services/ai-solutions" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">03 / Intelligence</div>
+          <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">AI Solutions</h3>
+          <p class="text-white/50 text-xs leading-relaxed mb-6">
+            24/7 web voice assistants, customer chatbots with factual guardrails, and automated lead triage tools.
+          </p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
+        </a>
+
+        <a routerLink="/data-cleanup" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">04 / Data</div>
+          <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Data Cleanup</h3>
+          <p class="text-white/50 text-xs leading-relaxed mb-6">
+            Clean, normalize, and organize messy spreadsheets and client files using Microsoft tools and AI assistance.
+          </p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
+        </a>
       </div>
     </div>
   </section>
@@ -97,7 +148,9 @@
             <div class="p-8 sm:p-12 lg:p-20 flex flex-col justify-center">
               <span class="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] mb-4">{{ client.type }}</span>
               <h3 class="fluid-h3 mb-6">{{ client.name }}</h3>
-              <p class="text-white/40 text-sm leading-relaxed mb-6 max-w-md">{{ client.desc }}</p><p class="text-sm text-white/70">Demonstration project. No client results are claimed.</p><a [href]="client.url" target="_blank" rel="noopener" class="text-orange-400 underline">Open demo</a>
+              <p class="text-white/40 text-sm leading-relaxed mb-6 max-w-md">{{ client.desc }}</p>
+              <p class="text-sm text-white/70">Demonstration project. No client results are claimed.</p>
+              <a [href]="client.url" target="_blank" rel="noopener" class="text-orange-400 underline mt-2 inline-block">Open demo</a>
             </div>
             
             <div class="h-[400px] lg:h-[600px] relative bg-black border-l border-white/5">
@@ -173,7 +226,9 @@
           </div>
         </form>
         
-        <p class="mt-6 text-sm text-white/80">We use these details to answer your request. This does not subscribe you to marketing emails. <a routerLink="/privacy" class="underline">Privacy policy</a></p><p *ngIf="errorMessage()" role="alert" class="mt-6 text-red-300">{{ errorMessage() }}</p><p *ngIf="success()" role="status" aria-live="polite" class="mt-8 text-orange-600 text-xs font-black uppercase tracking-[0.4em]">
+        <p class="mt-6 text-sm text-white/80">We use these details to answer your request. This does not subscribe you to marketing emails. <a routerLink="/privacy" class="underline">Privacy policy</a></p>
+        <p *ngIf="errorMessage()" role="alert" class="mt-6 text-red-300">{{ errorMessage() }}</p>
+        <p *ngIf="success()" role="status" aria-live="polite" class="mt-8 text-orange-600 text-xs font-black uppercase tracking-[0.4em]">
           Your request is saved. Carter will review it and contact you.
         </p>
       </div>

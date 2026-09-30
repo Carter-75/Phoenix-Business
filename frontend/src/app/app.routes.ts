@@ -1,46 +1,112 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { AboutComponent } from './about/about.component';
-import { ServicesComponent } from './services-page/services.component';
-import { TermsComponent } from './legal/terms-of-service.component';
-import { RefundPolicyComponent } from './legal/refund-policy.component';
-import { PrivacyPolicyComponent } from './legal/privacy-policy.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { LeaveReviewComponent } from './leave-review/leave-review.component';
-import { AdminReviewsComponent } from './admin-reviews/admin-reviews.component';
-import { ReviewsComponent } from './reviews/reviews.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
-  { path: 'website-audit', component: HomeComponent },
-  { path: 'painting-websites', component: HomeComponent },
-  { path: 'growth-crm', loadComponent: () => import('./growth-crm/growth-crm.component').then(m => m.GrowthCrmComponent) },
-  { path: 'data-cleanup', loadComponent: () => import('./data-cleanup/data-cleanup.component').then(m => m.DataCleanupComponent) },
-  { path: 'about', component: AboutComponent },
-  { path: 'services', component: ServicesComponent },
-  { path: 'terms', component: TermsComponent },
-  { path: 'refunds', component: RefundPolicyComponent },
-  { path: 'privacy', component: PrivacyPolicyComponent },
-  { path: 'checkout-success', loadComponent: () => import('./checkout-success/checkout-success.component').then(m => m.CheckoutSuccessComponent) },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'leave-review', component: LeaveReviewComponent },
-  { path: 'leave-review/:token', component: LeaveReviewComponent },
-  { path: 'reviews', component: ReviewsComponent },
-  { path: 'admin-reviews', component: AdminReviewsComponent },
+  // Canonical Homepage
+  { 
+    path: '', 
+    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent), 
+    pathMatch: 'full' 
+  },
+  { path: 'home', redirectTo: '', pathMatch: 'full' },
   
-  // Data Intelligence Portal — public, shareable links
+  // Legacy aliases / landing shortcuts
+  { 
+    path: 'website-audit', 
+    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) 
+  },
+  { 
+    path: 'painting-websites', 
+    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) 
+  },
+
+  // Dedicated Services
+  { 
+    path: 'services', 
+    loadComponent: () => import('./services-page/services.component').then(m => m.ServicesComponent) 
+  },
+  { 
+    path: 'services/custom-websites', 
+    loadComponent: () => import('./services-page/custom-websites.component').then(m => m.CustomWebsitesComponent) 
+  },
+  { path: 'custom-websites', redirectTo: 'services/custom-websites', pathMatch: 'full' },
+  { path: 'custom-website-development', redirectTo: 'services/custom-websites', pathMatch: 'full' },
+  
+  { 
+    path: 'services/automation', 
+    loadComponent: () => import('./services-page/automation.component').then(m => m.AutomationComponent) 
+  },
+  { path: 'automation', redirectTo: 'services/automation', pathMatch: 'full' },
+
+  { 
+    path: 'services/ai-solutions', 
+    loadComponent: () => import('./services-page/ai-solutions.component').then(m => m.AiSolutionsComponent) 
+  },
+  { path: 'ai-solutions', redirectTo: 'services/ai-solutions', pathMatch: 'full' },
+
+  { 
+    path: 'data-cleanup', 
+    loadComponent: () => import('./data-cleanup/data-cleanup.component').then(m => m.DataCleanupComponent) 
+  },
+
+  // Company & Verification
+  { 
+    path: 'about', 
+    loadComponent: () => import('./about/about.component').then(m => m.AboutComponent) 
+  },
+  { 
+    path: 'reviews', 
+    loadComponent: () => import('./reviews/reviews.component').then(m => m.ReviewsComponent) 
+  },
+  { 
+    path: 'leave-review', 
+    loadComponent: () => import('./leave-review/leave-review.component').then(m => m.LeaveReviewComponent) 
+  },
+  { 
+    path: 'leave-review/:token', 
+    loadComponent: () => import('./leave-review/leave-review.component').then(m => m.LeaveReviewComponent) 
+  },
+
+  // Legal
+  { 
+    path: 'terms', 
+    loadComponent: () => import('./legal/terms-of-service.component').then(m => m.TermsComponent) 
+  },
+  { 
+    path: 'refunds', 
+    loadComponent: () => import('./legal/refund-policy.component').then(m => m.RefundPolicyComponent) 
+  },
+  { 
+    path: 'privacy', 
+    loadComponent: () => import('./legal/privacy-policy.component').then(m => m.PrivacyPolicyComponent) 
+  },
+
+  // Customer Management & Intake (Protected / Excluded from Indexing)
+  { 
+    path: 'growth-crm', 
+    loadComponent: () => import('./growth-crm/growth-crm.component').then(m => m.GrowthCrmComponent) 
+  },
+  { 
+    path: 'dashboard', 
+    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent) 
+  },
+  { 
+    path: 'admin-reviews', 
+    loadComponent: () => import('./admin-reviews/admin-reviews.component').then(m => m.AdminReviewsComponent) 
+  },
+  { 
+    path: 'checkout', 
+    loadComponent: () => import('./checkout/checkout.component').then(m => m.CheckoutComponent) 
+  },
+  { 
+    path: 'checkout-success', 
+    loadComponent: () => import('./checkout-success/checkout-success.component').then(m => m.CheckoutSuccessComponent) 
+  },
   { path: 'data', redirectTo: 'data-cleanup', pathMatch: 'full' },
   { 
     path: 'data/:id', 
-    loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent)
+    loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent) 
   },
 
-  // Checkout Review — full page
-  {
-    path: 'checkout',
-    loadComponent: () => import('./checkout/checkout.component').then(m => m.CheckoutComponent)
-  },
-
-  { path: '**', redirectTo: 'home' }
+  // Wildcard fallback to canonical home
+  { path: '**', redirectTo: '' }
 ];

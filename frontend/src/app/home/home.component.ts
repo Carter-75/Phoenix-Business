@@ -7,13 +7,12 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../shared/pipes/safe.pipe';
-
-gsap.registerPlugin(ScrollTrigger);
-
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { PhoenixSettingsService } from '../services/phoenix-settings.service';
-
 import { VoiceCallService } from '../services/voice-call.service';
+import { SeoService } from '../services/seo.service';
+
+gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-home',
@@ -22,6 +21,7 @@ import { VoiceCallService } from '../services/voice-call.service';
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private seo = inject(SeoService);
   private conversions = inject(ConversionService);
   private api = inject(ApiService);
   public settings = inject(PhoenixSettingsService);
@@ -63,6 +63,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.seo.updateMeta({
+      title: 'AI-Assisted Custom Website Development | Phoenix Websites AI',
+      description: 'Custom website development, business automation, AI solutions, and data cleaning by Phoenix Websites AI. Work directly with Carter to design, build, and launch high-performance web systems.',
+      canonicalUrl: 'https://phoenixwebsites.ai/',
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'url': 'https://phoenixwebsites.ai/',
+        'name': 'Phoenix Websites AI',
+        'description': 'AI-assisted custom website development, business automation, AI solutions, and data cleaning.'
+      }
+    });
+
     // Health check
     this.api.get('health').subscribe({
       error: () => {}
@@ -130,4 +143,3 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 }
-

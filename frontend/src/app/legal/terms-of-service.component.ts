@@ -106,7 +106,7 @@ import { ApiService } from '../services/api.service';
               <p class="text-white/30 text-sm font-medium">Questions regarding this policy?</p>
               <p class="text-white font-bold mt-1 tracking-widest uppercase">hello&#64;phoenixwebsites.ai</p>
             </div>
-            <a routerLink="/home" class="group flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white/50 hover:text-white transition-all">
+            <a routerLink="/" class="group flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white/50 hover:text-white transition-all">
               Return Home
               <div class="w-8 h-[1px] bg-white/20 group-hover:w-12 group-hover:bg-white transition-all duration-500"></div>
             </a>

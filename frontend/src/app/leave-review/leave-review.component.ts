@@ -28,7 +28,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
           </div>
           <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Invalid Link</h3>
           <p class="text-slate-400 text-sm mb-8">{{ formError() || 'This review link is invalid or has already been used.' }}</p>
-          <a routerLink="/home" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
+          <a routerLink="/" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
             Return to Home
           </a>
         </div>
