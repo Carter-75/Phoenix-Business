@@ -526,11 +526,11 @@ export class PricingService {
   public readonly featureAddons = FEATURE_ADDONS;
   public readonly extraPagePrice = EXTRA_PAGE_PRICE;
 
-  // Selected State
   public selectedProjectType = signal<string>('business');
   public totalPages = signal<number>(6);
   public selectedFeatures = signal<string[]>([]);
   public discountCode = signal<string>('');
+  public appliedCoupon = signal<{ code: string; type: 'percentage' | 'fixed'; percentage: number; fixedCents: number; appliesTo: string } | null>(null);
 
   // Comprehensive reactive calculation computed from user state & active promotion
   public calculation = computed<UnifiedPricingCalculation>(() => {
@@ -643,9 +643,29 @@ export class PricingService {
     const postPromoSetup = Math.max(0, subtotalAfterBundleSetup - promoSavingsSetup);
     const postPromoMonthly = Math.max(0, subtotalAfterBundleMonthly - promoSavingsMonthly);
 
+    // Coupon discount calculation
+    const applied = this.appliedCoupon();
+    let couponSetupSavings = 0;
+    let couponMonthlySavings = 0;
+    if (applied) {
+      if (applied.appliesTo === 'setup' || applied.appliesTo === 'both') {
+        couponSetupSavings = applied.type === 'percentage'
+          ? Math.round(postPromoSetup * (applied.percentage / 100))
+          : Math.min(postPromoSetup, applied.fixedCents);
+      }
+      if (applied.appliesTo === 'monthly' || applied.appliesTo === 'both') {
+        couponMonthlySavings = applied.type === 'percentage'
+          ? Math.round(postPromoMonthly * (applied.percentage / 100))
+          : Math.min(postPromoMonthly, applied.fixedCents);
+      }
+    }
+
+    const postCouponSetup = Math.max(0, postPromoSetup - couponSetupSavings);
+    const postCouponMonthly = Math.max(0, postPromoMonthly - couponMonthlySavings);
+
     // Final prices clamped to minimum floors ($799 setup / $49 monthly)
-    const finalSetupCents = Math.max(79900, postPromoSetup);
-    const finalMonthlyCents = Math.max(4900, postPromoMonthly);
+    const finalSetupCents = Math.max(79900, postCouponSetup);
+    const finalMonthlyCents = Math.max(4900, postCouponMonthly);
 
     // 30-day deferred billing schedule
     const firstBillingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -760,9 +780,9 @@ export class PricingService {
           bannerText: promoInfo.bannerText
         },
         coupon: {
-          code: this.discountCode() || null,
-          setupSavings: 0,
-          monthlySavings: 0
+          code: applied ? applied.code : (this.discountCode() || null),
+          setupSavings: couponSetupSavings,
+          monthlySavings: couponMonthlySavings
         },
         effectiveSetupPercent: effectiveSetupPct,
         effectiveMonthlyPercent: effectiveMonthlyPct
@@ -823,6 +843,15 @@ export class PricingService {
 
   public setDiscountCode(code: string) {
     this.discountCode.set(code.trim().toUpperCase());
+  }
+
+  public applyValidatedCoupon(coupon: { code: string; type: 'percentage' | 'fixed'; percentage: number; fixedCents: number; appliesTo: string } | null) {
+    this.appliedCoupon.set(coupon);
+    if (coupon) {
+      this.discountCode.set(coupon.code);
+    } else {
+      this.discountCode.set('');
+    }
   }
 
   public saveEstimate(data: { name: string; email: string; businessName?: string; phone?: string; notes?: string }): Observable<any> {

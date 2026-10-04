@@ -240,6 +240,24 @@ router.delete('/coupons/:id', async (req, res) => {
 });
 
 // ==========================================
+// 3.5 ORDER SNAPSHOTS MANAGEMENT
+// ==========================================
+
+/**
+ * GET /api/admin/orders
+ * Returns list of captured order snapshots for the owner console
+ */
+router.get('/orders', async (req, res) => {
+  try {
+    const orders = await OrderSnapshot.find().sort({ createdAt: -1 }).limit(100);
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error('Error fetching admin orders:', err);
+    res.status(500).json({ error: 'Failed to retrieve orders.' });
+  }
+});
+
+// ==========================================
 // 4. CONTRACT LIFECYCLE & RENEWALS MANAGEMENT (Wis. Stat. § 134.49)
 // ==========================================
 

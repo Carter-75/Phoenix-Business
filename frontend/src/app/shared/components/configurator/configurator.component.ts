@@ -456,18 +456,39 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
       <!-- Action Footer -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <!-- Promo / Discount Code Input -->
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <input 
-            type="text"
-            [(ngModel)]="discountCodeInput"
-            placeholder="Coupon Code"
-            class="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white uppercase placeholder-white/30 focus:outline-none focus:border-orange-500 w-full sm:w-44">
-          <button 
-            type="button"
-            (click)="applyCoupon()"
-            class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider transition-all whitespace-nowrap">
-            Apply
-          </button>
+        <div class="flex flex-col gap-1.5 w-full sm:w-auto">
+          <div *ngIf="!pricing.appliedCoupon()" class="flex items-center gap-2">
+            <input 
+              type="text"
+              [(ngModel)]="discountCodeInput"
+              (keydown.enter)="applyCoupon()"
+              placeholder="Coupon Code"
+              [disabled]="couponLoading()"
+              class="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white uppercase placeholder-white/30 focus:outline-none focus:border-orange-500 w-full sm:w-44">
+            <button 
+              type="button"
+              (click)="applyCoupon()"
+              [disabled]="couponLoading()"
+              class="px-5 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shadow-md">
+              <span *ngIf="couponLoading()" class="animate-spin"><i class="fas fa-spinner"></i></span>
+              <span>{{ couponLoading() ? 'Verifying...' : 'Apply' }}</span>
+            </button>
+          </div>
+
+          <!-- Applied Coupon Tag -->
+          <div *ngIf="pricing.appliedCoupon() as c" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs">
+            <span class="font-mono font-bold">{{ c.code }}</span>
+            <span class="text-[10px] text-emerald-300">({{ c.percentage ? c.percentage + '%' : '$' + (c.fixedCents/100) }} off)</span>
+            <button type="button" (click)="removeCoupon()" class="text-white/40 hover:text-red-400 ml-1 text-sm font-bold cursor-pointer" title="Remove Coupon">&times;</button>
+          </div>
+
+          <!-- Feedback message -->
+          <div *ngIf="couponMessage() as msg" 
+               [class.text-red-400]="msg.isError" 
+               [class.text-emerald-400]="!msg.isError" 
+               class="text-[11px] font-bold tracking-wide">
+            {{ msg.text }}
+          </div>
         </div>
 
         <!-- Checkout Button -->
@@ -494,6 +515,8 @@ export class ProjectConfiguratorComponent {
 
   public selectedCategory = signal<string>('all');
   public discountCodeInput = '';
+  public couponLoading = signal<boolean>(false);
+  public couponMessage = signal<{ text: string; isError: boolean } | null>(null);
   public loadingCheckout = signal<boolean>(false);
   public acceptedTerms = signal<boolean>(false);
   public termsError = signal<boolean>(false);
@@ -532,9 +555,44 @@ export class ProjectConfiguratorComponent {
   }
 
   public applyCoupon() {
-    if (this.discountCodeInput.trim()) {
-      this.pricing.setDiscountCode(this.discountCodeInput);
+    const raw = this.discountCodeInput.trim();
+    if (!raw) {
+      this.couponMessage.set({ text: 'Please enter a coupon code.', isError: true });
+      return;
     }
+    const cleanCode = raw.toUpperCase();
+    this.couponLoading.set(true);
+    this.couponMessage.set(null);
+
+    const email = this.api.currentUser()?.email;
+    this.api.post<any>('stripe/validate-discount', { code: cleanCode, email }).subscribe({
+      next: (res) => {
+        this.couponLoading.set(false);
+        if (res.valid) {
+          this.pricing.applyValidatedCoupon({
+            code: cleanCode,
+            type: res.type || 'percentage',
+            percentage: res.percentage || 0,
+            fixedCents: res.fixedCents || 0,
+            appliesTo: res.appliesTo || 'both'
+          });
+          const savingsDesc = res.percentage ? `${res.percentage}% off` : `$${(res.fixedCents / 100).toFixed(0)} off`;
+          this.couponMessage.set({ text: `Coupon "${cleanCode}" applied: ${savingsDesc}!`, isError: false });
+        } else {
+          this.couponMessage.set({ text: res.error || 'This coupon code is not valid.', isError: true });
+        }
+      },
+      error: (err) => {
+        this.couponLoading.set(false);
+        this.couponMessage.set({ text: err.error?.error || 'Invalid or expired coupon code.', isError: true });
+      }
+    });
+  }
+
+  public removeCoupon() {
+    this.pricing.applyValidatedCoupon(null);
+    this.discountCodeInput = '';
+    this.couponMessage.set(null);
   }
 
   public initiateCheckout() {

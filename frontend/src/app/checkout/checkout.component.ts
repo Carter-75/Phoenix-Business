@@ -82,12 +82,13 @@ import { ApiService, CartItem } from '../services/api.service';
           <!-- Discount input -->
           <div *ngIf="!appliedDiscount()" class="flex gap-3">
             <input [(ngModel)]="discountInput" 
+                   (keydown.enter)="applyDiscount()"
                    placeholder="Enter code" 
                    class="flex-1 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-semibold uppercase tracking-widest outline-none focus:border-orange-500/40 transition-colors"
                    [disabled]="discountLoading()" />
             <button (click)="applyDiscount()" 
-                    [disabled]="discountLoading() || !discountInput.trim()"
-                    class="px-6 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-black uppercase tracking-widest hover:bg-orange-500/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                    [disabled]="discountLoading()"
+                    class="px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 cursor-pointer">
               {{ discountLoading() ? '...' : 'Apply' }}
             </button>
           </div>
@@ -173,7 +174,10 @@ export class CheckoutComponent implements OnInit {
 
   applyDiscount() {
     const code = this.discountInput.trim().toUpperCase();
-    if (!code) return;
+    if (!code) {
+      this.discountError.set('Please enter a discount code first.');
+      return;
+    }
     this.discountLoading.set(true);
     this.discountError.set(null);
 
