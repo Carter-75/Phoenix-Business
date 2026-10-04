@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 // Unified pending intent for login-then-action flow
 export interface PendingIntent {
   action: 'add-to-cart' | 'buy-now';
-  type: 'data' | 'service';
+  type: 'data' | 'service' | 'configuration';
   // Data-specific
   recordIds?: string[];
   searchQuery?: string;
@@ -17,6 +17,14 @@ export interface PendingIntent {
   tierName?: string;
   projectType?: string;
   discountCode?: string;
+  // Configuration-specific
+  configuration?: {
+    tier: string;
+    totalPages: number;
+    features: string[];
+    discountCode?: string;
+  };
+  acceptedContract?: boolean;
 }
 
 // Cart item that supports both data blocks and service tiers
@@ -49,6 +57,7 @@ export class ApiService {
   public dataCart = signal<CartItem[]>([]);
   public cartOpen = signal<boolean>(false);
   public appliedDiscount = signal<{ code: string; percentage: number } | null>(this.getSavedDiscount());
+  public authModalRequested = signal<{ returnTo?: string; intent?: PendingIntent } | null>(null);
 
   private getSavedDiscount() {
     try {
@@ -145,23 +154,49 @@ export class ApiService {
     }
   }
 
+  /** Inspect pending intent without removing it */
+  peekPendingIntent(): PendingIntent | null {
+    if (typeof sessionStorage === 'undefined') return null;
+    const raw = sessionStorage.getItem(this.INTENT_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as PendingIntent;
+    } catch {
+      return null;
+    }
+  }
+
   /** Clear pending intent without reading */
   clearPendingIntent(): void {
-    sessionStorage.removeItem(this.INTENT_KEY);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(this.INTENT_KEY);
+    }
+  }
+
+  /** Request the auth/account creation modal to open */
+  requestAuth(intent?: PendingIntent, returnTo: string = '/services'): void {
+    if (intent) {
+      this.savePendingIntent(intent);
+    }
+    this.authModalRequested.set({ returnTo, intent });
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (!path.startsWith('/services') || path.length > 9) {
+        this.router.navigate(['/services'], { queryParams: { login: 'true' } });
+      }
+    }
   }
 
   /**
    * Ensure the user is logged in, then execute the callback.
-   * If not logged in, saves the intent and redirects to login.
+   * If not logged in, saves the intent and triggers login.
    * Returns true if the user IS logged in (callback was called), false if redirected.
    */
   ensureLoggedIn(intent: PendingIntent, returnTo: string = '/services'): boolean {
     if (this.currentUser()) {
       return true; // Already logged in — caller should proceed
     }
-    // Save intent and redirect to login
-    this.savePendingIntent(intent);
-    this.router.navigate(['/services'], { queryParams: { login: 'true' } });
+    this.requestAuth(intent, returnTo);
     return false; // Redirected — caller should stop
   }
 

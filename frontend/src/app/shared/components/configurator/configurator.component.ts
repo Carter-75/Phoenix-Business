@@ -1,14 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { PricingService, FeatureAddon } from '../../../services/pricing.service';
-import { ApiService } from '../../../services/api.service';
-import { Router } from '@angular/router';
+import { ApiService, PendingIntent } from '../../../services/api.service';
 
 @Component({
   selector: 'app-project-configurator',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div id="configurator" class="w-full max-w-[1280px] mx-auto rounded-3xl bg-[#07070d] border border-white/10 p-6 sm:p-10 lg:p-14 shadow-2xl relative overflow-hidden">
       <!-- Ambient Glow Behind Configurator -->
@@ -379,6 +379,78 @@ import { Router } from '@angular/router';
             Initial Term: 12 Mos
           </div>
         </div>
+
+        <!-- Terms of Service & Legal Agreement Review (Mandatory Acceptance) -->
+        <div class="mt-6 p-5 rounded-2xl bg-white/[0.02] border transition-all"
+             [class.border-red-500]="termsError()"
+             [class.border-white/10]="!termsError()">
+          <div class="flex items-start gap-3">
+            <input 
+              type="checkbox" 
+              id="configurator-terms-checkbox"
+              [checked]="acceptedTerms()"
+              (change)="onTermsChange($event)"
+              class="mt-1 w-4 h-4 rounded accent-orange-600 cursor-pointer">
+            <div class="flex-1">
+              <label for="configurator-terms-checkbox" class="text-xs text-white/80 cursor-pointer select-none leading-relaxed block">
+                I have reviewed and agree to the 
+                <a routerLink="/terms" target="_blank" class="text-orange-400 underline font-bold hover:text-orange-300">Terms of Service</a>, 
+                <a routerLink="/privacy" target="_blank" class="text-orange-400 underline font-bold hover:text-orange-300">Privacy Policy</a>, and 
+                <a routerLink="/refunds" target="_blank" class="text-orange-400 underline font-bold hover:text-orange-300">Refund Policy</a>. 
+                I acknowledge the mandatory 12-month commitment, one-time setup fee, 30-day deferred first monthly billing, and Wisconsin statutory notice terms (Wis. Stat. § 134.49, 30-day non-renewal notice).
+              </label>
+
+              <!-- Expandable Terms Disclosure Toggle -->
+              <div class="mt-3">
+                <button 
+                  type="button" 
+                  (click)="showTermsDetails.set(!showTermsDetails())" 
+                  class="text-[10px] font-mono uppercase tracking-widest text-white/40 hover:text-white/80 transition-colors flex items-center gap-1.5 cursor-pointer">
+                  <span>{{ showTermsDetails() ? '[-] Hide Agreement Summary' : '[+] Review Key Contract Disclosures' }}</span>
+                </button>
+              </div>
+
+              <!-- Collapsible Key Terms Details -->
+              <div *ngIf="showTermsDetails()" class="mt-4 p-4 rounded-xl bg-black/60 border border-white/5 space-y-2.5 text-[11px] text-white/60 font-mono animate-in fade-in duration-300">
+                <div class="flex items-center justify-between pb-2 border-b border-white/5 text-white/80 font-bold">
+                  <span>CONTRACT COMMITMENT &amp; DISCLOSURES</span>
+                  <span class="text-emerald-400">WISCONSIN LAW GOVERNED</span>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <span class="text-white/90 block font-bold mb-0.5">&bull; Initial Term:</span>
+                    12 months of continuous managed cloud hosting, automated backups, and engineering maintenance.
+                  </div>
+                  <div>
+                    <span class="text-white/90 block font-bold mb-0.5">&bull; Billing Schedule:</span>
+                    Only setup fee due today. Recurring monthly payments begin automatically after the 30-day trial period.
+                  </div>
+                  <div>
+                    <span class="text-white/90 block font-bold mb-0.5">&bull; Price Lock Guarantee:</span>
+                    Your monthly rate for this specific website is permanently locked for the entire life of the project.
+                  </div>
+                  <div>
+                    <span class="text-white/90 block font-bold mb-0.5">&bull; Wisconsin Renewal Notice:</span>
+                    Written notice delivered 60 to 30 days before annual renewal under Wis. Stat. § 134.49.
+                  </div>
+                  <div>
+                    <span class="text-white/90 block font-bold mb-0.5">&bull; Early Termination Fee:</span>
+                    50% of the remaining monthly fees for the current 12-month commitment.
+                  </div>
+                  <div>
+                    <span class="text-white/90 block font-bold mb-0.5">&bull; Intellectual Property:</span>
+                    Carter Cole / Phoenix Websites AI retains core engineering assets; separate source code IP buyout is available.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Error message if attempted without checking -->
+              <p *ngIf="termsError()" class="text-red-400 text-xs font-bold mt-2 animate-bounce flex items-center gap-1.5">
+                <span>&bull;</span> Please review and accept the agreement terms before continuing.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Action Footer -->
@@ -418,9 +490,14 @@ export class ProjectConfiguratorComponent {
   private api = inject(ApiService);
   private router = inject(Router);
 
+  @Output() requestAuthModal = new EventEmitter<void>();
+
   public selectedCategory = signal<string>('all');
   public discountCodeInput = '';
   public loadingCheckout = signal<boolean>(false);
+  public acceptedTerms = signal<boolean>(false);
+  public termsError = signal<boolean>(false);
+  public showTermsDetails = signal<boolean>(false);
 
   public categories = [
     { id: 'all', label: 'All Upgrades' },
@@ -430,6 +507,14 @@ export class ProjectConfiguratorComponent {
     { id: 'marketing', label: 'Marketing' },
     { id: 'operations', label: 'Support & Ops' }
   ];
+
+  public onTermsChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.acceptedTerms.set(input.checked);
+    if (input.checked) {
+      this.termsError.set(false);
+    }
+  }
 
   public filteredAddons() {
     const cat = this.selectedCategory();
@@ -453,17 +538,56 @@ export class ProjectConfiguratorComponent {
   }
 
   public initiateCheckout() {
-    this.loadingCheckout.set(true);
-    const calc = this.pricing.calculation();
+    if (!this.acceptedTerms()) {
+      this.termsError.set(true);
+      return;
+    }
+    this.termsError.set(false);
 
-    this.api.post('stripe/checkout', {
+    const calc = this.pricing.calculation();
+    const configPayload = {
+      tier: calc.tier.id,
+      totalPages: calc.scope.totalPages,
+      features: calc.addons.map(a => a.id),
+      discountCode: this.pricing.discountCode()
+    };
+
+    const user = this.api.currentUser();
+
+    // 1. If not authenticated, save pending intent and trigger account creation / login
+    if (!user) {
+      const intent: PendingIntent = {
+        action: 'buy-now',
+        type: 'configuration',
+        configuration: configPayload,
+        acceptedContract: true
+      };
+      this.api.requestAuth(intent, '/services');
+      this.requestAuthModal.emit();
+      return;
+    }
+
+    // 2. If authenticated but profile not finalized, request onboarding
+    if (!user.hasFinalizedProfile) {
+      const intent: PendingIntent = {
+        action: 'buy-now',
+        type: 'configuration',
+        configuration: configPayload,
+        acceptedContract: true
+      };
+      this.api.savePendingIntent(intent);
+      this.requestAuthModal.emit();
+      return;
+    }
+
+    // 3. Authenticated and finalized: proceed directly to Stripe
+    this.loadingCheckout.set(true);
+    this.api.post<any>('stripe/checkout', {
       checkoutMode: 'configuration',
-      configuration: {
-        tier: calc.tier.id,
-        totalPages: calc.scope.totalPages,
-        features: calc.addons.map(a => a.id),
-        discountCode: this.pricing.discountCode()
-      }
+      configuration: configPayload,
+      discountCode: configPayload.discountCode,
+      acceptedContract: true,
+      contractTimestamp: new Date().toISOString()
     }).subscribe({
       next: (res: any) => {
         this.loadingCheckout.set(false);

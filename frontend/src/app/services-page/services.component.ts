@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, DestroyRef, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, DestroyRef, signal, effect, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -106,8 +106,41 @@ export class ServicesComponent implements OnInit {
 
   activeDropdownTier = signal<string | null>(null);
   cardDiscountCode = signal<string>('');
+  pendingConfigIntent: any = null;
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+      const req = this.api.authModalRequested();
+      if (req && !this.api.currentUser()) {
+        this.selectedTier.set(null);
+        if (req.intent && req.intent.type === 'configuration') {
+          this.pendingConfigIntent = req.intent.configuration;
+          this.acceptedTerms = true;
+        }
+        this.showContract.set(true);
+        this.modalStep.set('auth');
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  onRequestAuthFromConfigurator() {
+    this.selectedTier.set(null);
+    const intent = this.api.peekPendingIntent();
+    if (intent && intent.type === 'configuration') {
+      this.pendingConfigIntent = intent.configuration;
+      this.acceptedTerms = true;
+    }
+    const user = this.api.currentUser();
+    this.showContract.set(true);
+    if (user) {
+      this.firstName = user.firstName || '';
+      this.lastName = user.lastName || '';
+      this.businessName = user.businessName || '';
+      this.modalStep.set('onboarding');
+    } else {
+      this.modalStep.set('auth');
+    }
+  }
 
   isFormValid() {
     const isNameValid = this.firstName.length > 0 && this.lastName.length > 0;
@@ -236,10 +269,15 @@ export class ServicesComponent implements OnInit {
       error: (err) => console.error('Failed to load dynamic pricing', err)
     });
 
-    // Handle route query params for generic login
+    // Handle route query params for generic login / configurator auth
     this.route.queryParams.subscribe(params => {
       if (params['login'] === 'true' && !this.api.currentUser()) {
         this.selectedTier.set(null);
+        const intent = this.api.peekPendingIntent();
+        if (intent && intent.type === 'configuration') {
+          this.pendingConfigIntent = intent.configuration;
+          this.acceptedTerms = true;
+        }
         this.showContract.set(true);
         this.modalStep.set('auth');
         // Clean up the URL so it doesn't reopen on refresh
@@ -256,6 +294,24 @@ export class ServicesComponent implements OnInit {
         if (intent.type === 'data') {
           // Data intents are handled by the data portal
           this.router.navigate(['/data-cleanup']);
+          return;
+        }
+
+        if (intent.type === 'configuration' && intent.configuration) {
+          if (user) {
+            if (user.hasFinalizedProfile) {
+              this.executeConfigurationCheckout(intent.configuration, intent.configuration.discountCode);
+            } else {
+              this.pendingConfigIntent = intent.configuration;
+              this.selectedTier.set(null);
+              this.showContract.set(true);
+              this.modalStep.set('onboarding');
+              this.firstName = user.firstName || '';
+              this.lastName = user.lastName || '';
+              this.businessName = user.businessName || '';
+              this.acceptedTerms = true;
+            }
+          }
           return;
         }
         
@@ -376,6 +432,7 @@ export class ServicesComponent implements OnInit {
   closeContract() {
     this.showContract.set(false);
     this.selectedTier.set(null);
+    this.pendingConfigIntent = null;
     this.hasAccepted = false;
     this.acceptedTerms = false;
     this.discountCode.set('');
@@ -441,6 +498,19 @@ export class ServicesComponent implements OnInit {
       password: this.userPassword // Only used if isNewUser
     };
 
+    const handlePostAuthCheckout = (user: any) => {
+      this.api.currentUser.set(user);
+      const configToExecute = this.pendingConfigIntent || (this.api.peekPendingIntent()?.type === 'configuration' ? this.api.getPendingIntent()?.configuration : null);
+      if (configToExecute) {
+        this.executeConfigurationCheckout(configToExecute, configToExecute.discountCode);
+      } else if (tier) {
+        this.triggerStripe(tier);
+      } else {
+        this.closeContract();
+        this.router.navigate(['/home']);
+      }
+    };
+
     // If it's a completely new email user, we register them now
     if (this.isNewUser && !this.api.currentUser()) {
       this.api.post('auth/register', {
@@ -449,13 +519,7 @@ export class ServicesComponent implements OnInit {
         password: this.userPassword
       }).subscribe({
         next: (user) => {
-          this.api.currentUser.set(user);
-          if (tier) {
-            this.triggerStripe(tier);
-          } else {
-            this.closeContract();
-            this.router.navigate(['/home']);
-          }
+          handlePostAuthCheckout(user);
         },
         error: (err) => {
           this.checkoutLoading.set(false);
@@ -466,13 +530,7 @@ export class ServicesComponent implements OnInit {
       // Existing user or Google Pending user
       this.api.post('auth/finalize-onboarding', payload).subscribe({
         next: (user) => {
-          this.api.currentUser.set(user);
-          if (tier) {
-            this.triggerStripe(tier);
-          } else {
-            this.closeContract();
-            this.router.navigate(['/home']);
-          }
+          handlePostAuthCheckout(user);
         },
         error: (err) => {
           this.checkoutLoading.set(false);
@@ -481,6 +539,37 @@ export class ServicesComponent implements OnInit {
         }
       });
     }
+  }
+
+  executeConfigurationCheckout(config: any, discountCode?: string) {
+    this.checkoutLoading.set(true);
+    const user = this.api.currentUser();
+    const finalFirstName = user?.firstName || this.firstName;
+    const finalLastName = user?.lastName || this.lastName;
+
+    this.api.post<{ url: string }>('stripe/checkout', {
+      checkoutMode: 'configuration',
+      configuration: config,
+      discountCode: discountCode || config?.discountCode,
+      email: user?.email || this.userEmail,
+      name: `${finalFirstName} ${finalLastName}`.trim(),
+      businessName: user?.businessName || this.businessName,
+      acceptedContract: true,
+      contractTimestamp: new Date().toISOString()
+    }).subscribe({
+      next: (res) => {
+        this.checkoutLoading.set(false);
+        this.closeContract();
+        if (res && res.url) {
+          window.location.href = res.url;
+        }
+      },
+      error: (err) => {
+        this.checkoutLoading.set(false);
+        console.error('Configurator checkout error:', err);
+        alert(err?.error?.error || 'Failed to initialize secure checkout session. Please try again.');
+      }
+    });
   }
 
   private triggerStripe(tier: ServiceTier) {
@@ -507,9 +596,11 @@ export class ServicesComponent implements OnInit {
     const doCheckout = () => {
       this.http.post<{url: string}>(`${environment.apiUrl}/stripe/checkout`, payload).subscribe({
         next: (res) => {
-          window.open(res.url, '_blank');
           this.checkoutLoading.set(false);
           this.closeContract();
+          if (res && res.url) {
+            window.location.href = res.url;
+          }
         },
         error: (err) => {
           this.checkoutLoading.set(false);
@@ -552,8 +643,18 @@ export class ServicesComponent implements OnInit {
         tierName: this.selectedTier()!.title,
         discountCode: this.discountCode() || undefined
       });
+    } else if (this.pendingConfigIntent) {
+      this.api.savePendingIntent({
+        action: 'buy-now',
+        type: 'configuration',
+        configuration: this.pendingConfigIntent,
+        acceptedContract: true
+      });
     } else {
-      sessionStorage.setItem('generic_login', 'true');
+      const existing = this.api.peekPendingIntent();
+      if (!existing) {
+        sessionStorage.setItem('generic_login', 'true');
+      }
     }
     this.api.loginWithGoogle('/services');
   }
@@ -570,9 +671,16 @@ export class ServicesComponent implements OnInit {
       next: () => {
         this.isNewUser = false;
         const user = this.api.currentUser();
+        const intent = this.api.getPendingIntent();
         
         if (user && user.hasFinalizedProfile) {
           // Returning user fully registered.
+          if ((intent && intent.type === 'configuration' && intent.configuration) || this.pendingConfigIntent) {
+            const config = intent?.configuration || this.pendingConfigIntent;
+            this.executeConfigurationCheckout(config, config?.discountCode);
+            return;
+          }
+
           if (this.selectedTier()) {
             this.firstName = user.firstName;
             this.lastName = user.lastName;
@@ -583,14 +691,26 @@ export class ServicesComponent implements OnInit {
             this.router.navigate(['/home']);
           }
         } else {
-          // Account exists but profile is not finalized (unlikely for email, but safe fallback)
+          // Account exists but profile is not finalized
+          if (intent && intent.type === 'configuration' && intent.configuration) {
+            this.pendingConfigIntent = intent.configuration;
+          }
+          if (user) {
+            this.firstName = user.firstName || '';
+            this.lastName = user.lastName || '';
+            this.businessName = user.businessName || '';
+          }
           this.modalStep.set('onboarding');
         }
       },
       error: (err) => {
-        // 404 means the user doesn't exist -> Go to onboarding
+        // 404 means the user doesn't exist -> Go to onboarding / registration
         if (err.status === 404) {
           this.isNewUser = true;
+          const intent = this.api.peekPendingIntent();
+          if (intent && intent.type === 'configuration' && intent.configuration) {
+            this.pendingConfigIntent = intent.configuration;
+          }
           this.modalStep.set('onboarding');
         } 
         // 401 means password was actually wrong

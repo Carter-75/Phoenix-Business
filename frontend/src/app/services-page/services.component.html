@@ -63,7 +63,7 @@
 
     <!-- Dynamic Project Configurator -->
     <section class="mb-28">
-      <app-project-configurator></app-project-configurator>
+      <app-project-configurator (requestAuthModal)="onRequestAuthFromConfigurator()"></app-project-configurator>
     </section>
 
     <!-- End Dynamic Project Configurator -->
@@ -113,10 +113,10 @@
 
         <header class="mb-12">
           <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">
-            {{modalStep() === 'auth' ? 'Identity Verification' : 'Finalize Agreement'}}
+            {{modalStep() === 'auth' ? (pendingConfigIntent ? 'Create Account or Sign In' : 'Identity Verification') : 'Finalize Agreement'}}
           </h2>
           <p class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600">
-            {{modalStep() === 'auth' ? 'Step 1: Authenticate' : 'Step 2: Onboarding' + (selectedTier() ? ' — ' + selectedTier()!.title : '')}}
+            {{modalStep() === 'auth' ? (pendingConfigIntent ? 'Save Your Configured System & Continue' : 'Step 1: Authenticate') : 'Step 2: Onboarding' + (selectedTier() ? ' — ' + selectedTier()!.title : (pendingConfigIntent ? ' — Configured System' : ''))}}
           </p>
         </header>
 
@@ -199,10 +199,10 @@
             <button (click)="proceedToCheckout()" 
                     [disabled]="!isFormValid() || checkoutLoading() || isAnimatingDiscount()"
                     class="premium-btn w-full !py-8 flex items-center justify-center gap-4 disabled:opacity-30 disabled:cursor-not-allowed">
-              <span *ngIf="!checkoutLoading()">{{ selectedTier() ? 'Continue to secure payment' : 'Finish account setup' }}</span>
+              <span *ngIf="!checkoutLoading()">{{ (selectedTier() || pendingConfigIntent) ? 'Continue to secure payment' : 'Finish account setup' }}</span>
               <span *ngIf="checkoutLoading()" class="flex items-center gap-3">
                 <i class="fas fa-spinner animate-spin"></i>
-                {{ selectedTier() ? 'Preparing secure payment...' : 'Saving your account...' }}
+                {{ (selectedTier() || pendingConfigIntent) ? 'Preparing secure payment...' : 'Saving your account...' }}
               </span>
             </button>
           </div>
