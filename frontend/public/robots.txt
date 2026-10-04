@@ -1,3 +1,6 @@
+# Phoenix Websites AI - Robots.txt
+# https://phoenixwebsites.ai/
+
 User-agent: *
 Allow: /
 Disallow: /growth-crm
@@ -7,5 +10,28 @@ Disallow: /checkout-success
 Disallow: /admin-reviews
 Disallow: /leave-review
 
-# Sitemap
+# AI Search & Retrieval Crawlers (Explicitly Allowed for indexing & direct citations)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# Canonical Sitemaps & Machine-Readable Context
 Sitemap: https://phoenixwebsites.ai/sitemap.xml
+# LLM Context: https://phoenixwebsites.ai/llms.txt

@@ -5,27 +5,33 @@
     
     <div class="max-w-[1400px] mx-auto w-full">
       <header class="mb-12">
-        <div class="flex items-center gap-4 mb-8 hero-reveal">
+        <div class="flex items-center gap-4 mb-6 hero-reveal">
           <div class="w-12 h-[1px] bg-orange-600"></div>
-          <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-xs">AI-Assisted Custom Web Development</span>
+          <span class="text-orange-600 font-black uppercase tracking-[0.35em] text-xs">Phoenix Websites AI • AI-Native Development Agency</span>
         </div>
         <div class="flex items-end gap-8 hero-reveal cursor-pointer" (click)="onTitleClick()">
           <h1 class="fluid-h1 font-black select-none">
-            YOUR IDEA.<br>
-            <span class="text-white/70">YOUR WEBSITE.</span>
+            AI-POWERED FULL-STACK<br>
+            <span class="text-white/70">WEB DEVELOPMENT</span>
           </h1>
-          <img src="/favicon.png" alt="Phoenix Websites AI Icon" width="96" height="96" class="w-24 h-24 sm:w-32 sm:h-32 object-contain mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
+          <img src="/favicon.png" alt="Phoenix Websites AI Logo" width="96" height="96" class="w-20 h-20 sm:w-28 sm:h-28 object-contain mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
         </div>
       </header>
 
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-end">
         <div class="hero-reveal">
-          <p class="fluid-p max-w-xl mb-12">
-            Custom website development, business automation, AI tools, and data organization. You hire us to handle every phase of design, custom engineering, and managed hosting—not a DIY website builder. Work directly with Carter to build high-performance web systems tailored to your business.
+          <p class="fluid-p max-w-xl mb-6">
+            Phoenix Websites AI builds custom websites and full-stack web applications for businesses that want a finished, high-performance product engineered for them. AI accelerates our development speed, while senior human engineering delivers verified architecture, custom code, security auditing, and zero-latency performance.
           </p>
-          <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
-            <button (click)="scrollToAudit()" class="premium-btn">Request a Free Website Audit</button>
-            <button routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-4 hover:text-orange-600 transition-all border-b border-white/10">See Pricing</button>
+          <div class="grid grid-cols-2 gap-2.5 mb-10 text-xs text-white/60">
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> AI-Accelerated Speed</div>
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> 100% Human Oversight</div>
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> Full Code &amp; IP Ownership</div>
+            <div class="flex items-center gap-2"><span class="text-emerald-400 font-bold">✓</span> Not a DIY Builder or Template</div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <a routerLink="/services" class="premium-btn text-center">Configure Your Project</a>
+            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center">Request Free Audit</button>
           </div>
         </div>
 
@@ -53,7 +59,7 @@
             </div>
           </div>
           <div class="text-center lg:text-right w-full">
-            <div class="text-xs font-black uppercase tracking-[0.5em] text-orange-600/50">Based in Wisconsin</div>
+            <div class="text-xs font-black uppercase tracking-[0.5em] text-orange-600/50">Based in Wisconsin, USA</div>
           </div>
         </div>
       </div>
@@ -65,19 +71,19 @@
     <div class="max-w-[1400px] mx-auto">
       <div class="grid md:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05]">
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">01 / Logic</span>
-          <h3 class="fluid-h3 mb-6">Smart<br>Systems</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Automated workflows, inquiry alerts, and customer triage that work for you 24/7.</p>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">01 / AI Acceleration</span>
+          <h3 class="fluid-h3 mb-6">Rapid Build<br>Velocity</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">AI accelerates component scaffolding and boilerplate, delivering finished projects 2–3x faster.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">02 / Design</span>
-          <h3 class="fluid-h3 mb-6">Modern<br>Aesthetics</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Bespoke websites designed to convert visitors and elevate your brand credibility.</p>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">02 / Human Oversight</span>
+          <h3 class="fluid-h3 mb-6">Verified<br>Architecture</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Senior engineers review every line of code, enforce strict security, and guarantee Core Web Vitals.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">03 / Tech</span>
-          <h3 class="fluid-h3 mb-6">Reliable<br>Builds</h3>
-          <p class="text-white/40 text-sm leading-relaxed font-medium">Ultra-fast, secure engineering on global edge infrastructure with managed care.</p>
+          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">03 / Ownership</span>
+          <h3 class="fluid-h3 mb-6">100% Code<br>Ownership</h3>
+          <p class="text-white/40 text-sm leading-relaxed font-medium">Bespoke software built on open modern frameworks. No proprietary website builder lock-in.</p>
         </div>
       </div>
     </div>
@@ -91,36 +97,54 @@
         <h2 class="fluid-h2">CORE SERVICES &amp;<br><span class="text-white/20">CAPABILITIES</span></h2>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <a routerLink="/services/ai-web-development" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">01 / AI-Native Web</div>
+          <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">AI Web Development</h3>
+          <p class="text-white/50 text-xs leading-relaxed mb-6">
+            Bespoke web applications built with AI speed and human engineering quality. Zero DIY templates.
+          </p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
+        </a>
+
+        <a routerLink="/services/full-stack-development" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">02 / Full-Stack</div>
+          <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Full-Stack Development</h3>
+          <p class="text-white/50 text-xs leading-relaxed mb-6">
+            Custom web applications, SaaS MVPs, customer dashboards, databases, and secure authentication.
+          </p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
+        </a>
+
         <a routerLink="/services/custom-websites" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">01 / Web</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">03 / Custom Sites</div>
           <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Custom Websites</h3>
           <p class="text-white/50 text-xs leading-relaxed mb-6">
-            Bespoke engineering for businesses, portfolios, and shops. You hire us to handle every phase without touching DIY templates.
+            Tailored business websites, portfolios, and shops. We handle design, engineering, and managed care.
           </p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
         </a>
 
         <a routerLink="/services/automation" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">02 / Workflows</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">04 / Workflows</div>
           <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Automation</h3>
           <p class="text-white/50 text-xs leading-relaxed mb-6">
-            Instant lead notifications, SMS alerts, CRM connections, and webhook pipelines that save hours of manual entry.
+            Instant lead notifications, SMS alerts, CRM connections, and webhook pipelines that eliminate manual work.
           </p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
         </a>
 
         <a routerLink="/services/ai-solutions" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">03 / Intelligence</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">05 / Intelligence</div>
           <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">AI Solutions</h3>
           <p class="text-white/50 text-xs leading-relaxed mb-6">
-            24/7 web voice assistants, customer chatbots with factual guardrails, and automated lead triage tools.
+            24/7 web voice assistants, grounded customer chatbots with strict guardrails, and lead triage tools.
           </p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 flex items-center gap-1">View Details &rarr;</span>
         </a>
 
         <a routerLink="/data-cleanup" class="glass-card group hover:border-orange-500/40 hover:bg-white/[0.02] transition-all block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">04 / Data</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-3">06 / Data</div>
           <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors mb-3">Data Cleanup</h3>
           <p class="text-white/50 text-xs leading-relaxed mb-6">
             Clean, normalize, and organize messy spreadsheets and client files using Microsoft tools and AI assistance.
@@ -158,6 +182,77 @@
               <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none"></div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Search & Knowledge Base Section (GEO / AEO Optimized) -->
+  <section class="section-padding bg-black/60 border-t border-white/[0.05]" id="faq">
+    <div class="max-w-[1200px] mx-auto">
+      <div class="mb-16 text-center max-w-3xl mx-auto" appScrollReveal>
+        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Frequently Asked Questions</span>
+        <h2 class="fluid-h2 mb-4">HOW WE WORK &amp;<br><span class="text-white/20">COMMON QUESTIONS</span></h2>
+        <p class="text-white/50 text-sm leading-relaxed">
+          Everything you need to know about our AI-accelerated development process, human engineering oversight, and service guarantees.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 text-left">
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">What is Phoenix Websites AI?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates the development process, while senior human engineers provide architecture, review, security audits, and delivery.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">Is Phoenix Websites AI an AI website builder?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            No. We are not a DIY website builder, a template marketplace, or a prompt-it-yourself tool. Clients hire us to handle every phase of design, custom engineering, testing, and managed hosting.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">Do customers have to write prompts or build the website?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            No. Customers never write prompts or wrestle with code. You simply provide your business requirements, goals, and content; our engineering team executes the AI workflows and human quality control.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">How is AI used in development?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            AI is used to accelerate the development lifecycle: generating component scaffolding, creating automated unit tests, drafting responsive CSS, and writing boilerplate logic. This cuts turnaround time by 50% or more.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">Are humans involved and what do they oversee?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Yes, 100%. Carter Moyer and senior engineers oversee system architecture, database schema design, security boundaries, API authentication, code review, responsiveness, and final quality assurance.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">Can Phoenix Websites AI build custom full-stack applications?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Yes. We build custom full-stack web applications, authenticated client portals, admin dashboards, relational/document databases, Stripe payment workflows, and third-party API integrations.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">Who owns the finished website and code?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            You own 100% of your finished website code, design, and intellectual property. There is zero proprietary agency lock-in; you can host with us or self-host at any time.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3" appScrollReveal>
+          <h3 class="text-lg font-bold text-white">How quickly can projects be completed and how much does it cost?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Starter custom websites start at $1,499 and deliver within 2 weeks. Comprehensive business websites start at $2,499 and deliver within 3 weeks. You can configure your exact requirements on our <a routerLink="/services" class="text-orange-400 underline font-bold">interactive pricing configurator</a>.
+          </p>
         </div>
       </div>
     </div>
@@ -235,64 +330,341 @@
     </div>
   </section>
 
-  <!-- Hidden Phoenix Menu -->
-  <div *ngIf="showSecretMenu()" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="showSecretMenu.set(false)"></div>
-    <div class="relative glass-card !bg-[#050508]/80 !border-white/10 w-full max-w-md p-8 sm:p-12 animate-in fade-in zoom-in duration-300">
-      <button (click)="showSecretMenu.set(false)" class="absolute top-6 right-6 text-white/40 hover:text-white transition-colors">
-        <i class="fas fa-times text-xl"></i>
+  <!-- Hidden Phoenix & Theme Control Menu -->
+  <div *ngIf="showSecretMenu()" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="fixed inset-0 bg-black/75 backdrop-blur-md" (click)="showSecretMenu.set(false)"></div>
+    <div class="relative glass-card !bg-[#050508]/95 !border-white/15 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-10 my-8 rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-300">
+      
+      <!-- Close Button -->
+      <button (click)="showSecretMenu.set(false)" class="absolute top-5 right-5 text-white/40 hover:text-white transition-colors p-2">
+        <i class="fas fa-times text-lg"></i>
       </button>
 
-      <h3 class="text-xl font-black uppercase tracking-[0.3em] text-white mb-2">Phoenix Settings</h3>
-      <p class="text-[10px] uppercase tracking-[0.2em] text-orange-600 mb-8">Tri-Engine Debug Mode</p>
-
-      <div class="space-y-6">
-        <!-- Fire Toggle -->
-        <div class="flex items-center justify-between group">
-          <div>
-            <div class="text-sm font-bold uppercase tracking-widest text-orange-500">Fire Phoenix</div>
-            <div class="text-[10px] text-white/40 tracking-widest uppercase">Default Core Engine</div>
+      <!-- Header & Status -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" [class.bg-emerald-400]="themePromo.mode() === 'auto'" [class.bg-amber-400]="themePromo.mode() === 'manual'"></span>
+            <span class="text-[9px] font-black uppercase tracking-[0.25em]" [class.text-emerald-400]="themePromo.mode() === 'auto'" [class.text-amber-400]="themePromo.mode() === 'manual'">
+              {{ themePromo.mode() === 'auto' ? 'AUTO SEASONAL CALENDAR ACTIVE' : 'MANUAL VISUAL PREVIEW ACTIVE' }}
+            </span>
           </div>
-          <button (click)="settings.toggleBird('fire')"
-                  class="w-12 h-6 rounded-full transition-colors relative"
-                  [class.bg-orange-600]="settings.fireEnabled()"
-                  [class.bg-white]="!settings.fireEnabled()"
-                  [class.opacity-20]="!settings.fireEnabled()">
-            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
-                 [class.translate-x-6]="settings.fireEnabled()"></div>
+          <span *ngIf="isOwner()" class="px-2.5 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-[9px] font-black uppercase tracking-widest">
+            Owner Authorized (hello@phoenixwebsites.ai)
+          </span>
+        </div>
+        <h3 class="text-2xl font-black uppercase tracking-tight text-white">
+          {{ isOwner() ? 'Phoenix Operational & Theme Console' : 'Phoenix Tri-Engine & Theme Studio' }}
+        </h3>
+        <p class="text-xs text-white/50 mt-1">
+          {{ isOwner() ? 'Secure owner administration for real-time promotion overrides, coupon management, and design tokens.' : 'Control WebGL phoenix particles and preview all 12 seasonal themes in real time.' }}
+        </p>
+      </div>
+
+      <!-- Owner Admin Navigation Tabs (Only for hello@phoenixwebsites.ai) -->
+      <div *ngIf="isOwner()" class="flex border-b border-white/10 mb-6 gap-2 overflow-x-auto pb-1">
+        <button (click)="activeAdminTab.set('visual')" 
+                [class.border-orange-500]="activeAdminTab() === 'visual'"
+                [class.text-orange-400]="activeAdminTab() === 'visual'"
+                [class.border-transparent]="activeAdminTab() !== 'visual'"
+                [class.text-white/60]="activeAdminTab() !== 'visual'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-palette mr-1.5"></i> Visual Studio
+        </button>
+        <button (click)="activeAdminTab.set('promotions'); loadAdminData()" 
+                [class.border-orange-500]="activeAdminTab() === 'promotions'"
+                [class.text-orange-400]="activeAdminTab() === 'promotions'"
+                [class.border-transparent]="activeAdminTab() !== 'promotions'"
+                [class.text-white/60]="activeAdminTab() !== 'promotions'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-bullhorn mr-1.5"></i> Promotions
+        </button>
+        <button (click)="activeAdminTab.set('coupons'); loadAdminData()" 
+                [class.border-orange-500]="activeAdminTab() === 'coupons'"
+                [class.text-orange-400]="activeAdminTab() === 'coupons'"
+                [class.border-transparent]="activeAdminTab() !== 'coupons'"
+                [class.text-white/60]="activeAdminTab() !== 'coupons'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-ticket-alt mr-1.5"></i> Coupons
+        </button>
+        <button (click)="activeAdminTab.set('orders'); loadAdminData()" 
+                [class.border-orange-500]="activeAdminTab() === 'orders'"
+                [class.text-orange-400]="activeAdminTab() === 'orders'"
+                [class.border-transparent]="activeAdminTab() !== 'orders'"
+                [class.text-white/60]="activeAdminTab() !== 'orders'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-history mr-1.5"></i> Snapshots
+        </button>
+      </div>
+
+      <!-- Admin Status Message -->
+      <div *ngIf="adminMessage()" class="mb-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs flex justify-between items-center">
+        <span>{{ adminMessage() }}</span>
+        <button (click)="adminMessage.set('')" class="text-white/40 hover:text-white"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- TAB 1: VISUAL STUDIO (Visible to all authorized or guest previewers) -->
+      <div *ngIf="activeAdminTab() === 'visual' || !isOwner()">
+        <!-- Mode Selector -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/10 mb-6">
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">Active Mode: <span class="text-orange-400">{{ themePromo.mode() | uppercase }}</span></div>
+            <div class="text-[10px] text-white/40">Current: {{ themePromo.activeTheme().name }}</div>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="themePromo.returnToAuto()"
+                    [class.bg-orange-600]="themePromo.mode() === 'auto'"
+                    [class.bg-white/5]="themePromo.mode() !== 'auto'"
+                    class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-orange-500">
+              Auto Mode
+            </button>
+          </div>
+        </div>
+
+        <!-- Phoenix Individual Toggles (3 Birds) -->
+        <div class="mb-8">
+          <div class="text-[10px] font-black uppercase tracking-[0.25em] text-white/40 mb-3">Tri-Engine Particle Controls</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <!-- Phoenix 1 (Primary) -->
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="themePromo.activePhoenixes().phoenix1.color"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">{{ themePromo.activePhoenixes().phoenix1.name }}</span>
+                </div>
+                <div class="text-[9px] text-white/40 uppercase">Slot 1 • Theme Primary</div>
+              </div>
+              <button (click)="settings.toggleBird('fire')"
+                      [attr.aria-label]="'Toggle ' + themePromo.activePhoenixes().phoenix1.name"
+                      class="w-10 h-5 rounded-full transition-colors relative"
+                      [style.backgroundColor]="settings.fireEnabled() ? themePromo.activePhoenixes().phoenix1.color : 'rgba(255,255,255,0.1)'">
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                     [class.translate-x-5]="settings.fireEnabled()"></div>
+              </button>
+            </div>
+
+            <!-- Phoenix 2 (Secondary) -->
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="themePromo.activePhoenixes().phoenix2.color"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">{{ themePromo.activePhoenixes().phoenix2.name }}</span>
+                </div>
+                <div class="text-[9px] text-white/40 uppercase">Slot 2 • Theme Secondary</div>
+              </div>
+              <button (click)="settings.toggleBird('ice')"
+                      [attr.aria-label]="'Toggle ' + themePromo.activePhoenixes().phoenix2.name"
+                      class="w-10 h-5 rounded-full transition-colors relative"
+                      [style.backgroundColor]="settings.iceEnabled() ? themePromo.activePhoenixes().phoenix2.color : 'rgba(255,255,255,0.1)'">
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                     [class.translate-x-5]="settings.iceEnabled()"></div>
+              </button>
+            </div>
+
+            <!-- Phoenix 3 (Tertiary) -->
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="themePromo.activePhoenixes().phoenix3.color"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">{{ themePromo.activePhoenixes().phoenix3.name }}</span>
+                </div>
+                <div class="text-[9px] text-white/40 uppercase">Slot 3 • Theme Tertiary</div>
+              </div>
+              <button (click)="settings.toggleBird('eclipse')"
+                      [attr.aria-label]="'Toggle ' + themePromo.activePhoenixes().phoenix3.name"
+                      class="w-10 h-5 rounded-full transition-colors relative"
+                      [style.backgroundColor]="settings.eclipseEnabled() ? themePromo.activePhoenixes().phoenix3.color : 'rgba(255,255,255,0.1)'">
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                     [class.translate-x-5]="settings.eclipseEnabled()"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12 Seasonal Themes Grid -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-black uppercase tracking-[0.25em] text-white/40">Seasonal Theme Catalog (12 Configured)</div>
+            <span class="text-[10px] text-white/40">Click any theme to preview</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto pr-1">
+            <button *ngFor="let camp of themePromo.campaigns"
+                    (click)="themePromo.setManualTheme(camp.id)"
+                    [class.border-orange-500]="themePromo.activeTheme().id === camp.id"
+                    [class.bg-white/[0.08]]="themePromo.activeTheme().id === camp.id"
+                    [class.border-white/10]="themePromo.activeTheme().id !== camp.id"
+                    class="p-2.5 rounded-xl bg-white/[0.02] border text-left transition-all hover:bg-white/[0.05] flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-white truncate">{{ camp.displayName }}</span>
+                <span *ngIf="themePromo.activeTheme().id === camp.id" class="text-[9px] text-orange-400 font-bold">✓</span>
+              </div>
+              
+              <!-- 3 Color Swatches -->
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm" [style.backgroundColor]="camp.theme.colors.primary" [title]="'Primary: ' + camp.theme.colors.primary"></span>
+                <span class="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm" [style.backgroundColor]="camp.theme.colors.secondary" [title]="'Secondary: ' + camp.theme.colors.secondary"></span>
+                <span class="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm" [style.backgroundColor]="camp.theme.colors.tertiary" [title]="'Tertiary: ' + camp.theme.colors.tertiary"></span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pricing Safety Notice -->
+        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] leading-relaxed">
+          <i class="fas fa-shield-alt mr-1"></i>
+          <strong>Pricing Isolation Guard:</strong> Manual theme preview is 100% visual only. It updates CSS design tokens and WebGL phoenix shaders in your browser, but does <em>not</em> alter client pricing or Stripe checkout charges. Authoritative pricing is calculated strictly by the server based on calendar dates.
+        </div>
+      </div>
+
+      <!-- TAB 2: PROMOTION OVERRIDES (Owner Only) -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'promotions'" class="space-y-6">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400 mb-2">Active Server Campaign</h4>
+          <div *ngIf="adminPromotions()?.activePromotion as act; else loadingPromo">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-base font-black text-white">{{ act.displayName }} ({{ act.id }})</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-black">{{ act.discountPercentage }}% Global Discount</span>
+            </div>
+            <p class="text-xs text-white/60 mb-1"><strong>Banner:</strong> "{{ act.bannerText }}"</p>
+            <p class="text-[10px] text-white/40">Calendar Window: {{ act.startDate || 'Evergreen' }} to {{ act.endDate || 'Ongoing' }}</p>
+          </div>
+          <ng-template #loadingPromo>
+            <p class="text-xs text-white/40 italic">Loading active promotion from authoritative server...</p>
+          </ng-template>
+        </div>
+
+        <!-- Promotion Override Form -->
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white">Live Promotion Override</h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Target Campaign</label>
+              <select [(ngModel)]="promoOverrideForm.campaignId" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                <option *ngFor="let camp of themePromo.campaigns" [value]="camp.id">{{ camp.displayName }} ({{ camp.id }})</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Global Discount Percentage</label>
+              <input type="number" min="5" max="50" [(ngModel)]="promoOverrideForm.discountPercentage" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Custom Banner Text (Optional)</label>
+            <input type="text" [(ngModel)]="promoOverrideForm.bannerText" placeholder="Leave blank to keep default banner text" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button (click)="submitPromoOverride()" [disabled]="adminLoading()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-50">
+              Apply Live Override
+            </button>
+            <button (click)="resetPromoOverrides()" [disabled]="adminLoading()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all">
+              Reset To Calendar Defaults
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: COUPONS (Owner Only) -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'coupons'" class="space-y-6">
+        <!-- New Coupon Form -->
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Database-Backed Coupon</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Code</label>
+              <input type="text" [(ngModel)]="newCoupon.code" placeholder="e.g. VIP500" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase">
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Discount Type</label>
+              <select [(ngModel)]="newCoupon.type" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Dollar ($)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Amount</label>
+              <input type="number" [(ngModel)]="newCoupon.amount" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Applies To</label>
+              <select [(ngModel)]="newCoupon.appliesTo" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="both">Both Setup &amp; Monthly</option>
+                <option value="setup">Setup Fee Only</option>
+                <option value="monthly">Monthly Fee Only</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Usage Limit</label>
+              <input type="number" [(ngModel)]="newCoupon.usageLimit" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <button (click)="submitNewCoupon()" [disabled]="!newCoupon.code || adminLoading()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40">
+            Create Coupon in DB
           </button>
         </div>
 
-        <!-- Ice Toggle -->
-        <div class="flex items-center justify-between group">
-          <div>
-            <div class="text-sm font-bold uppercase tracking-widest text-cyan-400">Ice Phoenix</div>
-            <div class="text-[10px] text-white/40 tracking-widest uppercase">Secondary Engine</div>
+        <!-- Active Coupons Table -->
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Database Coupons</h4>
+          <div *ngIf="adminCoupons().length === 0" class="text-xs text-white/40 italic py-2">
+            No active coupons found. Create one above.
           </div>
-          <button (click)="settings.toggleBird('ice')"
-                  class="w-12 h-6 rounded-full transition-colors relative"
-                  [class.bg-cyan-500]="settings.iceEnabled()"
-                  [class.bg-white]="!settings.iceEnabled()"
-                  [class.opacity-20]="!settings.iceEnabled()">
-            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
-                 [class.translate-x-6]="settings.iceEnabled()"></div>
-          </button>
+          <div class="space-y-2 max-h-56 overflow-y-auto">
+            <div *ngFor="let coup of adminCoupons()" class="p-3 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-bold text-sm text-emerald-400">{{ coup.code }}</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/70">
+                    {{ coup.type === 'percentage' ? coup.amount + '%' : '$' + coup.amount }} ({{ coup.appliesTo }})
+                  </span>
+                </div>
+                <div class="text-[10px] text-white/40 mt-1">
+                  Redeemed: {{ coup.usageCount }} / {{ coup.usageLimit || '∞' }}
+                </div>
+              </div>
+              <button (click)="toggleCoupon(coup._id, coup.enabled)" 
+                      [class.bg-emerald-500/20]="coup.enabled"
+                      [class.text-emerald-400]="coup.enabled"
+                      [class.border-emerald-500/30]="coup.enabled"
+                      [class.bg-red-500/20]="!coup.enabled"
+                      [class.text-red-400]="!coup.enabled"
+                      [class.border-red-500/30]="!coup.enabled"
+                      class="px-3 py-1 rounded text-xs font-bold border transition-colors">
+                {{ coup.enabled ? 'Enabled' : 'Disabled' }}
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Eclipse Toggle -->
-        <div class="flex items-center justify-between group">
-          <div>
-            <div class="text-sm font-bold uppercase tracking-widest text-purple-500">Eclipse Phoenix</div>
-            <div class="text-[10px] text-white/40 tracking-widest uppercase">Tertiary Engine</div>
+      <!-- TAB 4: SNAPSHOTS (Owner Only) -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'orders'" class="space-y-4">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Immutable Order Snapshots</h4>
+          <div *ngIf="adminOrders().length === 0" class="text-xs text-white/40 italic py-2">
+            No orders captured in this environment yet. Checkouts will record immutable snapshots here.
           </div>
-          <button (click)="settings.toggleBird('eclipse')"
-                  class="w-12 h-6 rounded-full transition-colors relative"
-                  [class.bg-purple-600]="settings.eclipseEnabled()"
-                  [class.bg-white]="!settings.eclipseEnabled()"
-                  [class.opacity-20]="!settings.eclipseEnabled()">
-            <div class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform"
-                 [class.translate-x-6]="settings.eclipseEnabled()"></div>
-          </button>
+          <div class="space-y-2 max-h-64 overflow-y-auto">
+            <div *ngFor="let ord of adminOrders()" class="p-3 rounded-lg bg-black/40 border border-white/10 text-xs">
+              <div class="flex justify-between items-start mb-1">
+                <span class="font-bold text-white uppercase">{{ ord.tierId }}</span>
+                <span class="text-[10px] text-white/40">{{ ord.createdAt | date:'short' }}</span>
+              </div>
+              <div class="flex gap-4 text-white/70 text-[11px]">
+                <span>Due Today: <strong class="text-white">${{ ord.finalPrices?.dueToday }}</strong></span>
+                <span>Monthly: <strong class="text-white">${{ ord.finalPrices?.recurringMonthly }}/mo</strong></span>
+                <span>Promo: <strong class="text-orange-400">{{ ord.discounts?.globalPromotion?.discountPercentage }}%</strong></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

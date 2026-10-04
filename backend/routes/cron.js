@@ -141,14 +141,38 @@ router.get('/check-refunds', async (req, res) => {
 });
 
 // @route   GET /api/cron/daily-renewals
-// @desc    Triggered by Vercel Cron every day at 8:00 AM server time
+// @desc    Triggered by Vercel Cron or external scheduler every day at 8:00 AM UTC
 router.get('/daily-renewals', async (req, res) => {
+    // 1. Authorize Cron Invocation
+    const cronSecret = process.env.CRON_SECRET;
+    const authHeader = req.headers['authorization'];
+    const bearerSecret = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const queryKey = req.query.key || req.query.secret;
+    const customHeader = req.headers['x-cron-secret'];
+    const isVercelCron = Boolean(req.headers['x-vercel-cron']);
+
+    const isAuthorized = !cronSecret ||
+        (process.env.NODE_ENV !== 'production' && !cronSecret) ||
+        bearerSecret === cronSecret ||
+        queryKey === cronSecret ||
+        customHeader === cronSecret ||
+        (isVercelCron && (!cronSecret || bearerSecret === cronSecret));
+
+    if (!isAuthorized) {
+        console.warn('[CRON] Unauthorized daily-renewals invocation attempt.');
+        return res.status(401).json({ error: 'Unauthorized cron invocation.' });
+    }
+
     console.log('[CRON] Running daily cron job for contract renewals and review requests...');
     try {
-        const transporter = getTransporter();
+        // 2. PRODUCTION CONTRACT LIFECYCLE STATUTORY RENEWALS (Wis. Stat. § 134.49)
+        const { processDailyRenewals } = require('../services/renewal-scheduler.service');
+        const referenceDate = req.query.date ? new Date(req.query.date) : new Date();
+        const renewalResults = await processDailyRenewals({ referenceDate });
 
-        // 1. RENEWALS
-        const today = new Date();
+        // 3. LEGACY CONTRACT RENEWAL NOTICE FALLBACK
+        const transporter = getTransporter();
+        const today = new Date(referenceDate);
         const targetDate = new Date(today);
         targetDate.setDate(targetDate.getDate() + 60);
         
@@ -163,32 +187,32 @@ router.get('/daily-renewals', async (req, res) => {
             }
         }).populate('userId');
 
-        let renewalEmailsSent = 0;
+        let legacyRenewalEmailsSent = 0;
         for (const contract of expiringContracts) {
-            if (contract.userId && contract.userId.email) {
-                const mailOptions = {
-                    from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
-                    to: contract.userId.email,
-                    subject: 'Notice: Your Annual Contract will Auto-Renew in 60 Days',
-                    html: `
-                        <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                            <h2 style="color: #2563eb;">Notice of Contract Auto-Renewal</h2>
-                            <p>Hi ${contract.userId.firstName || contract.userId.name || 'there'},</p>
-                            <p>This is a courtesy reminder that your 12-month service agreement for the <b>${contract.contractType}</b> plan is set to automatically renew in exactly 60 days.</p>
-                            <p>Your subscription will seamlessly continue for another 12-month period, ensuring uninterrupted service, hosting, and priority support.</p>
-                            <p><strong>Cancellation Window:</strong> Your penalty-free cancellation window is now open for the next 30 days. If you wish to make any changes to your subscription or cancel before the renewal takes place, please log into your client portal on our website.</p>
-                            <p>Thank you for being a valued client!</p>
-                            <br><br>
-                            ${process.env.EMAIL_SIGNATURE || ''}
-                        </div>
-                    `
-                };
-
-                await transporter.sendMail(mailOptions);
-                console.log(`[CRON] Sent 60-day renewal notice to ${contract.userId.email}`);
-                renewalEmailsSent++;
+            if (contract.userId && contract.userId.email && !contract.reviewEmailSent) {
+                // If this contract is already tracked in ContractLifecycle, do not send duplicate
+                const ContractLifecycle = require('../models/ContractLifecycle');
+                const isTracked = await ContractLifecycle.findOne({ userId: contract.userId._id, contractStatus: 'ACTIVE' });
+                if (!isTracked) {
+                    const mailOptions = {
+                        from: `"Phoenix Websites AI" <${process.env.EMAIL_USER}>`,
+                        to: contract.userId.email,
+                        subject: 'Notice: Your Annual Service Agreement will Auto-Renew in 60 Days',
+                        html: `
+                            <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                                <h2 style="color: #ea580c;">Notice of Contract Auto-Renewal</h2>
+                                <p>Hi ${contract.userId.firstName || contract.userId.name || 'there'},</p>
+                                <p>This is a formal statutory reminder that your 12-month service agreement for the <b>${contract.contractType}</b> plan is set to automatically renew in 60 days.</p>
+                                <p><strong>Notice Period (Wis. Stat. § 134.49):</strong> If you do not wish to renew, you may decline renewal by sending written notice to hello@phoenixwebsites.ai at least 30 days prior to expiration.</p>
+                            </div>
+                        `
+                    };
+                    await transporter.sendMail(mailOptions);
+                    legacyRenewalEmailsSent++;
+                }
             }
         }
+
 
         // 2. REVIEW REQUESTS
         const reviewContracts = await Contract.find({

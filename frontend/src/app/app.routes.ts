@@ -25,6 +25,18 @@ export const routes: Routes = [
     loadComponent: () => import('./services-page/services.component').then(m => m.ServicesComponent) 
   },
   { 
+    path: 'services/ai-web-development', 
+    loadComponent: () => import('./services-page/ai-web-development.component').then(m => m.AiWebDevelopmentComponent) 
+  },
+  { path: 'ai-web-development', redirectTo: 'services/ai-web-development', pathMatch: 'full' },
+  { path: 'ai-development', redirectTo: 'services/ai-web-development', pathMatch: 'full' },
+  { 
+    path: 'services/full-stack-development', 
+    loadComponent: () => import('./services-page/full-stack-development.component').then(m => m.FullStackDevelopmentComponent) 
+  },
+  { path: 'full-stack-development', redirectTo: 'services/full-stack-development', pathMatch: 'full' },
+  { path: 'full-stack', redirectTo: 'services/full-stack-development', pathMatch: 'full' },
+  { 
     path: 'services/custom-websites', 
     loadComponent: () => import('./services-page/custom-websites.component').then(m => m.CustomWebsitesComponent) 
   },

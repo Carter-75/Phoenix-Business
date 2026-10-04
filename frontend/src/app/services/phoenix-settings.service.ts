@@ -1,4 +1,5 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, inject } from '@angular/core';
+import { ThemePromotionService } from './theme-promotion.service';
 
 export interface PhoenixConfig {
   fire: boolean;
@@ -11,6 +12,7 @@ export interface PhoenixConfig {
 })
 export class PhoenixSettingsService {
   private readonly STORAGE_KEY = 'phoenix_settings_v1';
+  public themePromo = inject(ThemePromotionService);
   
   public fireEnabled = signal(true);
   public iceEnabled = signal(true);

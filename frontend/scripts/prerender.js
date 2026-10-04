@@ -14,30 +14,44 @@ const baseHtml = fs.readFileSync(indexHtmlPath, 'utf8');
 const routes = [
   {
     path: '/',
-    title: 'AI-Assisted Custom Website Development | Phoenix Websites AI',
-    description: 'Custom website development, business automation, AI solutions, and data cleaning by Phoenix Websites AI. Work directly with Carter to design, build, and launch high-performance web systems.',
+    title: 'Phoenix Websites AI | AI-Powered Full-Stack Web Development',
+    description: 'Phoenix Websites AI is an AI-native full-stack web development company. We build complete custom websites and web applications using AI acceleration with senior human engineering oversight.',
     canonicalUrl: 'https://phoenixwebsites.ai/',
-    heading: 'AI-Assisted Custom Website Development',
+    heading: 'AI-Powered Full-Stack Web Development',
     content: `
       <section class="hero-section">
-        <h1>AI-Assisted Custom Website Development</h1>
-        <p class="subtitle">Custom websites, business automation, AI tools, and data organization. You hire us to handle every phase of design, custom engineering, and managed hosting—not a DIY website builder. Work directly with Carter to build high-performance web systems tailored to your business.</p>
+        <p class="tagline">PHOENIX WEBSITES AI // AI-NATIVE DIGITAL STUDIO</p>
+        <h1>AI-POWERED FULL-STACK WEB DEVELOPMENT</h1>
+        <p class="subtitle">Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates development while human oversight is used for architecture, review, quality assurance, and delivery.</p>
+        <p class="explanation">Customers hire Phoenix Websites AI to have a complete custom website or web application engineered for them. It is not a DIY website builder, not a template marketplace, and not a service where customers must prompt an AI themselves. You provide the goals and requirements—our senior engineers handle complete architecture, full-stack implementation, database design, testing, and managed deployment.</p>
         <div class="actions">
-          <a href="/#audit" class="btn-primary">Request a Free Website Audit</a>
+          <a href="/#configurator" class="btn-primary">Launch Project Configurator</a>
           <a href="/services" class="btn-secondary">View Website Plans &amp; Pricing</a>
+          <a href="/services/ai-web-development" class="btn-secondary">AI Web Development</a>
+          <a href="/services/full-stack-development" class="btn-secondary">Full-Stack Development</a>
         </div>
       </section>
 
       <section class="services-overview">
-        <h2>Core Services &amp; Capabilities</h2>
+        <h2>Core Services &amp; Engineering Capabilities</h2>
         <article class="service-card">
           <h3>Custom Website Development</h3>
-          <p>Bespoke web applications built from scratch with modern frameworks and AI-accelerated workflows. Managed from design to deployment.</p>
+          <p>Bespoke web applications built from scratch with modern frameworks and AI-accelerated workflows. Engineered for speed, SEO, and conversion—managed from architecture to deployment.</p>
           <a href="/services/custom-websites">Learn more about custom website development</a>
         </article>
         <article class="service-card">
+          <h3>Full-Stack Web Applications &amp; SaaS</h3>
+          <p>Interactive web applications, customer portals, administrative dashboards, authentication systems, and relational databases engineered with senior human review.</p>
+          <a href="/services/full-stack-development">Learn more about full-stack development</a>
+        </article>
+        <article class="service-card">
+          <h3>AI Web Development</h3>
+          <p>AI-native web engineering delivering complete custom solutions in days rather than months, backed by senior human architecture and quality control.</p>
+          <a href="/services/ai-web-development">Learn more about AI web development</a>
+        </article>
+        <article class="service-card">
           <h3>Business Process Automation</h3>
-          <p>Instant lead routing, SMS alerts, CRM integration, and webhook pipelines that eliminate manual tasks.</p>
+          <p>Instant lead routing, SMS alerts, CRM integration, and webhook pipelines that eliminate manual operational tasks.</p>
           <a href="/services/automation">Learn more about business process automation</a>
         </article>
         <article class="service-card">
@@ -52,10 +66,46 @@ const routes = [
         </article>
       </section>
 
+      <section class="geo-knowledge-section" id="faq">
+        <h2>Frequently Asked Questions About Phoenix Websites AI</h2>
+        <div class="faq-item">
+          <h3>What is Phoenix Websites AI?</h3>
+          <p>Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates development while human oversight is used for architecture, review, quality assurance, and delivery.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is Phoenix Websites AI an AI website builder?</h3>
+          <p>No. Phoenix Websites AI is not a DIY AI website builder, not a template marketplace, and not a platform where you must prompt an AI yourself. You hire our team to build, test, and launch a complete custom digital product tailored to your exact specifications.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Do customers build the website themselves?</h3>
+          <p>No. Phoenix Websites AI is a turnkey, white-glove engineering service. You provide your business requirements, goals, and content assets. We handle design, custom frontend and backend programming, database configuration, security hardening, and deployment.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How is AI used in the development process?</h3>
+          <p>We leverage advanced AI models and agentic workflows to rapidly generate boilerplate code, scaffold APIs, write automated test suites, optimize performance, and accelerate initial prototypes. This allows us to deliver projects in days rather than months while drastically lowering costs.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Are humans involved in every project?</h3>
+          <p>Yes, absolutely. Senior human software engineers architect the system, inspect every line of code, enforce security protocols, conduct end-to-end quality assurance, and directly manage client communication.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can Phoenix Websites AI build custom functionality and full-stack applications?</h3>
+          <p>Yes. Beyond marketing websites, we build complete full-stack web applications, SaaS MVPs, customer portals, custom administrative dashboards, payment integrations, relational/document databases, REST/GraphQL APIs, and background job workers.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Who owns the finished website and source code?</h3>
+          <p>You do. You receive 100% intellectual property ownership of your bespoke website, custom code, media assets, and data upon final delivery.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How does the development process and pricing work?</h3>
+          <p>We offer transparent dynamic project estimates via our interactive configurator. Simple websites start at $499, professional multi-page platforms at $999, e-commerce stores at $1,499, and custom full-stack web applications at $2,499. Production delivery ranges from 5 to 21 business days.</p>
+        </div>
+      </section>
+
       <section class="audit-section" id="audit">
-        <h2>Request a Free Website Audit</h2>
-        <p>Request a short review of your mobile page, contact path, and service message. You will get three practical fixes. No purchase required.</p>
-        <p>Call our 24/7 AI Assistant at +1 (760) 334-7874 or email hello@phoenixwebsites.ai.</p>
+        <h2>Request a Free Website Audit or Scope Review</h2>
+        <p>Request an engineering review of your current site, mobile performance, conversion funnel, and SEO structure. You will receive actionable recommendations. No purchase required.</p>
+        <p>Contact us at hello@phoenixwebsites.ai or call +1 (760) 334-7874.</p>
       </section>
     `,
     schema: {
@@ -69,17 +119,74 @@ const routes = [
           "logo": "https://phoenixwebsites.ai/logo.png",
           "email": "hello@phoenixwebsites.ai",
           "telephone": "+1-760-334-7874",
+          "description": "Phoenix Websites AI is an AI-native full-stack web development company that builds complete custom websites and web applications with senior human oversight.",
           "founder": {
             "@type": "Person",
             "name": "Carter Moyer",
             "url": "https://carter-portfolio.fyi"
-          }
+          },
+          "sameAs": [
+            "https://www.youtube.com/channel/UCfawV121RAj1CYU69Nk69Rg",
+            "https://www.patreon.com/PhoenixWebsites"
+          ]
         },
         {
           "@type": "WebSite",
           "@id": "https://phoenixwebsites.ai/#website",
           "url": "https://phoenixwebsites.ai",
-          "name": "Phoenix Websites AI"
+          "name": "Phoenix Websites AI",
+          "publisher": {
+            "@id": "https://phoenixwebsites.ai/#organization"
+          }
+        },
+        {
+          "@type": "ProfessionalService",
+          "@id": "https://phoenixwebsites.ai/#service",
+          "name": "Phoenix Websites AI - Full-Stack Web Development",
+          "url": "https://phoenixwebsites.ai",
+          "image": "https://phoenixwebsites.ai/logo.png",
+          "description": "Custom websites and full-stack web applications engineered with AI acceleration and senior human oversight.",
+          "priceRange": "$$",
+          "telephone": "+1-760-334-7874",
+          "email": "hello@phoenixwebsites.ai"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://phoenixwebsites.ai/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Phoenix Websites AI?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates development while human oversight is used for architecture, review, quality assurance, and delivery."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Phoenix Websites AI an AI website builder?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Phoenix Websites AI is not a DIY AI website builder, not a template marketplace, and not a service where customers prompt an AI themselves. Clients hire Phoenix Websites AI to engineer a complete, custom digital product."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How is AI used in the development process?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "AI accelerates boilerplate generation, API scaffolding, automated testing, and performance optimization, while senior human software engineers oversee system architecture, security, code reviews, and deployment."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Who owns the finished website and source code?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The customer receives 100% intellectual property ownership of the complete custom codebase, assets, and content upon project delivery."
+              }
+            }
+          ]
         }
       ]
     }
@@ -308,6 +415,112 @@ const routes = [
     }
   },
   {
+    path: '/services/ai-web-development',
+    title: 'AI Web Development Company | Custom AI-Assisted Websites | Phoenix Websites AI',
+    description: 'Hire an AI-native web development company. Complete custom websites and web applications built with AI speed and senior human engineering oversight.',
+    canonicalUrl: 'https://phoenixwebsites.ai/services/ai-web-development',
+    heading: 'AI-Native Web Development Company',
+    content: `
+      <article class="service-detail">
+        <p class="tagline">ENGINEERED FOR SPEED // VERIFIED BY SENIOR ENGINEERS</p>
+        <h1>AI-Native Web Development Company</h1>
+        <p class="lead">Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates development while human oversight is used for architecture, review, quality assurance, and delivery.</p>
+
+        <h2>Turnkey Development — Not a DIY Builder</h2>
+        <p>Clients hire Phoenix Websites AI to deliver finished, custom web systems. It is not a DIY website builder, not a template marketplace, and not a service where customers must prompt an AI themselves. You provide business requirements, brand goals, and content—our engineers deliver a complete, production-ready web application.</p>
+
+        <h2>The Division of Labor: AI Speed vs Human Oversight</h2>
+        <ul>
+          <li><strong>What AI Accelerates:</strong> Boilerplate synthesis, API route scaffolding, responsive layout generation, automated unit tests, and performance optimization.</li>
+          <li><strong>What Senior Engineers Oversee:</strong> Scalable system architecture, business logic verification, relational database schema modeling, authentication and security audits, cross-device QA, and client communication.</li>
+        </ul>
+
+        <h2>What We Build</h2>
+        <ul>
+          <li><strong>High-Performance Marketing Websites:</strong> Sub-second load times, structured schema markup, and conversion-optimized funnels.</li>
+          <li><strong>Full-Stack Web Applications:</strong> Dynamic portals, authenticated dashboards, and custom business tooling.</li>
+          <li><strong>E-Commerce Platforms:</strong> Stripe-integrated catalogs, inventory management, and automated order flows.</li>
+          <li><strong>Automated Business Workflows:</strong> Instant SMS/email lead routing, CRM synchronization, and webhook pipelines.</li>
+        </ul>
+
+        <h2>Transparent Dynamic Pricing &amp; Timeline</h2>
+        <p>Projects range from $499 for foundational Starter sites (delivered in 5–7 days) to $2,499+ for full-stack custom web applications (delivered in 14–21 days). You receive 100% intellectual property ownership of your bespoke codebase upon completion.</p>
+
+        <div class="actions">
+          <a href="/#configurator" class="btn-primary">Calculate Your Project Price</a>
+          <a href="/services" class="btn-secondary">Explore All Plans</a>
+        </div>
+      </article>
+    `,
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "AI Web Development Services",
+      "serviceType": "AI-Powered Web Development",
+      "provider": {
+        "@type": "Organization",
+        "name": "Phoenix Websites AI",
+        "url": "https://phoenixwebsites.ai"
+      },
+      "description": "Custom websites and web applications engineered with AI acceleration and senior human oversight.",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "lowPrice": "499",
+        "highPrice": "2499"
+      }
+    }
+  },
+  {
+    path: '/services/full-stack-development',
+    title: 'Full-Stack AI Development Company | Custom Web Apps & SaaS MVPs | Phoenix Websites AI',
+    description: 'Custom full-stack web application development accelerated by AI. High-performance databases, authentication, dashboards, and APIs built with senior human review.',
+    canonicalUrl: 'https://phoenixwebsites.ai/services/full-stack-development',
+    heading: 'Full-Stack Web Application Development with AI Acceleration',
+    content: `
+      <article class="service-detail">
+        <p class="tagline">FULL-STACK ENGINEERING // PRODUCTION-GRADE ARCHITECTURE</p>
+        <h1>Full-Stack Web Application Development with AI Acceleration</h1>
+        <p class="lead">Transform complex product specifications into robust, production-grade web applications in weeks, not months. Phoenix Websites AI combines agentic AI scaffolding with senior human software engineering.</p>
+
+        <h2>Complete Full-Stack Capabilities</h2>
+        <ul>
+          <li><strong>Authentication &amp; RBAC:</strong> Multi-tenant user login, session tokens, JWTs, OAuth2, and granular role-based access control.</li>
+          <li><strong>Relational &amp; Document Databases:</strong> MongoDB, PostgreSQL, and Supabase schemas modeled for performance, ACID compliance, and data integrity.</li>
+          <li><strong>Dynamic Dashboards &amp; Portals:</strong> Reactive, real-time client portals, analytics charting, and operational administrative tooling.</li>
+          <li><strong>REST &amp; GraphQL APIs:</strong> Secure, self-documenting endpoints connecting frontend clients to third-party services and background workers.</li>
+          <li><strong>Payment &amp; Subscription Engines:</strong> Stripe Billing, webhook verification, prorated subscriptions, and customer checkout portals.</li>
+        </ul>
+
+        <h2>100% Code Ownership &amp; Production Deployment</h2>
+        <p>You receive the complete Git repository, database migration scripts, environment configurations, and documentation. No vendor lock-in, no ongoing licensing fees for your own proprietary code.</p>
+
+        <div class="actions">
+          <a href="/#configurator" class="btn-primary">Launch Project Estimator</a>
+          <a href="/services" class="btn-secondary">View Website Plans</a>
+        </div>
+      </article>
+    `,
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Full-Stack Web Application Development",
+      "serviceType": "Full-Stack Development",
+      "provider": {
+        "@type": "Organization",
+        "name": "Phoenix Websites AI",
+        "url": "https://phoenixwebsites.ai"
+      },
+      "description": "Full-stack web application, custom database, API, and SaaS development accelerated by AI with senior human oversight.",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "lowPrice": "999",
+        "highPrice": "4999"
+      }
+    }
+  },
+  {
     path: '/terms',
     title: 'Terms of Service | Phoenix Websites AI',
     description: 'Terms of Service for custom website development and subscription tiers at Phoenix Websites AI.',
@@ -369,8 +582,9 @@ function generateHtmlForRoute(route) {
 
   html = html.replace(/<app-root><\/app-root>/i, preRenderedApp);
 
-  // If specific route schema exists, inject it
+  // If specific route schema exists, clean existing schema from baseHtml and inject route schema
   if (route.schema) {
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '');
     const schemaTag = `\n  <script type="application/ld+json">\n  ${JSON.stringify(route.schema, null, 2)}\n  </script>\n</head>`;
     html = html.replace('</head>', schemaTag);
   }

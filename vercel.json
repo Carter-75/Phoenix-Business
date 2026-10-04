@@ -36,6 +36,16 @@
       "source": "/ai-solutions",
       "destination": "/services/ai-solutions",
       "permanent": true
+    },
+    {
+      "source": "/ai-web-development",
+      "destination": "/services/ai-web-development",
+      "permanent": true
+    },
+    {
+      "source": "/full-stack-development",
+      "destination": "/services/full-stack-development",
+      "permanent": true
     }
   ],
   "rewrites": [

@@ -11,6 +11,8 @@ import { CartDrawerComponent } from './shared/cart-drawer/cart-drawer.component'
 import { ApiService } from './services/api.service';
 import { VoiceCallModalComponent } from './shared/voice-call-modal/voice-call-modal.component';
 
+import { PromoBannerComponent } from './shared/components/promo-banner/promo-banner.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -24,12 +26,11 @@ import { VoiceCallModalComponent } from './shared/voice-call-modal/voice-call-mo
     AiBotComponent,
     CartFabComponent,
     CartDrawerComponent,
-    VoiceCallModalComponent
+    VoiceCallModalComponent,
+    PromoBannerComponent
   ],
   template: `
-    <div *ngIf="discountPercentage() > 0" class="bg-orange-600 text-white text-center py-2 px-4 text-[10px] sm:text-xs font-black uppercase tracking-widest fixed top-0 w-full z-[100] shadow-xl">
-      🚀 Business Opening Deal: {{discountPercentage()}}% Off All Plans & Services!
-    </div>
+    <app-promo-banner></app-promo-banner>
     @defer (on idle) {
       <app-background-animation></app-background-animation>
     }

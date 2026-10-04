@@ -21,106 +21,52 @@
         <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] block mb-2">Specialized Solutions</span>
         <h2 class="text-2xl sm:text-3xl font-black uppercase tracking-tight">Explore Dedicated Services</h2>
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a routerLink="/services/ai-web-development" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">01 / AI-Native Web</div>
+          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">AI Web Development</h3>
+          <p class="text-xs text-white/50 leading-relaxed">AI-accelerated coding with human architecture, security, and quality assurance.</p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
+        </a>
+        <a routerLink="/services/full-stack-development" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">02 / Full-Stack</div>
+          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Full-Stack Development</h3>
+          <p class="text-xs text-white/50 leading-relaxed">Custom web applications, SaaS MVPs, customer dashboards, databases, and APIs.</p>
+          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
+        </a>
         <a routerLink="/services/custom-websites" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">01 / Custom Web</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">03 / Custom Sites</div>
           <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Custom Websites</h3>
-          <p class="text-xs text-white/50 leading-relaxed">AI-assisted bespoke engineering, responsive UI, and managed hosting without DIY builders.</p>
+          <p class="text-xs text-white/50 leading-relaxed">Bespoke engineering for businesses and shops without DIY builder template bloat.</p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
         </a>
         <a routerLink="/services/automation" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">02 / Workflows</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">04 / Workflows</div>
           <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Process Automation</h3>
           <p class="text-xs text-white/50 leading-relaxed">Lead routing, SMS/email alerts, and CRM pipelines that eliminate manual tasks.</p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
         </a>
         <a routerLink="/services/ai-solutions" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">03 / Intelligence</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">05 / Intelligence</div>
           <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">AI Solutions</h3>
           <p class="text-xs text-white/50 leading-relaxed">24/7 web voice assistants, grounded inquiry chatbots, and intelligent lead triage.</p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
         </a>
         <a routerLink="/data-cleanup" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">04 / Data</div>
+          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">06 / Data</div>
           <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Data Cleanup</h3>
-          <p class="text-xs text-white/50 leading-relaxed">Spreadsheet normalization and error correction on your existing files with AI assistance.</p>
+          <p class="text-xs text-white/50 leading-relaxed">Spreadsheet normalization and error correction on client-provided files.</p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
         </a>
       </div>
     </section>
 
-    <!-- Pricing Grid -->
-    <div class="grid lg:grid-cols-3 gap-5 mb-32">
-      <div *ngFor="let tier of tiers(); let i = index" 
-           class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-all duration-500 tier-enter rounded-2xl"
-           [style.border-color]="tier.color + '28'"
-           [style.--tc]="tier.color"
-           [style.animation-delay]="(i * 0.1) + 's'">
-        
-        <div class="flex justify-between items-start mb-16">
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Tier {{i + 1}}</span>
-          <span *ngIf="tier.featured" class="px-4 py-1 bg-orange-600 text-white text-[8px] font-black uppercase tracking-[0.2em]">Featured</span>
-        </div>
+    <!-- Dynamic Project Configurator -->
+    <section class="mb-28">
+      <app-project-configurator></app-project-configurator>
+    </section>
 
-        <h3 class="fluid-h3 mb-4">{{tier.title}}</h3>
-        <div class="mb-12 flex flex-col">
-          <div *ngIf="tier.id !== 'data'; else dataQuote" class="flex items-baseline gap-2">
-            <span *ngIf="discountPercentage() > 0" class="text-xl font-bold line-through text-white/30 mr-1">${{tier.baseCost}}</span>
-            <span class="text-4xl font-black" [class.text-orange-500]="discountPercentage() > 0">${{tier.cost}}</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-white/30">/ Month</span>
-          </div>
-          <ng-template #dataQuote><p class="text-2xl font-bold">Quote after review</p><p class="text-sm text-white/60 mt-2">Tell us about your files and the result you need.</p></ng-template>
-          <div *ngIf="tier.setup" class="flex flex-col mt-2">
-            <span *ngIf="discountPercentage() > 0" class="text-[10px] font-bold line-through text-white/30">+ ${{tier.baseSetup}} SETUP FEE</span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-orange-500">+ ${{tier.setup}} SETUP FEE</span>
-          </div>
-        </div>
-
-        <div class="space-y-4 mb-6 h-28 overflow-hidden">
-          <p class="text-white/40 text-sm leading-relaxed font-medium line-clamp-4">{{tier.description}}</p>
-        </div>
-
-        <ul class="space-y-6 mb-12 border-t border-white/5 pt-6">
-          <li *ngFor="let feature of tier.features" class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest" [style.color]="tier.color + 'cc'">
-            <div class="w-1.5 h-1.5 rounded-full shrink-0" [style.background-color]="tier.color"></div>
-            {{feature}}
-          </li>
-        </ul>
-
-        <div *ngIf="tier.id === 'enterprise'" class="mb-6 space-y-2">
-          <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Select Project Type</label>
-          <select [(ngModel)]="enterpriseProjectType" class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all appearance-none cursor-pointer">
-            <option *ngFor="let opt of enterpriseOptions" [value]="opt" class="bg-[#050505] text-white">{{opt}}</option>
-          </select>
-          <p class="text-[9px] text-white/40 mt-2 leading-relaxed">
-            *After checkout, we will contact you directly to discuss the exact specifications and determine the final pricing for any extra features. You may request a full refund via email if you decide not to proceed *before* the final agreement is made.
-          </p>
-        </div>
-
-        <div *ngIf="activeDropdownTier() !== tier.id">
-          <button (click)="tier.id === 'data' ? navigateToData() : activeDropdownTier.set(tier.id); tier.id !== 'data' && cardDiscountCode.set('')" 
-                  class="premium-btn w-full !py-8 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white">
-            {{ tier.id === 'data' ? 'Request Data Cleanup' : 'Get Started' }}
-          </button>
-        </div>
-
-        <div *ngIf="activeDropdownTier() === tier.id" class="animate-in fade-in slide-in-from-top-4 duration-300 space-y-4 p-5 bg-[#050505] border border-orange-600/30 rounded-xl mt-4 relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-b from-orange-600/5 to-transparent pointer-events-none"></div>
-          <div class="relative z-10">
-            <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 block text-center mb-3">Discount / Access Code (Optional)</label>
-            <input [(ngModel)]="cardDiscountCode" type="text" placeholder="ENTER CODE" class="w-full bg-white/[0.05] border border-white/10 px-4 py-3 text-center text-xs font-black uppercase tracking-widest outline-none focus:border-green-500 transition-all text-green-400 mb-4 rounded-lg">
-            <div class="flex gap-3">
-              <button (click)="activeDropdownTier.set(null)" class="w-1/4 py-4 bg-white/5 hover:bg-white/10 text-white/50 text-[10px] font-black uppercase tracking-widest transition-colors rounded-lg">Cancel</button>
-              <button (click)="addTierToCart(tier); activeDropdownTier.set(null)" class="w-[37.5%] py-4 bg-white/5 border border-orange-500/30 hover:bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest transition-colors rounded-lg flex items-center justify-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" /></svg>
-                Cart
-              </button>
-              <button (click)="openContractWithDiscount(tier, cardDiscountCode())" class="w-[37.5%] py-4 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest transition-colors rounded-lg">Buy Now</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- End Dynamic Project Configurator -->
 
     <!-- Frequently Asked Questions -->
     <section class="mb-32 max-w-4xl mx-auto">

@@ -18,85 +18,82 @@ import { ApiService } from '../services/api.service';
         <div class="space-y-12 text-slate-400 font-medium leading-relaxed" appScrollReveal>
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. The Agreement</h2>
-            <p>By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure services.</p>
+            <p>By engaging with Phoenix Websites AI ("we", "us", "our"), you agree to enter into a legally binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure and software engineering services.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">2. Contractual Commitment</h2>
-            <p>Unless otherwise specified in a custom engagement agreement, all service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">2. Contractual Commitment &amp; Two-Component Architecture</h2>
+            <p>Unless otherwise agreed in a separate signed master statement of work, all website platform tiers require a mandatory minimum commitment of twelve (12) consecutive months. Every engagement consists of two distinct components:</p>
             <ul class="list-disc ml-6 space-y-2">
-              <li><strong>General Accounts:</strong> Users creating an account without a service selection are bound by general usage and privacy terms.</li>
-              <li><strong>Subscription Projects (Tiers 1, 2, 3 & 4):</strong> All tiers require a mandatory 12-month commitment. The engagement includes ongoing services matching your selected tier, subject to auto-renewal unless canceled.</li>
-              <li><strong>Subscription Pricing (Tiers 1, 2, 3 & 4):</strong> All tiers require a <strong>mandatory minimum commitment of twelve (12) consecutive months.</strong> Setup is due at checkout. Monthly billing starts after the 30-day subscription trial. The trial delays monthly billing; it does not waive the commitment or cancellation fees. Tier 1 requires a $\{{prices().simple_setup}} setup fee and $\{{prices().simple_monthly}} monthly payments. Tier 2 requires a $\{{prices().essential_setup}} setup fee and $\{{prices().essential_monthly}} monthly payments. Tier 3 requires an $\{{prices().professional_setup}} setup fee and $\{{prices().professional_monthly}} monthly payments. Tier 4 requires an $\{{prices().enterprise_setup}} setup fee and $\{{prices().enterprise_monthly}} monthly payments.</li>
+              <li><strong>Initial Development &amp; Setup Fee:</strong> A one-time fee due at checkout covering bespoke engineering, architectural scaffolding, UI/UX implementation, third-party API configurations, and deployment.</li>
+              <li><strong>Recurring Managed Cloud Care &amp; Maintenance:</strong> Ongoing monthly managed cloud hosting, SSL lifecycle management, daily automated backups, 24/7 uptime monitoring, security patching, and included maintenance hours. First monthly billing begins approximately thirty (30) days post-purchase via Stripe deferred subscription trial.</li>
+              <li><strong>Lifetime Price Lock Guarantee:</strong> Your monthly care rate for this specific website is permanently locked in for the duration of continuous subscription and will never increase.</li>
             </ul>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Automatic Renewal</h2>
-            <p>To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal or cancellation must be provided via the client portal within a strict 30-day window (between 60 and 30 days prior to the current contract's expiration date). Phoenix will provide a courtesy reminder notice via email prior to this window. Once the automatic renewal occurs, or if notice is given less than 30 days prior to expiration, you are bound to a new 12-month service agreement under these same terms.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">3. Automatic Renewal &amp; Statutory Notice Window (Wis. Stat. § 134.49 Compliance)</h2>
+            <p>To prevent disruption of mission-critical business websites, subscriptions automatically renew for successive twelve (12) month periods upon expiration of the initial term.</p>
+            <p><strong>Notice Procedure &amp; Zero-Penalty Non-Renewal:</strong> In compliance with Wisconsin business contract standards (Wis. Stat. § 134.49(3) &amp; (4)), Phoenix Websites AI delivers written statutory reminder notifications via electronic mail to the client's registered email address between fifteen (15) and sixty (60) days prior to the non-renewal notice deadline. To decline renewal, the client must submit notice of non-renewal at least thirty (30) days prior to the annual expiration date via the authenticated client portal or by emailing <a href="mailto:hello@phoenixwebsites.ai" class="text-orange-400 underline font-bold">hello&#64;phoenixwebsites.ai</a>. Upon timely non-renewal, all services remain 100% active through the final day of the current term, terminating automatically with zero ($0) early-termination liquidated damages or cancellation penalties.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">4. Early Termination & Liquidated Damages</h2>
-            <p>Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." The fee depends on when notice is given:</p><p>- Too Early (More than 60 days before expiration): The fee is calculated as 50% of the remaining total contract value for the current term.</p><p>- In Window (60 to 30 days before expiration): No liquidated damages apply. The contract terminates at the end of the current term.</p><p>- Too Late (Less than 30 days before expiration): Because you missed the required notice window, you are liable for 50% of the remaining time in the current contract PLUS 50% of the subsequent 12-month auto-renewal contract (effectively a 6-month penalty).</p>
-          </div>
-
-          <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Payment, Non-Refundability & Late Fees</h2>
-            <p>Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a payment failure or unwarranted chargeback, services will be suspended immediately. Any unpaid balances, including debts from fraudulent chargebacks, will accrue a late fee of 5% per month (or the maximum allowed by Wisconsin law). We will pursue debt recovery through third-party collections or legal action (e.g., wage garnishment) if necessary.</p>
-          </div>
-
-          <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">6. Limitation of Liability</h2>
-            <p>Phoenix provides high-performance infrastructure but does not guarantee specific business outcomes. <strong>In no event shall Phoenix be liable for any indirect, consequential, incidental, special, or punitive damages</strong> (including, without limitation, lost profits, lost data, or business interruption) arising out of or related to this agreement. This limitation explicitly extends to any delays or failures to deliver projects within estimated timelines. Our total aggregate liability is strictly limited to the total amount paid by the client in the 3 months preceding the event giving rise to the claim.</p>
-          </div>
-
-          <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">7. Service Scope & Fair Use</h2>
-            <ul class="list-disc ml-6 space-y-2">
-              <li><strong>Tier 1 (Simple Launch):</strong> Includes basic hosting, security, and uptime monitoring. Does not include any free time for ongoing edits or feature updates.</li>
-              <li><strong>Tier 2 (Essential Care):</strong> Includes up to 2 hours of "Edits & Updates" per month. Unused hours do not roll over.</li>
-              <li><strong>Tier 3 (Professional Growth):</strong> Includes up to 5 hours of specialized updates and AI maintenance.</li>
-              <li><strong>Tier 4 (Enterprise Custom):</strong> Includes up to 10 hours of custom development, priority maintenance, and advanced architectural updates.</li>
-              <li><strong>Exclusions:</strong> Requests exceeding these limits or requiring new core architecture will be billed at our standard hourly rate of $150/hr.</li>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">4. Early Termination &amp; Stipulated Liquidated Damages (Wassenaar v. Panos Standard)</h2>
+            <p>In the event of an early termination of the 12-month commitment initiated by the client prior to the standard notice window, the client shall be responsible for early-termination liquidated damages equal to <strong>50% of the remaining monthly retainer fees</strong> through the end of the current commitment term.</p>
+            <p><strong>Compensatory Justification under Wisconsin Law:</strong> Pursuant to the Wisconsin Supreme Court reasonableness standard in <em>Wassenaar v. Panos</em>, 111 Wis. 2d 518, 331 N.W.2d 326 (1983), the parties expressly acknowledge and agree that:</p>
+            <ul class="list-disc ml-6 space-y-1 text-xs">
+              <li>Phoenix heavily discounts upfront custom software engineering and setup costs based on the client's reciprocal commitment to a 12-month term;</li>
+              <li>Early termination causes immediate compensatory harm through unrecovered upfront engineering labor amortization, reserved edge-infrastructure capacity, and onboarding overhead;</li>
+              <li>The 50% formula reasonably forecasts actual compensatory damages by deducting the estimated 50% in variable ongoing fulfillment and server bandwidth costs avoided by Phoenix upon cancellation;</li>
+              <li>Actual damages arising from premature contract cancellation are uncertain and difficult to ascertain with mathematical precision. This stipulated sum represents a reasonable forecast of just compensation and not a penalty.</li>
             </ul>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">8. Domain & Portability / Ownership</h2>
-            <p>Upon completion of the initial 12-month term and full payment of all fees, the Client may request a transfer of the domain name for a nominal administrative fee of $50. Website source code and proprietary AI configurations remain the property of Phoenix unless a "Buyout Option" is exercised.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Website Source Code Buyout &amp; IP Transfer</h2>
+            <p>During the active subscription term, the client receives an exclusive commercial license to use the deployed website while hosted on Phoenix infrastructure. The client may at any time voluntarily elect a permanent <strong>Website Source Code Buyout</strong>.</p>
+            <p><strong>Nature of the Buyout Fee:</strong> The Buyout Fee is exactly <strong>50% of the original one-time setup fee</strong>. The parties agree that this fee is <em>separate and independent consideration</em> for the permanent purchase, copyright assignment, and transfer of the uncompiled source code, database schemas, and bespoke assets, and for the permanent deactivation of automated licensing checks—not liquidated damages or a cancellation penalty. Upon payment, full intellectual property rights and deployment independence are irreversibly transferred to the client.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">9. Indemnification</h2>
-            <p>The client agrees to indemnify and hold harmless Phoenix from any claims resulting from the client's use of the service, including but not limited to copyright infringement claims arising from content or media provided by the client.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">6. Payment, Delinquency Charges &amp; Consumer Disclosures</h2>
+            <p>All payments are securely tokenized and processed through Stripe. In the event of an overdue balance following a 10-day cure period:</p>
+            <ul class="list-disc ml-6 space-y-2">
+              <li><strong>Commercial / Business Accounts:</strong> Overdue commercial balances shall accrue a monthly late finance charge of <strong>1.5% per month (18% per annum)</strong> or a $25 administrative delinquency fee, whichever is greater, not to exceed the maximum rate permitted by Wisconsin law (Wis. Stat. § 138.05).</li>
+              <li><strong>Consumer Accounts:</strong> For transactions entered into by an individual primarily for personal, family, or household purposes governed by the Wisconsin Consumer Act (Wis. Stat. § 422.203 &amp; DFI guidelines), delinquency charges shall not exceed the statutory maximum of the lesser of <strong>$10.00 or 1% of the unpaid installment</strong> per month (12% per annum).</li>
+            </ul>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">10. Force Majeure</h2>
-            <p>Phoenix is not liable for any failure or delay in performance due to circumstances beyond our reasonable control, including acts of God, natural disasters, or third-party infrastructure failures (e.g., Stripe, MongoDB).</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">7. Payment Disputes &amp; Chargeback Cost Recovery</h2>
+            <p>Clients are expected to contact Phoenix in good faith to resolve any billing inquiries prior to initiating third-party payment disputes. In the event of an improper, bad-faith, or fraudulent chargeback filed for services properly performed under this Agreement, the client shall remain fully liable for the outstanding balance plus the actual third-party payment network dispute processing fee assessed by Stripe ($15.00) and substantiated administrative costs incurred in resolving the improper dispute. This provision does not penalize or impair any legitimate statutory or regulatory dispute rights.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">11. Communications & Deliverability</h2>
-            <p>It is the client's responsibility to maintain a valid, active email address on file and to whitelist communications from our domain. Any legal or administrative notice (including, but not limited to, renewal notices and invoices) that is successfully dispatched from our servers is considered formally and legally delivered, regardless of whether it is filtered into a spam/junk folder or blocked by your email provider. We are not liable for any consequences arising from your failure to receive emails due to your personal inbox settings or third-party email filtering.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">8. Collection Costs &amp; Reasonable Attorney Fees</h2>
+            <p>For commercial accounts, in the event of a material payment default requiring referral to third-party collection agencies or legal enforcement in court, the client agrees to pay all reasonable collection agency commissions, court costs, and reasonable attorney fees incurred by Phoenix Websites AI in enforcing this Agreement.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">12. Governing Law</h2>
-            <p>This agreement is governed by the laws of the State of Wisconsin.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">9. Service Scope, Base Inclusions &amp; Optional Support Add-Ons</h2>
+            <p>The base monthly managed cloud care fee includes cloud edge hosting, SSL certificates, automated daily snapshots, uptime monitoring, and base tier maintenance. Optional support duration add-ons (6-Month Extended Support, 12-Month Dedicated Care, or 24-Month Long-Term Architecture Assurance) represent distinct, optional add-on commitments providing priority ticket triage, multi-browser compatibility patching, dependency vulnerability updates, and allocated minor monthly requests (up to 1.5 engineering hours per request; expiring monthly with zero rollover). Optional support add-ons do not automatically renew and conclude strictly at the end of their contracted duration, at which time monthly support billing ceases in Stripe without affecting the underlying base website agreement.</p>
+            <p><strong>Deterministic 24-Month Support Rule &amp; Year 2 Transition:</strong> For clients selecting 24-Month Architecture Assurance alongside a 12-month base website agreement, the client receives our lowest monthly support rate in consideration of the 24-month duration commitment. If the base website agreement renews at Month 12, support continues seamlessly in hosted mode through Month 24. If the client submits a timely non-renewal of the base website at Month 12, Phoenix cloud hosting terminates with zero continuing hosting charges, and the remaining 12 months of support automatically transition into <strong>Self-Hosted / Transition Support</strong> for Months 13–24 at the client's contracted locked monthly rate. Self-hosted transition support covers source-code bug fixes, dependency updates, security patches, deployment troubleshooting on client infrastructure, and 6 minor requests per month. Normal contract completion includes delivery of compiled production runtime assets under a non-exclusive deployment license; transfer of the uncompiled source code repository and complete intellectual property assignment remains governed exclusively by the optional 50% setup Buyout Fee under Section 7.</p>
+            <p><strong>Support Early Termination:</strong> Early termination of an optional support add-on is subject to liquidated damages of 50% of the remaining monthly support commitment fees pursuant to Wis. Sup. Ct. <em>Wassenaar v. Panos</em>, which is calculated separately from base website liquidated damages and buyout fees.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">13. Dispute Resolution & Arbitration</h2>
-            <p><strong>Mandatory Binding Arbitration:</strong> Any dispute, claim, or controversy arising out of or relating to these Terms or the breach, termination, enforcement, interpretation, or validity thereof, shall be determined by confidential, binding arbitration in the State of Wisconsin, rather than in public court. This means you waive your right to a trial by jury and to have any dispute heard in a public court.</p>
-            <p><strong>Class Action Waiver:</strong> You and Phoenix agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action. You waive any right to participate in a class-action lawsuit or class-wide arbitration.</p>
-            <p><strong>Confidentiality:</strong> All aspects of the arbitration proceeding, including but not limited to the award of the arbitrator and compliance therewith, shall be strictly confidential. The parties agree to maintain confidentiality unless otherwise required by law.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">10. Limitation of Liability</h2>
+            <p><strong>IN NO EVENT SHALL PHOENIX WEBSITES AI BE LIABLE FOR ANY INDIRECT, CONSEQUENTIAL, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES</strong> (INCLUDING LOST PROFITS, LOST DATA, OR BUSINESS INTERRUPTION) ARISING OUT OF OR RELATED TO THIS AGREEMENT. OUR TOTAL AGGREGATE LIABILITY ARISING FROM OR RELATED TO THIS AGREEMENT SHALL BE STRICTLY LIMITED TO THE TOTAL FEES ACTUALLY PAID BY CLIENT TO PHOENIX IN THE THREE (3) MONTHS PRECEDING THE CLAIM.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">14. Disclaimer of Warranties</h2>
-            <p><strong>"As-Is" Service:</strong> All services are provided on an "AS-IS" and "AS-AVAILABLE" basis without warranties of any kind. Phoenix expressly disclaims all warranties, whether express, implied, or statutory, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not guarantee that the services will meet your specific business requirements, generate a certain number of leads, or be entirely error-free.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">11. Governing Law &amp; Venue</h2>
+            <p>This Agreement shall be governed by and construed in accordance with the laws of the State of Wisconsin, without regard to conflict of laws principles. The parties submit to the exclusive personal jurisdiction of the state and federal courts located in Wisconsin for any actions arising hereunder.</p>
+          </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">12. Disclaimer of Warranties &amp; Legal Status</h2>
+            <p><strong>"AS-IS" PROVISION:</strong> Except as expressly provided in a written Service Level Agreement, all services are provided "AS-IS" and "AS-AVAILABLE." Phoenix disclaims all warranties of merchantability and fitness for a particular purpose. While these terms have been crafted under authoritative Wisconsin statutory and judicial standards, they do not constitute formal legal advice to client; clients are encouraged to consult their own counsel.</p>
           </div>
         </div>
 

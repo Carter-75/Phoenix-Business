@@ -169,8 +169,21 @@ app.get(['/health', '/api/health'], healthHandler);
 // Public pricing endpoint (No DB check required)
 const pricingHandler = (req, res) => {
   const isTestMode = process.env.TEST_MODE === 'true';
+  const { getActivePromotion } = require('./services/promotion.service');
+  const activePromo = getActivePromotion();
+  const legacyEnvDiscount = isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0', 10);
+  const effectiveDiscount = isTestMode ? 0 : Math.max(activePromo.discountPercent || 0, legacyEnvDiscount);
+
   res.json({
-    discountPercentage: isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
+    discountPercentage: effectiveDiscount,
+    activePromotion: {
+      id: activePromo.id,
+      name: activePromo.name,
+      displayName: activePromo.displayName,
+      discountPercent: activePromo.discountPercent,
+      bannerText: activePromo.bannerText,
+      theme: activePromo.theme
+    },
     basePrices: {
       simple_setup: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'),
       simple_monthly: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_MONTHLY || '9900'),
@@ -194,11 +207,20 @@ const indexRouter = require('./routes/index');
 const cronRouter = require('./routes/cron');
 const reviewsRouter = require('./routes/reviews');
 const botRouter = require('./routes/bot');
+const pricingRouter = require('./routes/pricing');
+const promotionsRouter = require('./routes/promotions');
+const adminRouter = require('./routes/admin');
+
+const contractsRouter = require('./routes/contracts');
 
 // Mount routes
 const featureRoutes = [
   { path: '/auth', router: authRouter },
+  { path: '/admin', router: adminRouter },
+  { path: '/contracts', router: contractsRouter },
   { path: '/leads', router: leadsRouter },
+  { path: '/pricing', router: pricingRouter },
+  { path: '/promotions', router: promotionsRouter },
   { path: '/stripe', router: stripeRouter },
   { path: '/cron', router: cronRouter },
   { path: '/reviews', router: reviewsRouter },

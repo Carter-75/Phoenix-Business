@@ -20,39 +20,43 @@ TERMS OF SERVICE
 Last Updated: ${currentDate}
 
 1. The Agreement
-By engaging with Phoenix ("we", "us", "our"), you agree to enter into a binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure services.
+By engaging with Phoenix Websites AI ("we", "us", "our"), you agree to enter into a legally binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure and software engineering services.
 
-2. Contractual Commitment
-Unless otherwise specified in a custom engagement agreement, subscription service tiers require a mandatory minimum commitment of twelve (12) consecutive months. This commitment ensures the stability and resource allocation necessary for elite digital architecture.
+2. Contractual Commitment & Two-Component Architecture
+Unless otherwise agreed in a separate signed master statement of work, all website platform tiers require a mandatory minimum commitment of twelve (12) consecutive months. Every engagement consists of two distinct components: an initial one-time development and setup fee due at checkout, and ongoing monthly managed cloud care and hosting starting approximately thirty (30) days post-purchase via Stripe deferred subscription trial.
 ${commitmentText}
 
-3. Automatic Renewal
-To prevent service interruption, your contract will automatically renew for subsequent 12-month periods. Notice of non-renewal or cancellation must be provided via the client portal within a strict 30-day window (between 60 and 30 days prior to the current contract's expiration date). Phoenix will provide a courtesy reminder notice via email prior to this window. Once the automatic renewal occurs, or if notice is given less than 30 days prior to expiration, you are bound to a new 12-month service agreement under these same terms.
+3. Automatic Renewal & Statutory Notice Window (Wis. Stat. § 134.49 Compliance)
+To prevent disruption of mission-critical business websites, subscriptions automatically renew for successive twelve (12) month periods upon expiration of the initial term.
+In compliance with Wisconsin business contract standards (Wis. Stat. § 134.49(3) & (4)), Phoenix Websites AI delivers written statutory reminder notifications via electronic mail to the client's registered email address between fifteen (15) and sixty (60) days prior to the non-renewal notice deadline. To decline renewal, the client must submit notice of non-renewal at least thirty (30) days prior to the annual expiration date via the authenticated client portal or by emailing hello@phoenixwebsites.ai. Upon timely non-renewal, all services remain 100% active through the final day of the current term, terminating automatically with zero ($0) early-termination liquidated damages or cancellation penalties.
 
-4. Early Termination & Liquidated Damages
-Early termination of the 12-month commitment by the client results in the immediate accrual of "Liquidated Damages." The fee depends on when notice is given:
-- **Too Early (More than 60 days before expiration):** The fee is calculated as 50% of the remaining total contract value for the current term.
-- **In Window (60 to 30 days before expiration):** No liquidated damages apply. The contract terminates at the end of the current term.
-- **Too Late (Less than 30 days before expiration):** Because you missed the required notice window, you are liable for 50% of the remaining time in the current contract PLUS 50% of the subsequent 12-month auto-renewal contract (effectively a 6-month penalty).
-5. Website Buyout Option & Ownership Finality
-If you wish to terminate the ongoing service agreement but retain full ownership, hosting rights, and access to the custom website built for you, you may exercise a "Website Buyout." The Buyout Fee is exactly 50% of your original one-time setup fee. 
-- You must pay this Buyout Fee IN ADDITION to any Liquidated Damages calculated under Section 4 based on when your notice is provided.
-- **Ownership Finality:** Upon successful payment of the Buyout Fee, all automated suspension mechanisms ("Kill Switches") are permanently deactivated. Full ownership, intellectual property rights, and hosting deployment control are irreversibly transferred to you, assuming the payment clears successfully and is not later reversed, disputed, or charged back.
+4. Early Termination & Stipulated Liquidated Damages (Wassenaar v. Panos Standard)
+In the event of an early termination of the 12-month commitment initiated by the client prior to the standard notice window, the client shall be responsible for early-termination liquidated damages equal to 50% of the remaining monthly retainer fees through the end of the current commitment term.
+Pursuant to the Wisconsin Supreme Court reasonableness standard in Wassenaar v. Panos, 111 Wis. 2d 518, 331 N.W.2d 326 (1983), the parties expressly agree that Phoenix heavily discounts upfront custom engineering based on the client's 12-month commitment; early termination causes immediate compensatory harm through unrecovered upfront engineering labor amortization, reserved edge-infrastructure capacity, and onboarding overhead; and the 50% formula reasonably forecasts actual compensatory damages by deducting the estimated 50% in variable ongoing fulfillment and server bandwidth costs avoided by Phoenix upon cancellation. The parties agree this sum is a reasonable forecast of just compensation and not a penalty.
 
-6. Infrastructure Hosting & Suspensions
-Frontend client applications are deployed and hosted on **Vercel**, and any applicable backend or database services are hosted on **Render** and **MongoDB Atlas**. Phoenix reserves the right to employ automated license checks ("Kill Switches"). Failure to process recurring payments or early termination fees will result in the immediate and automatic suspension of your digital infrastructure until the outstanding balance is resolved.
+5. Website Source Code Buyout Option & IP Transfer
+The client may at any time voluntarily elect a permanent Website Source Code Buyout. The Buyout Fee is exactly 50% of the original one-time setup fee. The parties agree that this fee is separate and independent consideration for the permanent purchase, copyright assignment, and transfer of the uncompiled source code, database schemas, and bespoke assets, and for the permanent deactivation of automated licensing checks—not liquidated damages or a cancellation penalty. Upon payment, full intellectual property rights and deployment independence are irreversibly transferred to the client.
 
-7. Payment & Non-Refundability
-Payments are processed via Stripe and are due monthly or yearly as per the selected plan. All payments are strictly non-refundable once the service period has commenced. In the event of a chargeback or payment dispute, Phoenix will immediately enact Section 6 infrastructure suspensions until the dispute is resolved.
+6. Payment, Delinquency Charges & Consumer Disclosures
+All payments are processed via Stripe. Overdue balances following a 10-day cure period accrue:
+- Commercial / Business Accounts: Monthly late finance charge of 1.5% per month (18% per annum) or a $25 administrative delinquency fee, whichever is greater, not to exceed the maximum permitted by Wisconsin law (Wis. Stat. § 138.05).
+- Consumer Accounts: For transactions entered into by an individual primarily for personal, family, or household purposes governed by the Wisconsin Consumer Act (Wis. Stat. § 422.203 & DFI guidelines), delinquency charges are strictly limited to the statutory maximum of the lesser of $10.00 or 1% of the unpaid installment per month (12% per annum).
 
-8. Limitation of Liability
-Phoenix liability is limited to the total amount paid by the client in the 3 months preceding any claim.
+7. Payment Disputes & Chargeback Cost Recovery
+In the event of an improper, bad-faith, or fraudulent chargeback filed for services properly performed under this Agreement, the client shall remain fully liable for the outstanding balance plus the actual third-party payment network dispute processing fee assessed by Stripe ($15.00) and substantiated administrative recovery costs. Legitimate statutory dispute rights are unaffected.
 
-9. Communications & Deliverability
-It is the client's responsibility to maintain a valid, active email address on file and to whitelist communications from our domain. Any legal or administrative notice successfully dispatched from our servers is considered formally and legally delivered.
+8. Collection Costs & Reasonable Attorney Fees
+For commercial accounts, in the event of a material payment default requiring referral to third-party collection agencies or legal enforcement, the client agrees to pay all reasonable collection agency commissions, court costs, and reasonable attorney fees incurred by Phoenix Websites AI in enforcing this Agreement.
 
-10. Governing Law
-This agreement is governed by the laws of the State of Wisconsin.
+9. Service Scope & Optional Support Add-On Lifecycle
+The base monthly managed cloud care fee includes cloud edge hosting, SSL certificates, automated daily snapshots, uptime monitoring, and base tier maintenance. Optional support duration add-ons (6, 12, or 24 months) provide priority ticket triage, multi-browser compatibility patching, dependency vulnerability updates, and minor update request allocations (up to 1.5 engineering hours per request; expiring monthly with zero rollover). Optional support does not automatically renew and concludes strictly at the end of its contracted duration, at which time monthly support billing ceases in Stripe without affecting the underlying base website agreement.
+For clients selecting 24-Month Architecture Assurance: if the base website agreement renews at Month 12, support continues seamlessly in hosted mode into Year 2. If the client submits a timely non-renewal of the base website at Month 12, Phoenix cloud hosting terminates with zero continuing hosting charges, and the remaining 12 months of support automatically transition into Self-Hosted / Transition Support for Months 13–24 at the client's contracted locked monthly rate. Self-hosted transition support covers source-code bug fixes, dependency updates, security patches, deployment troubleshooting on client infrastructure, and 6 minor requests per month. Normal contract completion includes delivery of compiled production runtime assets under a non-exclusive deployment license; transfer of the uncompiled source code repository and complete intellectual property assignment remains governed exclusively by the optional 50% setup Buyout Fee under Section 7. Early termination of support creates a liquidated damages obligation of 50% of the remaining monthly support commitment fees under Wassenaar v. Panos, calculated strictly separate from base website damages.
+
+10. Limitation of Liability
+IN NO EVENT SHALL PHOENIX WEBSITES AI BE LIABLE FOR ANY INDIRECT, CONSEQUENTIAL, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATED TO THIS AGREEMENT. TOTAL AGGREGATE LIABILITY SHALL BE STRICTLY LIMITED TO THE TOTAL AMOUNT PAID BY CLIENT TO PHOENIX IN THE THREE (3) MONTHS PRECEDING THE CLAIM.
+
+11. Governing Law & Venue
+This agreement is governed by the laws of the State of Wisconsin. Exclusive jurisdiction lies in the state and federal courts located in Wisconsin.
         `,
         PRIVACY_POLICY: `
 PRIVACY POLICY
@@ -84,14 +88,16 @@ We maintain a strict no-refund policy for all payments made due to the high-reso
 Engineering resources are immediately allocated upon subscription, including edge-network slots and isolated LLM data pipelines.
 
 3. Setup Fees
-All initial setup and startup fees are non-refundable, subject to the exceptions below.
-The no-refund policy is subject to the published exceptions for failure to deliver the agreed core service, approved late-delivery refunds, and Tier 4 requests made before the final custom scope and extra fees are agreed. Send refund requests to partnership@carter-portfolio.fyi with the subject Refund Request.
+All initial setup and startup fees are non-refundable, subject to published exceptions for complete failure to deliver the agreed core service. Refund requests must be sent to hello@phoenixwebsites.ai with the subject line "Refund Request".
 
 4. Trial Periods
-The 30-day subscription trial delays the first monthly payment. It does not waive the 12-month commitment, setup fee, or cancellation fees. The strict notice window and early-termination terms in the service agreement still apply.
+The 30-day subscription trial delays the first monthly payment. It does not waive the 12-month commitment, setup fee, or cancellation terms in the service agreement.
 
 5. Cancellation vs. Refund
-Cancellation and non-renewal follow the 60-to-30-day notice window and fees in the service agreement. A cancellation request does not automatically remove unpaid fees or entitle you to a refund of past payments.
+Cancellation and non-renewal follow the 60-to-30-day notice window and statutory standards in the service agreement (Wis. Stat. § 134.49). A cancellation request does not automatically remove unpaid fees or entitle you to a refund of past payments.
+
+6. Chargebacks & Disputes
+If an improper chargeback is initiated, client remains liable for the balance, the actual third-party $15.00 dispute processing fee, and legal collection costs. Unpaid commercial balances accrue interest at 1.5%/month under Wis. Stat. § 138.05; consumer accounts are capped at $10 or 1%/month under Wis. Stat. § 422.203.
         `
     };
 

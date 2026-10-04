@@ -24,11 +24,13 @@ interface ServiceTier {
   color: string;
 }
 
+import { ProjectConfiguratorComponent } from '../shared/components/configurator/configurator.component';
+
 @Component({
   selector: 'app-services',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ScrollRevealDirective, FormsModule, RouterLink],
+  imports: [CommonModule, ScrollRevealDirective, FormsModule, RouterLink, ProjectConfiguratorComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './services.component.html',
   styles: [`

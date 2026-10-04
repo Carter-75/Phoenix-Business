@@ -47,15 +47,15 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">6. Chargebacks & Payment Disputes</h2>
-            <p>If you initiate a chargeback or payment dispute with your credit card company or bank, your service will be suspended immediately. <strong>The burden of proof rests entirely on you, the client, to legally prove the chargeback is legitimate.</strong></p>
-            <p>If the chargeback is found to be unwarranted or fraudulent, you remain fully legally responsible for the outstanding balance, plus a <strong>$150 administrative dispute fee</strong>. We reserve the right to recover owed debts through any and all legal means necessary, including turning the debt over to a third-party collections agency, reporting to credit bureaus, and pursuing legal action that could result in court-ordered asset seizure or wage garnishment. Any unpaid balances accrue a <strong>late fee of 5% per month</strong> (or the maximum amount permitted by Wisconsin law) until paid in full.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">6. Chargebacks &amp; Payment Disputes</h2>
+            <p>Clients agree to contact Phoenix in good faith to resolve any service or billing issues before initiating third-party payment disputes.</p>
+            <p>If a dispute or chargeback is determined to be unwarranted, fraudulent, or in bad faith for services properly rendered under contract, the client remains responsible for the full balance plus the <strong>actual third-party payment network dispute processing fee assessed by Stripe ($15.00)</strong> and substantiated administrative recovery costs. Overdue commercial balances accrue a finance charge of 1.5% per month (18% APR) under Wis. Stat. § 138.05; qualifying consumer balances are governed by the Wisconsin Consumer Act (Wis. Stat. § 422.203) and capped at the lesser of $10 or 1% per month. This provision does not restrict or penalize legitimate statutory dispute rights.</p>
           </div>
 
           <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">7. Delivery Timelines & Late Projects</h2>
-            <p>While we strive to meet the estimated delivery timelines provided for each tier (e.g., 2 weeks for Tier 1), these are strictly estimates and not guarantees. <strong>Phoenix is not legally or financially responsible for any damages or losses incurred due to late project delivery.</strong></p>
-            <p>If your project exceeds the estimated timeline and you wish to cancel, your sole and exclusive remedy is to request a refund. To do so, you must send an email to <strong>partnership&#64;carter-portfolio.fyi</strong> with the subject line <strong>exactly</strong> as: <code>Refund Request</code>. If the subject line contains any other words, the request may not be processed. This is the only valid method for requesting a late-delivery refund.</p>
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">7. Delivery Timelines &amp; Late Projects</h2>
+            <p>While we strive to meet estimated delivery timelines (e.g., 2 weeks for Starter), these represent standard engineering targets and not absolute guarantees.</p>
+            <p>If your project substantially exceeds the agreed timeline and you wish to request a project audit or refund, you must submit a written request to <strong>hello&#64;phoenixwebsites.ai</strong> with the subject line <code>Refund Request</code> detailing the circumstances. Phoenix evaluates all requests in good faith in accordance with Wisconsin commercial standards.</p>
           </div>
         </div>
 
@@ -71,7 +71,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             </a>
           </div>
           <div class="text-white/30 text-[10px] font-black uppercase tracking-widest">
-            Last Updated: May 7, 2026 • Phoenix Digital Infrastructure
+            Last Updated: October 3, 2026 • Phoenix Websites AI
           </div>
         </footer>
       </div>

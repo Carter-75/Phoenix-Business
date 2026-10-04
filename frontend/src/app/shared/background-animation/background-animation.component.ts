@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, ViewChild, NgZone, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild, NgZone, inject, effect } from '@angular/core';
 import * as THREE from 'three';
 import { PhoenixSettingsService } from '../../services/phoenix-settings.service';
 
@@ -65,29 +65,43 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
 
   private settings = inject(PhoenixSettingsService);
 
-  constructor(private ngZone: NgZone) {}
+  constructor(private ngZone: NgZone) {
+    effect(() => {
+      const colors = this.settings.themePromo.phoenixColors();
+      if (this.birds.length >= 3) {
+        this.recolorBird(this.birds[0], colors.bird1);
+        this.recolorBird(this.birds[1], colors.bird2);
+        this.recolorBird(this.birds[2], colors.bird3);
+      }
+    });
+  }
 
   ngOnInit() {
     this.initThree();
     this.createParticles();
     
-    // Initialize Fire Phoenix
+    // Initialize Fire Phoenix (Phoenix 1)
     const orangeBird = this.createBirdState('orange');
     this.initHistory(orangeBird);
     this.createPhoenixMesh(orangeBird);
     this.birds.push(orangeBird);
     
-    // Initialize Ice Phoenix
+    // Initialize Ice Phoenix (Phoenix 2)
     const blueBird = this.createBirdState('blue');
     this.initHistory(blueBird);
     this.createPhoenixMesh(blueBird);
     this.birds.push(blueBird);
 
-    // Initialize Eclipse Phoenix
+    // Initialize Eclipse Phoenix (Phoenix 3)
     const purpleBird = this.createBirdState('purple');
     this.initHistory(purpleBird);
     this.createPhoenixMesh(purpleBird);
     this.birds.push(purpleBird);
+
+    const initialColors = this.settings.themePromo.phoenixColors();
+    this.recolorBird(orangeBird, initialColors.bird1);
+    this.recolorBird(blueBird, initialColors.bird2);
+    this.recolorBird(purpleBird, initialColors.bird3);
 
     this.animate();
     
@@ -383,6 +397,48 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
     bird.group = new THREE.Group();
     bird.group.add(bird.particles);
     this.scene.add(bird.group);
+  }
+
+  private recolorBird(bird: PhoenixState, hexColor: string) {
+    if (!bird.particles || !bird.particles.geometry) return;
+    const colorsAttr = bird.particles.geometry.attributes['color'] as THREE.BufferAttribute;
+    if (!colorsAttr) return;
+
+    const colors = colorsAttr.array as Float32Array;
+    const base = new THREE.Color(hexColor);
+    const core = base.clone().lerp(new THREE.Color('#ffffff'), 0.45);
+    const mid = base.clone();
+    const edge = base.clone().multiplyScalar(0.6);
+
+    const posAttr = bird.particles.geometry.attributes['position'] as THREE.BufferAttribute;
+    const positions = posAttr ? (posAttr.array as Float32Array) : null;
+
+    for (let i = 0; i < bird.phoenixCount; i++) {
+      const idx = i * 3;
+      let distFromCenter = 3;
+      let z = 3;
+      if (positions) {
+        const x = positions[idx];
+        z = positions[idx + 2];
+        distFromCenter = Math.sqrt(x * x + z * z);
+      }
+
+      if (distFromCenter < 2 && z < 2) {
+        colors[idx] = core.r;
+        colors[idx + 1] = core.g;
+        colors[idx + 2] = core.b;
+      } else if (distFromCenter < 5 && z < 6) {
+        colors[idx] = mid.r;
+        colors[idx + 1] = mid.g;
+        colors[idx + 2] = mid.b;
+      } else {
+        colors[idx] = edge.r;
+        colors[idx + 1] = edge.g;
+        colors[idx + 2] = edge.b;
+      }
+    }
+
+    colorsAttr.needsUpdate = true;
   }
 
   private animate() {

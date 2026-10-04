@@ -13,6 +13,16 @@
     --text-secondary: rgba(255, 255, 255, 0.5);
     --glass-surface: rgba(255, 255, 255, 0.02);
     --glass-border: rgba(255, 255, 255, 0.05);
+
+    /* Whole-Website Theme Tokens (Injected dynamically by ThemePromotionService) */
+    --theme-primary: #ff4d00;
+    --theme-secondary: #00d2ff;
+    --theme-tertiary: #a855f7;
+    --theme-glow: rgba(255, 77, 0, 0.25);
+    --theme-bg-accent: rgba(255, 77, 0, 0.04);
+    --theme-border: rgba(255, 77, 0, 0.2);
+    --theme-card-bg: rgba(10, 10, 15, 0.7);
+    --theme-cta: #ff4d00;
     
     --font-main: 'Inter', sans-serif;
     --font-display: 'Syne', sans-serif;
@@ -57,7 +67,9 @@
   }
 
   .premium-btn:hover {
-    @apply bg-orange-600 text-white;
+    background-color: var(--theme-primary, #ea580c);
+    color: #ffffff;
+    box-shadow: 0 0 30px var(--theme-glow, rgba(234, 88, 12, 0.4));
   }
 
   .nav-link {
@@ -66,7 +78,8 @@
 
   .nav-link::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-0 h-[1px] bg-orange-600 transition-all duration-500;
+    @apply absolute bottom-0 left-0 w-0 h-[1px] transition-all duration-500;
+    background-color: var(--theme-primary, #ea580c);
   }
 
   .nav-link:hover::after {
@@ -76,8 +89,24 @@
   .section-padding {
     @apply py-20 px-8 sm:py-32 sm:px-16 lg:py-56 lg:px-32;
   }
-}
 
+  /* Theme-Aware Utility Accents */
+  .theme-border {
+    border-color: var(--theme-border, rgba(255, 77, 0, 0.2));
+  }
+
+  .theme-text {
+    color: var(--theme-primary, #ff4d00);
+  }
+
+  .theme-bg-subtle {
+    background-color: var(--theme-bg-accent, rgba(255, 77, 0, 0.04));
+  }
+
+  .theme-glow-box {
+    box-shadow: 0 0 40px -10px var(--theme-glow, rgba(255, 77, 0, 0.3));
+  }
+}
 
 /* Animations */
 .reveal-text {
@@ -86,7 +115,7 @@
 
 .glow-orb {
   @apply absolute rounded-full blur-[150px] opacity-20 pointer-events-none -z-10;
-  background: radial-gradient(circle, var(--accent-fire) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--theme-primary, #ff4d00) 0%, transparent 70%);
   animation: flicker 4s infinite alternate;
 }
 
@@ -96,7 +125,8 @@
 }
 
 .fire-bar {
-  @apply absolute w-[2px] h-[300%] bg-gradient-to-t from-transparent via-orange-600 to-transparent;
+  @apply absolute w-[2px] h-[300%];
+  background: linear-gradient(to top, transparent, var(--theme-primary, #ea580c), transparent);
   transform: rotate(35deg) translateY(-50%);
   filter: blur(1px);
   animation: fireRise 10s linear infinite;

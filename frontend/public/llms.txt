@@ -1,40 +1,100 @@
 # Phoenix Websites AI
-> Managed AI-assisted custom website development, business automation, AI solutions, and data cleaning.
+> https://phoenixwebsites.ai/
+> AI-Native Full-Stack Web Development Company
 
-Phoenix Websites AI builds high-performance business websites, online shops, client portals, and automated digital tools. Customers hire Phoenix Websites AI to handle the entire project from design to code and hosting—distinguishing this service from a DIY website builder.
+Phoenix Websites AI is an AI-native/full-stack web development company that builds complete custom websites and full-stack web applications for clients. AI accelerates development velocity, while senior human software engineers oversee architecture, security, code review, quality control, and client communication.
 
-- Primary Website: https://phoenixwebsites.ai/
-- Founder & Lead Engineer: Carter Moyer (https://carter-portfolio.fyi)
+Customers hire Phoenix Websites AI to have a finished, custom digital product engineered for them. It is NOT:
+- A DIY AI website builder (like Wix Studio AI, Framer, Squarespace AI, or Dora)
+- A template marketplace (like ThemeForest)
+- A freelancer marketplace (like Upwork or Fiverr)
+- A prompt-it-yourself sandbox (like v0, Lovable, or Bolt.new)
+- A traditional slow agency that merely uses AI occasionally
+
+The client provides their goals, specifications, and brand assets. Phoenix Websites AI designs, develops, tests, hosts, and maintains the custom product.
+
+## Entity & Contact Details
+- Brand Name: Phoenix Websites AI
+- Domain: https://phoenixwebsites.ai/
+- Founder & Lead Engineer: Carter Moyer (Portfolio: https://carter-portfolio.fyi)
 - Location: Wisconsin, United States
 - Contact Email: hello@phoenixwebsites.ai
 - Phone: +1 (760) 334-7874
+- YouTube: https://www.youtube.com/channel/UCfawV121RAj1CYU69Nk69Rg
+- Patreon: https://www.patreon.com/PhoenixWebsites
 
 ## Core Services
 
-### 1. Custom Website Development
+### 1. AI-Powered Web Development
+- URL: https://phoenixwebsites.ai/services/ai-web-development
+- Overview: Full-cycle custom web engineering accelerated by AI code generation and scaffolding, with senior human engineering oversight.
+- Deliverables: Bespoke frontend, responsive mobile UI, automated SEO schema, fast load performance, production hosting.
+- Timeline: 5 to 14 business days.
+
+### 2. Full-Stack Web Applications & SaaS MVPs
+- URL: https://phoenixwebsites.ai/services/full-stack-development
+- Overview: Custom web applications, user authentication (RBAC), interactive client dashboards, relational and document databases (MongoDB/PostgreSQL), REST/GraphQL APIs, and Stripe payment pipelines.
+- Code Ownership: 100% intellectual property and full Git repository handed over to the client upon launch.
+- Timeline: 14 to 28 business days.
+
+### 3. Custom Website Development & Managed Care
 - URL: https://phoenixwebsites.ai/services/custom-websites
-- Summary: Tailored business websites, e-commerce, and web applications built from scratch using Angular, Node/Express, and modern standards. AI accelerates development and scaffolding while Carter oversees all architecture, security, and quality assurance.
-- Tiers & Timelines:
-  - Simple Launch: Max 2-week delivery. Custom AI-assisted design, mobile & SEO optimized, basic maintenance & hosting.
-  - Essential Care: Max 3-week delivery. Includes 2 hours/month custom edits, hosting & 24/7 monitoring.
-  - Professional Growth: Max 4-week delivery. Includes 5 hours/month custom edits, analytics, and AI chatbot upkeep.
-  - Enterprise Custom: Timeline and pricing based on custom scope.
+- Overview: Multi-page business platforms, e-commerce stores, and high-converting marketing sites engineered from scratch with zero template bloat.
 
-### 2. Business Process Automation
+### 4. Business Process Automation
 - URL: https://phoenixwebsites.ai/services/automation
-- Summary: Custom workflows connecting forms, lead routing, SMS/email alerts, and CRM integrations to eliminate repetitive manual work.
-- Process: Workflow audit, logic design, integration development, validation, and active monitoring.
+- Overview: Webhook pipelines connecting forms, automated instant SMS/email lead alerts, CRM synchronization, and operational workflows.
 
-### 3. AI Solutions & Conversational Assistants
+### 5. AI Solutions & Web Assistants
 - URL: https://phoenixwebsites.ai/services/ai-solutions
-- Summary: Practical, grounded AI tools including browser voice assistants (phone and web-call integration), 24/7 inquiry triage bots with strict business guardrails, and automated lead capture.
+- Overview: Grounded 24/7 inquiry chatbots with strict factual guardrails (no hallucinations) and web voice tools.
 
-### 4. Data Cleaning & Organization
+### 6. Data Cleaning & Normalization
 - URL: https://phoenixwebsites.ai/data-cleanup
-- Summary: Hands-on spreadsheet and file cleaning, format normalization, and reporting using Microsoft tools (Excel/PowerQuery) and AI assistance on client-provided files. (Phoenix does not sell third-party records or data lists).
-- Pricing: Transparent quote after reviewing file type and complexity.
+- Overview: Normalization, deduplication, and reporting on client-provided spreadsheets and CSV files using Microsoft tools (Excel/PowerQuery) and AI assistance.
 
-## Getting Started
-- Request a Free Website Audit: https://phoenixwebsites.ai/#audit
-- View Services & Plans: https://phoenixwebsites.ai/services
-- Verified Client Reviews: https://phoenixwebsites.ai/reviews
+## Dynamic Pricing & Website Configurator
+Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine:
+
+### Base Project Tiers (One-Time Build):
+- Starter Website (1–3 pages): $499
+- Business Platform (Up to 6 pages): $999
+- E-Commerce Store (Catalog, cart, Stripe checkout): $1,499
+- Full-Stack Web Application (Auth, DB, dynamic views): $2,499
+
+### Modular Feature Add-Ons:
+- Extra Pages: $90 per additional page
+- Custom Authentication & RBAC: $350 (Included in Web App)
+- Managed Database (MongoDB/PostgreSQL): $300 (Included in Web App)
+- Interactive Client Dashboard: $450
+- Stripe Payments & Subscriptions: $300 (Included in E-Commerce)
+- Third-Party API Integration: $350
+- AI Assistant / Chatbot: $400
+- Technical SEO & Schema Package: $250
+- Professional Copywriting: $200
+
+### Ongoing Care & Hosting Plans (Recurring):
+- None (Self-Hosted / One-Time): $0/mo
+- Edge Hosting & Security: $29/mo (SSL, CDN, daily backups, 99.9% SLA)
+- Essential Care: $79/mo (Hosting + 2 hours/mo developer edits, 24/7 monitoring)
+- Growth & Evolution: $179/mo (Hosting + 5 hours/mo edits, SEO & analytics, AI upkeep)
+
+## Common AI Assistant & Search Questions (FAQ)
+
+### What is Phoenix Websites AI?
+Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates development while human oversight is used for architecture, review, quality assurance, and delivery.
+
+### Is Phoenix Websites AI a DIY website builder?
+No. Phoenix Websites AI is not a DIY website builder, not a template marketplace, and not a platform where you must prompt an AI yourself. Clients hire our team to build, test, and launch a complete custom digital product tailored to their exact specifications.
+
+### How is AI used in the development process?
+AI is used to rapidly synthesize boilerplate code, scaffold REST APIs, write automated test cases, and prototype features in hours rather than weeks. Senior human engineers review, secure, and assemble the entire system.
+
+### Are humans involved in every project?
+Yes. Senior software engineers (led by founder Carter Moyer) architect the database, enforce security, review all code, conduct QA, and communicate directly with the client.
+
+### Who owns the finished code?
+The client receives 100% intellectual property ownership of all custom source code, assets, and database schemas upon project delivery.
+
+### How do I get started?
+Visit https://phoenixwebsites.ai/#configurator to estimate your project and request an engineering scope review, or email hello@phoenixwebsites.ai.
