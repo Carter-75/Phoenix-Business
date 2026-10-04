@@ -9,6 +9,7 @@ const {
   clearCampaignOverrides 
 } = require('../config/promotions.config');
 const { getActivePromotion } = require('../services/promotion.service');
+const { syncDatabaseCoupons } = require('../services/pricing.service');
 
 // Protect all admin endpoints with strict owner authorization
 router.use(ownerAuth);
@@ -140,6 +141,9 @@ router.post('/coupons', async (req, res) => {
     });
 
     await coupon.save();
+    const allActive = await Coupon.find({ enabled: true });
+    syncDatabaseCoupons(allActive);
+
     res.status(201).json({ success: true, coupon });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to create coupon.' });
@@ -164,9 +168,39 @@ router.patch('/coupons/:id', async (req, res) => {
     coupon.updatedAt = new Date();
     await coupon.save();
 
+    const allActive = await Coupon.find({ enabled: true });
+    syncDatabaseCoupons(allActive);
+
     res.json({ success: true, coupon });
   } catch (err) {
     res.status(500).json({ error: 'Failed to update coupon.' });
+  }
+});
+
+/**
+ * PATCH /api/admin/coupons/:id/toggle
+ * Specific toggle endpoint for convenience
+ */
+router.patch('/coupons/:id/toggle', async (req, res) => {
+  try {
+    const coupon = await Coupon.findById(req.params.id);
+    if (!coupon) return res.status(404).json({ error: 'Coupon not found.' });
+
+    if (typeof req.body.enabled === 'boolean') {
+      coupon.enabled = req.body.enabled;
+    } else {
+      coupon.enabled = !coupon.enabled;
+    }
+
+    coupon.updatedAt = new Date();
+    await coupon.save();
+
+    const allActive = await Coupon.find({ enabled: true });
+    syncDatabaseCoupons(allActive);
+
+    res.json({ success: true, coupon });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to toggle coupon.' });
   }
 });
 
@@ -178,6 +212,10 @@ router.delete('/coupons/:id', async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndDelete(req.params.id);
     if (!coupon) return res.status(404).json({ error: 'Coupon not found.' });
+
+    const allActive = await Coupon.find({ enabled: true });
+    syncDatabaseCoupons(allActive);
+
     res.json({ success: true, message: `Coupon '${coupon.code}' deleted.` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete coupon.' });

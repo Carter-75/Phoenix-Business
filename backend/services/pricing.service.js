@@ -17,6 +17,39 @@
 
 const { getActivePromotion } = require('./promotion.service');
 
+// Database-Backed Coupons In-Memory Cache (synchronized with MongoDB)
+const dbCouponsCache = new Map();
+
+function syncDatabaseCoupons(coupons = []) {
+  dbCouponsCache.clear();
+  for (const c of coupons) {
+    if (c && c.code && c.enabled !== false) {
+      dbCouponsCache.set(String(c.code).trim().toUpperCase(), c);
+    }
+  }
+}
+
+function setDatabaseCoupon(coupon) {
+  if (coupon && coupon.code) {
+    const code = String(coupon.code).trim().toUpperCase();
+    if (coupon.enabled === false) {
+      dbCouponsCache.delete(code);
+    } else {
+      dbCouponsCache.set(code, coupon);
+    }
+  }
+}
+
+function removeDatabaseCoupon(code) {
+  if (code) {
+    dbCouponsCache.delete(String(code).trim().toUpperCase());
+  }
+}
+
+function getDatabaseCouponsCache() {
+  return Array.from(dbCouponsCache.values());
+}
+
 // Base Project Tiers: Every tier has BOTH a one-time setup/build fee AND a recurring monthly fee.
 const BASE_PROJECTS = {
   starter: {
@@ -481,7 +514,7 @@ function evaluateDynamicFactors(input = {}) {
  * @param {Date} [input.date] - Optional date override for testing
  * @returns {Object} Full breakdown of one-time, monthly, and contractual details
  */
-function calculateProjectPrice(input = {}) {
+function calculateProjectPrice(input = {}, options = {}) {
   const isTestMode = input.isTestMode ?? (process.env.TEST_MODE === 'true');
   const calcDate = (input.date instanceof Date) 
     ? input.date 
@@ -617,26 +650,61 @@ function calculateProjectPrice(input = {}) {
   const postPromoSetup = Math.max(0, subtotalAfterBundleSetup - promoSavingsSetup);
   const postPromoMonthly = Math.max(0, subtotalAfterBundleMonthly - promoSavingsMonthly);
 
-  // 7. Coupon Discount
+  // 7. Coupon Discount (Database-backed coupons first, legacy env as fallback)
   let couponDiscountSetup = 0;
   let couponDiscountMonthly = 0;
   let appliedCouponCode = null;
   let couponSource = null;
 
-  if (input.discountCode) {
-    const rawCode = String(input.discountCode).trim().toUpperCase();
+  if (input.discountCode || (options && options.coupon)) {
+    const rawCode = String(input.discountCode || (options.coupon && options.coupon.code)).trim().toUpperCase();
     
-    // Check environment codes DC_* (general) and DCL_* (limited)
-    const dcVal = process.env[`DC_${rawCode}`];
-    const dclVal = process.env[`DCL_${rawCode}`];
+    // 1. Check database coupon (explicitly passed or from cache)
+    const dbCoupon = (options && options.coupon) || dbCouponsCache.get(rawCode);
+    if (dbCoupon && dbCoupon.enabled !== false) {
+      const now = calcDate || new Date();
+      const isExpired = dbCoupon.expiresAt && new Date(dbCoupon.expiresAt) < now;
+      const isLimitReached = dbCoupon.usageLimit > 0 && dbCoupon.usageCount >= dbCoupon.usageLimit;
 
-    if (dcVal || dclVal) {
-      const pct = parseInt(dcVal || dclVal, 10);
-      if (!isNaN(pct) && pct > 0) {
-        couponDiscountSetup = Math.round(postPromoSetup * (pct / 100));
-        couponDiscountMonthly = Math.round(postPromoMonthly * (pct / 100));
-        appliedCouponCode = rawCode;
-        couponSource = `ENV (${pct}%)`;
+      if (!isExpired && !isLimitReached) {
+        appliedCouponCode = dbCoupon.code;
+        const appliesTo = dbCoupon.appliesTo || 'both';
+
+        if (dbCoupon.type === 'fixed') {
+          const fixedCents = parseInt(dbCoupon.amount, 10) || 0;
+          if (appliesTo === 'setup' || appliesTo === 'both') {
+            couponDiscountSetup = Math.min(postPromoSetup, fixedCents);
+          }
+          if (appliesTo === 'monthly') {
+            couponDiscountMonthly = Math.min(postPromoMonthly, fixedCents);
+          }
+          couponSource = `DATABASE ($${(fixedCents / 100).toFixed(2)})`;
+        } else {
+          const pct = Math.min(100, Math.max(0, parseInt(dbCoupon.amount, 10) || 0));
+          if (appliesTo === 'setup' || appliesTo === 'both') {
+            couponDiscountSetup = Math.round(postPromoSetup * (pct / 100));
+          }
+          if (appliesTo === 'monthly' || appliesTo === 'both') {
+            couponDiscountMonthly = Math.round(postPromoMonthly * (pct / 100));
+          }
+          couponSource = `DATABASE (${pct}%)`;
+        }
+      }
+    }
+
+    // 2. Fallback to legacy environment codes DC_* (general) and DCL_* (limited)
+    if (!appliedCouponCode) {
+      const dcVal = process.env[`DC_${rawCode}`];
+      const dclVal = process.env[`DCL_${rawCode}`];
+
+      if (dcVal || dclVal) {
+        const pct = parseInt(dcVal || dclVal, 10);
+        if (!isNaN(pct) && pct > 0) {
+          couponDiscountSetup = Math.round(postPromoSetup * (pct / 100));
+          couponDiscountMonthly = Math.round(postPromoMonthly * (pct / 100));
+          appliedCouponCode = rawCode;
+          couponSource = `ENV (${pct}%)`;
+        }
       }
     }
   }
@@ -796,7 +864,9 @@ function calculateProjectPrice(input = {}) {
         code: appliedCouponCode,
         source: couponSource,
         setupSavings: couponDiscountSetup,
-        monthlySavings: couponDiscountMonthly
+        monthlySavings: couponDiscountMonthly,
+        savingsSetup: couponDiscountSetup,
+        savingsMonthly: couponDiscountMonthly
       },
       effectiveSetupPercent: effectiveSetupDiscountPct,
       effectiveMonthlyPercent: effectiveMonthlyDiscountPct
@@ -840,5 +910,9 @@ module.exports = {
   EXTRA_PAGE_PRICE,
   calculateBundleDiscount,
   evaluateDynamicFactors,
-  calculateProjectPrice
+  calculateProjectPrice,
+  syncDatabaseCoupons,
+  setDatabaseCoupon,
+  removeDatabaseCoupon,
+  getDatabaseCouponsCache
 };

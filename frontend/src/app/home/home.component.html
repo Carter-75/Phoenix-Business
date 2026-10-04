@@ -630,16 +630,23 @@
                   Redeemed: {{ coup.usageCount }} / {{ coup.usageLimit || '∞' }}
                 </div>
               </div>
-              <button (click)="toggleCoupon(coup._id, coup.enabled)" 
-                      [class.bg-emerald-500/20]="coup.enabled"
-                      [class.text-emerald-400]="coup.enabled"
-                      [class.border-emerald-500/30]="coup.enabled"
-                      [class.bg-red-500/20]="!coup.enabled"
-                      [class.text-red-400]="!coup.enabled"
-                      [class.border-red-500/30]="!coup.enabled"
-                      class="px-3 py-1 rounded text-xs font-bold border transition-colors">
-                {{ coup.enabled ? 'Enabled' : 'Disabled' }}
-              </button>
+              <div class="flex items-center gap-2">
+                <button (click)="toggleCoupon(coup._id, coup.enabled)" 
+                        [class.bg-emerald-500/20]="coup.enabled"
+                        [class.text-emerald-400]="coup.enabled"
+                        [class.border-emerald-500/30]="coup.enabled"
+                        [class.bg-red-500/20]="!coup.enabled"
+                        [class.text-red-400]="!coup.enabled"
+                        [class.border-red-500/30]="!coup.enabled"
+                        class="px-3 py-1 rounded text-xs font-bold border transition-colors">
+                  {{ coup.enabled ? 'Enabled' : 'Disabled' }}
+                </button>
+                <button (click)="deleteCoupon(coup._id, coup.code)" 
+                        class="px-2.5 py-1 rounded text-xs font-bold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition-colors"
+                        title="Delete Coupon">
+                  <i class="fas fa-trash-alt mr-1"></i> Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>

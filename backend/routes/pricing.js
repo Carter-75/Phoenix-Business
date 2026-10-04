@@ -58,9 +58,14 @@ router.get('/catalog', (req, res) => {
  * POST /api/pricing/calculate
  * Computes authoritative price from client selections
  */
-router.post('/calculate', (req, res) => {
+router.post('/calculate', async (req, res) => {
   try {
-    const result = calculateProjectPrice(req.body);
+    let dbCoupon = null;
+    if (req.body && req.body.discountCode) {
+      const Coupon = require('../models/Coupon');
+      dbCoupon = await Coupon.findOne({ code: String(req.body.discountCode).trim().toUpperCase(), enabled: true });
+    }
+    const result = calculateProjectPrice(req.body, { coupon: dbCoupon });
     res.json(result);
   } catch (err) {
     console.error('PRICING CALCULATION ERROR:', err);

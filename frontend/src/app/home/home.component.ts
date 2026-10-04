@@ -310,6 +310,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  deleteCoupon(id: string, code: string) {
+    if (!this.isOwner()) return;
+    if (!confirm(`Are you sure you want to permanently delete coupon "${code}"?`)) return;
+    this.adminLoading.set(true);
+    this.adminMessage.set('');
+    this.api.delete<any>(`admin/coupons/${id}`).subscribe({
+      next: () => {
+        this.adminLoading.set(false);
+        this.adminMessage.set(`Coupon "${code}" deleted successfully.`);
+        this.loadAdminData();
+      },
+      error: (err) => {
+        this.adminLoading.set(false);
+        this.adminMessage.set(err.error?.error || 'Failed to delete coupon.');
+      }
+    });
+  }
+
   ngOnDestroy() {
     ScrollTrigger.getAll().forEach(t => t.kill());
   }

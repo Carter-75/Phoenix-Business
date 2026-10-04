@@ -91,8 +91,20 @@ const connectDB = async () => {
   await cachedDbPromise;
 };
 
-// Initial connection
-connectDB();
+// Initial connection and coupon sync
+connectDB().then(async () => {
+  try {
+    const Coupon = require('./models/Coupon');
+    const { syncDatabaseCoupons } = require('./services/pricing.service');
+    if (Coupon && typeof Coupon.seedDefaultCoupons === 'function') {
+      await Coupon.seedDefaultCoupons();
+    }
+    const activeCoupons = await Coupon.find({ enabled: true });
+    syncDatabaseCoupons(activeCoupons);
+  } catch (err) {
+    // Non-fatal if DB connection fails in local/test environments
+  }
+}).catch(() => {});
 
 // --- Session & Passport Setup ---
 if (!process.env.SESSION_SECRET) {

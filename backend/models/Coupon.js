@@ -99,4 +99,18 @@ couponSchema.methods.isValidNow = function(setupAmount = 0, monthlyAmount = 0, t
   return { valid: true };
 };
 
+couponSchema.statics.seedDefaultCoupons = async function() {
+  const defaults = [
+    { code: 'TEST', type: 'percentage', amount: 1, appliesTo: 'both', notes: 'Initial 1% testing code (migrated from .env)' },
+    { code: 'ONETIME10', type: 'percentage', amount: 10, appliesTo: 'both', notes: '10% discount code (migrated from .env)' },
+    { code: 'FREE100YAY', type: 'percentage', amount: 100, appliesTo: 'both', notes: '100% full waiver code (migrated from .env)' }
+  ];
+  for (const item of defaults) {
+    const exists = await this.findOne({ code: item.code });
+    if (!exists) {
+      await this.create(item);
+    }
+  }
+};
+
 module.exports = mongoose.model('Coupon', couponSchema);

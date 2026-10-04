@@ -100,3 +100,65 @@ test('authoritative calculation enforces 50% max combined discount cap across bu
   assert.ok(totalSetupDiscount <= maxAllowedDiscount + 1); // allow 1 cent rounding tolerance
   assert.ok(finalSetup >= normalSubtotal * 0.499);
 });
+
+test('database coupon synchronization correctly applies percentage coupons without process.env', () => {
+  const { syncDatabaseCoupons, setDatabaseCoupon, removeDatabaseCoupon } = require('../services/pricing.service');
+  
+  // Set database coupon without any DC_* in process.env
+  setDatabaseCoupon({
+    code: 'TESTDB10',
+    type: 'percentage',
+    amount: 10,
+    appliesTo: 'both',
+    enabled: true
+  });
+
+  const result = calculateProjectPrice({
+    tier: 'starter',
+    discountCode: 'TESTDB10',
+    isTestMode: false,
+    date: new Date('2026-05-15T12:00:00Z') // non-holiday date
+  });
+
+  assert.equal(result.discounts.coupon.code, 'TESTDB10');
+  assert.ok(result.discounts.coupon.source.includes('DATABASE'));
+  // 20% evergreen promo reduces $1499 to $1199.20 (119920 cents). 10% coupon = 11992 cents
+  assert.equal(result.discounts.coupon.setupSavings, 11992);
+  assert.equal(result.discounts.coupon.monthlySavings, 792);
+
+  // Remove coupon and verify it no longer applies
+  removeDatabaseCoupon('TESTDB10');
+  const resultAfterRemoval = calculateProjectPrice({
+    tier: 'starter',
+    discountCode: 'TESTDB10',
+    isTestMode: false,
+    date: new Date('2026-05-15T12:00:00Z')
+  });
+  assert.equal(resultAfterRemoval.discounts.coupon.code, null);
+  assert.equal(resultAfterRemoval.discounts.coupon.setupSavings, 0);
+});
+
+test('database coupon supports fixed dollar discounts in cents', () => {
+  const { setDatabaseCoupon, removeDatabaseCoupon } = require('../services/pricing.service');
+
+  setDatabaseCoupon({
+    code: 'SAVE200',
+    type: 'fixed',
+    amount: 20000, // $200.00 off setup
+    appliesTo: 'setup',
+    enabled: true
+  });
+
+  const result = calculateProjectPrice({
+    tier: 'starter',
+    discountCode: 'SAVE200',
+    isTestMode: false,
+    date: new Date('2026-05-15T12:00:00Z')
+  });
+
+  assert.equal(result.discounts.coupon.code, 'SAVE200');
+  assert.equal(result.discounts.coupon.setupSavings, 20000);
+  assert.equal(result.discounts.coupon.monthlySavings, 0);
+
+  removeDatabaseCoupon('SAVE200');
+});

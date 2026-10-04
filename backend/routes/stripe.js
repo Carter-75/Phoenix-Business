@@ -65,13 +65,31 @@ router.post('/validate-discount', async (req, res) => {
 
         const upperCode = code.toUpperCase().trim();
         
-        // 1. Check if it's an unlimited code
-        const dcVal = process.env[`DC_${upperCode}`];
-        if (dcVal) {
-            return res.json({ valid: true, percentage: parseInt(dcVal), type: 'unlimited' });
+        // 1. Check database-backed coupons first
+        const Coupon = require('../models/Coupon');
+        const dbCoupon = await Coupon.findOne({ code: upperCode });
+        if (dbCoupon) {
+            const check = dbCoupon.isValidNow();
+            if (!check.valid) {
+                return res.status(400).json({ error: check.reason || 'This coupon is not valid.' });
+            }
+            return res.json({ 
+                valid: true, 
+                percentage: dbCoupon.type === 'percentage' ? dbCoupon.amount : 0, 
+                fixedCents: dbCoupon.type === 'fixed' ? dbCoupon.amount : 0,
+                type: dbCoupon.type,
+                appliesTo: dbCoupon.appliesTo,
+                source: 'database'
+            });
         }
 
-        // 2. Check if it's a limited code
+        // 2. Check if it's an unlimited legacy env code
+        const dcVal = process.env[`DC_${upperCode}`];
+        if (dcVal) {
+            return res.json({ valid: true, percentage: parseInt(dcVal), type: 'unlimited', source: 'env' });
+        }
+
+        // 3. Check if it's a limited legacy env code
         const dclVal = process.env[`DCL_${upperCode}`];
         if (dclVal) {
             // Need to ensure the user hasn't used it
@@ -83,7 +101,7 @@ router.post('/validate-discount', async (req, res) => {
             if (user && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
                 return res.status(400).json({ error: 'You have already used this discount code.' });
             }
-            return res.json({ valid: true, percentage: parseInt(dclVal), type: 'limited' });
+            return res.json({ valid: true, percentage: parseInt(dclVal), type: 'limited', source: 'env' });
         }
 
         return res.status(400).json({ error: 'Invalid discount code.' });
@@ -146,7 +164,13 @@ const createServiceCheckout = async (req, res) => {
                 ? { ...configuration, discountCode }
                 : { tier: tier || projectType || 'business', discountCode };
 
-            calcResult = calculateProjectPrice(calcInput);
+            let dbCoupon = null;
+            if (discountCode) {
+                const Coupon = require('../models/Coupon');
+                dbCoupon = await Coupon.findOne({ code: String(discountCode).trim().toUpperCase(), enabled: true });
+            }
+
+            calcResult = calculateProjectPrice(calcInput, { coupon: dbCoupon });
             setupFee = calcResult.finalPrices.dueToday;
             monthlyFee = calcResult.finalPrices.monthlyRecurring;
             resolvedProjectType = projectType || calcResult.tier.name;
