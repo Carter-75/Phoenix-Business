@@ -29,8 +29,8 @@ import { ThemePromotionService } from '../../../services/theme-promotion.service
             {{ banner().bannerText }}
           </span>
 
-          <!-- Discount Pill if active -->
-          <span *ngIf="banner().discountPercent > 0" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider">
+          <!-- Discount Pill if active and not already mentioned in headline -->
+          <span *ngIf="banner().discountPercent > 0 && !banner().bannerText.includes(banner().discountPercent + '%')" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-black uppercase tracking-wider">
             Save {{ banner().discountPercent }}%
           </span>
 
