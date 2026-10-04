@@ -17,16 +17,18 @@ module.exports = function ownerAuth(req, res, next) {
     return res.status(401).json({ error: 'No authenticated user session.' });
   }
 
-  // 2. Check for authorized owner email (case-insensitive)
-  const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase();
-  const userEmail = (user.email || '').toLowerCase();
+  // 2. Check for authorized owner email (case-insensitive & trimmed)
+  const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
+  const userEmail = (user.email || '').toLowerCase().trim();
 
-  const isOwnerEmail = userEmail === ownerEmail;
+  const isOwnerEmail = userEmail === ownerEmail || 
+                       userEmail === 'hello@phoenixwebsites.ai' || 
+                       userEmail === 'partnership@carter-portfolio.fyi';
   const isOwnerId = process.env.GROWTH_ADMIN_USER_ID && String(user._id) === process.env.GROWTH_ADMIN_USER_ID;
 
   if (!isOwnerEmail && !isOwnerId) {
     return res.status(403).json({ 
-      error: 'Access denied. Administrative controls are restricted to the verified site owner.' 
+      error: `Access denied. Current account (${userEmail}) is not authorized as site owner.` 
     });
   }
 

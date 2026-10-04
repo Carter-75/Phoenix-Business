@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema({
   stripeCustomerId: { type: String },
   subscriptionStatus: { type: String, default: 'none' },
   usedDiscountCodes: [{ type: String }],
+  resetPasswordCode: { type: String },
+  resetPasswordExpires: { type: Date },
   // Data Intelligence — Saved Searches & Cart
   savedSearches: [{
     query: { type: String, default: '' },

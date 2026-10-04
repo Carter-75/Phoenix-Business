@@ -36,7 +36,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Secret Menu & Owner Admin State
   secretClickCount = signal(0);
   showSecretMenu = signal(false);
-  isOwner = computed(() => this.api.currentUser()?.email === 'hello@phoenixwebsites.ai');
+  isOwner = computed(() => {
+    const user = this.api.currentUser();
+    if (!user) return false;
+    if (user.isOwner) return true;
+    const em = (user.email || '').toLowerCase().trim();
+    return em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi';
+  });
   activeAdminTab = signal<'visual' | 'promotions' | 'coupons' | 'orders'>('visual');
 
   adminPromotions = signal<any>(null);
@@ -50,7 +56,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     type: 'percentage' as 'percentage' | 'fixed',
     amount: 15,
     appliesTo: 'both' as 'setup' | 'monthly' | 'both',
-    usageLimit: 50,
+    usageModel: 'repeatable' as 'repeatable' | 'single',
+    usageLimit: 0,
+    perCustomerLimit: 0,
     minimumSetupSubtotal: 0,
     minimumMonthlySubtotal: 0
   };
@@ -212,6 +220,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  closeSecretMenu(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showSecretMenu.set(false);
+  }
+
   scrollToAudit() {
     document.getElementById('audit')?.scrollIntoView({ behavior: 'smooth' });
   }
@@ -240,12 +256,18 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: () => this.adminLoading.set(false)
     });
-    this.api.get<any[]>('admin/coupons').subscribe({
-      next: (res) => this.adminCoupons.set(res || []),
+    this.api.get<any>('admin/coupons').subscribe({
+      next: (res) => {
+        const list = Array.isArray(res) ? res : (res?.coupons || []);
+        this.adminCoupons.set(list);
+      },
       error: () => {}
     });
-    this.api.get<any[]>('admin/orders').subscribe({
-      next: (res) => this.adminOrders.set(res || []),
+    this.api.get<any>('admin/orders').subscribe({
+      next: (res) => {
+        const list = Array.isArray(res) ? res : (res?.orders || []);
+        this.adminOrders.set(list);
+      },
       error: () => {}
     });
   }
@@ -288,10 +310,26 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.isOwner() || !this.newCoupon.code) return;
     this.adminLoading.set(true);
     this.adminMessage.set('');
-    this.api.post<any>('admin/coupons', this.newCoupon).subscribe({
+
+    const cleanCode = this.newCoupon.code.trim().toUpperCase();
+    const isSingle = this.newCoupon.usageModel === 'single';
+
+    const payload = {
+      code: cleanCode,
+      type: this.newCoupon.type,
+      amount: Number(this.newCoupon.amount) || 0,
+      appliesTo: this.newCoupon.appliesTo,
+      usageModel: this.newCoupon.usageModel,
+      usageLimit: isSingle ? 1 : (Number(this.newCoupon.usageLimit) || 0),
+      perCustomerLimit: isSingle ? 1 : 0,
+      minimumSetupSubtotal: Number(this.newCoupon.minimumSetupSubtotal) || 0,
+      notes: isSingle ? '1-Time Single Use coupon' : 'Constant Repeatable coupon'
+    };
+
+    this.api.post<any>('admin/coupons', payload).subscribe({
       next: () => {
         this.adminLoading.set(false);
-        this.adminMessage.set(`Coupon "${this.newCoupon.code.toUpperCase()}" created successfully!`);
+        this.adminMessage.set(`Coupon "${cleanCode}" created successfully as ${isSingle ? '1-Time Single Use' : 'Constant Repeatable'}!`);
         this.newCoupon.code = '';
         this.loadAdminData();
       },

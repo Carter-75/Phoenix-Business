@@ -44,14 +44,19 @@ import { VoiceCallService } from '../../services/voice-call.service';
 
           <!-- Profile Dropdown Container -->
           <div *ngIf="api.currentUser()" class="relative group hidden lg:block cursor-pointer py-4">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-colors">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-300 uppercase tracking-widest hover:bg-white/10 transition-colors">
               <i class="fa-solid fa-user-circle text-[#D4AF37]"></i> 
-              <span>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName" class="text-slate-500">({{ api.currentUser()?.businessName }})</span></span>
+              <span class="max-w-[150px] truncate lowercase">{{ api.currentUser()?.email }}</span>
               <i class="fa-solid fa-chevron-down text-[8px] ml-1 transition-transform group-hover:rotate-180"></i>
             </div>
             
             <!-- Dropdown Menu -->
-            <div class="absolute right-0 top-full mt-[-8px] w-full min-w-[160px] bg-[#05050A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden">
+            <div class="absolute right-0 top-full mt-[-8px] w-64 bg-[#05050A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden">
+              <div class="px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+                <div class="text-[10px] font-bold text-white truncate">{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</div>
+                <div class="text-[9px] font-mono text-orange-400 truncate lowercase">{{ api.currentUser()?.email }}</div>
+                <div *ngIf="api.currentUser()?.businessName" class="text-[8px] text-white/40 truncate mt-0.5">{{ api.currentUser()?.businessName }}</div>
+              </div>
               <a routerLink="/dashboard" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all flex items-center gap-3 no-underline">
                 <i class="fa-solid fa-gauge"></i> Dashboard
               </a>
@@ -90,17 +95,17 @@ import { VoiceCallService } from '../../services/voice-call.service';
           <i class="fa-solid fa-gauge text-base"></i> Dashboard
         </a>
 
-
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
         
         <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
           Login
         </a>
 
-        <div *ngIf="api.currentUser()" class="text-xs font-bold uppercase tracking-[0.1em] text-slate-500 text-center flex flex-col gap-1 items-center">
-          <i class="fa-solid fa-user-circle text-2xl text-slate-600 mb-1"></i>
-          <span>{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</span>
-          <span *ngIf="api.currentUser()?.businessName" class="text-slate-600">({{ api.currentUser()?.businessName }})</span>
+        <div *ngIf="api.currentUser()" class="text-xs font-bold uppercase tracking-[0.1em] text-slate-400 text-center flex flex-col gap-1 items-center px-4 py-3 bg-white/5 rounded-xl border border-white/10">
+          <i class="fa-solid fa-user-circle text-2xl text-[#D4AF37] mb-1"></i>
+          <span class="text-white">{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</span>
+          <span class="text-[10px] font-mono text-orange-400 lowercase tracking-normal">{{ api.currentUser()?.email }}</span>
+          <span *ngIf="api.currentUser()?.businessName" class="text-[9px] text-slate-400">({{ api.currentUser()?.businessName }})</span>
         </div>
 
         <button *ngIf="api.currentUser()" (click)="api.logout(); closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-red-500 transition-colors">

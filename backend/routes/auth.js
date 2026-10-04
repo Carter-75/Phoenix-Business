@@ -88,9 +88,133 @@ router.get('/google/callback',
 // @route   GET /auth/user
 router.get('/user', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
-    res.json(req.user);
+    const userObj = req.user.toObject ? req.user.toObject() : { ...req.user };
+    const em = (userObj.email || '').toLowerCase().trim();
+    const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
+    userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi' || em === ownerEmail;
+    res.json(userObj);
   } else {
     res.json(null);
+  }
+});
+
+// @route   POST /auth/forgot-password
+// @desc    Generate a 6-digit verification code and email it to the user
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+
+    const lowerEmail = String(email).trim().toLowerCase();
+    const user = await User.findOne({ email: lowerEmail });
+
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this email address.' });
+    }
+
+    // Generate 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordCode = code;
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    await user.save();
+
+    // Send email with code
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: true,
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    });
+
+    const mailOptions = {
+      from: `"Phoenix Websites AI" <${process.env.EMAIL_USER || 'hello@phoenixwebsites.ai'}>`,
+      to: lowerEmail,
+      subject: `Your Password Reset Code: ${code} — Phoenix Websites AI`,
+      text: `Your password reset verification code is: ${code}\n\nThis code will expire in 15 minutes.\n\nIf you did not request a password reset, please ignore this email.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #050508; color: #ffffff; padding: 32px; border-radius: 12px; max-width: 500px;">
+          <h2 style="color: #ff4d00; margin-top: 0; text-transform: uppercase;">Password Reset Code</h2>
+          <p style="color: #cccccc; font-size: 14px;">Use the verification code below to reset your Phoenix Websites AI account password:</p>
+          <div style="background-color: #111118; border: 1px solid #333333; padding: 20px; text-align: center; border-radius: 8px; margin: 24px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #ff4d00; font-family: monospace;">${code}</span>
+          </div>
+          <p style="color: #888888; font-size: 12px;">This 6-digit code will expire in 15 minutes.</p>
+          <p style="color: #666666; font-size: 11px; margin-top: 24px;">If you did not request this code, you can safely ignore this email.</p>
+        </div>
+      `
+    };
+
+    try {
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        await transporter.sendMail(mailOptions);
+      } else {
+        console.log(`[PASSWORD RESET DEV] Reset code for ${lowerEmail}: ${code}`);
+      }
+    } catch (mailErr) {
+      console.error('Failed to send reset email:', mailErr.message);
+      if (process.env.NODE_ENV !== 'production') {
+        return res.json({ 
+          message: 'Code generated. (Email credentials not active in dev mode).', 
+          devCode: code 
+        });
+      }
+      return res.status(500).json({ error: 'Could not send verification email. Please try again later.' });
+    }
+
+    res.json({ message: 'Verification code sent to your email.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Failed to process request.' });
+  }
+});
+
+// @route   POST /auth/reset-password
+// @desc    Verify 6-digit code and update password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ error: 'Email, code, and new password are required.' });
+    }
+
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    }
+
+    const lowerEmail = String(email).trim().toLowerCase();
+    const cleanCode = String(code).trim();
+
+    const user = await User.findOne({
+      email: lowerEmail,
+      resetPasswordCode: cleanCode,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired verification code.' });
+    }
+
+    // Update password (pre-save hook hashes with bcrypt)
+    user.password = newPassword;
+    user.resetPasswordCode = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    // Log user in automatically
+    req.login(user, (err) => {
+      if (err) return res.json({ success: true, message: 'Password updated. Please log in.' });
+      const userObj = user.toObject ? user.toObject() : { ...user };
+      const em = (userObj.email || '').toLowerCase().trim();
+      const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
+      userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi' || em === ownerEmail;
+      return res.json({ success: true, message: 'Password reset successfully.', user: userObj });
+    });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Failed to reset password.' });
   }
 });
 

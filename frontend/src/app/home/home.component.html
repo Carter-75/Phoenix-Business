@@ -332,36 +332,57 @@
 
   <!-- Hidden Phoenix & Theme Control Menu -->
   <div *ngIf="showSecretMenu()" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="fixed inset-0 bg-black/75 backdrop-blur-md" (click)="showSecretMenu.set(false)"></div>
-    <div class="relative glass-card !bg-[#050508]/95 !border-white/15 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-10 my-8 rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-300">
+    <div class="fixed inset-0 bg-black/80 backdrop-blur-md" (click)="closeSecretMenu($event)"></div>
+    <div class="relative glass-card !bg-[#050508]/95 !border-white/15 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 my-8 rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-300">
       
       <!-- Close Button -->
-      <button (click)="showSecretMenu.set(false)" class="absolute top-5 right-5 text-white/40 hover:text-white transition-colors p-2">
-        <i class="fas fa-times text-lg"></i>
+      <button (click)="closeSecretMenu($event)" type="button" aria-label="Close Console"
+              class="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 cursor-pointer p-2 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-all flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
       </button>
 
       <!-- Header & Status -->
-      <div class="mb-6">
-        <div class="flex items-center justify-between mb-2">
+      <div class="mb-6 pr-10">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full" [class.bg-emerald-400]="themePromo.mode() === 'auto'" [class.bg-amber-400]="themePromo.mode() === 'manual'"></span>
             <span class="text-[9px] font-black uppercase tracking-[0.25em]" [class.text-emerald-400]="themePromo.mode() === 'auto'" [class.text-amber-400]="themePromo.mode() === 'manual'">
               {{ themePromo.mode() === 'auto' ? 'AUTO SEASONAL CALENDAR ACTIVE' : 'MANUAL VISUAL PREVIEW ACTIVE' }}
             </span>
           </div>
-          <span *ngIf="isOwner()" class="px-2.5 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-[9px] font-black uppercase tracking-widest">
-            Owner Authorized (hello@phoenixwebsites.ai)
-          </span>
+
+          <!-- Account & Owner Verification Status -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span *ngIf="api.currentUser()" class="text-[9px] font-mono text-white/70 bg-white/5 px-2.5 py-1 rounded-md border border-white/10">
+              <i class="fas fa-user-circle mr-1 text-white/40"></i>{{ api.currentUser()?.email }}
+            </span>
+            <span *ngIf="isOwner()" class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Owner Verified
+            </span>
+            <span *ngIf="api.currentUser() && !isOwner()" class="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[9px] font-black uppercase tracking-widest">
+              Standard User
+            </span>
+            <span *ngIf="!api.currentUser()" class="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-white/50 text-[9px] font-black uppercase tracking-widest">
+              Guest Preview
+            </span>
+            <a *ngIf="!isOwner()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeSecretMenu($event)" class="text-[9px] font-bold text-orange-400 hover:text-orange-300 underline uppercase tracking-wider ml-1">
+              Sign In as Owner
+            </a>
+          </div>
         </div>
+
         <h3 class="text-2xl font-black uppercase tracking-tight text-white">
           {{ isOwner() ? 'Phoenix Operational & Theme Console' : 'Phoenix Tri-Engine & Theme Studio' }}
         </h3>
         <p class="text-xs text-white/50 mt-1">
-          {{ isOwner() ? 'Secure owner administration for real-time promotion overrides, coupon management, and design tokens.' : 'Control WebGL phoenix particles and preview all 12 seasonal themes in real time.' }}
+          {{ isOwner() ? 'Secure owner administration for real-time promotion overrides, coupon management, and design tokens.' : 'Control WebGL phoenix particles and preview all 12 seasonal themes in real time. (Owner privileges required for promotions & coupons).' }}
         </p>
       </div>
 
-      <!-- Owner Admin Navigation Tabs (Only for hello@phoenixwebsites.ai) -->
+      <!-- Owner Admin Navigation Tabs -->
       <div *ngIf="isOwner()" class="flex border-b border-white/10 mb-6 gap-2 overflow-x-auto pb-1">
         <button (click)="activeAdminTab.set('visual')" 
                 [class.border-orange-500]="activeAdminTab() === 'visual'"
@@ -489,7 +510,7 @@
             <span class="text-[10px] text-white/40">Click any theme to preview</span>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto pr-1">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-2">
             <button *ngFor="let camp of themePromo.campaigns"
                     (click)="themePromo.setManualTheme(camp.id)"
                     [class.border-orange-500]="themePromo.activeTheme().id === camp.id"
@@ -572,11 +593,45 @@
       <div *ngIf="isOwner() && activeAdminTab() === 'coupons'" class="space-y-6">
         <!-- New Coupon Form -->
         <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Database-Backed Coupon</h4>
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Database-Backed Coupon</h4>
+            <span class="text-[9px] text-white/40 uppercase tracking-widest">Client Redemption Engine</span>
+          </div>
+
+          <!-- Usage Model Selector: Single-Use vs. Repeatable -->
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-white/60 mb-1.5">Coupon Usage Type</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5"
+                     [class.border-orange-500]="newCoupon.usageModel === 'repeatable'"
+                     [class.bg-orange-500/10]="newCoupon.usageModel === 'repeatable'"
+                     [class.border-white/10]="newCoupon.usageModel !== 'repeatable'"
+                     [class.bg-white/[0.02]]="newCoupon.usageModel !== 'repeatable'">
+                <input type="radio" name="usageModel" value="repeatable" [(ngModel)]="newCoupon.usageModel" class="mt-0.5 accent-orange-500">
+                <div>
+                  <div class="text-xs font-bold text-white">Constant Repeatable</div>
+                  <div class="text-[10px] text-white/50">Multi-use coupon. Anyone who knows the code can apply it.</div>
+                </div>
+              </label>
+
+              <label class="p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5"
+                     [class.border-orange-500]="newCoupon.usageModel === 'single'"
+                     [class.bg-orange-500/10]="newCoupon.usageModel === 'single'"
+                     [class.border-white/10]="newCoupon.usageModel !== 'single'"
+                     [class.bg-white/[0.02]]="newCoupon.usageModel !== 'single'">
+                <input type="radio" name="usageModel" value="single" [(ngModel)]="newCoupon.usageModel" class="mt-0.5 accent-orange-500">
+                <div>
+                  <div class="text-xs font-bold text-white">1-Time Single Use</div>
+                  <div class="text-[10px] text-white/50">One-off coupon. Burns and expires immediately after 1 client checkout.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Code</label>
-              <input type="text" [(ngModel)]="newCoupon.code" placeholder="e.g. VIP500" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase">
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Coupon Code</label>
+              <input type="text" [(ngModel)]="newCoupon.code" placeholder="e.g. VIP500 or ONEOFF20" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase">
             </div>
             <div>
               <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Discount Type</label>
@@ -586,7 +641,9 @@
               </select>
             </div>
             <div>
-              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Amount</label>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">
+                {{ newCoupon.type === 'percentage' ? 'Percentage Off (%)' : 'Dollar Amount ($)' }}
+              </label>
               <input type="number" [(ngModel)]="newCoupon.amount" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
             </div>
           </div>
@@ -595,42 +652,62 @@
             <div>
               <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Applies To</label>
               <select [(ngModel)]="newCoupon.appliesTo" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
-                <option value="both">Both Setup &amp; Monthly</option>
+                <option value="both">Both Setup Fee &amp; Monthly Retainer</option>
                 <option value="setup">Setup Fee Only</option>
                 <option value="monthly">Monthly Fee Only</option>
               </select>
             </div>
-            <div>
-              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Usage Limit</label>
-              <input type="number" [(ngModel)]="newCoupon.usageLimit" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            <div *ngIf="newCoupon.usageModel === 'repeatable'">
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Usage Cap (0 = Unlimited)</label>
+              <input type="number" [(ngModel)]="newCoupon.usageLimit" placeholder="0 for unlimited" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div *ngIf="newCoupon.usageModel === 'single'">
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Redemption Cap</label>
+              <div class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-amber-400 font-mono flex items-center gap-1.5">
+                <i class="fas fa-lock text-[10px]"></i> Fixed at 1 Single Customer Checkout
+              </div>
             </div>
           </div>
 
-          <button (click)="submitNewCoupon()" [disabled]="!newCoupon.code || adminLoading()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40">
-            Create Coupon in DB
+          <button (click)="submitNewCoupon()" [disabled]="!newCoupon.code || adminLoading()" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40 flex items-center gap-2">
+            <i class="fas fa-plus"></i> Create {{ newCoupon.usageModel === 'single' ? '1-Time' : 'Repeatable' }} Coupon
           </button>
         </div>
 
         <!-- Active Coupons Table -->
         <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Database Coupons</h4>
-          <div *ngIf="adminCoupons().length === 0" class="text-xs text-white/40 italic py-2">
-            No active coupons found. Create one above.
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-white">Active Database Coupons</h4>
+            <span class="text-[10px] text-white/40">{{ adminCoupons().length }} coupons registered</span>
           </div>
-          <div class="space-y-2 max-h-56 overflow-y-auto">
-            <div *ngFor="let coup of adminCoupons()" class="p-3 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between">
+
+          <div *ngIf="adminCoupons().length === 0" class="text-xs text-white/40 italic py-4 text-center">
+            No active coupons found. Create a constant or 1-time coupon above.
+          </div>
+
+          <div class="space-y-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            <div *ngFor="let coup of adminCoupons()" class="p-3.5 rounded-lg bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <span class="font-mono font-bold text-sm text-emerald-400">{{ coup.code }}</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/70">
-                    {{ coup.type === 'percentage' ? coup.amount + '%' : '$' + coup.amount }} ({{ coup.appliesTo }})
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/80 font-bold">
+                    {{ coup.type === 'percentage' ? coup.amount + '%' : '$' + coup.amount }} OFF ({{ coup.appliesTo }})
+                  </span>
+                  <!-- Usage Model Badge -->
+                  <span *ngIf="coup.usageLimit === 1" class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold uppercase tracking-wider">
+                    <i class="fas fa-bolt mr-1"></i>1-Time Single Use
+                  </span>
+                  <span *ngIf="coup.usageLimit !== 1" class="text-[9px] px-2 py-0.5 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold uppercase tracking-wider">
+                    <i class="fas fa-repeat mr-1"></i>Repeatable
                   </span>
                 </div>
-                <div class="text-[10px] text-white/40 mt-1">
-                  Redeemed: {{ coup.usageCount }} / {{ coup.usageLimit || '∞' }}
+                <div class="text-[10px] text-white/40 mt-1 flex items-center gap-3">
+                  <span>Redeemed: <strong class="text-white/70">{{ coup.usageCount }}</strong> / {{ coup.usageLimit > 0 ? coup.usageLimit : '∞' }}</span>
+                  <span *ngIf="coup.notes" class="text-white/30">• {{ coup.notes }}</span>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+
+              <div class="flex items-center gap-2 shrink-0">
                 <button (click)="toggleCoupon(coup._id, coup.enabled)" 
                         [class.bg-emerald-500/20]="coup.enabled"
                         [class.text-emerald-400]="coup.enabled"
@@ -638,11 +715,11 @@
                         [class.bg-red-500/20]="!coup.enabled"
                         [class.text-red-400]="!coup.enabled"
                         [class.border-red-500/30]="!coup.enabled"
-                        class="px-3 py-1 rounded text-xs font-bold border transition-colors">
+                        class="px-3 py-1.5 rounded text-xs font-bold border transition-colors">
                   {{ coup.enabled ? 'Enabled' : 'Disabled' }}
                 </button>
                 <button (click)="deleteCoupon(coup._id, coup.code)" 
-                        class="px-2.5 py-1 rounded text-xs font-bold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition-colors"
+                        class="px-2.5 py-1.5 rounded text-xs font-bold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition-colors"
                         title="Delete Coupon">
                   <i class="fas fa-trash-alt mr-1"></i> Delete
                 </button>
@@ -659,7 +736,7 @@
           <div *ngIf="adminOrders().length === 0" class="text-xs text-white/40 italic py-2">
             No orders captured in this environment yet. Checkouts will record immutable snapshots here.
           </div>
-          <div class="space-y-2 max-h-64 overflow-y-auto">
+          <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
             <div *ngFor="let ord of adminOrders()" class="p-3 rounded-lg bg-black/40 border border-white/10 text-xs">
               <div class="flex justify-between items-start mb-1">
                 <span class="font-bold text-white uppercase">{{ ord.tierId }}</span>
@@ -677,3 +754,4 @@
     </div>
   </div>
 </div>
+

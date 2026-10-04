@@ -112,7 +112,9 @@ router.post('/coupons', async (req, res) => {
       type = 'percentage', 
       amount, 
       appliesTo = 'both', 
+      usageModel = 'repeatable', // 'single' (1-time) or 'repeatable' (constant multi-use) or 'custom'
       usageLimit = 0, 
+      perCustomerLimit,
       expiresAt, 
       minimumSetupSubtotal = 0,
       notes = '' 
@@ -128,15 +130,30 @@ router.post('/coupons', async (req, res) => {
       return res.status(400).json({ error: `Coupon code '${cleanCode}' already exists.` });
     }
 
+    let finalUsageLimit = 0;
+    let finalPerCustomer = 0; // 0 = repeatable
+
+    if (usageModel === 'single') {
+      finalUsageLimit = 1;
+      finalPerCustomer = 1;
+    } else if (usageModel === 'repeatable') {
+      finalUsageLimit = 0; // unlimited
+      finalPerCustomer = 0; // repeatable
+    } else {
+      finalUsageLimit = parseInt(usageLimit, 10) || 0;
+      finalPerCustomer = perCustomerLimit !== undefined ? parseInt(perCustomerLimit, 10) : 1;
+    }
+
     const coupon = new Coupon({
       code: cleanCode,
       type: type === 'fixed' ? 'fixed' : 'percentage',
       amount: parseInt(amount, 10),
       appliesTo: ['setup', 'monthly', 'both'].includes(appliesTo) ? appliesTo : 'both',
-      usageLimit: parseInt(usageLimit, 10) || 0,
+      usageLimit: finalUsageLimit,
+      perCustomerLimit: finalPerCustomer,
       expiresAt: expiresAt ? new Date(expiresAt) : undefined,
       minimumSetupSubtotal: parseInt(minimumSetupSubtotal, 10) || 0,
-      notes: String(notes || '').trim().slice(0, 500),
+      notes: String(notes || (usageModel === 'single' ? '1-Time Single Use' : 'Constant Repeatable')).trim().slice(0, 500),
       createdBy: req.user.email
     });
 

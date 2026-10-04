@@ -73,12 +73,22 @@ router.post('/validate-discount', async (req, res) => {
             if (!check.valid) {
                 return res.status(400).json({ error: check.reason || 'This coupon is not valid.' });
             }
+            // Check single-use per customer if applicable
+            let user = req.user;
+            if (!user && email) {
+                const User = require('../models/user');
+                user = await User.findOne({ email: email.toLowerCase().trim() });
+            }
+            if (user && dbCoupon.perCustomerLimit > 0 && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
+                return res.status(400).json({ error: 'You have already used this single-use discount code.' });
+            }
             return res.json({ 
                 valid: true, 
                 percentage: dbCoupon.type === 'percentage' ? dbCoupon.amount : 0, 
                 fixedCents: dbCoupon.type === 'fixed' ? dbCoupon.amount : 0,
                 type: dbCoupon.type,
                 appliesTo: dbCoupon.appliesTo,
+                usageModel: dbCoupon.usageLimit === 1 ? 'single' : (dbCoupon.usageLimit === 0 ? 'repeatable' : 'custom'),
                 source: 'database'
             });
         }

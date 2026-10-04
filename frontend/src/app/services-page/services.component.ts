@@ -97,6 +97,13 @@ export class ServicesComponent implements OnInit {
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
   authError = signal<string | null>(null);
+  authSuccessMsg = signal<string | null>(null);
+  authSubView = signal<'login' | 'forgot' | 'reset'>('login');
+  forgotEmail = '';
+  resetCode = '';
+  newResetPassword = '';
+  confirmResetPassword = '';
+  resetLoading = signal(false);
   isNewUser = false; // Memory-only flag for email signups
 
   discountCode = signal('');
@@ -439,6 +446,12 @@ export class ServicesComponent implements OnInit {
     this.discountError.set(null);
     this.isAnimatingDiscount.set(false);
     this.appliedDiscountPercentage.set(0);
+    this.authSubView.set('login');
+    this.authError.set(null);
+    this.authSuccessMsg.set(null);
+    this.resetCode = '';
+    this.newResetPassword = '';
+    this.confirmResetPassword = '';
     sessionStorage.removeItem('checkout_tier');
   }
 
@@ -720,6 +733,102 @@ export class ServicesComponent implements OnInit {
           // Fallback for other errors
           this.authError.set('Something went wrong. Please try again.');
         }
+      }
+    });
+  }
+
+  startForgotPassword() {
+    this.authError.set(null);
+    this.authSuccessMsg.set(null);
+    this.forgotEmail = this.userEmail || '';
+    this.authSubView.set('forgot');
+  }
+
+  backToLogin() {
+    this.authSubView.set('login');
+    this.authError.set(null);
+    this.authSuccessMsg.set(null);
+  }
+
+  sendResetCode() {
+    if (!this.forgotEmail || !this.forgotEmail.includes('@')) {
+      this.authError.set('Please provide a valid email address.');
+      return;
+    }
+    this.authError.set(null);
+    this.authSuccessMsg.set(null);
+    this.resetLoading.set(true);
+
+    this.api.post<any>('auth/forgot-password', { email: this.forgotEmail.trim() }).subscribe({
+      next: (res) => {
+        this.resetLoading.set(false);
+        this.authSuccessMsg.set(res?.message || 'Verification code sent to your email.');
+        this.authSubView.set('reset');
+      },
+      error: (err) => {
+        this.resetLoading.set(false);
+        this.authError.set(err.error?.error || 'Could not send verification code. Please check the email.');
+      }
+    });
+  }
+
+  submitPasswordReset() {
+    if (!this.resetCode || !this.newResetPassword) {
+      this.authError.set('Please enter both the 6-digit code and a new password.');
+      return;
+    }
+    if (this.newResetPassword.length < 6) {
+      this.authError.set('Password must be at least 6 characters.');
+      return;
+    }
+    if (this.confirmResetPassword && this.newResetPassword !== this.confirmResetPassword) {
+      this.authError.set('Passwords do not match.');
+      return;
+    }
+
+    this.authError.set(null);
+    this.authSuccessMsg.set(null);
+    this.resetLoading.set(true);
+
+    this.api.post<any>('auth/reset-password', {
+      email: this.forgotEmail.trim(),
+      code: this.resetCode.trim(),
+      newPassword: this.newResetPassword
+    }).subscribe({
+      next: (res) => {
+        this.resetLoading.set(false);
+        this.authSuccessMsg.set('Password successfully reset! Signing in...');
+        
+        // Refresh authenticated user status
+        this.api.checkStatus().subscribe(() => {
+          this.authSubView.set('login');
+          const user = this.api.currentUser();
+          const intent = this.api.getPendingIntent();
+
+          if (user && user.hasFinalizedProfile) {
+            if ((intent && intent.type === 'configuration' && intent.configuration) || this.pendingConfigIntent) {
+              const config = intent?.configuration || this.pendingConfigIntent;
+              this.executeConfigurationCheckout(config, config?.discountCode);
+              return;
+            }
+            if (this.selectedTier()) {
+              this.firstName = user.firstName;
+              this.lastName = user.lastName;
+              this.checkoutLoading.set(true);
+              this.triggerStripe(this.selectedTier()!);
+            } else {
+              this.closeContract();
+              this.router.navigate(['/home']);
+            }
+          } else {
+            // Need onboarding profile
+            this.modalStep.set('onboarding');
+          }
+        });
+      },
+      error: (err) => {
+        this.resetLoading.set(false);
+        this.authError.set(err.error?.error || 'Failed to reset password. Please check your verification code.');
       }
     });
   }
