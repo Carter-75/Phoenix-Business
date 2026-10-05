@@ -97,14 +97,39 @@ import { ApiService, CartItem } from '../services/api.service';
 
         <!-- Total + Pay -->
         <div *ngIf="cartItems().length > 0" class="rounded-2xl bg-white/[0.03] border border-white/10 p-6">
-          <div class="flex items-center justify-between mb-6">
-            <span class="text-white/50 font-bold text-sm uppercase tracking-widest">Setup due today</span>
-            <div class="text-right">
-              <span *ngIf="appliedDiscount()" class="text-white/30 line-through text-lg mr-3">{{ subtotal() | currency }}</span>
-              <span class="text-3xl font-black text-white">{{ finalTotal() | currency }}</span>
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center justify-between text-xs text-white/50 uppercase tracking-wider font-semibold">
+              <span>Setup Subtotal</span>
+              <span class="font-mono text-white/70">{{ subtotal() | currency }}</span>
+            </div>
+
+            <!-- Coupon Reduction Line Item -->
+            <div *ngIf="appliedDiscount() && couponSavings() > 0" class="flex items-center justify-between text-xs text-emerald-400 font-bold">
+              <span>Coupon Reduction ({{ appliedDiscount()!.code }} -{{ appliedDiscount()!.percentage }}%):</span>
+              <span class="font-mono text-emerald-400">-{{ couponSavings() | currency }}</span>
+            </div>
+
+            <div class="pt-3 border-t border-white/10 flex items-center justify-between">
+              <span class="text-white/70 font-bold text-sm uppercase tracking-widest">Setup due today</span>
+              <div class="text-right">
+                <span *ngIf="appliedDiscount() && couponSavings() > 0" class="text-white/30 line-through text-base mr-3">{{ subtotal() | currency }}</span>
+                <span class="text-3xl font-black text-white">{{ finalTotal() | currency }}</span>
+              </div>
             </div>
           </div>
-          <p class="text-sm text-white/70 mb-4">Then {{ monthlyTotal() | currency }} per month after 30 days. The global {{ pricing()?.discountPercentage || 0 }}% discount applies to setup and monthly fees. Each website has a separate 12-month commitment and contract.</p>
+
+          <!-- Monthly Recurring Care with Coupon Reduction -->
+          <div class="p-3.5 rounded-xl bg-black/40 border border-white/5 mb-6 space-y-1.5 text-xs">
+            <div class="flex justify-between items-center text-white/70">
+              <span>Monthly Recurring Cloud Care:</span>
+              <span class="text-white font-mono font-bold">{{ monthlyTotal() | currency }}/mo</span>
+            </div>
+            <div *ngIf="appliedDiscount() && monthlyCouponSavings() > 0" class="flex justify-between items-center text-emerald-400 font-bold">
+              <span>Coupon Monthly Reduction ({{ appliedDiscount()!.code }}):</span>
+              <span class="font-mono">-{{ monthlyCouponSavings() | currency }}/mo</span>
+            </div>
+            <p class="text-[11px] text-white/50 pt-1">First monthly payment due after 30-day deferred trial. 12-month initial commitment.</p>
+          </div>
           <p *ngIf="cartItems().length !== 1" class="text-orange-400 mb-4">Check out one website plan at a time. Remove extra plans before continuing.</p>
           <p class="text-sm text-white/70 mb-4">Non-renewal notice is due 60 to 30 days before expiry. Earlier cancellation costs 50% of the remaining current term. Later notice also adds 50% of the next 12-month term. The trial does not waive these fees.</p>
           <label class="flex gap-3 text-sm text-white/80 mb-6">
@@ -147,7 +172,11 @@ export class CheckoutComponent implements OnInit {
   }
   subtotal = computed(() => this.amount('setup', false));
   finalTotal = computed(() => this.amount('setup'));
+  couponSavings = computed(() => Math.max(0, Math.round((this.subtotal() - this.finalTotal()) * 100) / 100));
+
+  monthlySubtotal = computed(() => this.amount('monthly', false));
   monthlyTotal = computed(() => this.amount('monthly'));
+  monthlyCouponSavings = computed(() => Math.max(0, Math.round((this.monthlySubtotal() - this.monthlyTotal()) * 100) / 100));
 
   ngOnInit() {
     // Fetch dynamic pricing
@@ -160,7 +189,7 @@ export class CheckoutComponent implements OnInit {
 
     const savedDiscount = this.appliedDiscount();
     if (savedDiscount) {
-      this.api.post<any>('stripe/validate-discount', { code: savedDiscount.code }).subscribe({
+      this.api.post<any>('stripe/validate-discount', { code: savedDiscount.code, email: this.api.currentUser()?.email }).subscribe({
         error: () => {
           this.api.setDiscount(null);
         }
@@ -181,7 +210,7 @@ export class CheckoutComponent implements OnInit {
     this.discountLoading.set(true);
     this.discountError.set(null);
 
-    this.api.post<any>('stripe/validate-discount', { code }).subscribe({
+    this.api.post<any>('stripe/validate-discount', { code, email: this.api.currentUser()?.email }).subscribe({
       next: (res) => {
         if (res.valid) {
           this.api.setDiscount({ code, percentage: res.percentage });

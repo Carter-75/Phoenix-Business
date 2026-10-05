@@ -317,6 +317,10 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
                 <span>{{ pricing.calculation().discounts.promotion.displayName }} ({{ pricing.calculation().discounts.promotion.percent }}% Global):</span>
                 <span>-\${{ (pricing.calculation().discounts.promotion.setupSavings / 100).toFixed(2) }}</span>
               </div>
+              <div *ngIf="pricing.calculation().discounts.coupon.setupSavings > 0" class="flex justify-between text-emerald-400 font-bold">
+                <span>Coupon Reduction ({{ pricing.calculation().discounts.coupon.code }}):</span>
+                <span>-\${{ (pricing.calculation().discounts.coupon.setupSavings / 100).toFixed(2) }}</span>
+              </div>
             </div>
             
             <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-baseline">
@@ -349,6 +353,10 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
               <div *ngIf="pricing.calculation().discounts.promotion.monthlySavings > 0" class="flex justify-between text-orange-400 font-bold">
                 <span>Global Promotional Discount ({{ pricing.calculation().discounts.promotion.percent }}%):</span>
                 <span>-\${{ (pricing.calculation().discounts.promotion.monthlySavings / 100).toFixed(2) }}/mo</span>
+              </div>
+              <div *ngIf="pricing.calculation().discounts.coupon.monthlySavings > 0" class="flex justify-between text-emerald-400 font-bold">
+                <span>Coupon Monthly Reduction ({{ pricing.calculation().discounts.coupon.code }}):</span>
+                <span>-\${{ (pricing.calculation().discounts.coupon.monthlySavings / 100).toFixed(2) }}/mo</span>
               </div>
             </div>
 
