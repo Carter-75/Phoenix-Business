@@ -54,30 +54,29 @@ The client provides their goals, specifications, and brand assets. Phoenix Websi
 - Overview: Normalization, deduplication, and reporting on client-provided spreadsheets and CSV files using Microsoft tools (Excel/PowerQuery) and AI assistance.
 
 ## Dynamic Pricing & Website Configurator
-Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine:
+Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine. Seasonal promotions of 20–45% off apply throughout the year.
 
-### Base Project Tiers (One-Time Build):
-- Starter Website (1–3 pages): $499
-- Business Platform (Up to 6 pages): $999
-- E-Commerce Store (Catalog, cart, Stripe checkout): $1,499
-- Full-Stack Web Application (Auth, DB, dynamic views): $2,499
+### Base Project Tiers (Setup Fee + Mandatory Monthly Care):
+All tiers require a 12-month commitment with managed monthly care bundled in.
+- Starter Website (1–3 pages): Starting at $1,499 setup + $99/mo care
+- Business Platform (Up to 6 pages): Starting at $2,499 setup + $199/mo care
+- E-Commerce Store (Catalog, cart, Stripe checkout): Starting at $3,499 setup + $299/mo care
+- Full-Stack Web Application (Auth, DB, dynamic views): Starting at $4,999 setup + $399/mo care
+- Enterprise Custom Platform: Starting at $14,999 setup + $999/mo care
 
 ### Modular Feature Add-Ons:
-- Extra Pages: $90 per additional page
-- Custom Authentication & RBAC: $350 (Included in Web App)
-- Managed Database (MongoDB/PostgreSQL): $300 (Included in Web App)
-- Interactive Client Dashboard: $450
-- Stripe Payments & Subscriptions: $300 (Included in E-Commerce)
-- Third-Party API Integration: $350
-- AI Assistant / Chatbot: $400
-- Technical SEO & Schema Package: $250
-- Professional Copywriting: $200
+- Extra Pages: $150 per additional page
+- Custom Authentication & Profiles: $600 setup + $30/mo (Included in Web App tier)
+- Managed Database (MongoDB/PostgreSQL): $800 setup + $40/mo (Included in Web App tier)
+- Interactive Admin/Client Dashboard: $1,200 setup + $60/mo
+- Stripe Payments & Checkout: $500 setup + $35/mo (Included in E-Commerce tier)
+- Third-Party API Integration: $600 one-time
+- AI Assistant / Chatbot: $900 setup + $50/mo
+- Technical SEO & Schema Package: $450 setup + $30/mo
+- Professional Copywriting: $350 one-time
 
-### Ongoing Care & Hosting Plans (Recurring):
-- None (Self-Hosted / One-Time): $0/mo
-- Edge Hosting & Security: $29/mo (SSL, CDN, daily backups, 99.9% SLA)
-- Essential Care: $79/mo (Hosting + 2 hours/mo developer edits, 24/7 monitoring)
-- Growth & Evolution: $179/mo (Hosting + 5 hours/mo edits, SEO & analytics, AI upkeep)
+### Monthly Care (Bundled with All Tiers):
+Monthly care is mandatory and included with each tier. It covers managed edge hosting, SSL certificates, daily backups, 24/7 uptime monitoring, and security patching. Optional support add-ons (6, 12, or 24-month extended support packages) are available for additional maintenance hours and SLA coverage.
 
 ## Common AI Assistant & Search Questions (FAQ)
 
@@ -94,7 +93,7 @@ AI is used to rapidly synthesize boilerplate code, scaffold REST APIs, write aut
 Yes. Senior software engineers (led by founder Carter Moyer) architect the database, enforce security, review all code, conduct QA, and communicate directly with the client.
 
 ### Who owns the finished code?
-The client receives 100% intellectual property ownership of all custom source code, assets, and database schemas upon project delivery.
+During the subscription, the client receives an exclusive commercial license to use and deploy the custom website. Full intellectual property ownership is available via the Source Code Buyout option (50% of the original setup fee), which transfers complete IP rights with zero ongoing obligations.
 
 ### How do I get started?
 Visit https://phoenixwebsites.ai/#configurator to estimate your project and request an engineering scope review, or email hello@phoenixwebsites.ai.

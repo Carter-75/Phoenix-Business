@@ -94,11 +94,11 @@ const routes = [
         </div>
         <div class="faq-item">
           <h3>Who owns the finished website and source code?</h3>
-          <p>You do. You receive 100% intellectual property ownership of your bespoke website, custom code, media assets, and data upon final delivery.</p>
+          <p>During your subscription, you receive an exclusive commercial license to use and display your custom website. You can take full ownership of the source code at any time via our Source Code Buyout option (50% of the original setup fee), which transfers complete intellectual property rights to you with zero ongoing obligations.</p>
         </div>
         <div class="faq-item">
           <h3>How does the development process and pricing work?</h3>
-          <p>We offer transparent dynamic project estimates via our interactive configurator. Simple websites start at $499, professional multi-page platforms at $999, e-commerce stores at $1,499, and custom full-stack web applications at $2,499. Production delivery ranges from 5 to 21 business days.</p>
+          <p>We offer transparent dynamic project estimates via our interactive configurator. Base setup fees start at $1,499 for Starter websites, $2,499 for Business platforms, $3,499 for E-Commerce stores, and $4,999 for full-stack Web Applications. All tiers include mandatory managed monthly care (starting at $99/mo) with a 12-month commitment. Seasonal promotions of 20–45% off apply throughout the year. Delivery ranges from 2 to 5 weeks depending on scope.</p>
         </div>
       </section>
 
@@ -183,7 +183,7 @@ const routes = [
               "name": "Who owns the finished website and source code?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "The customer receives 100% intellectual property ownership of the complete custom codebase, assets, and content upon project delivery."
+                "text": "During your subscription, you receive an exclusive commercial license to use your custom website. Full intellectual property ownership is available via the Source Code Buyout option (50% of original setup fee), which transfers complete IP rights with zero ongoing obligations."
               }
             }
           ]
@@ -444,7 +444,7 @@ const routes = [
         </ul>
 
         <h2>Transparent Dynamic Pricing &amp; Timeline</h2>
-        <p>Projects range from $499 for foundational Starter sites (delivered in 5–7 days) to $2,499+ for full-stack custom web applications (delivered in 14–21 days). You receive 100% intellectual property ownership of your bespoke codebase upon completion.</p>
+        <p>Setup fees start at $1,499 for Starter websites (delivered in 2 weeks) up to $4,999+ for full-stack custom web applications (delivered in 5 weeks). All tiers include mandatory managed monthly care with a 12-month commitment. Seasonal promotions of 20–45% off apply throughout the year. You receive an exclusive commercial license during subscription, with full IP ownership available via the Source Code Buyout option.</p>
 
         <div class="actions">
           <a href="/#configurator" class="btn-primary">Calculate Your Project Price</a>
@@ -466,8 +466,8 @@ const routes = [
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": "USD",
-        "lowPrice": "499",
-        "highPrice": "2499"
+        "lowPrice": "1499",
+        "highPrice": "14999"
       }
     }
   },
@@ -492,8 +492,8 @@ const routes = [
           <li><strong>Payment &amp; Subscription Engines:</strong> Stripe Billing, webhook verification, prorated subscriptions, and customer checkout portals.</li>
         </ul>
 
-        <h2>100% Code Ownership &amp; Production Deployment</h2>
-        <p>You receive the complete Git repository, database migration scripts, environment configurations, and documentation. No vendor lock-in, no ongoing licensing fees for your own proprietary code.</p>
+        <h2>Code Ownership &amp; Production Deployment</h2>
+        <p>During your subscription, you receive an exclusive commercial license to use and deploy your custom application. Full IP ownership—including the complete Git repository, database migration scripts, and documentation—is available via our Source Code Buyout option (50% of the original setup fee). No vendor lock-in once the buyout is complete.</p>
 
         <div class="actions">
           <a href="/#configurator" class="btn-primary">Launch Project Estimator</a>
@@ -515,8 +515,8 @@ const routes = [
       "offers": {
         "@type": "AggregateOffer",
         "priceCurrency": "USD",
-        "lowPrice": "999",
-        "highPrice": "4999"
+        "lowPrice": "4999",
+        "highPrice": "14999"
       }
     }
   },

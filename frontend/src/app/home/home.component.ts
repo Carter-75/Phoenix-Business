@@ -164,7 +164,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 'name': 'Who owns the finished website and code?',
                 'acceptedAnswer': {
                   '@type': 'Answer',
-                  'text': 'The customer owns 100% of the finished website code, assets, and design. There is zero proprietary platform lock-in.'
+                  'text': 'During the subscription, you receive an exclusive commercial license to use your custom website. Full IP ownership is available via the Source Code Buyout option (50% of original setup fee), which transfers complete rights with zero ongoing obligations.'
                 }
               },
               {

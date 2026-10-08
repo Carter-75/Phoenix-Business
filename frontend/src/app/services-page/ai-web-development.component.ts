@@ -120,7 +120,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             </div>
             <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
               <h3 class="text-base font-bold text-white">Who owns the code and finished website?</h3>
-              <p class="text-sm text-white/60 leading-relaxed">You own 100% of your website code, design, and content. There is no proprietary builder lock-in.</p>
+              <p class="text-sm text-white/60 leading-relaxed">During your subscription, you receive an exclusive commercial license. Full IP ownership is available via the Source Code Buyout (50% of original setup fee), transferring complete rights with no ongoing obligations or lock-in.</p>
             </div>
             <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
               <h3 class="text-base font-bold text-white">What technologies do you use?</h3>

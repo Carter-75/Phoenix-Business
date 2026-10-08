@@ -100,9 +100,9 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             </div>
             <div class="p-6 rounded-2xl bg-black/40 border border-white/5 space-y-2">
               <h4 class="text-white font-bold text-base flex items-center gap-2">
-                <span class="text-orange-500">✓</span> Complete Client Ownership
+                <span class="text-orange-500">✓</span> Source Code Buyout Available
               </h4>
-              <p class="text-xs text-white/50 leading-relaxed">You receive full source code repository ownership. No proprietary agency lock-in; host on our edge or your own servers.</p>
+              <p class="text-xs text-white/50 leading-relaxed">During subscription, you have exclusive commercial license. Full IP transfer via Source Code Buyout—no proprietary agency lock-in.</p>
             </div>
           </div>
         </section>
