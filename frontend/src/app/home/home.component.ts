@@ -71,22 +71,22 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   clients = [
     {
-      name: 'Artisan Ice Cream', 
-      type: 'E-commerce & Brand', 
+      name: 'Ice Cream Shop Concept', 
+      type: 'Concept Build — E-Commerce', 
       url: 'https://example1-icecream.vercel.app/',
-      desc: 'Custom boutique shop with smooth animations and integrated checkout.'
+      desc: 'Design demonstration: a boutique e-commerce layout with smooth scroll animations and integrated cart flow. Built to showcase responsive product galleries and checkout UX patterns.'
     },
     {
-      name: 'Premium Cookies', 
-      type: 'Retail Experience', 
+      name: 'Bakery Storefront Concept', 
+      type: 'Concept Build — Retail', 
       url: 'https://example2-cookies.vercel.app/',
-      desc: 'Retail design demo with product browsing.'
+      desc: 'Design demonstration: a rustic retail website concept with product browsing and visual storytelling. Built to showcase warm color palettes and artisan brand aesthetics.'
     },
     {
-      name: 'Craft Coffee', 
-      type: 'Subscription Model', 
+      name: 'Coffee Subscription Concept', 
+      type: 'Concept Build — Subscription', 
       url: 'https://example3-coffee.vercel.app/',
-      desc: 'Recurring revenue platform with customer management portal.'
+      desc: 'Design demonstration: a subscription-model platform concept with recurring revenue flows and customer management. Built to showcase membership UX and delivery scheduling patterns.'
     }
   ];
 
