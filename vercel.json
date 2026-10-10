@@ -43,8 +43,23 @@
       "permanent": true
     },
     {
+      "source": "/ai-development",
+      "destination": "/services/ai-web-development",
+      "permanent": true
+    },
+    {
       "source": "/full-stack-development",
       "destination": "/services/full-stack-development",
+      "permanent": true
+    },
+    {
+      "source": "/full-stack",
+      "destination": "/services/full-stack-development",
+      "permanent": true
+    },
+    {
+      "source": "/data",
+      "destination": "/data-cleanup",
       "permanent": true
     }
   ],
@@ -62,7 +77,49 @@
       }
     },
     {
-      "source": "/(.*)",
+      "source": "/dashboard",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/checkout",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/checkout-success",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/growth-crm",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/admin-reviews",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/leave-review",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/leave-review/:token",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/data/:id",
       "destination": {
         "service": "frontend"
       }

@@ -626,4 +626,65 @@ const homeRedirectHtml = `<!DOCTYPE html>
 fs.writeFileSync(path.join(homeDir, 'index.html'), homeRedirectHtml, 'utf8');
 console.log('[prerender] Rendered canonical redirect: dist/frontend/home/index.html');
 
+// Create 404.html for Vercel to serve on unknown paths
+const notFoundHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page Not Found | Phoenix Websites AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="The page you're looking for doesn't exist or has been moved.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      min-height: 100vh; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: #020617; 
+      color: #fff; 
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      padding: 24px;
+    }
+    .container { text-align: center; max-width: 500px; }
+    .code { font-size: 8rem; font-weight: 900; color: #ea580c; line-height: 1; margin-bottom: 1rem; }
+    h1 { font-size: 2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 1rem; }
+    p { color: #94a3b8; margin-bottom: 2rem; }
+    .actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    a { 
+      display: inline-block; 
+      padding: 12px 24px; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em; 
+      font-size: 0.875rem; 
+      text-decoration: none; 
+      border-radius: 8px; 
+      transition: all 0.2s;
+    }
+    .primary { background: #ea580c; color: #fff; }
+    .primary:hover { background: #f97316; }
+    .secondary { border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+    .secondary:hover { border-color: rgba(255,255,255,0.4); }
+    .contact { margin-top: 3rem; color: #64748b; font-size: 0.875rem; }
+    .contact a { padding: 0; color: #ea580c; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="code">404</p>
+    <h1>Page Not Found</h1>
+    <p>The page you're looking for doesn't exist or has been moved.</p>
+    <div class="actions">
+      <a href="/" class="primary">Go to Homepage</a>
+      <a href="/services" class="secondary">View Services</a>
+    </div>
+    <p class="contact">Looking for something specific? <a href="mailto:hello@phoenixwebsites.ai">Contact us</a></p>
+  </div>
+</body>
+</html>`;
+fs.writeFileSync(path.join(distDir, '404.html'), notFoundHtml, 'utf8');
+console.log('[prerender] Rendered: dist/frontend/404.html');
+
 console.log('[prerender] All static HTML pages generated successfully.');

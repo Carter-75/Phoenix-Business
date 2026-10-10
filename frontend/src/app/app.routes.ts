@@ -8,16 +8,6 @@ export const routes: Routes = [
     pathMatch: 'full' 
   },
   { path: 'home', redirectTo: '', pathMatch: 'full' },
-  
-  // Legacy aliases / landing shortcuts
-  { 
-    path: 'website-audit', 
-    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) 
-  },
-  { 
-    path: 'painting-websites', 
-    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent) 
-  },
 
   // Dedicated Services
   { 
@@ -119,6 +109,9 @@ export const routes: Routes = [
     loadComponent: () => import('./data-portal/data-portal.component').then(m => m.DataPortalComponent) 
   },
 
-  // Wildcard fallback to canonical home
-  { path: '**', redirectTo: '' }
+  // 404 Not Found - must be last
+  { 
+    path: '**', 
+    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) 
+  }
 ];
