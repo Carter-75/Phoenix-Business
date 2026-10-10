@@ -16,7 +16,8 @@ const contractSchema = new mongoose.Schema({
   setupFeePaid: { type: Number }, // In cents
   monthlyFee: { type: Number }, // In cents
   reviewToken: { type: String, unique: true, sparse: true },
-  reviewEmailSent: { type: Boolean, default: false }
+  reviewEmailSent: { type: Boolean, default: false },
+  freeOrderId: { type: String, sparse: true, index: true } // String ID for $0 orders (free_...)
 });
 
 module.exports = mongoose.model('Contract', contractSchema);

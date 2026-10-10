@@ -12,49 +12,85 @@ router.get('/checkout-status', createCheckoutVerification(stripe));
 /**
  * GET /api/stripe/free-order-status
  * Verifies a $0 (free) order by order_id (no Stripe session involved)
+ * Supports both string orderId (free_...) and MongoDB ObjectId formats
  */
 router.get('/free-order-status', async (req, res) => {
     res.set('Cache-Control', 'no-store');
-    if (!req.isAuthenticated?.() || !req.user?._id) {
-        return res.status(401).json({ error: 'Sign in to view your order.' });
-    }
     
     const orderId = req.query.order_id;
     if (!orderId || typeof orderId !== 'string') {
         return res.status(400).json({ error: 'Invalid order reference.' });
     }
     
-    try {
-        // Check for the contract created by this free order
-        const contract = await Contract.findOne({ 
-            _id: orderId,
-            userId: req.user._id
-        });
-        
-        if (!contract) {
-            // Also check OrderSnapshot as fallback
+    // Retry logic for timing issues (record may still be writing to DB)
+    const maxRetries = 3;
+    const retryDelayMs = 500;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
             const OrderSnapshot = require('../models/OrderSnapshot');
-            const snapshot = await OrderSnapshot.findOne({ 
-                _id: orderId,
-                userId: req.user._id
-            });
+            const mongoose = require('mongoose');
             
-            if (snapshot) {
-                return res.json({ confirmed: true, orderId: snapshot._id, freeOrder: true });
+            // Determine if orderId is a MongoDB ObjectId or a string ID (free_...)
+            const isObjectId = mongoose.Types.ObjectId.isValid(orderId) && !orderId.startsWith('free_');
+            
+            // Check OrderSnapshot first (by orderId field for string IDs, or _id for ObjectIds)
+            let snapshot = null;
+            if (isObjectId) {
+                snapshot = await OrderSnapshot.findById(orderId);
+            } else {
+                snapshot = await OrderSnapshot.findOne({ orderId: orderId });
             }
             
+            if (snapshot) {
+                // Verify ownership if user is authenticated
+                if (req.isAuthenticated?.() && req.user?._id) {
+                    if (snapshot.userId && snapshot.userId.toString() !== req.user._id.toString()) {
+                        return res.status(403).json({ error: 'Order belongs to another account.' });
+                    }
+                }
+                return res.json({ confirmed: true, orderId: snapshot.orderId || snapshot._id, freeOrder: true });
+            }
+            
+            // Check Contract (by freeOrderId field for string IDs, or _id for ObjectIds)
+            let contract = null;
+            if (isObjectId) {
+                contract = await Contract.findById(orderId);
+            } else {
+                contract = await Contract.findOne({ freeOrderId: orderId });
+            }
+            
+            if (contract) {
+                // Verify ownership if user is authenticated
+                if (req.isAuthenticated?.() && req.user?._id) {
+                    if (contract.userId && contract.userId.toString() !== req.user._id.toString()) {
+                        return res.status(403).json({ error: 'Order belongs to another account.' });
+                    }
+                }
+                return res.json({ 
+                    confirmed: true, 
+                    orderId: contract.freeOrderId || contract._id, 
+                    contractType: contract.contractType,
+                    freeOrder: true 
+                });
+            }
+            
+            // If not found and we have retries left, wait and retry
+            if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+                continue;
+            }
+            
+            // All retries exhausted, order not found
             return res.status(404).json({ error: 'Order not found.' });
+            
+        } catch (err) {
+            console.error(`[FREE ORDER] Status check error (attempt ${attempt}):`, err.message);
+            if (attempt === maxRetries) {
+                return res.status(503).json({ error: 'Cannot verify order. Please try again.' });
+            }
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs));
         }
-        
-        return res.json({ 
-            confirmed: true, 
-            orderId: contract._id, 
-            contractType: contract.contractType,
-            freeOrder: true 
-        });
-    } catch (err) {
-        console.error('[FREE ORDER] Status check error:', err.message);
-        return res.status(503).json({ error: 'Cannot verify order. Please try again.' });
     }
 });
 
@@ -336,7 +372,8 @@ const createServiceCheckout = async (req, res) => {
                         status: 'active',
                         expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                         pdfSnapshot: pdfBuffer,
-                        reviewToken: crypto.randomUUID()
+                        reviewToken: crypto.randomUUID(),
+                        freeOrderId: orderId
                     });
                     await newContract.save();
 
