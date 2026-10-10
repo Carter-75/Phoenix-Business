@@ -276,8 +276,21 @@ export class ServicesComponent implements OnInit {
       error: (err) => console.error('Failed to load dynamic pricing', err)
     });
 
-    // Handle route query params for generic login / configurator auth
+    // Handle route query params for generic login / configurator auth / auth errors
     this.route.queryParams.subscribe(params => {
+      // Handle auth_error from OAuth callback failures
+      if (params['auth_error']) {
+        const errorMsg = decodeURIComponent(params['auth_error']);
+        this.authError.set(errorMsg);
+        // Open the auth modal so user can try again
+        this.selectedTier.set(null);
+        this.showContract.set(true);
+        this.modalStep.set('auth');
+        // Clean up the URL
+        this.router.navigate([], { replaceUrl: true, queryParams: { auth_error: null }, queryParamsHandling: 'merge' });
+        return;
+      }
+      
       if (params['login'] === 'true' && !this.api.currentUser()) {
         this.selectedTier.set(null);
         const intent = this.api.peekPendingIntent();

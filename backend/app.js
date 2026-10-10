@@ -71,21 +71,42 @@ app.use(cookieParser());
 const mongoURI = process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/^["']|["']$/g, '') : null;
 
 let cachedDbPromise = null;
+let connectionRetryCount = 0;
+const MAX_CONNECTION_RETRIES = 2;
 
 const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return;
+  if (mongoose.connection.readyState === 1) return;
   if (!mongoURI) {
     console.warn('WARN: No MONGODB_URI found in environment!');
     return;
   }
+  
+  // Reset cached promise if previous connection failed or disconnected
+  if (mongoose.connection.readyState === 0 && cachedDbPromise) {
+    cachedDbPromise = null;
+  }
+  
   if (!cachedDbPromise) {
-    console.log('INFO: Connecting to MongoDB...');
+    console.log(`INFO: Connecting to MongoDB... (attempt ${connectionRetryCount + 1})`);
     cachedDbPromise = mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 8000,
-      connectTimeoutMS: 10000
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      retryWrites: true,
+      retryReads: true
+    }).then(() => {
+      connectionRetryCount = 0;
+      console.log('OK: MongoDB connected successfully');
     }).catch(err => {
       cachedDbPromise = null;
+      connectionRetryCount++;
       console.error('ERROR: MongoDB Connection Failed:', err.message);
+      if (connectionRetryCount < MAX_CONNECTION_RETRIES) {
+        console.log(`INFO: Will retry on next request (${connectionRetryCount}/${MAX_CONNECTION_RETRIES})`);
+      }
+      throw err;
     });
   }
   await cachedDbPromise;
@@ -264,6 +285,17 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(`[ERROR] ${req.method} ${req.url}:`, err.message);
   if (!isProd) console.error(err.stack);
+  
+  // For OAuth callback routes, redirect to frontend with error instead of returning JSON
+  const isOAuthCallback = req.path.includes('/auth/google/callback') || 
+                          req.path.includes('/auth/callback');
+  const acceptsHtml = req.headers.accept && req.headers.accept.includes('text/html');
+  
+  if (isOAuthCallback || (acceptsHtml && req.method === 'GET' && req.path.startsWith('/auth/'))) {
+    const frontendUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
+    const errorMsg = encodeURIComponent('Something went wrong. Please try again.');
+    return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
+  }
   
   res.status(err.status || 500).json({
     message: err.message,

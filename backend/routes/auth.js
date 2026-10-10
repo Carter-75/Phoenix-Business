@@ -70,20 +70,41 @@ router.get('/google', (req, res, next) => {
 });
 
 // @route   GET /auth/google/callback
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/services' }),
-  (req, res) => {
-    let returnUrl = req.query.state || '/dashboard';
-    
-    // Open Redirect Protection
-    if (!returnUrl.startsWith('/')) {
-        returnUrl = '/dashboard';
+router.get('/google/callback', (req, res, next) => {
+  const returnUrl = req.query.state || '/dashboard';
+  const frontendUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
+  
+  passport.authenticate('google', (err, user, info) => {
+    // Handle any errors (including MongoDB timeouts) gracefully with redirect
+    if (err) {
+      console.error('[AUTH] Google callback error:', err.message);
+      const errorMsg = encodeURIComponent('We had trouble connecting. Please try signing in again.');
+      return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
     }
     
-    // Successful authentication or pending registration, redirect to returnUrl
-    res.redirect(`${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}${returnUrl}`);
-  }
-);
+    if (!user) {
+      const errorMsg = encodeURIComponent('Authentication was not completed. Please try again.');
+      return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
+    }
+    
+    // Log the user in
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        console.error('[AUTH] Session login error:', loginErr.message);
+        const errorMsg = encodeURIComponent('Session error. Please try signing in again.');
+        return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
+      }
+      
+      // Open redirect protection
+      let safeReturnUrl = returnUrl;
+      if (!safeReturnUrl.startsWith('/')) {
+        safeReturnUrl = '/dashboard';
+      }
+      
+      res.redirect(`${frontendUrl}${safeReturnUrl}`);
+    });
+  })(req, res, next);
+});
 
 // @route   GET /auth/user
 router.get('/user', (req, res) => {
