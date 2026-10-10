@@ -25,8 +25,42 @@
   ],
   "rewrites": [
     { "source": "/api", "destination": { "service": "backend" } },
-    { "source": "/api/(.*)", "destination": { "service": "backend" } },
-    { "source": "/(.*)", "destination": { "service": "frontend" } }
+    { "source": "/api/:path*", "destination": { "service": "backend" } },
+    
+    { "source": "/", "destination": { "service": "frontend" } },
+    { "source": "/services", "destination": { "service": "frontend" } },
+    { "source": "/services/ai-web-development", "destination": { "service": "frontend" } },
+    { "source": "/services/full-stack-development", "destination": { "service": "frontend" } },
+    { "source": "/services/custom-websites", "destination": { "service": "frontend" } },
+    { "source": "/services/automation", "destination": { "service": "frontend" } },
+    { "source": "/services/ai-solutions", "destination": { "service": "frontend" } },
+    { "source": "/data-cleanup", "destination": { "service": "frontend" } },
+    { "source": "/about", "destination": { "service": "frontend" } },
+    { "source": "/reviews", "destination": { "service": "frontend" } },
+    { "source": "/terms", "destination": { "service": "frontend" } },
+    { "source": "/privacy", "destination": { "service": "frontend" } },
+    { "source": "/refunds", "destination": { "service": "frontend" } },
+    
+    { "source": "/dashboard", "destination": { "service": "frontend" } },
+    { "source": "/checkout", "destination": { "service": "frontend" } },
+    { "source": "/checkout-success", "destination": { "service": "frontend" } },
+    { "source": "/growth-crm", "destination": { "service": "frontend" } },
+    { "source": "/admin-reviews", "destination": { "service": "frontend" } },
+    { "source": "/leave-review", "destination": { "service": "frontend" } },
+    { "source": "/leave-review/:token", "destination": { "service": "frontend" } },
+    { "source": "/data/:id", "destination": { "service": "frontend" } },
+    
+    { "source": "/:path*.js", "destination": { "service": "frontend" } },
+    { "source": "/:path*.css", "destination": { "service": "frontend" } },
+    { "source": "/:path*.woff2", "destination": { "service": "frontend" } },
+    { "source": "/:path*.png", "destination": { "service": "frontend" } },
+    { "source": "/:path*.jpg", "destination": { "service": "frontend" } },
+    { "source": "/:path*.webp", "destination": { "service": "frontend" } },
+    { "source": "/:path*.svg", "destination": { "service": "frontend" } },
+    { "source": "/:path*.ico", "destination": { "service": "frontend" } },
+    { "source": "/robots.txt", "destination": { "service": "frontend" } },
+    { "source": "/sitemap.xml", "destination": { "service": "frontend" } },
+    { "source": "/favicon.ico", "destination": { "service": "frontend" } }
   ],
   "headers": [
     {
