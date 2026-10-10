@@ -1,56 +1,32 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
+    "frontend": {
+      "root": "frontend",
+      "framework": "angular"
+    },
     "backend": {
       "root": "backend",
       "framework": "express",
       "entrypoint": "app.js"
     }
   },
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/dist/frontend",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "routes": [
-    { "src": "^/api(/.*)?$", "dest": { "service": "backend" } },
-    
-    { "src": "^/home$", "status": 308, "headers": { "Location": "/" } },
-    { "src": "^/custom-websites$", "status": 308, "headers": { "Location": "/services/custom-websites" } },
-    { "src": "^/custom-website-development$", "status": 308, "headers": { "Location": "/services/custom-websites" } },
-    { "src": "^/automation$", "status": 308, "headers": { "Location": "/services/automation" } },
-    { "src": "^/ai-solutions$", "status": 308, "headers": { "Location": "/services/ai-solutions" } },
-    { "src": "^/ai-web-development$", "status": 308, "headers": { "Location": "/services/ai-web-development" } },
-    { "src": "^/ai-development$", "status": 308, "headers": { "Location": "/services/ai-web-development" } },
-    { "src": "^/full-stack-development$", "status": 308, "headers": { "Location": "/services/full-stack-development" } },
-    { "src": "^/full-stack$", "status": 308, "headers": { "Location": "/services/full-stack-development" } },
-    { "src": "^/data$", "status": 308, "headers": { "Location": "/data-cleanup" } },
-    
-    { "handle": "filesystem" },
-    
-    { "src": "^/$", "dest": "/index.html" },
-    { "src": "^/services$", "dest": "/services/index.html" },
-    { "src": "^/services/ai-web-development$", "dest": "/services/ai-web-development/index.html" },
-    { "src": "^/services/full-stack-development$", "dest": "/services/full-stack-development/index.html" },
-    { "src": "^/services/custom-websites$", "dest": "/services/custom-websites/index.html" },
-    { "src": "^/services/automation$", "dest": "/services/automation/index.html" },
-    { "src": "^/services/ai-solutions$", "dest": "/services/ai-solutions/index.html" },
-    { "src": "^/data-cleanup$", "dest": "/data-cleanup/index.html" },
-    { "src": "^/about$", "dest": "/about/index.html" },
-    { "src": "^/reviews$", "dest": "/reviews/index.html" },
-    { "src": "^/terms$", "dest": "/terms/index.html" },
-    { "src": "^/privacy$", "dest": "/privacy/index.html" },
-    { "src": "^/refunds$", "dest": "/refunds/index.html" },
-    
-    { "src": "^/dashboard$", "dest": "/index.html" },
-    { "src": "^/checkout$", "dest": "/index.html" },
-    { "src": "^/checkout-success$", "dest": "/index.html" },
-    { "src": "^/growth-crm$", "dest": "/index.html" },
-    { "src": "^/admin-reviews$", "dest": "/index.html" },
-    { "src": "^/leave-review$", "dest": "/index.html" },
-    { "src": "^/leave-review/.+$", "dest": "/index.html" },
-    { "src": "^/data/.+$", "dest": "/index.html" },
-    
-    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
+  "redirects": [
+    { "source": "/home", "destination": "/", "permanent": true },
+    { "source": "/custom-websites", "destination": "/services/custom-websites", "permanent": true },
+    { "source": "/custom-website-development", "destination": "/services/custom-websites", "permanent": true },
+    { "source": "/automation", "destination": "/services/automation", "permanent": true },
+    { "source": "/ai-solutions", "destination": "/services/ai-solutions", "permanent": true },
+    { "source": "/ai-web-development", "destination": "/services/ai-web-development", "permanent": true },
+    { "source": "/ai-development", "destination": "/services/ai-web-development", "permanent": true },
+    { "source": "/full-stack-development", "destination": "/services/full-stack-development", "permanent": true },
+    { "source": "/full-stack", "destination": "/services/full-stack-development", "permanent": true },
+    { "source": "/data", "destination": "/data-cleanup", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/api", "destination": { "service": "backend" } },
+    { "source": "/api/(.*)", "destination": { "service": "backend" } },
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
   ],
   "headers": [
     {
