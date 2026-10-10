@@ -1,6 +1,7 @@
 {
   "routes": [
     { "handle": "filesystem" },
+    
     { "src": "^/$", "dest": "/index.html" },
     { "src": "^/services$", "dest": "/services/index.html" },
     { "src": "^/services/ai-web-development$", "dest": "/services/ai-web-development/index.html" },
@@ -14,6 +15,7 @@
     { "src": "^/terms$", "dest": "/terms/index.html" },
     { "src": "^/privacy$", "dest": "/privacy/index.html" },
     { "src": "^/refunds$", "dest": "/refunds/index.html" },
+    
     { "src": "^/dashboard$", "dest": "/index.html" },
     { "src": "^/checkout$", "dest": "/index.html" },
     { "src": "^/checkout-success$", "dest": "/index.html" },
@@ -22,6 +24,7 @@
     { "src": "^/leave-review$", "dest": "/index.html" },
     { "src": "^/leave-review/[^/]+$", "dest": "/index.html" },
     { "src": "^/data/[^/]+$", "dest": "/index.html" },
+    
     { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ]
 }
