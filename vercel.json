@@ -50,7 +50,7 @@
     { "src": "^/leave-review/[^/]+$", "dest": { "service": "frontend" } },
     { "src": "^/data/[^/]+$", "dest": { "service": "frontend" } },
     
-    { "src": "/(.*)", "status": 404, "dest": { "service": "frontend", "path": "/404.html" } }
+    { "src": "/(.*)", "dest": "/api/404" }
   ],
   "headers": [
     {
