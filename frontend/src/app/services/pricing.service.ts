@@ -663,9 +663,18 @@ export class PricingService {
     const postCouponSetup = Math.max(0, postPromoSetup - couponSetupSavings);
     const postCouponMonthly = Math.max(0, postPromoMonthly - couponMonthlySavings);
 
-    // Final prices clamped to minimum floors ($799 setup / $49 monthly)
-    const finalSetupCents = Math.max(79900, postCouponSetup);
-    const finalMonthlyCents = Math.max(4900, postCouponMonthly);
+    // Check if this is a 100% discount (free order)
+    const effectiveSetupDiscountRatio = normalSetupSubtotal > 0 
+      ? (normalSetupSubtotal - postCouponSetup) / normalSetupSubtotal 
+      : 0;
+    const effectiveMonthlyDiscountRatio = normalMonthlySubtotal > 0 
+      ? (normalMonthlySubtotal - postCouponMonthly) / normalMonthlySubtotal 
+      : 0;
+    const is100PercentDiscount = effectiveSetupDiscountRatio >= 0.9999 && effectiveMonthlyDiscountRatio >= 0.9999;
+
+    // Final prices: bypass floors for 100% discount, otherwise apply minimum floors
+    const finalSetupCents = is100PercentDiscount ? 0 : Math.max(79900, postCouponSetup);
+    const finalMonthlyCents = is100PercentDiscount ? 0 : Math.max(4900, postCouponMonthly);
 
     // 30-day deferred billing schedule
     const firstBillingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);

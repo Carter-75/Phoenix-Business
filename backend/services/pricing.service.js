@@ -717,17 +717,29 @@ function calculateProjectPrice(input = {}, options = {}) {
   const totalSetupDiscount = normalSetupSubtotal - finalSetupBeforeFloor;
   const maxAllowedSetupDiscount = Math.round(normalSetupSubtotal * (PRICING_FLOORS.MAX_COMBINED_DISCOUNT_PCT / 100));
 
-  let finalSetupCents = finalSetupBeforeFloor;
-  if (!isTestMode) {
-    if (totalSetupDiscount > maxAllowedSetupDiscount) {
-      finalSetupCents = normalSetupSubtotal - maxAllowedSetupDiscount;
-    }
-    finalSetupCents = Math.max(PRICING_FLOORS.MIN_SETUP_CENTS, finalSetupCents);
-  }
+  // Calculate effective discount percentage to check for 100% free order
+  const effectiveSetupDiscountRatio = normalSetupSubtotal > 0 ? totalSetupDiscount / normalSetupSubtotal : 0;
+  const effectiveMonthlyDiscountRatio = normalMonthlySubtotal > 0 
+    ? (normalMonthlySubtotal - finalMonthlyBeforeFloor) / normalMonthlySubtotal 
+    : 0;
+  const is100PercentDiscount = effectiveSetupDiscountRatio >= 0.9999 && effectiveMonthlyDiscountRatio >= 0.9999;
 
+  let finalSetupCents = finalSetupBeforeFloor;
   let finalMonthlyCents = finalMonthlyBeforeFloor;
+
   if (!isTestMode) {
-    finalMonthlyCents = Math.max(PRICING_FLOORS.MIN_MONTHLY_CENTS, finalMonthlyCents);
+    if (is100PercentDiscount) {
+      // 100% discount: bypass floors entirely, allow truly free order
+      finalSetupCents = 0;
+      finalMonthlyCents = 0;
+    } else {
+      // Normal case: apply discount cap and minimum floors
+      if (totalSetupDiscount > maxAllowedSetupDiscount) {
+        finalSetupCents = normalSetupSubtotal - maxAllowedSetupDiscount;
+      }
+      finalSetupCents = Math.max(PRICING_FLOORS.MIN_SETUP_CENTS, finalSetupCents);
+      finalMonthlyCents = Math.max(PRICING_FLOORS.MIN_MONTHLY_CENTS, finalMonthlyCents);
+    }
   }
 
   // 9. First Monthly Billing Schedule (Starts ~30 days post-purchase)

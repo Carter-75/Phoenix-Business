@@ -185,6 +185,150 @@ const createServiceCheckout = async (req, res) => {
             monthlyFee = calcResult.finalPrices.monthlyRecurring;
             resolvedProjectType = projectType || calcResult.tier.name;
             appliedDiscountCode = calcResult.discounts.coupon.code || discountCode || '';
+
+            // Handle $0 orders (100% discount): skip Stripe, record order directly
+            if (setupFee === 0 && monthlyFee === 0) {
+                const orderId = `free_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                // Record OrderSnapshot
+                try {
+                    const OrderSnapshot = require('../models/OrderSnapshot');
+                    await OrderSnapshot.create({
+                        orderId: orderId,
+                        stripeSessionId: null,
+                        userId: user ? user._id : undefined,
+                        customerEmail: email || (user ? user.email : 'guest@checkout.local'),
+                        customerName: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
+                        customerPhone: req.body.phone || (user ? user.phone : ''),
+                        businessName: businessName || (user ? user.businessName : ''),
+                        tierId: calcResult.tier.id,
+                        tierName: calcResult.tier.name,
+                        projectType: resolvedProjectType,
+                        totalPages: calcResult.scope.totalPages,
+                        extraPages: calcResult.scope.extraPages,
+                        baseSetupCents: calcResult.normalPrices.baseSetup,
+                        baseMonthlyCents: calcResult.normalPrices.baseMonthly,
+                        extraPagesSetupCents: calcResult.scope.extraPagesSetupPrice,
+                        selectedAddons: calcResult.addons.map(a => ({
+                            id: a.id,
+                            name: a.name,
+                            category: a.category,
+                            billingType: a.billingType,
+                            setupCents: a.setupPrice,
+                            monthlyCents: a.monthlyPrice,
+                            includedInBase: !!a.includedInBase
+                        })),
+                        addonsSetupSubtotalCents: calcResult.normalPrices.addonsSetup,
+                        addonsMonthlySubtotalCents: calcResult.normalPrices.addonsMonthly,
+                        supportAddon: calcResult.support ? {
+                            id: calcResult.support.id,
+                            name: calcResult.support.name,
+                            durationMonths: calcResult.support.durationMonths,
+                            standardMonthlyCents: calcResult.support.standardMonthlyPrice,
+                            discountedMonthlyCents: calcResult.support.discountedMonthlyPrice,
+                            monthlyCents: 0,
+                            promotionPercentage: 100,
+                            totalCommitmentStandardCents: calcResult.support.totalCommitmentStandard,
+                            totalCommitmentDiscountedCents: 0,
+                            setupCents: 0,
+                            startDate: new Date(calcResult.support.startDate),
+                            endDate: new Date(calcResult.support.endDate),
+                            autoRenew: false
+                        } : null,
+                        bundleDiscountPercent: calcResult.discounts.bundle.percent,
+                        bundleDiscountSetupCents: calcResult.discounts.bundle.setupSavings,
+                        bundleDiscountMonthlyCents: calcResult.discounts.bundle.monthlySavings,
+                        promotionId: calcResult.discounts.promotion.id,
+                        promotionName: calcResult.discounts.promotion.name,
+                        promotionDiscountPercent: calcResult.discounts.promotion.percent,
+                        promotionDiscountSetupCents: calcResult.discounts.promotion.setupSavings,
+                        promotionDiscountMonthlyCents: calcResult.discounts.promotion.monthlySavings,
+                        couponCode: calcResult.discounts.coupon.code,
+                        couponDiscountSetupCents: calcResult.discounts.coupon.setupSavings,
+                        couponDiscountMonthlyCents: calcResult.discounts.coupon.monthlySavings,
+                        finalSetupCents: 0,
+                        finalMonthlyCents: 0,
+                        baseMonthlyRecurringCents: 0,
+                        supportMonthlyRecurringCents: 0,
+                        dueTodayCents: 0,
+                        firstMonthlyBillingDate: new Date(calcResult.schedule.firstMonthlyBillingDate),
+                        commitmentMonths: calcResult.schedule.commitmentMonths,
+                        termsVersion: 'v4-wisconsin-hardened-free',
+                        contractSnapshotText: calcResult.projectBrief + '\n[100% DISCOUNT - FREE ORDER]'
+                    });
+                } catch (snapErr) {
+                    console.warn('OrderSnapshot save warning (free order):', snapErr.message);
+                }
+
+                // Create Contract record
+                if (user) {
+                    user.hasAcceptedContract = true;
+                    user.contractAcceptedAt = new Date(contractTimestamp);
+                    user.subscriptionStatus = calcResult.tier.id;
+                    await user.save();
+
+                    const legalService = require('../services/legal.service');
+                    const pdfBuffer = await legalService.generateMergedLegalPDF({
+                        tier: calcResult.tier.id,
+                        setupFee: 0,
+                        monthlyFee: 0
+                    });
+
+                    const crypto = require('crypto');
+                    const newContract = new Contract({
+                        userId: user._id,
+                        contractType: `Free Order Agreement - ${calcResult.tier.name}`,
+                        projectName: resolvedProjectType,
+                        stripeSubscriptionId: null,
+                        tier: calcResult.tier.id,
+                        setupFeePaid: 0,
+                        monthlyFee: 0,
+                        acceptedAt: new Date(contractTimestamp),
+                        status: 'active',
+                        expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                        pdfSnapshot: pdfBuffer,
+                        reviewToken: crypto.randomUUID()
+                    });
+                    await newContract.save();
+
+                    // Send confirmation email
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                        port: parseInt(process.env.SMTP_PORT || '465'),
+                        secure: true,
+                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                    });
+
+                    await transporter.sendMail({
+                        from: `"Phoenix" <${process.env.EMAIL_USER}>`,
+                        to: user.email,
+                        subject: 'Free Order Confirmation — Phoenix Websites AI',
+                        html: `
+                            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+                                <h2 style="color: #ea580c;">Your Free Order is Confirmed!</h2>
+                                <p>Hi ${user.firstName || 'there'},</p>
+                                <p>Your order for <strong>${calcResult.tier.name}</strong> has been confirmed at $0.00 (100% discount applied).</p>
+                                <p><strong>Project:</strong> ${resolvedProjectType}</p>
+                                <p><strong>Amount Due:</strong> $0.00</p>
+                                <p>We'll be in touch shortly to begin your project.</p>
+                            </div>
+                        `,
+                        attachments: pdfBuffer ? [{ filename: 'Phoenix_Free_Order_Agreement.pdf', content: pdfBuffer }] : []
+                    }).catch(err => console.error('Free order email failed:', err));
+
+                    // Send admin SMS
+                    const smsMessage = `FREE order from ${user.firstName} (${user.businessName || 'N/A'}) - ${calcResult.tier.name} [100% discount]`;
+                    await sendAdminSMS(smsMessage);
+                }
+
+                const baseUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
+                return res.json({ 
+                    url: `${baseUrl}/checkout-success?free_order=true&order_id=${orderId}`,
+                    freeOrder: true 
+                });
+            }
+
             mode = monthlyFee > 0 ? 'subscription' : 'payment';
 
             // 1. One-time Setup/Build Fee (Charged Today)
