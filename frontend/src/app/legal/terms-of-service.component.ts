@@ -9,15 +9,15 @@ import { ApiService } from '../services/api.service';
   standalone: true,
   imports: [CommonModule, RouterLink, ScrollRevealDirective],
   template: `
-    <section class="min-h-screen pt-48 pb-24 px-6 bg-slate-950 relative overflow-hidden">
+    <section class="min-h-screen pt-28 sm:pt-48 pb-16 sm:pb-24 px-4 sm:px-6 bg-slate-950 relative overflow-hidden">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%]"></div>
       
       <div class="max-w-4xl mx-auto relative z-10">
-        <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-12" appScrollReveal>Terms of <span class="text-orange-500">Service</span></h1>
+        <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase mb-8 sm:mb-12" appScrollReveal>Terms of <span class="text-orange-500">Service</span></h1>
         
-        <div class="space-y-12 text-slate-400 font-medium leading-relaxed" appScrollReveal>
-          <div class="space-y-4">
-            <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. The Agreement</h2>
+        <div class="space-y-8 sm:space-y-12 text-slate-400 font-medium leading-relaxed text-sm sm:text-base" appScrollReveal>
+          <div class="space-y-3 sm:space-y-4">
+            <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">1. The Agreement</h2>
             <p>By engaging with Phoenix Websites AI ("we", "us", "our"), you agree to enter into a legally binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure and software engineering services.</p>
           </div>
 

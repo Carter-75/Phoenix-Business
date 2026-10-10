@@ -454,7 +454,7 @@ const FEATURE_ADDONS = {
 const PRICING_FLOORS = {
   MIN_SETUP_CENTS: 79900,      // Absolute floor: $799.00 setup
   MIN_MONTHLY_CENTS: 4900,     // Absolute floor: $49.00/mo
-  MAX_COMBINED_DISCOUNT_PCT: 50 // Combined discount cannot exceed 50% without executive authorization
+  MAX_COMBINED_DISCOUNT_PCT: 100 // Allow up to 100% discount after global promo; floor prices still apply
 };
 
 /**

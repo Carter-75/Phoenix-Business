@@ -8,14 +8,14 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
   standalone: true,
   imports: [CommonModule, ScrollRevealDirective],
   template: `
-    <section class="min-h-screen pt-40 pb-32 px-8 sm:px-16 overflow-hidden">
+    <section class="min-h-screen pt-24 sm:pt-40 pb-16 sm:pb-32 px-4 sm:px-16 overflow-hidden">
       <div class="max-w-[1400px] mx-auto">
-        <header class="mb-32 max-w-4xl" appScrollReveal>
-          <div class="flex items-center gap-4 mb-8">
-            <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-            <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Our Approach</span>
+        <header class="mb-16 sm:mb-32 max-w-4xl" appScrollReveal>
+          <div class="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div class="w-8 sm:w-12 h-[1px] bg-[#D4AF37] flex-shrink-0"></div>
+            <span class="text-[#D4AF37] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] sm:text-xs">Our Approach</span>
           </div>
-          <h1 class="fluid-h1 font-black mb-12">
+          <h1 class="fluid-h1 font-black mb-8 sm:mb-12">
             OUR<br>
             <span class="text-white/20">APPROACH</span>
           </h1>
@@ -24,38 +24,38 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           </p>
         </header>
 
-        <div class="grid lg:grid-cols-2 gap-32 items-start border-t border-white/5 pt-32">
-          <div class="space-y-12 fluid-p text-white/60" appScrollReveal>
+        <div class="grid lg:grid-cols-2 gap-12 sm:gap-24 lg:gap-32 items-start border-t border-white/5 pt-12 sm:pt-32">
+          <div class="space-y-8 sm:space-y-12 fluid-p text-white/60" appScrollReveal>
             <p>
               We focus on <strong>speed</strong> and <strong>ease of use</strong>. We don't just build sites; we create tools that help your business grow automatically.
             </p>
             <p>
               Every bit of work we do is meant to last. From custom-built websites to smart automation, we make sure your tech always works perfectly.
             </p>
-            <div class="flex flex-col sm:flex-row gap-8 sm:gap-12 mt-12 sm:mt-20 pt-12 sm:pt-20 border-t border-white/5">
+            <div class="flex flex-col sm:flex-row gap-6 sm:gap-12 mt-8 sm:mt-20 pt-8 sm:pt-20 border-t border-white/5">
               <div>
-                <div class="text-4xl font-black text-white leading-none mb-2">99.9%</div>
-                <div class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">System Reliability</div>
+                <div class="text-3xl sm:text-4xl font-black text-white leading-none mb-2">99.9%</div>
+                <div class="text-[10px] font-black uppercase tracking-wider sm:tracking-widest text-[#D4AF37]">System Reliability</div>
               </div>
               <div>
-                <div class="text-4xl font-black text-white leading-none mb-2">10ms</div>
-                <div class="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">Edge Response</div>
+                <div class="text-3xl sm:text-4xl font-black text-white leading-none mb-2">10ms</div>
+                <div class="text-[10px] font-black uppercase tracking-wider sm:tracking-widest text-[#D4AF37]">Edge Response</div>
               </div>
             </div>
           </div>
           
-          <div class="space-y-12" appScrollReveal [delay]="0.2">
-            <div class="glass-card !p-8 sm:!p-12 border-white/5">
-              <h3 class="fluid-h3 text-white mb-8 uppercase tracking-tighter">Our Promise</h3>
-              <ul class="space-y-8 text-[10px] font-black uppercase tracking-[0.4em] text-white/40">
-                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Fast loading for every visitor</li>
-                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> Smart tools that save you time</li>
-                <li class="flex items-center gap-6"><div class="w-8 h-[1px] bg-[#D4AF37]"></div> 100% reliability you can trust</li>
+          <div class="space-y-8 sm:space-y-12" appScrollReveal [delay]="0.2">
+            <div class="glass-card !p-5 sm:!p-12 border-white/5">
+              <h3 class="fluid-h3 text-white mb-6 sm:mb-8 uppercase tracking-tighter">Our Promise</h3>
+              <ul class="space-y-5 sm:space-y-8 text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/40">
+                <li class="flex items-center gap-4 sm:gap-6"><div class="w-6 sm:w-8 h-[1px] bg-[#D4AF37] flex-shrink-0"></div> Fast loading for every visitor</li>
+                <li class="flex items-center gap-4 sm:gap-6"><div class="w-6 sm:w-8 h-[1px] bg-[#D4AF37] flex-shrink-0"></div> Smart tools that save you time</li>
+                <li class="flex items-center gap-4 sm:gap-6"><div class="w-6 sm:w-8 h-[1px] bg-[#D4AF37] flex-shrink-0"></div> 100% reliability you can trust</li>
               </ul>
             </div>
             <div class="aspect-video bg-white/[0.02] border border-white/5 flex items-center justify-center group relative overflow-hidden">
                <div class="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-               <span class="fluid-tiny font-black uppercase tracking-[1em] text-white/10 group-hover:text-[#D4AF37]/20 transition-colors">Phoenix Protocol</span>
+               <span class="fluid-tiny font-black uppercase tracking-[0.5em] sm:tracking-[1em] text-white/10 group-hover:text-[#D4AF37]/20 transition-colors">Phoenix Protocol</span>
             </div>
           </div>
         </div>

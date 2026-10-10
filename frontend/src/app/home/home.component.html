@@ -5,16 +5,16 @@
     
     <div class="max-w-[1400px] mx-auto w-full">
       <header class="mb-12">
-        <div class="flex items-center gap-4 mb-6 hero-reveal">
-          <div class="w-12 h-[1px] bg-orange-600"></div>
-          <span class="text-orange-600 font-black uppercase tracking-[0.35em] text-xs">Phoenix Websites AI • AI-Native Development Agency</span>
+        <div class="flex items-center gap-3 sm:gap-4 mb-6 hero-reveal">
+          <div class="w-8 sm:w-12 h-[1px] bg-orange-600 flex-shrink-0"></div>
+          <span class="text-orange-600 font-black uppercase tracking-[0.15em] sm:tracking-[0.35em] text-[10px] sm:text-xs">Phoenix Websites AI</span>
         </div>
-        <div class="flex items-end gap-8 hero-reveal cursor-pointer" (click)="onTitleClick()">
+        <div class="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8 hero-reveal cursor-pointer" (click)="onTitleClick()">
           <h1 class="fluid-h1 font-black select-none">
-            AI-POWERED FULL-STACK<br>
+            AI-POWERED<br class="sm:hidden"> FULL-STACK<br>
             <span class="text-white/70">WEB DEVELOPMENT</span>
           </h1>
-          <img src="/favicon.png" alt="Phoenix Websites AI Logo" width="96" height="96" class="w-20 h-20 sm:w-28 sm:h-28 object-contain mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
+          <img src="/favicon.png" alt="Phoenix Websites AI Logo" width="96" height="96" class="w-16 h-16 sm:w-28 sm:h-28 object-contain mb-2 sm:mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
         </div>
       </header>
 
@@ -69,20 +69,20 @@
   <!-- Core Pillars -->
   <section class="section-padding bg-white/[0.01] border-y border-white/[0.05]">
     <div class="max-w-[1400px] mx-auto">
-      <div class="grid md:grid-cols-3 gap-1px bg-white/[0.05] border border-white/[0.05]">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-[1px] md:bg-white/[0.05] md:border md:border-white/[0.05]">
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">01 / AI Acceleration</span>
-          <h3 class="fluid-h3 mb-6">Rapid Build<br>Velocity</h3>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-orange-600 mb-4 sm:mb-8 block">01 / AI Acceleration</span>
+          <h3 class="fluid-h3 mb-4 sm:mb-6">Rapid Build Velocity</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">AI accelerates component scaffolding and boilerplate, delivering finished projects 2–3x faster.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">02 / Human Oversight</span>
-          <h3 class="fluid-h3 mb-6">Verified<br>Architecture</h3>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-orange-600 mb-4 sm:mb-8 block">02 / Human Oversight</span>
+          <h3 class="fluid-h3 mb-4 sm:mb-6">Verified Architecture</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">Senior engineers review every line of code, enforce strict security, and guarantee Core Web Vitals.</p>
         </div>
         <div class="glass-card !bg-transparent group hover:bg-white/[0.02] transition-colors" appScrollReveal>
-          <span class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 mb-8 block">03 / Ownership</span>
-          <h3 class="fluid-h3 mb-6">Source Code<br>Buyout</h3>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-orange-600 mb-4 sm:mb-8 block">03 / Ownership</span>
+          <h3 class="fluid-h3 mb-4 sm:mb-6">Source Code Buyout</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">Bespoke software built on open frameworks. Full IP transfer available via buyout—no proprietary lock-in.</p>
         </div>
       </div>
@@ -92,8 +92,8 @@
   <!-- Core Services Showcase -->
   <section class="section-padding bg-black/40 border-b border-white/[0.05]">
     <div class="max-w-[1400px] mx-auto">
-      <div class="mb-16" appScrollReveal>
-        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">What We Deliver</span>
+      <div class="mb-10 sm:mb-16" appScrollReveal>
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-3 sm:mb-4 block">What We Deliver</span>
         <h2 class="fluid-h2">CORE SERVICES &amp;<br><span class="text-white/20">CAPABILITIES</span></h2>
       </div>
 
@@ -158,10 +158,10 @@
   <!-- Design Portfolio — Concept Builds -->
   <section class="section-padding bg-white/[0.01]">
     <div class="max-w-[1400px] mx-auto">
-      <div class="mb-24" appScrollReveal>
-        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6 block">Concept Builds</span>
+      <div class="mb-12 sm:mb-24" appScrollReveal>
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-4 sm:mb-6 block">Concept Builds</span>
         <h2 class="fluid-h2">DESIGN<br><span class="text-white/20">PORTFOLIO</span></h2>
-        <p class="text-white/50 text-sm mt-6 max-w-2xl">These are internal concept builds created to demonstrate our design and development capabilities. They are not client projects and no client results are claimed.</p>
+        <p class="text-white/50 text-sm mt-4 sm:mt-6 max-w-2xl">These are internal concept builds created to demonstrate our design and development capabilities. They are not client projects and no client results are claimed.</p>
       </div>
 
       <div class="space-y-12">
@@ -193,10 +193,10 @@
   <!-- AI Search & Knowledge Base Section (GEO / AEO Optimized) -->
   <section class="section-padding bg-black/60 border-t border-white/[0.05]" id="faq">
     <div class="max-w-[1200px] mx-auto">
-      <div class="mb-16 text-center max-w-3xl mx-auto" appScrollReveal>
-        <span class="text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Frequently Asked Questions</span>
+      <div class="mb-10 sm:mb-16 text-center max-w-3xl mx-auto" appScrollReveal>
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-3 sm:mb-4 block">Frequently Asked Questions</span>
         <h2 class="fluid-h2 mb-4">HOW WE WORK &amp;<br><span class="text-white/20">COMMON QUESTIONS</span></h2>
-        <p class="text-white/50 text-sm leading-relaxed">
+        <p class="text-white/50 text-sm leading-relaxed px-2 sm:px-0">
           Everything you need to know about our AI-accelerated development process, human engineering oversight, and service guarantees.
         </p>
       </div>
@@ -265,59 +265,59 @@
   <section class="section-padding relative" id="audit">
     <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-orange-600/5"></div>
     <div class="max-w-[1000px] mx-auto text-center">
-      <div class="mb-20" appScrollReveal>
-        <h2 class="fluid-h2 mb-8">Ready to <span class="text-white/20">Start?</span></h2>
-        <p class="fluid-p max-w-2xl mx-auto">Request a short review of your mobile page, contact path, and service message. You will get three practical fixes. No purchase is required.</p>
+      <div class="mb-12 sm:mb-20" appScrollReveal>
+        <h2 class="fluid-h2 mb-6 sm:mb-8">Ready to <span class="text-white/20">Start?</span></h2>
+        <p class="fluid-p max-w-2xl mx-auto px-2 sm:px-0">Request a short review of your mobile page, contact path, and service message. You will get three practical fixes. No purchase is required.</p>
       </div>
 
       <!-- AI Inbound Phone Call & Web Voice Assistant -->
-      <div class="mb-12 p-6 sm:p-8 glass-card border-orange-600/30 flex flex-col lg:flex-row items-center justify-between gap-6 text-left" appScrollReveal>
-        <div class="flex items-center gap-5">
-          <div class="w-12 h-12 rounded-full bg-orange-600/10 border border-orange-600/30 flex items-center justify-center text-orange-500 text-xl flex-shrink-0">
+      <div class="mb-8 sm:mb-12 p-4 sm:p-6 lg:p-8 glass-card border-orange-600/30 flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6 text-left" appScrollReveal>
+        <div class="flex items-center gap-3 sm:gap-5">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-600/10 border border-orange-600/30 flex items-center justify-center text-orange-500 text-lg sm:text-xl flex-shrink-0">
             🎙️
           </div>
           <div>
-            <h4 class="text-sm font-black uppercase tracking-widest text-white">Speak to Our AI Assistant 24/7</h4>
-            <p class="text-xs text-white/40 mt-1">Get immediate answers about our services, pricing guarantees, and project options over phone or right in your browser.</p>
+            <h4 class="text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest text-white">Speak to Our AI Assistant 24/7</h4>
+            <p class="text-[11px] sm:text-xs text-white/40 mt-1">Get immediate answers about our services, pricing, and project options.</p>
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full lg:w-auto">
           <button (click)="voiceCall.startCall()" 
-                  class="px-6 py-4 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20">
+                  class="px-4 sm:px-6 py-3 sm:py-4 bg-orange-600 hover:bg-orange-500 text-white text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest rounded-xl transition-all whitespace-nowrap flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20">
             <i class="fas fa-microphone"></i>
             <span>Start Web Call</span>
           </button>
           
-          <a href="tel:+17603347874" class="px-6 py-4 bg-white/5 border border-white/10 hover:border-orange-500/40 hover:bg-orange-600/10 text-white/80 hover:text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap flex items-center justify-center gap-2">
+          <a href="tel:+17603347874" class="px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border border-white/10 hover:border-orange-500/40 hover:bg-orange-600/10 text-white/80 hover:text-white text-[11px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest rounded-xl transition-all whitespace-nowrap flex items-center justify-center gap-2">
             <i class="fas fa-phone-alt text-orange-500"></i>
-            <span>+1 (760) 334-7874</span>
+            <span>(760) 334-7874</span>
           </a>
         </div>
       </div>
 
-      <div class="glass-card !p-8 sm:!p-12 lg:!p-24" appScrollReveal>
-        <form (submit)="onSubmitLead($event)" class="grid sm:grid-cols-2 gap-8 text-left">
+      <div class="glass-card !p-5 sm:!p-12 lg:!p-24" appScrollReveal>
+        <form (submit)="onSubmitLead($event)" class="grid sm:grid-cols-2 gap-4 sm:gap-8 text-left">
           <div class="space-y-2">
             <label for="audit-name" class="text-sm text-white/80">Your Name</label>
             <input id="audit-name" name="name" autocomplete="name" type="text" maxlength="120" placeholder="Your name" required 
-                   class="w-full bg-white/[0.02] border border-white/0.05 px-6 py-4 sm:px-8 sm:py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
+                   class="w-full bg-white/[0.02] border border-white/[0.05] px-4 py-3 sm:px-8 sm:py-6 text-sm font-bold sm:font-black uppercase tracking-wide sm:tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
           <div class="space-y-2">
             <label for="audit-email" class="text-sm text-white/80">Email Address</label>
             <input id="audit-email" name="email" autocomplete="email" type="email" maxlength="254" placeholder="you@business.com" required 
-                   class="w-full bg-white/[0.02] border border-white/0.05 px-6 py-4 sm:px-8 sm:py-6 text-sm font-black uppercase tracking-widest focus:border-orange-600 outline-none transition-all">
+                   class="w-full bg-white/[0.02] border border-white/[0.05] px-4 py-3 sm:px-8 sm:py-6 text-sm font-bold sm:font-black uppercase tracking-wide sm:tracking-widest focus:border-orange-600 outline-none transition-all">
           </div>
-          <div class="space-y-2"><label for="audit-business" class="text-sm text-white/80">Business name</label><input id="audit-business" name="businessName" autocomplete="organization" maxlength="200" class="w-full bg-black border border-white/30 px-6 py-4"></div>
-          <div class="space-y-2"><label for="audit-website" class="text-sm text-white/80">Website (optional)</label><input id="audit-website" name="website" type="url" placeholder="https://example.com" maxlength="500" class="w-full bg-black border border-white/30 px-6 py-4"></div>
+          <div class="space-y-2"><label for="audit-business" class="text-sm text-white/80">Business name</label><input id="audit-business" name="businessName" autocomplete="organization" maxlength="200" class="w-full bg-black border border-white/30 px-4 py-3 sm:px-6 sm:py-4 text-sm"></div>
+          <div class="space-y-2"><label for="audit-website" class="text-sm text-white/80">Website (optional)</label><input id="audit-website" name="website" type="url" placeholder="https://example.com" maxlength="500" class="w-full bg-black border border-white/30 px-4 py-3 sm:px-6 sm:py-4 text-sm"></div>
           <div class="sm:col-span-2 space-y-2">
             <label for="audit-requirements" class="text-sm text-white/80">Project Details</label>
             <textarea id="audit-requirements" name="requirements" autocomplete="off" placeholder="Tell us about your project..." rows="4" maxlength="5000"
-                      class="w-full bg-white/[0.02] border border-white/[0.05] px-6 py-4 sm:px-8 sm:py-6 text-sm font-medium focus:border-orange-600 outline-none transition-all resize-none"></textarea>
+                      class="w-full bg-white/[0.02] border border-white/[0.05] px-4 py-3 sm:px-8 sm:py-6 text-sm font-medium focus:border-orange-600 outline-none transition-all resize-none"></textarea>
           </div>
-          <div class="sm:col-span-2 mt-8">
+          <div class="sm:col-span-2 mt-4 sm:mt-8">
             <button type="submit" [disabled]="submitting()" 
-                    class="premium-btn w-full !py-8 flex items-center justify-center gap-4">
+                    class="premium-btn w-full !py-5 sm:!py-8 flex items-center justify-center gap-4">
               <span *ngIf="!submitting()">Request My Website Audit</span>
               <span *ngIf="submitting()" class="animate-pulse">Sending...</span>
             </button>

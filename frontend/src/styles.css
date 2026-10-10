@@ -42,14 +42,32 @@
 }
 
 @layer components {
-  .fluid-h1 { @apply text-[clamp(3rem,15vw,10rem)] leading-[0.8] tracking-[-0.05em]; }
-  .fluid-h2 { @apply text-[clamp(2.5rem,10vw,6rem)] leading-[0.9] tracking-[-0.04em]; }
-  .fluid-h3 { @apply text-[clamp(1.5rem,5vw,3rem)] leading-tight break-words; }
-  .fluid-p { @apply text-[clamp(1rem,1.2vw,1.25rem)] text-white/50 leading-relaxed; }
-  .fluid-tiny { @apply text-[10px] font-black uppercase tracking-[0.4em] text-white/40; }
+  .fluid-h1 { 
+    @apply text-[clamp(2rem,12vw,10rem)] leading-[0.95] tracking-[-0.02em];
+  }
+  @media (min-width: 640px) {
+    .fluid-h1 { @apply text-[clamp(3rem,15vw,10rem)] leading-[0.85] tracking-[-0.04em]; }
+  }
+  .fluid-h2 { 
+    @apply text-[clamp(1.75rem,8vw,6rem)] leading-[1] tracking-[-0.02em];
+  }
+  @media (min-width: 640px) {
+    .fluid-h2 { @apply text-[clamp(2.5rem,10vw,6rem)] leading-[0.9] tracking-[-0.04em]; }
+  }
+  .fluid-h3 { 
+    @apply text-[clamp(1.25rem,4vw,3rem)] leading-snug tracking-[-0.01em] break-words;
+  }
+  @media (min-width: 640px) {
+    .fluid-h3 { @apply text-[clamp(1.5rem,5vw,3rem)] leading-tight tracking-[-0.02em]; }
+  }
+  .fluid-p { @apply text-[clamp(0.9rem,1.2vw,1.25rem)] text-white/50 leading-relaxed; }
+  .fluid-tiny { @apply text-[10px] font-black uppercase tracking-[0.25em] text-white/40; }
+  @media (min-width: 640px) {
+    .fluid-tiny { @apply tracking-[0.4em]; }
+  }
 
   .glass-card {
-    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.05] p-8 sm:p-12 lg:p-20 relative overflow-hidden;
+    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.05] p-5 sm:p-12 lg:p-20 relative overflow-hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
@@ -87,7 +105,10 @@
   }
 
   .section-padding {
-    @apply py-20 px-8 sm:py-32 sm:px-16 lg:py-56 lg:px-32;
+    @apply py-16 px-4 sm:py-32 sm:px-16 lg:py-56 lg:px-32;
+  }
+  @media (min-width: 400px) {
+    .section-padding { @apply px-6; }
   }
 
   /* Theme-Aware Utility Accents */
