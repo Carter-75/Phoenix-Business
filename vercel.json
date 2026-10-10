@@ -5,48 +5,52 @@
       "root": "backend",
       "framework": "express",
       "entrypoint": "app.js"
+    },
+    "frontend": {
+      "root": "frontend"
     }
   },
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/dist/frontend",
-  "redirects": [
-    { "source": "/home", "destination": "/", "permanent": true },
-    { "source": "/custom-websites", "destination": "/services/custom-websites", "permanent": true },
-    { "source": "/custom-website-development", "destination": "/services/custom-websites", "permanent": true },
-    { "source": "/automation", "destination": "/services/automation", "permanent": true },
-    { "source": "/ai-solutions", "destination": "/services/ai-solutions", "permanent": true },
-    { "source": "/ai-web-development", "destination": "/services/ai-web-development", "permanent": true },
-    { "source": "/ai-development", "destination": "/services/ai-web-development", "permanent": true },
-    { "source": "/full-stack-development", "destination": "/services/full-stack-development", "permanent": true },
-    { "source": "/full-stack", "destination": "/services/full-stack-development", "permanent": true },
-    { "source": "/data", "destination": "/data-cleanup", "permanent": true }
-  ],
-  "rewrites": [
-    { "source": "/api", "destination": { "service": "backend" } },
-    { "source": "/api/(.*)", "destination": { "service": "backend" } },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/api", "dest": "/api" },
     
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/services", "destination": "/services/index.html" },
-    { "source": "/services/ai-web-development", "destination": "/services/ai-web-development/index.html" },
-    { "source": "/services/full-stack-development", "destination": "/services/full-stack-development/index.html" },
-    { "source": "/services/custom-websites", "destination": "/services/custom-websites/index.html" },
-    { "source": "/services/automation", "destination": "/services/automation/index.html" },
-    { "source": "/services/ai-solutions", "destination": "/services/ai-solutions/index.html" },
-    { "source": "/data-cleanup", "destination": "/data-cleanup/index.html" },
-    { "source": "/about", "destination": "/about/index.html" },
-    { "source": "/reviews", "destination": "/reviews/index.html" },
-    { "source": "/terms", "destination": "/terms/index.html" },
-    { "source": "/privacy", "destination": "/privacy/index.html" },
-    { "source": "/refunds", "destination": "/refunds/index.html" },
+    { "src": "/home", "status": 308, "headers": { "Location": "/" } },
+    { "src": "/custom-websites", "status": 308, "headers": { "Location": "/services/custom-websites" } },
+    { "src": "/custom-website-development", "status": 308, "headers": { "Location": "/services/custom-websites" } },
+    { "src": "/automation", "status": 308, "headers": { "Location": "/services/automation" } },
+    { "src": "/ai-solutions", "status": 308, "headers": { "Location": "/services/ai-solutions" } },
+    { "src": "/ai-web-development", "status": 308, "headers": { "Location": "/services/ai-web-development" } },
+    { "src": "/ai-development", "status": 308, "headers": { "Location": "/services/ai-web-development" } },
+    { "src": "/full-stack-development", "status": 308, "headers": { "Location": "/services/full-stack-development" } },
+    { "src": "/full-stack", "status": 308, "headers": { "Location": "/services/full-stack-development" } },
+    { "src": "/data", "status": 308, "headers": { "Location": "/data-cleanup" } },
     
-    { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/checkout", "destination": "/index.html" },
-    { "source": "/checkout-success", "destination": "/index.html" },
-    { "source": "/growth-crm", "destination": "/index.html" },
-    { "source": "/admin-reviews", "destination": "/index.html" },
-    { "source": "/leave-review", "destination": "/index.html" },
-    { "source": "/leave-review/:token", "destination": "/index.html" },
-    { "source": "/data/:id", "destination": "/index.html" }
+    { "handle": "filesystem" },
+    
+    { "src": "^/$", "dest": { "service": "frontend" } },
+    { "src": "^/services$", "dest": { "service": "frontend" } },
+    { "src": "^/services/ai-web-development$", "dest": { "service": "frontend" } },
+    { "src": "^/services/full-stack-development$", "dest": { "service": "frontend" } },
+    { "src": "^/services/custom-websites$", "dest": { "service": "frontend" } },
+    { "src": "^/services/automation$", "dest": { "service": "frontend" } },
+    { "src": "^/services/ai-solutions$", "dest": { "service": "frontend" } },
+    { "src": "^/data-cleanup$", "dest": { "service": "frontend" } },
+    { "src": "^/about$", "dest": { "service": "frontend" } },
+    { "src": "^/reviews$", "dest": { "service": "frontend" } },
+    { "src": "^/terms$", "dest": { "service": "frontend" } },
+    { "src": "^/privacy$", "dest": { "service": "frontend" } },
+    { "src": "^/refunds$", "dest": { "service": "frontend" } },
+    
+    { "src": "^/dashboard$", "dest": { "service": "frontend" } },
+    { "src": "^/checkout$", "dest": { "service": "frontend" } },
+    { "src": "^/checkout-success$", "dest": { "service": "frontend" } },
+    { "src": "^/growth-crm$", "dest": { "service": "frontend" } },
+    { "src": "^/admin-reviews$", "dest": { "service": "frontend" } },
+    { "src": "^/leave-review$", "dest": { "service": "frontend" } },
+    { "src": "^/leave-review/(.+)$", "dest": { "service": "frontend" } },
+    { "src": "^/data/(.+)$", "dest": { "service": "frontend" } },
+    
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ],
   "headers": [
     {
