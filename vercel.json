@@ -77,49 +77,7 @@
       }
     },
     {
-      "source": "/dashboard",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/checkout",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/checkout-success",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/growth-crm",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/admin-reviews",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/leave-review",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/leave-review/:token",
-      "destination": {
-        "service": "frontend"
-      }
-    },
-    {
-      "source": "/data/:id",
+      "source": "/(.*)",
       "destination": {
         "service": "frontend"
       }
