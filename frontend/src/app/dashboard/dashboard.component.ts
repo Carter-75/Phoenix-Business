@@ -138,9 +138,11 @@ import { environment } from '../../environments/environment';
           <h2 class="text-3xl font-black uppercase tracking-tighter mb-4 text-white">Manage <span class="text-red-500">Service</span></h2>
           <div class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 space-y-2">
             
-            <p *ngIf="cancelQuote()?.isOneTimePurchase" class="text-blue-400 bg-blue-500/10 inline-block px-4 py-2 rounded-lg border border-blue-500/20"><i class="fa-solid fa-crown mr-1"></i> Ownership Unlocked</p>
+            <p *ngIf="cancelQuote()?.isFreeOrder" class="text-green-400 bg-green-500/10 inline-block px-4 py-2 rounded-lg border border-green-500/20"><i class="fa-solid fa-gift mr-1"></i> Free Promotional Order</p>
+            
+            <p *ngIf="cancelQuote()?.isOneTimePurchase && !cancelQuote()?.isFreeOrder" class="text-blue-400 bg-blue-500/10 inline-block px-4 py-2 rounded-lg border border-blue-500/20"><i class="fa-solid fa-crown mr-1"></i> Ownership Unlocked</p>
 
-            <p *ngIf="cancelQuote()?.windowStatus === 'in-window'" class="text-green-500 bg-green-500/10 inline-block px-4 py-2 rounded-lg border border-green-500/20"><i class="fa-solid fa-check-circle mr-1"></i> Eligible for 60-30 Day Notice Window (No Penalty)</p>
+            <p *ngIf="cancelQuote()?.windowStatus === 'in-window' && !cancelQuote()?.isFreeOrder" class="text-green-500 bg-green-500/10 inline-block px-4 py-2 rounded-lg border border-green-500/20"><i class="fa-solid fa-check-circle mr-1"></i> Eligible for 60-30 Day Notice Window (No Penalty)</p>
             
             <p *ngIf="cancelQuote()?.windowStatus === 'too-early'" class="text-orange-500 bg-orange-500/10 inline-block px-4 py-2 rounded-lg border border-orange-500/20"><i class="fa-solid fa-clock mr-1"></i> {{ cancelQuote()?.monthsLeft }} Months Remaining in Contract</p>
             
@@ -155,8 +157,36 @@ import { environment } from '../../environments/environment';
           <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
         </div>
 
+        <!-- FREE ORDER STATE (100% discount promotional orders) -->
+        <div *ngIf="!loadingQuote() && cancelQuote()?.isFreeOrder" class="space-y-6">
+          <div class="border border-green-500/30 bg-green-500/5 rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-green-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-bl-lg">Free Order</div>
+            <h3 class="text-xl font-black text-white mb-2">{{ cancelQuote()?.projectName || 'Free Promotional Order' }}</h3>
+            <p class="text-sm text-slate-400 mb-4 leading-relaxed">{{ cancelQuote()?.message || 'This is a free promotional order with no subscription fees or termination costs.' }}</p>
+            
+            <div class="bg-white/5 border border-white/10 rounded-lg p-4 mb-6">
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="text-slate-500 text-xs uppercase tracking-wider">Status</span>
+                  <p class="text-green-400 font-bold">{{ cancelQuote()?.status || 'Active' }}</p>
+                </div>
+                <div>
+                  <span class="text-slate-500 text-xs uppercase tracking-wider">Fees</span>
+                  <p class="text-white font-bold">$0</p>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-xs text-slate-500 mb-6">No monthly billing, no termination fees, and no buyout required for this promotional order.</p>
+            
+            <button (click)="closeCancelModal()" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors">
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+
         <!-- TIER 1 OUTRIGHT OWNERSHIP STATE -->
-        <div *ngIf="!loadingQuote() && cancelQuote()?.isOneTimePurchase" class="space-y-6">
+        <div *ngIf="!loadingQuote() && cancelQuote()?.isOneTimePurchase && !cancelQuote()?.isFreeOrder" class="space-y-6">
           <div class="border border-blue-500/30 bg-blue-500/5 rounded-2xl p-6 relative overflow-hidden">
             <h3 class="text-xl font-black text-white mb-2">Simple Launch Plan</h3>
             <p class="text-sm text-slate-400 mb-6 leading-relaxed">You have fully purchased and own the rights to your custom website infrastructure. There are no monthly subscriptions, buyout fees, or early termination penalties to worry about.</p>
@@ -167,7 +197,7 @@ import { environment } from '../../environments/environment';
           </div>
         </div>
 
-        <div *ngIf="!loadingQuote() && cancelQuote() && !cancelQuote()?.isOneTimePurchase" class="space-y-6">
+        <div *ngIf="!loadingQuote() && cancelQuote() && !cancelQuote()?.isOneTimePurchase && !cancelQuote()?.isFreeOrder" class="space-y-6">
           
           <!-- OPTION A: BUYOUT -->
           <div class="border border-orange-500/30 bg-orange-500/5 rounded-2xl p-6 relative overflow-hidden group">

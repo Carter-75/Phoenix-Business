@@ -10,6 +10,55 @@ const { createCheckoutVerification } = require('../services/checkout-verificatio
 router.get('/checkout-status', createCheckoutVerification(stripe));
 
 /**
+ * GET /api/stripe/free-order-status
+ * Verifies a $0 (free) order by order_id (no Stripe session involved)
+ */
+router.get('/free-order-status', async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    if (!req.isAuthenticated?.() || !req.user?._id) {
+        return res.status(401).json({ error: 'Sign in to view your order.' });
+    }
+    
+    const orderId = req.query.order_id;
+    if (!orderId || typeof orderId !== 'string') {
+        return res.status(400).json({ error: 'Invalid order reference.' });
+    }
+    
+    try {
+        // Check for the contract created by this free order
+        const contract = await Contract.findOne({ 
+            _id: orderId,
+            userId: req.user._id
+        });
+        
+        if (!contract) {
+            // Also check OrderSnapshot as fallback
+            const OrderSnapshot = require('../models/OrderSnapshot');
+            const snapshot = await OrderSnapshot.findOne({ 
+                _id: orderId,
+                userId: req.user._id
+            });
+            
+            if (snapshot) {
+                return res.json({ confirmed: true, orderId: snapshot._id, freeOrder: true });
+            }
+            
+            return res.status(404).json({ error: 'Order not found.' });
+        }
+        
+        return res.json({ 
+            confirmed: true, 
+            orderId: contract._id, 
+            contractType: contract.contractType,
+            freeOrder: true 
+        });
+    } catch (err) {
+        console.error('[FREE ORDER] Status check error:', err.message);
+        return res.status(503).json({ error: 'Cannot verify order. Please try again.' });
+    }
+});
+
+/**
  * Helper function to send SMS alert to admin via Email-to-SMS (Spam Evading Format)
  */
 const sendAdminSMS = async (message) => {
@@ -537,6 +586,29 @@ router.get('/cancellation-quote/:contractId', async (req, res) => {
         if (!contract) return res.status(404).json({ error: 'Contract not found' });
 
         const user = contract.userId;
+
+        // Handle FREE orders (100% discount, $0 checkout) - no Stripe subscription
+        const isFreeOrder = !contract.stripeSubscriptionId && 
+                           (contract.setupFeePaid === 0 || !contract.setupFeePaid) &&
+                           (contract.monthlyFee === 0 || !contract.monthlyFee);
+        
+        if (isFreeOrder || (contract.contractType && contract.contractType.toLowerCase().includes('free'))) {
+            // Free orders have no fees, no subscriptions, essentially a promotional gift
+            return res.json({
+                isFreeOrder: true,
+                windowStatus: 'free-order',
+                monthsLeft: 0,
+                daysUntilExpiration: contract.expiresAt ? Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 365,
+                earlyTerminationFee: 0,
+                buyoutFeeOnly: 0,
+                totalBuyoutCost: 0,
+                subscriptionId: null,
+                contractType: contract.contractType,
+                projectName: contract.projectName,
+                status: contract.status,
+                message: 'This is a free promotional order. No subscription fees or termination costs apply.'
+            });
+        }
 
         if (!contract.stripeSubscriptionId) {
             return res.status(400).json({ error: 'This contract does not have a linked Stripe subscription.' });
