@@ -48,7 +48,9 @@
     { "src": "^/admin-reviews$", "dest": { "service": "frontend" } },
     { "src": "^/leave-review$", "dest": { "service": "frontend" } },
     { "src": "^/leave-review/[^/]+$", "dest": { "service": "frontend" } },
-    { "src": "^/data/[^/]+$", "dest": { "service": "frontend" } }
+    { "src": "^/data/[^/]+$", "dest": { "service": "frontend" } },
+    
+    { "src": "/(.*)", "dest": { "service": "frontend" } }
   ],
   "headers": [
     {

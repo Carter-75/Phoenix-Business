@@ -1,0 +1,27 @@
+{
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "^/$", "dest": "/index.html" },
+    { "src": "^/services$", "dest": "/services/index.html" },
+    { "src": "^/services/ai-web-development$", "dest": "/services/ai-web-development/index.html" },
+    { "src": "^/services/full-stack-development$", "dest": "/services/full-stack-development/index.html" },
+    { "src": "^/services/custom-websites$", "dest": "/services/custom-websites/index.html" },
+    { "src": "^/services/automation$", "dest": "/services/automation/index.html" },
+    { "src": "^/services/ai-solutions$", "dest": "/services/ai-solutions/index.html" },
+    { "src": "^/data-cleanup$", "dest": "/data-cleanup/index.html" },
+    { "src": "^/about$", "dest": "/about/index.html" },
+    { "src": "^/reviews$", "dest": "/reviews/index.html" },
+    { "src": "^/terms$", "dest": "/terms/index.html" },
+    { "src": "^/privacy$", "dest": "/privacy/index.html" },
+    { "src": "^/refunds$", "dest": "/refunds/index.html" },
+    { "src": "^/dashboard$", "dest": "/index.html" },
+    { "src": "^/checkout$", "dest": "/index.html" },
+    { "src": "^/checkout-success$", "dest": "/index.html" },
+    { "src": "^/growth-crm$", "dest": "/index.html" },
+    { "src": "^/admin-reviews$", "dest": "/index.html" },
+    { "src": "^/leave-review$", "dest": "/index.html" },
+    { "src": "^/leave-review/[^/]+$", "dest": "/index.html" },
+    { "src": "^/data/[^/]+$", "dest": "/index.html" },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
+  ]
+}
