@@ -1,8 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/dist/frontend",
   "services": {
+    "frontend": {
+      "root": "frontend",
+      "framework": "angular"
+    },
     "backend": {
       "root": "backend",
       "framework": "express",
@@ -25,32 +27,51 @@
     { "source": "/api", "destination": { "service": "backend" } },
     { "source": "/api/:path*", "destination": { "service": "backend" } },
     
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/services", "destination": "/services/index.html" },
-    { "source": "/services/ai-web-development", "destination": "/services/ai-web-development/index.html" },
-    { "source": "/services/full-stack-development", "destination": "/services/full-stack-development/index.html" },
-    { "source": "/services/custom-websites", "destination": "/services/custom-websites/index.html" },
-    { "source": "/services/automation", "destination": "/services/automation/index.html" },
-    { "source": "/services/ai-solutions", "destination": "/services/ai-solutions/index.html" },
-    { "source": "/data-cleanup", "destination": "/data-cleanup/index.html" },
-    { "source": "/about", "destination": "/about/index.html" },
-    { "source": "/reviews", "destination": "/reviews/index.html" },
-    { "source": "/terms", "destination": "/terms/index.html" },
-    { "source": "/privacy", "destination": "/privacy/index.html" },
-    { "source": "/refunds", "destination": "/refunds/index.html" },
+    { "source": "/", "destination": { "service": "frontend" } },
+    { "source": "/services", "destination": { "service": "frontend" } },
+    { "source": "/services/:path*", "destination": { "service": "frontend" } },
+    { "source": "/data-cleanup", "destination": { "service": "frontend" } },
+    { "source": "/about", "destination": { "service": "frontend" } },
+    { "source": "/reviews", "destination": { "service": "frontend" } },
+    { "source": "/terms", "destination": { "service": "frontend" } },
+    { "source": "/privacy", "destination": { "service": "frontend" } },
+    { "source": "/refunds", "destination": { "service": "frontend" } },
     
-    { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/checkout", "destination": "/index.html" },
-    { "source": "/checkout-success", "destination": "/index.html" },
-    { "source": "/growth-crm", "destination": "/index.html" },
-    { "source": "/admin-reviews", "destination": "/index.html" },
-    { "source": "/leave-review", "destination": "/index.html" },
-    { "source": "/leave-review/:token", "destination": "/index.html" },
-    { "source": "/data/:id", "destination": "/index.html" }
+    { "source": "/dashboard", "destination": { "service": "frontend" } },
+    { "source": "/checkout", "destination": { "service": "frontend" } },
+    { "source": "/checkout-success", "destination": { "service": "frontend" } },
+    { "source": "/growth-crm", "destination": { "service": "frontend" } },
+    { "source": "/admin-reviews", "destination": { "service": "frontend" } },
+    { "source": "/leave-review", "destination": { "service": "frontend" } },
+    { "source": "/leave-review/:token", "destination": { "service": "frontend" } },
+    { "source": "/data/:id", "destination": { "service": "frontend" } },
+    
+    { "source": "/llms.txt", "destination": { "service": "frontend" } },
+    { "source": "/robots.txt", "destination": { "service": "frontend" } },
+    { "source": "/sitemap.xml", "destination": { "service": "frontend" } },
+    { "source": "/favicon.ico", "destination": { "service": "frontend" } },
+    { "source": "/favicon:path*.png", "destination": { "service": "frontend" } },
+    { "source": "/apple-touch-icon.png", "destination": { "service": "frontend" } },
+    { "source": "/logo.png", "destination": { "service": "frontend" } },
+    { "source": "/logo.webp", "destination": { "service": "frontend" } },
+    { "source": "/carter.jpg", "destination": { "service": "frontend" } },
+    { "source": "/carter.webp", "destination": { "service": "frontend" } },
+    { "source": "/google:path*.html", "destination": { "service": "frontend" } },
+    { "source": "/images/:path*", "destination": { "service": "frontend" } },
+    { "source": "/404.html", "destination": { "service": "frontend" } },
+    { "source": "/:path*.js", "destination": { "service": "frontend" } },
+    { "source": "/:path*.css", "destination": { "service": "frontend" } },
+    { "source": "/:path*.woff2", "destination": { "service": "frontend" } },
+    { "source": "/:path*.png", "destination": { "service": "frontend" } },
+    { "source": "/:path*.jpg", "destination": { "service": "frontend" } },
+    { "source": "/:path*.webp", "destination": { "service": "frontend" } },
+    { "source": "/:path*.svg", "destination": { "service": "frontend" } },
+    { "source": "/:path*.ico", "destination": { "service": "frontend" } },
+    { "source": "/:path*.txt", "destination": { "service": "frontend" } }
   ],
   "headers": [
     {
-      "source": "/(.*)\\.(js|css|woff2|png|jpg|webp|svg|ico|txt|xml)",
+      "source": "/(.*)\\.(js|css|woff2|png|jpg|webp|svg|ico)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
