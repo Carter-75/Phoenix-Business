@@ -1,6 +1,28 @@
 export const config = {
-  runtime: 'edge',
+  matcher: ['/((?!api|_vercel|.*\\..*).*)'],
 };
+
+const KNOWN_PATHS = new Set([
+  '/',
+  '/services',
+  '/services/ai-web-development',
+  '/services/full-stack-development',
+  '/services/custom-websites',
+  '/services/automation',
+  '/services/ai-solutions',
+  '/data-cleanup',
+  '/about',
+  '/reviews',
+  '/terms',
+  '/privacy',
+  '/refunds',
+  '/dashboard',
+  '/checkout',
+  '/checkout-success',
+  '/growth-crm',
+  '/admin-reviews',
+  '/leave-review',
+]);
 
 const notFoundHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -59,7 +81,24 @@ const notFoundHtml = `<!DOCTYPE html>
 </body>
 </html>`;
 
-export default function handler() {
+export default function middleware(request: Request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
+  // Allow known exact paths
+  if (KNOWN_PATHS.has(pathname)) {
+    return;
+  }
+
+  // Allow dynamic routes
+  if (/^\/leave-review\/[^/]+$/.test(pathname)) {
+    return;
+  }
+  if (/^\/data\/[^/]+$/.test(pathname)) {
+    return;
+  }
+
+  // Return 404 for unknown paths
   return new Response(notFoundHtml, {
     status: 404,
     headers: {
