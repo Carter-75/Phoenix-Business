@@ -32,7 +32,7 @@ Caption: “A success notice does not prove the owner received the project detai
 Format: short; recording and editing pending. Content ID: d03.
 Title and opening hook: “Say what you do in one sentence”
 Script: “Say what you do in one sentence Name the service and area before talking about your technology. A customer should not need to decode your headline. Want three practical fixes for your website? Request a free audit from Phoenix. Link in the description.”
-Shot list: 0–4 seconds, Carter delivers the hook. 4–28 seconds, Rewrite a fictional painting homepage headline. 28–40 seconds, Carter gives the audit invitation.
+Shot list: 0–4 seconds, Carter delivers the hook. 4–28 seconds, Rewrite a fictional contractor homepage headline. 28–40 seconds, Carter gives the audit invitation.
 B-roll: close view of the demonstrated page or checklist. Use only owned or licensed assets. No stock image presented as client work.
 Thumbnail concept: one clear page crop plus “Say what you do in one sentence”. Keep final overlay to 3–5 words during design.
 Caption: “Name the service and area before talking about your technology. A customer should not need to decode your headline. Request a free website audit. [Tracked link with utm_content=d03]”.
@@ -236,13 +236,13 @@ Shot list: 0–4 seconds, Carter delivers the hook. 4–28 seconds, Show a ficti
 B-roll: close view of the demonstrated page or checklist. Use only owned or licensed assets. No stock image presented as client work.
 Thumbnail concept: one clear page crop plus “What happens after launch”. Keep final overlay to 3–5 words during design.
 Caption: “Test the inquiry path again. Check access, backups, and the support process. Assign an owner to each task. Request a free website audit. [Tracked link with utm_content=d28]”.
-## Day 29 — A practical AI workflow for painters
+## Day 29 — A practical AI workflow for contractors
 Format: short; recording and editing pending. Content ID: d29.
-Title and opening hook: “A practical AI workflow for painters”
-Script: “A practical AI workflow for painters Use AI to organize supplied project notes into a draft page. Confirm every detail with the business owner. Want three practical fixes for your website? Request a free audit from Phoenix. Link in the description.”
+Title and opening hook: “A practical AI workflow for contractors”
+Script: “A practical AI workflow for contractors Use AI to organize supplied project notes into a draft page. Confirm every detail with the business owner. Want three practical fixes for your website? Request a free audit from Phoenix. Link in the description.”
 Shot list: 0–4 seconds, Carter delivers the hook. 4–28 seconds, Demonstrate with fictional project notes. 28–40 seconds, Carter gives the audit invitation.
 B-roll: close view of the demonstrated page or checklist. Use only owned or licensed assets. No stock image presented as client work.
-Thumbnail concept: one clear page crop plus “A practical AI workflow for painters”. Keep final overlay to 3–5 words during design.
+Thumbnail concept: one clear page crop plus “A practical AI workflow for contractors”. Keep final overlay to 3–5 words during design.
 Caption: “Use AI to organize supplied project notes into a draft page. Confirm every detail with the business owner. Request a free website audit. [Tracked link with utm_content=d29]”.
 ## Day 30 — What we learned from a month of tests
 Format: short; recording and editing pending. Content ID: d30.

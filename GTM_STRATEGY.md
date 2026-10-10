@@ -5,8 +5,8 @@ Status: initial hypothesis. Owner: Carter. No offer or channel is validated.
 Serve clients throughout the USA. Maximum stated capacity: 10 projects a month. Minimum project price: $500. Setup cost must be below $100. Total monthly marketing cap: $400, including existing ads, software, and contractors. These limits do not authorize spending or publication.
 
 ## Initial customer profile
-Owner-led residential painting companies with an existing business, visible work, and a specific website problem. Start manual research in Wisconsin, then expand across US markets if replies and margins support it. Geography narrows the experiment, not the service area. Prefer an owner who can approve a project, supplies photos and service details, and can answer new inquiries.
-- Painting: visual work fits design demonstrations; estimate requests fit a simple form; owner contacts can be public. Seasonal demand is a risk. Project values and buying budgets must be confirmed on calls.
+Owner-led local service companies with an existing business, visible work, and a specific website problem. Start manual research in Wisconsin, then expand across US markets if replies and margins support it. Geography narrows the experiment, not the service area. Prefer an owner who can approve a project, supplies photos and service details, and can answer new inquiries.
+- Local services: visual work fits design demonstrations; estimate requests fit a simple form; owner contacts can be public. Seasonal demand is a risk for some trades. Project values and buying budgets must be confirmed on calls.
 - HVAC/plumbing: urgent calls can be valuable, but emergency routing and stronger agency competition add complexity. No verified local acquisition cost yet.
 - Restaurants: portfolio demos fit well, but menus, ordering, and frequent updates can raise support cost. No evidence of buyer budgets.
 - Medical/dental: potential budgets do not justify the added privacy and integration burden for a first low-cost test.
@@ -17,7 +17,7 @@ These are qualitative judgments. Local search results prove active businesses, n
 The defensible initial distinction is direct founder access, narrow scope, clear ownership, and a tested inquiry path. AI use supports delivery; it is not the customer outcome.
 
 ## Proposed offers — require approval before sale
-Headline: “Make it easier for customers to request a painting estimate.”
+Headline: “Make it easier for customers to request an estimate.”
 Entry offer: free review of one public page with three specific fixes. Spend no more than 20 minutes on each review. No growth guarantee.
 $500 Quick Fix: one existing page, one contact action, mobile cleanup, one revision round. Target at most 4 build hours. Excludes rebuilds, booking systems, copywriting from scratch, e-commerce, and ongoing support.
 $1,500 Lead Website: up to five pages, supplied brand assets and photos, service copy editing, contact form, mobile checks, basic metadata, and handover. Two consolidated revision rounds. Estimate two weeks after all inputs and written scope approval. Time target: 12 build hours, then confirm using actual jobs.
