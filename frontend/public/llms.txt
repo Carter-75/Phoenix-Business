@@ -54,20 +54,7 @@ The client provides their goals, specifications, and brand assets. Phoenix Websi
 - Overview: Normalization, deduplication, and reporting on client-provided spreadsheets and CSV files using Microsoft tools (Excel/PowerQuery) and AI assistance.
 
 ## Dynamic Pricing & Website Configurator
-Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine. A promotion is always active (never 0% off). Discount schedule by month:
-- Year-round (Phoenix Core): 20% off
-- January: 25% off New Year (Dec 26 to Jan 7), then 20% off
-- February: 25% off Valentine's (Feb 1 to 16), otherwise 20% off
-- March: 22% off St. Patrick's (Mar 8 to 19), 25% off Spring (Mar 25 to Apr 15), otherwise 20% off
-- April: 25% off Spring (through Apr 15), otherwise 20% off
-- May: 25% off Memorial Day (May 20 to 31), otherwise 20% off
-- June: 28% off Independence Day (Jun 25 to Jul 8), otherwise 20% off
-- July: 28% off Independence Day (through Jul 8), otherwise 20% off
-- August: 25% off Labor Day (Aug 25 to Sep 7), otherwise 20% off
-- September: 25% off Labor Day (through Sep 7), otherwise 20% off
-- October: 35% off Halloween (Oct 1 to 31)
-- November: 30% off Thanksgiving (Nov 1 to 30), 45% off Black Friday / Cyber Week (Nov 20 to Dec 2)
-- December: 45% off Black Friday / Cyber Week (through Dec 2), 30% off Christmas / Winter (Dec 1 to 25), 25% off New Year (Dec 26 to Jan 7)
+Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine. Discounts of up to 45% off are available.
 
 ### Base Project Tiers (Setup Fee + Mandatory Monthly Care):
 All tiers require a 12-month commitment with managed monthly care bundled in.
