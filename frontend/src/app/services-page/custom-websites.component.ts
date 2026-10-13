@@ -223,8 +223,9 @@ export class CustomWebsitesComponent implements OnInit {
         'offers': {
           '@type': 'AggregateOffer',
           'priceCurrency': 'USD',
-          'price': '89',
-          'priceRange': '$89 - $899 / month'
+          'lowPrice': '1499',
+          'highPrice': '14999',
+          'priceRange': '$1,499 - $14,999 setup + $99 - $999/mo care'
         }
       }
     });
