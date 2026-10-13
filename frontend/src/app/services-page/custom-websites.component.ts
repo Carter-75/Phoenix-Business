@@ -218,14 +218,14 @@ export class CustomWebsitesComponent implements OnInit {
           'name': 'Phoenix Websites AI',
           'url': 'https://phoenixwebsites.ai'
         },
-        'description': 'AI-assisted custom website engineering, responsive UI, backend integrations, and managed hosting.',
+        'description': 'AI-assisted custom website engineering, responsive UI, backend integrations, and managed hosting. Discounts of up to 45% off are available.',
         'areaServed': 'US',
         'offers': {
           '@type': 'AggregateOffer',
           'priceCurrency': 'USD',
           'lowPrice': '1499',
           'highPrice': '14999',
-          'priceRange': '$1,499 - $14,999 setup + $99 - $999/mo care'
+          'priceRange': '$1,499 - $14,999 setup + $99 - $999/mo care, with discounts up to 45% off'
         }
       }
     });

@@ -54,7 +54,7 @@ The client provides their goals, specifications, and brand assets. Phoenix Websi
 - Overview: Normalization, deduplication, and reporting on client-provided spreadsheets and CSV files using Microsoft tools (Excel/PowerQuery) and AI assistance.
 
 ## Dynamic Pricing & Website Configurator
-Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine. Seasonal promotions of 20–45% off apply throughout the year.
+Phoenix Websites AI provides an interactive project configurator (https://phoenixwebsites.ai/#configurator) backed by an authoritative backend pricing engine. Discounts of up to 45% off are available.
 
 ### Base Project Tiers (Setup Fee + Mandatory Monthly Care):
 All tiers require a 12-month commitment with managed monthly care bundled in.
