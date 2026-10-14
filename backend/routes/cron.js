@@ -45,9 +45,9 @@ const isCronAuthorized = (req) => {
 //          defaults to 'live' (ships active); set it to 'dry-run' to rehearse
 //          (records would_warn/would_execute history only, no side effects).
 //          NOTE: both Vercel cron slots in vercel.json are already used
-//          (check-refunds, daily-renewals), so this sweep is exposed as its
-//          own authorized endpoint for manual or external-scheduler
-//          triggering instead of adding a third Vercel cron.
+//          (check-refunds, daily-renewals), so instead of a third cron the
+//          sweep also runs daily inside the /daily-renewals job below.
+//          This endpoint remains available as a manual trigger.
 router.get('/policy-enforcement', async (req, res) => {
     if (!isCronAuthorized(req)) {
         console.warn('[CRON] Unauthorized policy-enforcement invocation attempt.');
@@ -329,7 +329,26 @@ router.get('/daily-renewals', async (req, res) => {
             console.error('[CRON] Clean reservations sub-task error:', cleanErr.message);
         }
 
-        res.json({ message: `Renewal cron finished. Sent ${renewalEmailsSent} renewal emails, ${reviewEmailsSent} review emails, cleaned ${cleanedReservations} expired reservations.` });
+        // 4. CLIENT COMMUNICATION POLICY ENFORCEMENT SWEEP (merged: no third
+        // Vercel cron slot exists, so the sweep rides this daily job; the
+        // standalone /api/cron/policy-enforcement endpoint above stays as a
+        // manual trigger). Runs in its own try/catch: a sweep failure must
+        // never break renewals. The sweep itself respects the
+        // POLICY_ENFORCEMENT_MODE gate (ships live; 'dry-run' only when set).
+        let policySweepSummary = null;
+        try {
+            const { runEnforcementSweep } = require('../services/policy-enforcement.service');
+            policySweepSummary = await runEnforcementSweep();
+            console.log(`[CRON] Policy enforcement sweep (${policySweepSummary.mode}) processed ${policySweepSummary.processed} expired warning(s).`);
+        } catch (sweepErr) {
+            console.error('[CRON] Policy enforcement sweep sub-task error:', sweepErr.message);
+        }
+
+        const renewalEmailsSent = legacyRenewalEmailsSent + (renewalResults && renewalResults.remindersSent ? renewalResults.remindersSent : 0);
+        res.json({
+            message: `Renewal cron finished. Sent ${renewalEmailsSent} renewal emails, ${reviewEmailsSent} review emails, cleaned ${cleanedReservations} expired reservations. Policy sweep: ${policySweepSummary ? `processed ${policySweepSummary.processed} expired warning(s) (${policySweepSummary.mode})` : 'failed (see logs)'}.`,
+            policySweep: policySweepSummary ? { mode: policySweepSummary.mode, processed: policySweepSummary.processed } : null
+        });
     } catch (err) {
         console.error('Error in daily contract renewal cron:', err);
         res.status(500).json({ error: err.message });

@@ -15,6 +15,10 @@
  *  - The client's review is NOT deleted and NOT hidden. It stays public and
  *    searchable, gains a factual policy note displayed under it, and stops
  *    counting toward rating totals and the displayed average.
+ *  - FREE ORDERS ARE EXEMPT: free or promotional orders are strictly
+ *    personal favors for people Carter already knows, so their clients are
+ *    never warned and never swept. A client's governing contract is a free
+ *    order when it carries a freeOrderId (see isFreeOrderContract below).
  *
  * MODE GATE: POLICY_ENFORCEMENT_MODE env var. The system ships ACTIVE:
  * the default is 'live' when the var is unset. 'dry-run' is available only
@@ -258,6 +262,21 @@ async function startWarning(clientEmail, triggerReason = '') {
   const mode = getMode();
   const now = d.now();
   const deadline = addDays(now, WARNING_WINDOW_DAYS);
+
+  // Free-order exemption: free or promotional orders are personal favors
+  // and sit outside this policy entirely, so a warning is never started
+  // for their clients (in either mode). Recorded as a history event when a
+  // policy document already exists; no document is created otherwise.
+  if (await isFreeOrderClient(d, email)) {
+    console.log(`[POLICY] startWarning skipped for ${email}: free order (exempt from the Client Communication Policy)`);
+    const existing = await d.ClientCommsPolicy.findOne({ clientEmail: email });
+    if (existing) {
+      pushHistory(existing, 'skipped_free_order', 'Warning not started: free order is exempt from the Client Communication Policy', now);
+      await existing.save();
+    }
+    return { doc: existing || null, mode, emailed: false, skipped: 'free_order' };
+  }
+
   const doc = await findOrCreatePolicy(d, email);
 
   if (!isLive()) {
@@ -342,6 +361,32 @@ function pickActiveContract(contracts) {
   const list = Array.isArray(contracts) ? contracts.slice() : [];
   list.sort((a, b) => new Date(b.acceptedAt || 0) - new Date(a.acceptedAt || 0));
   return list.find(c => c.status === 'active') || list[0] || null;
+}
+
+/**
+ * A contract is a free order when it carries a freeOrderId. That field is
+ * the dedicated marker for $0 orders: the model documents it as "String ID
+ * for $0 orders (free_...)" and the free checkout branch of
+ * routes/stripe.js is the only code that ever sets it (alongside
+ * setupFeePaid 0, monthlyFee 0, and no Stripe subscription). Paid contracts
+ * never have one, which makes it the most reliable free-order signal in the
+ * codebase (the cancellation-quote heuristic keys on absent fee fields,
+ * which can also be missing on legacy paid contracts).
+ */
+function isFreeOrderContract(contract) {
+  return Boolean(contract && contract.freeOrderId);
+}
+
+/**
+ * True when the client's governing contract (the active one, else the most
+ * recent) is a free order. Clients without an account or without any
+ * contract are not free-order clients.
+ */
+async function isFreeOrderClient(d, email) {
+  const user = await d.User.findOne({ email });
+  if (!user) return false;
+  const contract = pickActiveContract(await d.Contract.find({ userId: user._id }));
+  return isFreeOrderContract(contract);
 }
 
 async function processExpiredWarning(d, doc, mode) {
@@ -504,6 +549,16 @@ async function runEnforcementSweep() {
   const results = [];
   for (const doc of expired) {
     try {
+      // Free-order exemption: a warned document whose client turns out to
+      // be a free order is never executed. Its status is left unchanged and
+      // the skip is recorded, in both live and dry-run mode.
+      if (await isFreeOrderClient(d, doc.clientEmail)) {
+        pushHistory(doc, 'skipped_free_order', 'Enforcement skipped: free order is exempt from the Client Communication Policy', d.now());
+        await doc.save();
+        console.log(`[POLICY] Enforcement skipped for ${doc.clientEmail}: free order exemption`);
+        results.push({ email: doc.clientEmail, executed: false, skipped: 'free_order' });
+        continue;
+      }
       results.push(await processExpiredWarning(d, doc, mode));
     } catch (err) {
       console.error(`[POLICY] Enforcement failed for ${doc.clientEmail}:`, err.message);
@@ -533,6 +588,8 @@ module.exports = {
   buildWarningEmail,
   startWarning,
   runEnforcementSweep,
+  isFreeOrderContract,
+  isFreeOrderClient,
   _setDeps,
   _resetDeps
 };

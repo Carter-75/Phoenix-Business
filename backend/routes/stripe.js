@@ -399,7 +399,7 @@ const createServiceCheckout = async (req, res) => {
                                 <p><strong>Project:</strong> ${resolvedProjectType}</p>
                                 <p><strong>Amount Due:</strong> $0.00</p>
                                 <p>We'll be in touch shortly to begin your project.</p>
-                                ${subjectWordNoticeHtml('ORDER')}
+                                <!-- Free orders are exempt from the Client Communication Policy, so this confirmation intentionally carries no subject-word notice. -->
                             </div>
                         `,
                         attachments: pdfBuffer ? [{ filename: 'Phoenix_Free_Order_Agreement.pdf', content: pdfBuffer }] : []
