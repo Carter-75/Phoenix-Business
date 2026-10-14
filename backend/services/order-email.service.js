@@ -5,6 +5,8 @@
  * contract terms, and technical briefs from the authoritative OrderSnapshot.
  */
 
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('./policy-notice');
+
 /**
  * Formats cents into clean currency string ($XX.XX)
  * @param {number} cents 
@@ -523,6 +525,7 @@ function generateCustomerReceiptEmail(snapshot, session = {}) {
       <p style="font-size: 13px; color: #475569;">
         A copy of your signed Master Service Agreement is attached to this email. For any technical or billing questions, simply reply directly to this email or contact us at <a href="mailto:hello@phoenixwebsites.ai" style="color: #ea580c; font-weight: bold;">hello@phoenixwebsites.ai</a>.
       </p>
+      ${subjectWordNoticeHtml('ORDER', 'font-size: 13px; color: #475569; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 12px 14px;')}
 
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8;">
         Carter Moyer • Founder &amp; Lead Systems Architect<br>
@@ -548,6 +551,7 @@ Monthly Recurring: ${formatCents(monthlyRecurring)}/mo (First monthly charge sta
 Initial Commitment: 12 Consecutive Months with Lifetime Price Lock.
 Cancellations: Written notice between 60 and 30 days prior to annual renewal.
 Contact: hello@phoenixwebsites.ai
+${SUBJECT_WORD_NOTICE}
 
 Thank you for choosing Phoenix Websites AI!
   `.trim();

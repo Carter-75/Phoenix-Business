@@ -5,6 +5,7 @@ const { simpleParser } = require('mailparser');
 const nodemailer = require('nodemailer');
 const Contract = require('../models/Contract');
 const User = require('../models/user');
+const { subjectWordNoticeHtml } = require('../services/policy-notice');
 
 // Common Transporter
 const getTransporter = () => {
@@ -18,6 +19,56 @@ const getTransporter = () => {
         }
     });
 };
+
+// Shared cron authorization (same pattern as /daily-renewals below):
+// Bearer token, ?key=/?secret=, x-cron-secret header, or a Vercel Cron call.
+const isCronAuthorized = (req) => {
+    const cronSecret = process.env.CRON_SECRET;
+    const authHeader = req.headers['authorization'];
+    const bearerSecret = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const queryKey = req.query.key || req.query.secret;
+    const customHeader = req.headers['x-cron-secret'];
+    const isVercelCron = Boolean(req.headers['x-vercel-cron']);
+
+    return !cronSecret ||
+        (process.env.NODE_ENV !== 'production' && !cronSecret) ||
+        bearerSecret === cronSecret ||
+        queryKey === cronSecret ||
+        customHeader === cronSecret ||
+        (isVercelCron && (!cronSecret || bearerSecret === cronSecret));
+};
+
+// @route   GET /api/cron/policy-enforcement
+// @desc    Client Communication Policy enforcement sweep: processes warning
+//          windows whose 5-day deadline has passed (archive, cancel, refund,
+//          review annotation). Gated by POLICY_ENFORCEMENT_MODE, which
+//          defaults to 'live' (ships active); set it to 'dry-run' to rehearse
+//          (records would_warn/would_execute history only, no side effects).
+//          NOTE: both Vercel cron slots in vercel.json are already used
+//          (check-refunds, daily-renewals), so this sweep is exposed as its
+//          own authorized endpoint for manual or external-scheduler
+//          triggering instead of adding a third Vercel cron.
+router.get('/policy-enforcement', async (req, res) => {
+    if (!isCronAuthorized(req)) {
+        console.warn('[CRON] Unauthorized policy-enforcement invocation attempt.');
+        return res.status(401).json({ error: 'Unauthorized cron invocation.' });
+    }
+
+    console.log('[CRON] Running Client Communication Policy enforcement sweep...');
+    try {
+        const { runEnforcementSweep } = require('../services/policy-enforcement.service');
+        const summary = await runEnforcementSweep();
+        res.json({
+            message: `Policy enforcement sweep finished (${summary.mode}). Processed ${summary.processed} expired warning(s).`,
+            mode: summary.mode,
+            processed: summary.processed,
+            results: summary.results
+        });
+    } catch (err) {
+        console.error('[CRON] Policy enforcement sweep error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // @route   GET /api/cron/check-refunds
 // @desc    Triggered by Vercel Cron every 5 mins. Connects to IMAP, sends SMS, exits.
@@ -204,6 +255,7 @@ router.get('/daily-renewals', async (req, res) => {
                                 <p>Hi ${contract.userId.firstName || contract.userId.name || 'there'},</p>
                                 <p>This is a formal statutory reminder that your 12-month service agreement for the <b>${contract.contractType}</b> plan is set to automatically renew in 60 days.</p>
                                 <p><strong>Notice Period (Wis. Stat. § 134.49):</strong> If you do not wish to renew, you may decline renewal by sending written notice to hello@phoenixwebsites.ai at least 30 days prior to expiration.</p>
+                                ${subjectWordNoticeHtml('ORDER')}
                             </div>
                         `
                     };
@@ -252,6 +304,7 @@ router.get('/daily-renewals', async (req, res) => {
                                 <a href="${reviewUrl}" style="background-color: #ea580c; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Leave a Quick Review</a>
                             </div>
                             <p>Thank you for choosing Phoenix!</p>
+                            ${subjectWordNoticeHtml('ORDER')}
                             <br><br>
                             ${process.env.EMAIL_SIGNATURE || ''}
                         </div>

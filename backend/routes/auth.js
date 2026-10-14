@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user');
 const { getDynamicPolicies } = require('../services/legal.service');
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
 
 const getFullLegalText = () => Object.values(getDynamicPolicies()).join('\n\n---\n\n');
 
@@ -154,7 +155,7 @@ router.post('/forgot-password', async (req, res) => {
       from: `"Phoenix Websites AI" <${process.env.EMAIL_USER || 'hello@phoenixwebsites.ai'}>`,
       to: lowerEmail,
       subject: `Your Password Reset Code: ${code} — Phoenix Websites AI`,
-      text: `Your password reset verification code is: ${code}\n\nThis code will expire in 15 minutes.\n\nIf you did not request a password reset, please ignore this email.`,
+      text: `Your password reset verification code is: ${code}\n\nThis code will expire in 15 minutes.\n\nIf you did not request a password reset, please ignore this email.\n\n${SUBJECT_WORD_NOTICE}`,
       html: `
         <div style="font-family: Arial, sans-serif; background-color: #050508; color: #ffffff; padding: 32px; border-radius: 12px; max-width: 500px;">
           <h2 style="color: #ff4d00; margin-top: 0; text-transform: uppercase;">Password Reset Code</h2>
@@ -164,6 +165,7 @@ router.post('/forgot-password', async (req, res) => {
           </div>
           <p style="color: #888888; font-size: 12px;">This 6-digit code will expire in 15 minutes.</p>
           <p style="color: #666666; font-size: 11px; margin-top: 24px;">If you did not request this code, you can safely ignore this email.</p>
+          ${subjectWordNoticeHtml('ORDER', 'font-size: 12px; color: #9ca3af; margin-top: 16px; line-height: 1.5;')}
         </div>
       `
     };

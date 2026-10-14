@@ -6,6 +6,7 @@ const stripe = require('stripe')(stripeSecretKey);
 const User = require('../models/user');
 const Contract = require('../models/Contract');
 const { calculateProjectPrice } = require('../services/pricing.service');
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
 const { createCheckoutVerification } = require('../services/checkout-verification');
 router.get('/checkout-status', createCheckoutVerification(stripe));
 
@@ -398,6 +399,7 @@ const createServiceCheckout = async (req, res) => {
                                 <p><strong>Project:</strong> ${resolvedProjectType}</p>
                                 <p><strong>Amount Due:</strong> $0.00</p>
                                 <p>We'll be in touch shortly to begin your project.</p>
+                                ${subjectWordNoticeHtml('ORDER')}
                             </div>
                         `,
                         attachments: pdfBuffer ? [{ filename: 'Phoenix_Free_Order_Agreement.pdf', content: pdfBuffer }] : []
@@ -894,9 +896,10 @@ const sendReceiptEmail = async (userEmail, userName, amountTotal, projectType, p
                         <p>A copy of your signed Master Service Agreement and our legal policies are attached to this email for your records.</p>
                         <p><strong>Notice on Cancellations (Wis. Stat. § 134.49):</strong> Written notice of non-renewal must be provided between 60 and 30 days prior to your annual renewal date via client portal or email.</p>
                         <p>If you have any questions, reply to this email or reach us at hello@phoenixwebsites.ai.</p>
+                        ${subjectWordNoticeHtml('ORDER')}
                     </div>
                 `,
-                text: `Payment Receipt: ${formatCents(amountTotal)} received for ${projectType}. Agreement attached.`
+                text: `Payment Receipt: ${formatCents(amountTotal)} received for ${projectType}. Agreement attached.\n\n${SUBJECT_WORD_NOTICE}`
             };
         }
 
@@ -1196,6 +1199,7 @@ router.post('/webhook', async (req, res) => {
                                         
                                         <p style="color:#666;font-size:11px;margin-top:30px;text-align:center">This purchase is non-refundable. All data sourced from public records under FOIA.</p>
                                         <p style="color:#444;font-size:11px;text-align:center;margin-top:8px">— ${persona.senderName}, ${persona.companyName}</p>
+                                        ${subjectWordNoticeHtml('ORDER', 'color:#666;font-size:11px;text-align:center;margin-top:12px;line-height:1.5;')}
                                     </div>
                                 </div>`;
 
@@ -1483,6 +1487,7 @@ router.post('/webhook', async (req, res) => {
                                 <p>Your 12-month service contract has successfully auto-renewed for another year.</p>
                                 <p>Your continued partnership ensures uninterrupted access to hosting, maintenance, and support.</p>
                                 <p>If you have any questions or need anything, just reply to this email!</p>
+                                ${subjectWordNoticeHtml('ORDER')}
                                 <br><br>
                                 ${process.env.EMAIL_SIGNATURE || ''}
                             </div>

@@ -6,6 +6,7 @@
 
 const nodemailer = require('nodemailer');
 const ContractLifecycle = require('../models/ContractLifecycle');
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('./policy-notice');
 
 function getTransporter() {
   return nodemailer.createTransport({
@@ -120,6 +121,7 @@ function generateStatutoryRenewalNoticeEmail(contract, term) {
             <li><strong>Email Notice:</strong> Reply directly to this email or send an email to <a href="mailto:hello@phoenixwebsites.ai" style="color: #ea580c;">hello@phoenixwebsites.ai</a> stating your business name and your decision not to renew.</li>
           </ol>
           <p style="font-size: 13px; color: #9ca3af;"><em>Note: Non-renewal means your services and hosting remain 100% active until the end of your current paid term (${termEndFormatted}), with zero early-termination fees.</em></p>
+          ${subjectWordNoticeHtml('ORDER', 'font-size: 13px; color: #d1d5db; background: rgba(234, 88, 12, 0.12); border: 1px solid rgba(234, 88, 12, 0.35); border-radius: 8px; padding: 12px 14px; margin-top: 16px; line-height: 1.5;')}
 
           <div class="legal-notice">
             <strong>Statutory Disclosure (Wis. Stat. § 134.49):</strong> This written notice is provided at least 15 days and not more than 60 days prior to the deadline for non-renewal. Under Wisconsin law, business service contracts containing automatic renewal provisions require advance notice specifying the renewal terms, price changes (if any), and cancellation instructions.
@@ -151,6 +153,8 @@ HOW TO DECLINE RENEWAL:
 2. Email: Reply directly to this email or write to hello@phoenixwebsites.ai
 
 If non-renewal is submitted, your service remains fully active through ${termEndFormatted} with zero penalties. If no action is taken, your service seamlessly continues at your locked monthly rate.
+
+${SUBJECT_WORD_NOTICE}
 
 Phoenix Websites AI LLC • Milwaukee, WI • hello@phoenixwebsites.ai
   `.trim();
@@ -427,9 +431,10 @@ async function processDailyRenewals({ referenceDate = new Date(), dryRun = false
             <p><strong>No Automatic Support Renewal:</strong> Optional support does not auto-renew. Your monthly support billing will automatically cease upon reaching ${supportEndStr}.</p>
             <p>If you would like to renew or extend your support coverage at our discounted loyalty rates, please reply to this email or visit your account portal.</p>
             <p>Thank you for partnering with Phoenix Websites AI!</p>
+            ${subjectWordNoticeHtml('ORDER')}
           </div>
         `;
-        const suppText = `Support Plan Expiration Notice: Your ${sc.supportAddon.name} concludes on ${supportEndStr}. Recurring support billing will stop. Your base website remains active. Contact hello@phoenixwebsites.ai to extend.`;
+        const suppText = `Support Plan Expiration Notice: Your ${sc.supportAddon.name} concludes on ${supportEndStr}. Recurring support billing will stop. Your base website remains active. Contact hello@phoenixwebsites.ai to extend.\n\n${SUBJECT_WORD_NOTICE}`;
 
         await transporter.sendMail({
           from: `"Phoenix Websites AI" <${process.env.EMAIL_USER}>`,

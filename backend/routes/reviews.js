@@ -3,6 +3,7 @@ const router = express.Router();
 const ownerOnly = require('../middleware/growth-admin');
 const Review = require('../models/Review');
 const Contract = require('../models/Contract');
+const { RATING_TOTALS_FILTER, summarizeRatings } = require('../services/review-totals');
 
 // @route   GET /api/reviews/status
 // @desc    Get all contracts for the user and their review status
@@ -192,16 +193,39 @@ router.patch('/:reviewId/admin-comment', ownerOnly, async (req, res) => {
 });
 
 // @route   GET /api/reviews/public
-// @desc    Get all reviews for public viewing
+// @desc    Get all reviews for public viewing. Reviews for projects archived
+//          under the Client Communication Policy remain listed (public and
+//          searchable) with their policyNote; they are excluded from totals.
 router.get('/public', async (req, res) => {
   try {
     const reviews = await Review.find()
-      .select('_id userId projectName businessName firstName lastName rating message adminComment createdAt')
+      .select('_id userId projectName businessName firstName lastName rating message adminComment policyArchived policyNote createdAt')
       .sort({ createdAt: -1 });
     res.json(reviews);
   } catch (err) {
     console.error('Error fetching public reviews:', err);
     res.status(500).json([]);
+  }
+});
+
+// @route   GET /api/reviews/summary
+// @desc    Headline rating totals. Reviews with policyArchived = true are
+//          EXCLUDED from the count and average (they are still listed by
+//          /api/reviews/public and remain searchable).
+router.get('/summary', async (req, res) => {
+  try {
+    const counted = await Review.find(RATING_TOTALS_FILTER).select('rating policyArchived');
+    const totals = summarizeRatings(counted);
+    const totalListed = await Review.countDocuments({});
+    res.json({
+      count: totals.count,
+      total: totals.total,
+      average: totals.average,
+      excludedArchived: Math.max(0, totalListed - totals.count)
+    });
+  } catch (err) {
+    console.error('Error fetching review summary:', err);
+    res.status(500).json({ count: 0, total: 0, average: 0, excludedArchived: 0 });
   }
 });
 

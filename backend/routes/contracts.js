@@ -3,6 +3,7 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const ContractLifecycle = require('../models/ContractLifecycle');
 const { calculateEarlyTerminationQuote } = require('../services/contract-lifecycle.service');
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
 
 function getTransporter() {
   return nodemailer.createTransport({
@@ -191,9 +192,10 @@ router.post('/:id/request-non-renewal', authenticateContractAccess, async (req, 
           <p><strong>Zero Early-Termination Penalties:</strong> Because this is an ordinary non-renewal at the end of your contract term, no liquidated damages or cancellation penalties apply.</p>
           <p>Your subscription will conclude automatically on ${termEndFormatted}. Should you wish to export your website data or transition to self-hosting before that date, please let us know.</p>
           <p>Thank you for partnering with Phoenix Websites AI!</p>
+          ${subjectWordNoticeHtml('ORDER')}
         </div>
       `,
-      text: `Non-Renewal Confirmed: Your agreement for ${contract.tierName} will not renew. Services remain active through ${termEndFormatted} with zero penalties.`
+      text: `Non-Renewal Confirmed: Your agreement for ${contract.tierName} will not renew. Services remain active through ${termEndFormatted} with zero penalties.\n\n${SUBJECT_WORD_NOTICE}`
     });
   } catch (emailErr) {
     console.error('[CONTRACTS] Customer non-renewal email failed:', emailErr.message);

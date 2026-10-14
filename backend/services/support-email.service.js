@@ -4,6 +4,10 @@
  * Strictly derives all dates, rates, and commitment details from ContractLifecycle and OrderSnapshot.
  */
 
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('./policy-notice');
+
+const NOTICE_STYLE_DARK = 'font-size: 13px; color: #d1d5db; background: rgba(234, 88, 12, 0.12); border: 1px solid rgba(234, 88, 12, 0.35); border-radius: 8px; padding: 12px 14px; margin-top: 20px;';
+
 function formatCents(cents) {
   if (typeof cents !== 'number' || isNaN(cents)) return '$0.00';
   return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -77,11 +81,12 @@ function generateSupportActivationCustomerEmail(contract) {
           <p style="font-size: 13px; color: #9ca3af; margin-top: 20px;">
             To submit a support ticket or request assistance, email <a href="mailto:support@phoenixwebsites.ai" style="color: #ea580c;">support@phoenixwebsites.ai</a> or access your client portal.
           </p>
+          ${subjectWordNoticeHtml('ORDER', NOTICE_STYLE_DARK)}
         </div>
       </div>
     </div>
   `;
-  const text = `Support Coverage Activated: Your ${support.name} coverage is now active from ${coverageStart} to ${coverageEnd}. Rate: ${monthlyFormatted}/mo locked. Requests: ${requestsIncluded}/mo. Automatic renewal: No. Contact: support@phoenixwebsites.ai`;
+  const text = `Support Coverage Activated: Your ${support.name} coverage is now active from ${coverageStart} to ${coverageEnd}. Rate: ${monthlyFormatted}/mo locked. Requests: ${requestsIncluded}/mo. Automatic renewal: No. Contact: support@phoenixwebsites.ai\n\n${SUBJECT_WORD_NOTICE}`;
 
   return { subject, html, text };
 }
@@ -122,11 +127,12 @@ function generateSupportTransitionCustomerEmail(contract) {
           </ul>
 
           <p style="font-size: 13px; color: #9ca3af;"><em>Note: Self-hosted support covers maintenance and defect remediation on your delivered system; it does not include third-party hosting server fees or brand-new major feature developments.</em></p>
+          ${subjectWordNoticeHtml('ORDER', NOTICE_STYLE_DARK)}
         </div>
       </div>
     </div>
   `;
-  const text = `Support Transition Notice: Your 24-month support add-on has transitioned to Self-Hosted Support through ${coverageEnd}. Phoenix hosting charges have stopped ($0 hosting). Your locked support rate is ${monthlyFormatted}/mo covering source code maintenance, bug fixes, dependency updates, and ${requestsIncluded} minor requests/mo.`;
+  const text = `Support Transition Notice: Your 24-month support add-on has transitioned to Self-Hosted Support through ${coverageEnd}. Phoenix hosting charges have stopped ($0 hosting). Your locked support rate is ${monthlyFormatted}/mo covering source code maintenance, bug fixes, dependency updates, and ${requestsIncluded} minor requests/mo.\n\n${SUBJECT_WORD_NOTICE}`;
 
   return { subject, html, text };
 }
@@ -157,11 +163,12 @@ function generateSupportExpirationConfirmationEmail(contract) {
 
           <p><strong>Base Website Unaffected:</strong> If your base Phoenix website agreement remains active, your core hosting, SSL, daily backups, and baseline included maintenance remain 100% operational.</p>
           <p>If you ever wish to re-enroll in an extended architecture or SLA retainer in the future, please reach out to us at <a href="mailto:hello@phoenixwebsites.ai" style="color: #ea580c;">hello@phoenixwebsites.ai</a>.</p>
+          ${subjectWordNoticeHtml('ORDER', NOTICE_STYLE_DARK)}
         </div>
       </div>
     </div>
   `;
-  const text = `Support Coverage Concluded: Your ${support.name} ended on ${expiredDate}. Recurring billing for this support add-on has stopped in Stripe ($0 continuing charge). Base website hosting remains unaffected.`;
+  const text = `Support Coverage Concluded: Your ${support.name} ended on ${expiredDate}. Recurring billing for this support add-on has stopped in Stripe ($0 continuing charge). Base website hosting remains unaffected.\n\n${SUBJECT_WORD_NOTICE}`;
 
   return { subject, html, text };
 }

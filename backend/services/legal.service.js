@@ -14,6 +14,16 @@ const getDynamicPolicies = (contractData = {}) => {
         commitmentText = `- Subscription Service: This subscription requires a mandatory minimum commitment of twelve (12) consecutive months. You have agreed to a $${(setupFee / 100).toFixed(2)} setup fee and $${(monthlyFee / 100).toFixed(2)} monthly payments. The setup fee is due at checkout. Monthly billing starts after the 30-day subscription trial.\n- Price Lock Guarantee: Your monthly subscription price for this specific website project is permanently locked in for the lifetime of your continuous subscription. Even if our public rates increase in the future, your monthly fee for this project will never go up. Note that this guarantee applies strictly on a per-project basis; any additional websites or distinct projects you commission from Phoenix will be subject to the pricing and a separate contract applicable at that time.`;
     }
 
+    // Client Communication Policy: identical clause in the Terms of Service
+    // and the Refund Policy (and mirrored on the public legal pages) so the
+    // PDFs and the website always agree.
+    const clientCommunicationPolicy = (sectionNumber) => `
+${sectionNumber}. Client Communication Policy
+Subject-Line Words: To make sure your messages reach the right workflow and are read, every email you send to Phoenix Websites AI must include one of the following words as a standalone word anywhere in the subject line: NEW (a new inquiry), OUTREACH (a reply to our outreach), or ORDER (a message about your order or project). All other subject text is welcome; the word simply has to be present. Email that does not include one of these subject words may not be routed to our team and may not be read.
+Warning and 5-Day Response Window: If communication about your project breaks down under this policy, we will send a warning email to your registered email address explaining what happened. You will have five (5) days from that warning to reply with ORDER in the subject line to keep or restart your project.
+Archiving, Cancellation, and Refund: If we do not receive a reply with ORDER in the subject line within the 5-day window, your project will be archived (your project data is retained and is not permanently deleted), your subscription will be cancelled, and a refund will be issued automatically for the amounts you have paid, minus a startup fee equal to the lesser of $100.00 or 50% of the total amount you have actually paid. The startup fee covers setup and administrative costs already incurred on your project, including account provisioning, project scaffolding, and onboarding work performed before the cancellation. If you have paid nothing, no startup fee applies and no refund is due.
+Reviews: Nothing in this policy prohibits, restricts, or penalizes honest reviews. If you leave a review on phoenixwebsites.ai, it will remain public and searchable even if your project is archived under this policy. If your project is archived, a short factual note will be added to your review stating that the project was archived under this communication policy after a 5-day notice went unanswered, and the review will no longer be counted in our displayed rating totals and averages.`;
+
     return {
         TERMS_OF_SERVICE: `
 TERMS OF SERVICE
@@ -57,6 +67,7 @@ IN NO EVENT SHALL PHOENIX WEBSITES AI BE LIABLE FOR ANY INDIRECT, CONSEQUENTIAL,
 
 11. Governing Law & Venue
 This agreement is governed by the laws of the State of Wisconsin. Exclusive jurisdiction lies in the state and federal courts located in Wisconsin.
+${clientCommunicationPolicy(12)}
         `,
         PRIVACY_POLICY: `
 PRIVACY POLICY
@@ -98,6 +109,7 @@ Cancellation and non-renewal follow the 60-to-30-day notice window and statutory
 
 6. Chargebacks & Disputes
 If an improper chargeback is initiated, client remains liable for the balance, the actual third-party $15.00 dispute processing fee, and legal collection costs. Unpaid commercial balances accrue interest at 1.5%/month under Wis. Stat. § 138.05; consumer accounts are capped at $10 or 1%/month under Wis. Stat. § 422.203.
+${clientCommunicationPolicy(7)}
         `
     };
 

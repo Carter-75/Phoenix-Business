@@ -64,7 +64,8 @@ import { SeoService } from '../services/seo.service';
         <!-- Filters -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-white/10">
           <div class="text-white font-bold uppercase tracking-widest text-sm flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-orange-500"></i> {{ filteredOtherReviews().length + myReviews().length }} Ratings
+            <i class="fa-solid fa-chart-line text-orange-500"></i> {{ ratingSummary()?.count ?? (filteredOtherReviews().length + myReviews().length) }} Ratings
+            <span *ngIf="ratingSummary() && ratingSummary()!.count > 0" class="text-orange-500">&bull; {{ ratingSummary()!.average }} Average</span>
           </div>
           <div class="flex items-center gap-4 w-full sm:w-auto">
             <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hidden sm:block whitespace-nowrap">Filter By Rating</label>
@@ -160,6 +161,12 @@ import { SeoService } from '../services/seo.service';
                   <p class="text-sm text-slate-300 italic">"{{ review.adminComment }}"</p>
                 </div>
 
+                <!-- Policy Note (project archived under the Client Communication Policy; review stays public) -->
+                <div *ngIf="review.policyNote && editingReviewId() !== review._id" class="mt-6 bg-slate-500/10 border-l-2 border-slate-400 p-4 rounded-r-xl">
+                  <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Note from Phoenix Websites AI</p>
+                  <p class="text-sm text-slate-300 italic">"{{ review.policyNote }}"</p>
+                </div>
+
               </div>
             </div>
           </div>
@@ -207,6 +214,12 @@ import { SeoService } from '../services/seo.service';
                 <p class="text-xs text-slate-300 italic">"{{ review.adminComment }}"</p>
               </div>
 
+              <!-- Policy Note (project archived under the Client Communication Policy; review stays public) -->
+              <div *ngIf="review.policyNote" class="mt-6 bg-slate-500/10 border-l-2 border-slate-400 p-4 rounded-r-xl">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Note from Phoenix Websites AI</p>
+                <p class="text-xs text-slate-300 italic">"{{ review.policyNote }}"</p>
+              </div>
+
             </div>
           </div>
         </ng-container>
@@ -228,6 +241,10 @@ export class ReviewsComponent implements OnInit {
   Math = Math; // for template usage
 
   allReviews = signal<any[]>([]);
+  // Headline totals from the API. The API excludes reviews whose project was
+  // archived under the Client Communication Policy from count and average;
+  // those reviews still appear in the list below with their policy note.
+  ratingSummary = signal<{ count: number, average: number } | null>(null);
   loading = signal(true);
   selectedFilter = signal<number>(0);
 
@@ -330,6 +347,11 @@ export class ReviewsComponent implements OnInit {
         console.error('Failed to load public reviews', err);
         this.loading.set(false);
       }
+    });
+
+    this.api.get<{ count: number, average: number }>('reviews/summary').subscribe({
+      next: (data) => this.ratingSummary.set(data),
+      error: (err) => console.error('Failed to load review summary', err)
     });
 
     // Fetch unreviewed purchases if logged in

@@ -3,6 +3,7 @@ const { OpenAI } = require('openai');
 const mongoose = require('mongoose');
 const Lead = require('../models/Lead');
 const SentEmail = require('../models/SentEmail');
+const { subjectWordNoticeHtml } = require('./policy-notice');
 
 class OutreachService {
   constructor() {
@@ -144,7 +145,8 @@ class OutreachService {
         from: `"${persona.senderName}" <${process.env.EMAIL_USER}>`,
         to: lead.email,
         subject: `Accelerating ${lead.businessName || 'Your Business'}'s Digital Growth`,
-        html: content
+        // Communication policy: replies to outreach carry the OUTREACH word.
+        html: content + subjectWordNoticeHtml('OUTREACH', 'font-size: 12px; color: #6b7280; margin-top: 16px; line-height: 1.5;')
       };
 
       const info = await this.transporter.sendMail(mailOptions);
