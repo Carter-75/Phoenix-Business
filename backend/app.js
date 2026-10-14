@@ -67,65 +67,109 @@ app.use(express.json({
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// --- MongoDB Connection Logic ---
+// --- MongoDB Connection Logic (Serverless-Hardened) ---
 const mongoURI = process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/^["']|["']$/g, '') : null;
 
-let cachedDbPromise = null;
-let connectionRetryCount = 0;
-const MAX_CONNECTION_RETRIES = 2;
+const MONGO_OPTIONS = {
+  serverSelectionTimeoutMS: 10000,
+  connectTimeoutMS: 10000,
+  socketTimeoutMS: 30000,
+  maxPoolSize: 5,
+  minPoolSize: 0,
+  maxIdleTimeMS: 30000,
+  retryWrites: true,
+  retryReads: true,
+  bufferCommands: false
+};
+
+const MAX_CONNECT_RETRIES = 3;
+const RETRY_DELAYS = [1000, 2000, 4000];
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const connectDB = async () => {
-  if (mongoose.connection.readyState === 1) return;
   if (!mongoURI) {
     console.warn('WARN: No MONGODB_URI found in environment!');
     return;
   }
-  
-  // Reset cached promise if previous connection failed or disconnected
-  if (mongoose.connection.readyState === 0 && cachedDbPromise) {
-    cachedDbPromise = null;
+
+  const readyState = mongoose.connection.readyState;
+  if (readyState === 1) return;
+
+  if (readyState === 2) {
+    if (globalThis.__mongoConnectionPromise) {
+      await globalThis.__mongoConnectionPromise;
+      return;
+    }
   }
-  
-  if (!cachedDbPromise) {
-    console.log(`INFO: Connecting to MongoDB... (attempt ${connectionRetryCount + 1})`);
-    cachedDbPromise = mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 10000,
-      connectTimeoutMS: 15000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10,
-      minPoolSize: 1,
-      retryWrites: true,
-      retryReads: true
-    }).then(() => {
-      connectionRetryCount = 0;
-      console.log('OK: MongoDB connected successfully');
-    }).catch(err => {
-      cachedDbPromise = null;
-      connectionRetryCount++;
-      console.error('ERROR: MongoDB Connection Failed:', err.message);
-      if (connectionRetryCount < MAX_CONNECTION_RETRIES) {
-        console.log(`INFO: Will retry on next request (${connectionRetryCount}/${MAX_CONNECTION_RETRIES})`);
+
+  if (readyState === 0 || readyState === 3) {
+    globalThis.__mongoConnectionPromise = null;
+  }
+
+  if (!globalThis.__mongoConnectionPromise) {
+    globalThis.__mongoConnectionPromise = (async () => {
+      let lastError = null;
+      for (let attempt = 0; attempt < MAX_CONNECT_RETRIES; attempt++) {
+        try {
+          if (attempt > 0) {
+            const delay = RETRY_DELAYS[attempt - 1] || 4000;
+            console.log(`INFO: Retrying MongoDB connection in ${delay}ms (attempt ${attempt + 1}/${MAX_CONNECT_RETRIES})`);
+            await sleep(delay);
+          } else {
+            console.log('INFO: Connecting to MongoDB...');
+          }
+
+          await mongoose.connect(mongoURI, MONGO_OPTIONS);
+          console.log('OK: MongoDB connected successfully');
+          return;
+        } catch (err) {
+          lastError = err;
+          console.error(`ERROR: MongoDB connection attempt ${attempt + 1} failed: ${err.message}`);
+        }
       }
-      throw err;
-    });
+
+      globalThis.__mongoConnectionPromise = null;
+      throw lastError;
+    })();
   }
-  await cachedDbPromise;
+
+  await globalThis.__mongoConnectionPromise;
 };
 
-// Initial connection and coupon sync
-connectDB().then(async () => {
+const ensureConnected = async () => {
+  const readyState = mongoose.connection.readyState;
+  if (readyState === 1) return true;
+
+  if (readyState === 0 || readyState === 3) {
+    globalThis.__mongoConnectionPromise = null;
+  }
+
   try {
-    const Coupon = require('./models/Coupon');
-    const { syncDatabaseCoupons } = require('./services/pricing.service');
-    if (Coupon && typeof Coupon.seedDefaultCoupons === 'function') {
-      await Coupon.seedDefaultCoupons();
+    await connectDB();
+    return mongoose.connection.readyState === 1;
+  } catch (err) {
+    return false;
+  }
+};
+
+// Initial connection and coupon sync (non-blocking startup)
+(async () => {
+  try {
+    const connected = await ensureConnected();
+    if (connected) {
+      const Coupon = require('./models/Coupon');
+      const { syncDatabaseCoupons } = require('./services/pricing.service');
+      if (Coupon && typeof Coupon.seedDefaultCoupons === 'function') {
+        await Coupon.seedDefaultCoupons();
+      }
+      const activeCoupons = await Coupon.find({ enabled: true });
+      syncDatabaseCoupons(activeCoupons);
     }
-    const activeCoupons = await Coupon.find({ enabled: true });
-    syncDatabaseCoupons(activeCoupons);
   } catch (err) {
     // Non-fatal if DB connection fails in local/test environments
   }
-}).catch(() => {});
+})();
 
 // --- Session & Passport Setup ---
 if (!process.env.SESSION_SECRET) {
@@ -147,8 +191,13 @@ if (mongoURI) {
   let ActualMongoStore = MongoStore;
   if (MongoStore.default) ActualMongoStore = MongoStore.default;
 
+  const getMongoClient = async () => {
+    await ensureConnected();
+    return mongoose.connection.getClient();
+  };
+
   const storeOptions = {
-    clientPromise: connectDB().then(() => mongoose.connection.getClient()),
+    clientPromise: getMongoClient(),
     ttl: 14 * 24 * 60 * 60,
     autoRemove: 'native'
   };
@@ -173,26 +222,53 @@ require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// --- DB Connection Middleware (Non-blocking for maximum serverless resilience) ---
+// --- DB Connection Middleware (Blocks until connected for serverless reliability) ---
 const dbCheck = async (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    try {
-      await connectDB();
-    } catch (err) {
-      console.warn('[DB Check] Connection attempt in middleware:', err.message);
+  try {
+    const connected = await ensureConnected();
+    if (!connected) {
+      console.error('[DB Check] Failed to establish database connection');
+      return res.status(503).json({
+        error: 'Database temporarily unavailable',
+        message: 'Please try again in a moment'
+      });
     }
+    next();
+  } catch (err) {
+    console.error('[DB Check] Connection error:', err.message);
+    return res.status(503).json({
+      error: 'Database temporarily unavailable',
+      message: 'Please try again in a moment'
+    });
   }
-  next();
 };
 
 // --- Routes ---
 
-// 1. Health/Diagnostics & Public Pricing (No DB Check required to allow fast responses)
+// 1. Health/Diagnostics & Public Pricing
 const healthHandler = async (req, res) => {
-  const isConnected = mongoose.connection.readyState === 1;
-  res.json({
-    status: 'online',
-    database: isConnected ? 'Connected' : 'Disconnected',
+  let dbStatus = 'Disconnected';
+  let dbLatencyMs = null;
+
+  try {
+    const start = Date.now();
+    const connected = await ensureConnected();
+
+    if (connected && mongoose.connection.db) {
+      await mongoose.connection.db.admin().ping();
+      dbLatencyMs = Date.now() - start;
+      dbStatus = 'Connected';
+    }
+  } catch (err) {
+    console.warn('[Health] Database check failed:', err.message);
+    dbStatus = 'Disconnected';
+  }
+
+  const statusCode = dbStatus === 'Connected' ? 200 : 503;
+  res.status(statusCode).json({
+    status: dbStatus === 'Connected' ? 'healthy' : 'degraded',
+    database: dbStatus,
+    dbLatencyMs,
     env: isProd ? 'production' : 'development',
     timestamp: new Date().toISOString()
   });
