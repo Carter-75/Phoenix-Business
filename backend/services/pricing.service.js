@@ -174,8 +174,8 @@ const FEATURE_ADDONS = {
   },
   payments: {
     id: 'payments',
-    name: 'Stripe Payments & Checkout Integration',
-    description: 'Integrated Stripe checkout, customer billing portal, webhook receipts, and transaction handling.',
+    name: 'Payments & Checkout Integration (Cards, Venmo & More)',
+    description: 'Integrated checkout accepting cards, Venmo, Apple Pay, and other wallets via Stripe, plus a customer billing portal, webhook receipts, and transaction handling.',
     billingType: 'BOTH',
     setupPrice: 50000,   // $500.00
     monthlyPrice: 3500,  // $35.00/mo

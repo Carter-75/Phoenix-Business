@@ -561,7 +561,7 @@ export class ProjectConfiguratorComponent {
     payments: {
       icon: '💳',
       shortName: 'Online Payments',
-      blurb: 'Take cards through Stripe checkout with receipts, refunds, and a customer billing portal.',
+      blurb: 'Take cards, Venmo, Apple Pay, and more at checkout, with receipts, refunds, and a customer billing portal.',
     },
     ecommerce: {
       icon: '🛒',
