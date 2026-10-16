@@ -111,6 +111,8 @@ router.get('/google/callback', (req, res, next) => {
 router.get('/user', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
     const userObj = req.user.toObject ? req.user.toObject() : { ...req.user };
+    userObj.hasPassword = !!userObj.password;
+    delete userObj.password;
     const em = (userObj.email || '').toLowerCase().trim();
     const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
     userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi' || em === ownerEmail;
@@ -238,6 +240,173 @@ router.post('/reset-password', async (req, res) => {
   } catch (err) {
     console.error('Reset password error:', err);
     res.status(500).json({ error: 'Failed to reset password.' });
+  }
+});
+
+// @route   POST /auth/change-password/request-code
+// @desc    Signed-in email/password users only: email a 6-digit verification
+//          code that authorizes a password change. Google-only accounts have
+//          no password and are told to manage it with Google instead.
+router.post('/change-password/request-code', async (req, res) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.status(401).json({ error: 'Not authenticated.' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'Account not found.' });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ error: 'This account signs in with Google, so there is no password to change. Manage your password in your Google account.' });
+    }
+
+    // Resend cooldown: a code issued less than 60 seconds ago is still fresh.
+    if (user.changePasswordExpires && user.changePasswordCode) {
+      const msLeft = new Date(user.changePasswordExpires).getTime() - Date.now();
+      if (msLeft > 14 * 60 * 1000) {
+        return res.status(429).json({ error: 'A verification code was just sent. Please wait a minute before requesting another.' });
+      }
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.changePasswordCode = code;
+    user.changePasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    await user.save();
+
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: true,
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    });
+
+    const mailOptions = {
+      from: `"Phoenix Websites AI" <${process.env.EMAIL_USER || 'hello@phoenixwebsites.ai'}>`,
+      to: user.email,
+      subject: `Your Password Change Code: ${code} — Phoenix Websites AI`,
+      text: `You asked to change the password on your Phoenix Websites AI account. Your verification code is: ${code}\n\nEnter this code with your current password and your new password to finish the change. This code will expire in 15 minutes.\n\nIf you did not request this change, do not share the code with anyone. Your password stays the same unless the code is used.\n\n${SUBJECT_WORD_NOTICE}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #050508; color: #ffffff; padding: 32px; border-radius: 12px; max-width: 500px;">
+          <h2 style="color: #ff4d00; margin-top: 0; text-transform: uppercase;">Password Change Code</h2>
+          <p style="color: #cccccc; font-size: 14px;">You asked to change the password on your Phoenix Websites AI account. Enter this verification code with your current password and your new password to finish:</p>
+          <div style="background-color: #111118; border: 1px solid #333333; padding: 20px; text-align: center; border-radius: 8px; margin: 24px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #ff4d00; font-family: monospace;">${code}</span>
+          </div>
+          <p style="color: #888888; font-size: 12px;">This 6-digit code will expire in 15 minutes. Your password stays the same unless the code is used.</p>
+          <p style="color: #666666; font-size: 11px; margin-top: 24px;">If you did not request this change, do not share the code with anyone and you can safely ignore this email.</p>
+          ${subjectWordNoticeHtml('ORDER', 'font-size: 12px; color: #9ca3af; margin-top: 16px; line-height: 1.5;')}
+        </div>
+      `
+    };
+
+    try {
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        await transporter.sendMail(mailOptions);
+      } else {
+        console.log(`[PASSWORD CHANGE DEV] Change code for ${user.email}: ${code}`);
+      }
+    } catch (mailErr) {
+      console.error('Failed to send password change email:', mailErr.message);
+      if (process.env.NODE_ENV !== 'production') {
+        return res.json({
+          message: 'Code generated. (Email credentials not active in dev mode).',
+          devCode: code
+        });
+      }
+      return res.status(500).json({ error: 'Could not send verification email. Please try again later.' });
+    }
+
+    res.json({ message: 'Verification code sent to your email.' });
+  } catch (err) {
+    console.error('Change password request error:', err);
+    res.status(500).json({ error: 'Failed to process request.' });
+  }
+});
+
+// @route   POST /auth/change-password/confirm
+// @desc    Signed-in email/password users: verify the emailed code AND the
+//          current password, then set the new password.
+router.post('/change-password/confirm', async (req, res) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.status(401).json({ error: 'Not authenticated.' });
+    }
+
+    const { code, currentPassword, newPassword } = req.body || {};
+    if (!code || !currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Verification code, current password, and new password are required.' });
+    }
+
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'Account not found.' });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ error: 'This account signs in with Google, so there is no password to change. Manage your password in your Google account.' });
+    }
+
+    if (!user.changePasswordCode || user.changePasswordCode !== String(code).trim() ||
+        !user.changePasswordExpires || new Date(user.changePasswordExpires) < new Date()) {
+      return res.status(400).json({ error: 'Invalid or expired verification code. Request a new code and try again.' });
+    }
+
+    const currentOk = await user.comparePassword(String(currentPassword));
+    if (!currentOk) {
+      return res.status(400).json({ error: 'Current password is incorrect.' });
+    }
+
+    if (await user.comparePassword(String(newPassword))) {
+      return res.status(400).json({ error: 'New password must be different from your current password.' });
+    }
+
+    // Update password (pre-save hook hashes with bcrypt) and burn the code.
+    user.password = newPassword;
+    user.changePasswordCode = undefined;
+    user.changePasswordExpires = undefined;
+    await user.save();
+
+    // Best-effort security confirmation email.
+    try {
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+          port: parseInt(process.env.SMTP_PORT || '465'),
+          secure: true,
+          auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        await transporter.sendMail({
+          from: `"Phoenix Websites AI" <${process.env.EMAIL_USER || 'hello@phoenixwebsites.ai'}>`,
+          to: user.email,
+          subject: `Your Phoenix Websites AI password was changed`,
+          text: `The password on your Phoenix Websites AI account was just changed.\n\nIf this was you, no further action is needed.\n\nIf this was NOT you, contact us right away at hello@phoenixwebsites.ai so we can secure your account.\n\n${SUBJECT_WORD_NOTICE}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; background-color: #050508; color: #ffffff; padding: 32px; border-radius: 12px; max-width: 500px;">
+              <h2 style="color: #ff4d00; margin-top: 0; text-transform: uppercase;">Password Changed</h2>
+              <p style="color: #cccccc; font-size: 14px;">The password on your Phoenix Websites AI account was just changed.</p>
+              <p style="color: #cccccc; font-size: 14px;">If this was you, no further action is needed.</p>
+              <p style="color: #888888; font-size: 12px; margin-top: 24px;">If this was NOT you, contact us right away at hello@phoenixwebsites.ai so we can secure your account.</p>
+              ${subjectWordNoticeHtml('ORDER', 'font-size: 12px; color: #9ca3af; margin-top: 16px; line-height: 1.5;')}
+            </div>
+          `
+        });
+      }
+    } catch (mailErr) {
+      console.error('Failed to send password changed confirmation email:', mailErr.message);
+    }
+
+    res.json({ success: true, message: 'Password changed successfully.' });
+  } catch (err) {
+    console.error('Change password confirm error:', err);
+    res.status(500).json({ error: 'Failed to change password.' });
   }
 });
 

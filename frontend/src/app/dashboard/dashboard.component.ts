@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { environment } from '../../environments/environment';
@@ -7,7 +8,7 @@ import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <section class="min-h-screen pt-32 sm:pt-48 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
@@ -114,6 +115,54 @@ import { environment } from '../../environments/environment';
               </div>
             </div>
 
+          </div>
+
+          <!-- ACCOUNT SECURITY -->
+          <div *ngIf="api.currentUser()" class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-sm mb-12 text-left max-w-lg mx-auto">
+            <div class="flex items-center gap-3 mb-2">
+              <i class="fa-solid fa-lock text-orange-500"></i>
+              <h3 class="text-lg font-black text-white uppercase tracking-tight">Account Security</h3>
+            </div>
+
+            <ng-container *ngIf="hasPasswordAccount(); else googleAccountNote">
+              <p class="text-slate-400 text-sm mb-5">You signed up with email and password. To change your password we email you a verification code first, then ask for your current password and your new one.</p>
+
+              <button *ngIf="!showChangePassword()" type="button" (click)="showChangePassword.set(true)" class="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white transition-all rounded-full text-xs font-bold uppercase tracking-widest">
+                Change Password
+              </button>
+
+              <div *ngIf="showChangePassword()" class="flex flex-col gap-3">
+                <button type="button" (click)="requestChangeCode()" [disabled]="cpSending()" class="px-5 py-3 bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white transition-all rounded-lg text-xs font-bold uppercase tracking-widest">
+                  {{ cpSending() ? 'Sending...' : (cpCodeSent() ? 'Resend Verification Code' : 'Email Me a Verification Code') }}
+                </button>
+                <p *ngIf="cpCodeSent()" class="text-xs text-emerald-400 font-bold">Code sent to {{ api.currentUser()?.email }}. It expires in 15 minutes.</p>
+
+                <input type="password" [(ngModel)]="cpCurrent" placeholder="Current password" autocomplete="current-password"
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500">
+                <input type="text" [(ngModel)]="cpCode" placeholder="6-digit code from email" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 tracking-[0.3em]">
+                <input type="password" [(ngModel)]="cpNew" placeholder="New password (at least 6 characters)" autocomplete="new-password"
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500">
+                <input type="password" [(ngModel)]="cpConfirm" placeholder="Confirm new password" autocomplete="new-password"
+                       class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500">
+
+                <div *ngIf="cpError()" class="text-xs text-red-400 font-bold">{{ cpError() }}</div>
+                <div *ngIf="cpSuccess()" class="text-xs text-emerald-400 font-bold">{{ cpSuccess() }}</div>
+
+                <div class="flex gap-3 mt-1">
+                  <button type="button" (click)="confirmChangePassword()" [disabled]="cpSubmitting()" class="px-6 py-3 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white transition-all rounded-full text-xs font-bold uppercase tracking-widest">
+                    {{ cpSubmitting() ? 'Updating...' : 'Update Password' }}
+                  </button>
+                  <button type="button" (click)="cancelChangePassword()" class="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-all rounded-full text-xs font-bold uppercase tracking-widest">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #googleAccountNote>
+              <p class="text-slate-400 text-sm">You sign in with Google, so there is no Phoenix Websites AI password to change. Manage your password in your Google account.</p>
+            </ng-template>
           </div>
 
           <button *ngIf="api.currentUser()" (click)="logout()" class="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-widest mt-12 block mx-auto">
@@ -253,6 +302,92 @@ export class DashboardComponent implements OnInit {
 
   contracts = signal<any[]>([]);
   loadingContracts = signal(true);
+
+  // Change password (email/password accounts only; verified by emailed code)
+  showChangePassword = signal(false);
+  cpSending = signal(false);
+  cpCodeSent = signal(false);
+  cpSubmitting = signal(false);
+  cpError = signal<string | null>(null);
+  cpSuccess = signal<string | null>(null);
+  cpCurrent = '';
+  cpCode = '';
+  cpNew = '';
+  cpConfirm = '';
+
+  hasPasswordAccount(): boolean {
+    const u: any = this.api.currentUser();
+    if (!u) return false;
+    return !!(u.hasPassword ?? u.password);
+  }
+
+  requestChangeCode() {
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    this.cpSending.set(true);
+    this.api.post<any>('auth/change-password/request-code', {}).subscribe({
+      next: () => {
+        this.cpSending.set(false);
+        this.cpCodeSent.set(true);
+      },
+      error: (err) => {
+        this.cpSending.set(false);
+        this.cpError.set(err?.error?.error || 'Could not send the verification code. Please try again.');
+      }
+    });
+  }
+
+  confirmChangePassword() {
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    if (!this.cpCode || this.cpCode.trim().length !== 6) {
+      this.cpError.set('Enter the 6-digit code from your email.');
+      return;
+    }
+    if (!this.cpCurrent) {
+      this.cpError.set('Enter your current password.');
+      return;
+    }
+    if (!this.cpNew || this.cpNew.length < 6) {
+      this.cpError.set('New password must be at least 6 characters long.');
+      return;
+    }
+    if (this.cpNew !== this.cpConfirm) {
+      this.cpError.set('New password and confirmation do not match.');
+      return;
+    }
+    this.cpSubmitting.set(true);
+    this.api.post<any>('auth/change-password/confirm', {
+      code: this.cpCode.trim(),
+      currentPassword: this.cpCurrent,
+      newPassword: this.cpNew
+    }).subscribe({
+      next: () => {
+        this.cpSubmitting.set(false);
+        this.cpSuccess.set('Password changed successfully. A confirmation email is on its way.');
+        this.cpCurrent = '';
+        this.cpCode = '';
+        this.cpNew = '';
+        this.cpConfirm = '';
+        this.cpCodeSent.set(false);
+      },
+      error: (err) => {
+        this.cpSubmitting.set(false);
+        this.cpError.set(err?.error?.error || 'Could not change your password. Please try again.');
+      }
+    });
+  }
+
+  cancelChangePassword() {
+    this.showChangePassword.set(false);
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    this.cpCodeSent.set(false);
+    this.cpCurrent = '';
+    this.cpCode = '';
+    this.cpNew = '';
+    this.cpConfirm = '';
+  }
 
   constructor() {
     effect(() => {

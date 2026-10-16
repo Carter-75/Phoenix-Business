@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema({
   usedDiscountCodes: [{ type: String }],
   resetPasswordCode: { type: String },
   resetPasswordExpires: { type: Date },
+  changePasswordCode: { type: String },
+  changePasswordExpires: { type: Date },
   // Data Intelligence — Saved Searches & Cart
   savedSearches: [{
     query: { type: String, default: '' },
