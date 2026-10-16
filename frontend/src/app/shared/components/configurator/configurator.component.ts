@@ -561,7 +561,7 @@ export class ProjectConfiguratorComponent {
     payments: {
       icon: '💳',
       shortName: 'Online Payments',
-      blurb: 'Take cards, Venmo, Apple Pay, and more at checkout, with receipts, refunds, and a customer billing portal.',
+      blurb: 'Checkout on the payment service you already use: Stripe, PayPal, Venmo, Square, and more, each connected through its own API. No Stripe account needed.',
     },
     ecommerce: {
       icon: '🛒',

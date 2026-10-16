@@ -80,7 +80,7 @@ const BASE_PROJECTS = {
     id: 'ecommerce',
     name: 'E-Commerce Storefront',
     shortName: 'E-Commerce',
-    description: 'Boutique online storefront with product catalog, cart, Stripe checkout, and automated customer order emails.',
+    description: 'Boutique online storefront with product catalog, cart, checkout through your payment provider, and automated customer order emails.',
     baseSetupPrice: 349900, // $3,499.00
     baseMonthlyPrice: 29900, // $299.00/mo (Hosting, cart/checkout maintenance, catalog support, 3 hrs/mo custom edits)
     pagesIncluded: 8,
@@ -174,8 +174,8 @@ const FEATURE_ADDONS = {
   },
   payments: {
     id: 'payments',
-    name: 'Payments & Checkout Integration (Cards, Venmo & More)',
-    description: 'Integrated checkout accepting cards, Venmo, Apple Pay, and other wallets via Stripe, plus a customer billing portal, webhook receipts, and transaction handling.',
+    name: 'Payments & Checkout Integration (Stripe, PayPal, Venmo, Square & More)',
+    description: 'Checkout built on the payment service you already use, connected through its own API: Stripe, PayPal, Venmo, Square, Braintree, Authorize.net, Adyen, and more. No Stripe account required. Includes receipts, refunds, webhook confirmations, and transaction handling.',
     billingType: 'BOTH',
     setupPrice: 50000,   // $500.00
     monthlyPrice: 3500,  // $35.00/mo
