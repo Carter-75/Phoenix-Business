@@ -1,4 +1,4 @@
-import { Component, inject, signal, Output, EventEmitter } from '@angular/core';
+import { Component, inject, signal, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -128,28 +128,32 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
         </div>
       </div>
 
-      <!-- Step 3: Modular Add-On Catalog -->
+      <!-- Step 3: The Big Five Add-On Wheel -->
       <div class="mb-12">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
             <label class="text-xs font-black uppercase tracking-widest block mb-1" [style.color]="'var(--theme-primary, #ff4d00)'">
-              03 / Modular Feature Add-Ons
+              03 / Add-Ons: The Big Five
             </label>
-            <p class="text-xs text-white/50">Select optional capabilities. Bundle 2+ upgrades to unlock extra volume savings!</p>
+            <p class="text-xs text-white/50">Only the five upgrades that change what your site can do. Spin the wheel, tap a card to add or remove it.</p>
           </div>
-          
-          <!-- Category Filter Pills -->
-          <div class="flex flex-wrap gap-2">
-            <button 
-              type="button" 
-              *ngFor="let cat of categories"
-              (click)="selectedCategory.set(cat.id)"
-              class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all"
-              [class.bg-white]="selectedCategory() === cat.id"
-              [class.text-black]="selectedCategory() === cat.id"
-              [class.bg-white/5]="selectedCategory() !== cat.id"
-              [class.text-white/60]="selectedCategory() !== cat.id">
-              {{ cat.label }}
+
+          <!-- Wheel Controls -->
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              (click)="scrollWheel(-1)"
+              aria-label="Previous add-on"
+              class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-white font-black hover:bg-white/10 transition-all cursor-pointer">
+              &lsaquo;
+            </button>
+            <span class="text-[11px] font-bold text-white/50 min-w-[44px] text-center">{{ wheelIndex() + 1 }} / {{ wheelAddons.length }}</span>
+            <button
+              type="button"
+              (click)="scrollWheel(1)"
+              aria-label="Next add-on"
+              class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-white font-black hover:bg-white/10 transition-all cursor-pointer">
+              &rsaquo;
             </button>
           </div>
         </div>
@@ -172,42 +176,52 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
           </span>
         </div>
 
-        <!-- Add-on Grid -->
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div 
-            *ngFor="let feat of filteredAddons()"
-            (click)="!feat.includedInBase && pricing.toggleFeature(feat.id)"
-            [class.border-orange-500]="isFeatureSelected(feat.id)"
-            [class.cursor-pointer]="!feat.includedInBase"
-            [class.opacity-60]="feat.includedInBase"
-            class="p-5 rounded-2xl border transition-all duration-200 relative flex flex-col justify-between group"
-            [ngClass]="isFeatureSelected(feat.id) ? '!bg-white/[0.06] border-orange-500/80 ring-1 ring-orange-500/50' : 'bg-white/[0.02] border-white/5 hover:border-white/15'">
+        <!-- Horizontal Rotating Wheel -->
+        <div #addonWheel (scroll)="onWheelScroll()" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            *ngFor="let item of wheelAddons"
+            (click)="!isIncludedInBase(item.feat.id) && pricing.toggleFeature(item.feat.id)"
+            [class.cursor-pointer]="!isIncludedInBase(item.feat.id)"
+            [class.opacity-60]="isIncludedInBase(item.feat.id)"
+            class="snap-center shrink-0 w-[270px] sm:w-[300px] p-5 rounded-2xl border transition-all duration-200 relative flex flex-col justify-between group"
+            [ngClass]="(isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id)) ? '!bg-white/[0.06] border-orange-500/80 ring-1 ring-orange-500/50' : 'bg-white/[0.02] border-white/5 hover:border-white/15'">
             <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded"
-                      [ngClass]="feat.billingType === 'ONE_TIME' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : feat.billingType === 'MONTHLY' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'">
-                  {{ feat.billingType }}
-                </span>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-2xl">{{ item.icon }}</span>
                 <div class="w-4 h-4 rounded border flex items-center justify-center transition-all"
-                     [ngClass]="isFeatureSelected(feat.id) || feat.includedInBase ? 'bg-orange-600 border-orange-600 text-white' : 'border-white/20 bg-white/5'">
-                  <span *ngIf="isFeatureSelected(feat.id) || feat.includedInBase" class="text-[10px] font-bold">✓</span>
+                     [ngClass]="(isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id) || isIncludedInBase(item.feat.id)) ? 'bg-orange-600 border-orange-600 text-white' : 'border-white/20 bg-white/5'">
+                  <span *ngIf="isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id) || isIncludedInBase(item.feat.id)" class="text-[10px] font-bold">✓</span>
                 </div>
               </div>
-              <h5 class="text-sm font-bold text-white mb-1.5">{{ feat.name }}</h5>
-              <p class="text-[11px] text-white/50 leading-relaxed mb-4">{{ feat.description }}</p>
+              <h5 class="text-sm font-bold text-white mb-1.5">{{ item.shortName }}</h5>
+              <p class="text-[11px] text-white/50 leading-relaxed mb-3">{{ item.blurb }}</p>
+              <p *ngIf="item.autoNote && !isIncludedInBase(item.feat.id)" class="text-[10px] font-bold text-amber-400/90 mb-4">{{ item.autoNote }}</p>
             </div>
-            
+
             <div class="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-              <span *ngIf="feat.includedInBase" class="text-[10px] font-black uppercase tracking-wider text-emerald-400">
-                Included in Base
+              <span *ngIf="isIncludedInBase(item.feat.id)" class="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                Included in Your Tier
               </span>
-              <div *ngIf="!feat.includedInBase" class="flex flex-col text-right w-full">
-                <span *ngIf="feat.setupPrice > 0" class="font-bold text-white">+\${{ (feat.setupPrice / 100).toLocaleString() }} setup</span>
-                <span *ngIf="feat.monthlyPrice > 0" class="text-[10px] text-white/60">+\${{ (feat.monthlyPrice / 100).toLocaleString() }}/mo</span>
+              <span *ngIf="!isIncludedInBase(item.feat.id) && isAutoAdded(item.feat.id)" class="text-[10px] font-black uppercase tracking-wider text-amber-400">
+                Added Automatically
+              </span>
+              <div *ngIf="!isIncludedInBase(item.feat.id)" class="flex flex-col text-right ml-auto">
+                <span *ngIf="item.feat.setupPrice > 0" class="font-bold text-white">+\${{ (item.feat.setupPrice / 100).toLocaleString() }} setup</span>
+                <span *ngIf="item.feat.monthlyPrice > 0" class="text-[10px] text-white/60">+\${{ (item.feat.monthlyPrice / 100).toLocaleString() }}/mo</span>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Wheel Dots -->
+        <div class="flex items-center justify-center gap-1.5 mt-3">
+          <span *ngFor="let item of wheelAddons; let i = index"
+                class="h-1.5 rounded-full transition-all"
+                [ngClass]="wheelIndex() === i ? 'w-5 bg-orange-500' : 'w-1.5 bg-white/20'">
+          </span>
+        </div>
+
+        <p class="text-[11px] text-white/40 mt-4">Need something else, like a migration, multilingual pages, third-party integrations, or a support plan? Mention it in your project brief or on your kickoff call and we will scope it manually.</p>
       </div>
 
       <!-- Step 4: Transparent Pricing Breakdown & Contract Schedule -->
@@ -521,7 +535,6 @@ export class ProjectConfiguratorComponent {
 
   @Output() requestAuthModal = new EventEmitter<void>();
 
-  public selectedCategory = signal<string>('all');
   public discountCodeInput = '';
   public couponLoading = signal<boolean>(false);
   public couponMessage = signal<{ text: string; isError: boolean } | null>(null);
@@ -530,14 +543,73 @@ export class ProjectConfiguratorComponent {
   public termsError = signal<boolean>(false);
   public showTermsDetails = signal<boolean>(false);
 
-  public categories = [
-    { id: 'all', label: 'All Upgrades' },
-    { id: 'development', label: 'Development' },
-    { id: 'ai', label: 'AI & Bot' },
-    { id: 'design', label: 'Design' },
-    { id: 'marketing', label: 'Marketing' },
-    { id: 'operations', label: 'Support & Ops' }
-  ];
+  // The Big Five: the only add-ons offered in the configurator wheel.
+  // The full catalog still exists in PricingService for pricing/contracts,
+  // but ordering stays simple: database or not, accounts, payments, store, AI.
+  public wheelMeta: Record<string, { icon: string; shortName: string; blurb: string; autoNote?: string }> = {
+    database: {
+      icon: '🗄️',
+      shortName: 'Database',
+      blurb: 'Your site stores real records: orders, customers, content. Pick this if the site needs to remember anything.',
+    },
+    auth: {
+      icon: '🔐',
+      shortName: 'User Accounts & Sign-In',
+      blurb: 'Customers register and log in with email or Google, with their own profiles and password reset.',
+      autoNote: 'Adds the Database automatically.',
+    },
+    payments: {
+      icon: '💳',
+      shortName: 'Online Payments',
+      blurb: 'Take cards through Stripe checkout with receipts, refunds, and a customer billing portal.',
+    },
+    ecommerce: {
+      icon: '🛒',
+      shortName: 'Online Store',
+      blurb: 'Product catalog, cart, inventory tracking, and discount codes so you can sell online.',
+      autoNote: 'Adds Online Payments automatically.',
+    },
+    ai_assistant: {
+      icon: '🤖',
+      shortName: 'AI Assistant',
+      blurb: 'A 24/7 chatbot trained on your business that answers visitors and captures leads while you sleep.',
+    },
+  };
+
+  public wheelAddons: { feat: FeatureAddon; icon: string; shortName: string; blurb: string; autoNote?: string }[] =
+    ['database', 'auth', 'payments', 'ecommerce', 'ai_assistant'].map(id => {
+      const feat = this.pricing.featureAddons.find(f => f.id === id)!;
+      return { feat, ...this.wheelMeta[id] };
+    });
+
+  @ViewChild('addonWheel') addonWheel?: ElementRef<HTMLDivElement>;
+  public wheelIndex = signal<number>(0);
+
+  public scrollWheel(dir: number) {
+    const el = this.addonWheel?.nativeElement;
+    if (!el) return;
+    const card = el.querySelector(':scope > div') as HTMLElement | null;
+    const step = card ? card.offsetWidth + 16 : 316;
+    el.scrollBy({ left: dir * step, behavior: 'smooth' });
+  }
+
+  public onWheelScroll() {
+    const el = this.addonWheel?.nativeElement;
+    if (!el) return;
+    const card = el.querySelector(':scope > div') as HTMLElement | null;
+    const step = card ? card.offsetWidth + 16 : 316;
+    const idx = Math.round(el.scrollLeft / step);
+    this.wheelIndex.set(Math.max(0, Math.min(this.wheelAddons.length - 1, idx)));
+  }
+
+  public isIncludedInBase(id: string): boolean {
+    return (this.pricing.calculation().tier.inherentFeatures || []).includes(id);
+  }
+
+  public isAutoAdded(id: string): boolean {
+    if (this.isFeatureSelected(id) || this.isIncludedInBase(id)) return false;
+    return this.pricing.calculation().addons.some(a => a.id === id);
+  }
 
   public onTermsChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -545,12 +617,6 @@ export class ProjectConfiguratorComponent {
     if (input.checked) {
       this.termsError.set(false);
     }
-  }
-
-  public filteredAddons() {
-    const cat = this.selectedCategory();
-    if (cat === 'all') return this.pricing.featureAddons;
-    return this.pricing.featureAddons.filter(f => f.category === cat);
   }
 
   public isFeatureSelected(id: string): boolean {
