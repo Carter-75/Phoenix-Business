@@ -6,7 +6,7 @@ const stripe = require('stripe')(stripeSecretKey);
 const User = require('../models/user');
 const Contract = require('../models/Contract');
 const { calculateProjectPrice } = require('../services/pricing.service');
-const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml, COMMUNICATION_GUIDE_TEXT, communicationGuideHtml } = require('../services/policy-notice');
 const { createCheckoutVerification } = require('../services/checkout-verification');
 router.get('/checkout-status', createCheckoutVerification(stripe));
 
@@ -896,10 +896,10 @@ const sendReceiptEmail = async (userEmail, userName, amountTotal, projectType, p
                         <p>A copy of your signed Master Service Agreement and our legal policies are attached to this email for your records.</p>
                         <p><strong>Notice on Cancellations (Wis. Stat. § 134.49):</strong> Written notice of non-renewal must be provided between 60 and 30 days prior to your annual renewal date via client portal or email.</p>
                         <p>If you have any questions, reply to this email or reach us at hello@phoenixwebsites.ai.</p>
-                        ${subjectWordNoticeHtml('ORDER')}
+                        ${communicationGuideHtml()}
                     </div>
                 `,
-                text: `Payment Receipt: ${formatCents(amountTotal)} received for ${projectType}. Agreement attached.\n\n${SUBJECT_WORD_NOTICE}`
+                text: `Payment Receipt: ${formatCents(amountTotal)} received for ${projectType}. Agreement attached.\n\n${COMMUNICATION_GUIDE_TEXT}`
             };
         }
 
