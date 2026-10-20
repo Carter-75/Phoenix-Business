@@ -42,11 +42,21 @@
 }
 
 @layer components {
+  /* Hero headline: sized from its container width (cqi) so the longest line
+     (~13em) always fits from 320px to 1920px. On sm+ the logo sits beside it,
+     so reserve ~10rem for it. */
   .fluid-h1 { 
-    @apply text-[clamp(2rem,12vw,10rem)] leading-[0.95] tracking-[-0.02em];
+    @apply leading-[0.95] tracking-[-0.02em] min-w-0;
+    font-size: clamp(1.25rem, 9vw, 10rem);
+    font-size: clamp(1.25rem, calc(100cqi / 13.6), 10rem);
+    overflow-wrap: break-word;
   }
   @media (min-width: 640px) {
-    .fluid-h1 { @apply text-[clamp(3rem,15vw,10rem)] leading-[0.85] tracking-[-0.04em]; }
+    .fluid-h1 {
+      @apply leading-[0.85] tracking-[-0.04em];
+      font-size: clamp(2rem, calc((100vw - 14rem) / 13.6), 10rem);
+      font-size: clamp(2rem, calc((100cqi - 10rem) / 13.6), 10rem);
+    }
   }
   .fluid-h2 { 
     @apply text-[clamp(1.75rem,8vw,6rem)] leading-[1] tracking-[-0.02em];
