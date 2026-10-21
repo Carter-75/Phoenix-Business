@@ -158,10 +158,12 @@ router.post('/coupons', async (req, res) => {
 
     const coupon = new Coupon({
       code: cleanCode,
-      type: type === 'fixed' ? 'fixed' : (type === 'percentage_capped' ? 'percentage_capped' : 'percentage'),
+      type: ['fixed', 'percentage_capped', 'intro'].includes(type) ? type : 'percentage',
       amount: parseInt(amount, 10),
       capSetupCents: parseInt(req.body.capSetupCents, 10) || 0,
       capMonthlyCents: parseInt(req.body.capMonthlyCents, 10) || 0,
+      ongoingMonthlyPercentOff: parseInt(req.body.ongoingMonthlyPercentOff, 10) || 0,
+      restrictToPackage: req.body.restrictToPackage ? String(req.body.restrictToPackage).trim() : '',
       bypassFloors: req.body.bypassFloors === true,
       issuedToUserId: req.body.issuedToUserId ? String(req.body.issuedToUserId) : '',
       appliesTo: ['setup', 'monthly', 'both'].includes(appliesTo) ? appliesTo : 'both',
@@ -210,7 +212,9 @@ router.patch('/coupons/:id', async (req, res) => {
 
     if (typeof enabled === 'boolean') coupon.enabled = enabled;
     if (amount !== undefined) coupon.amount = parseInt(amount, 10) || 0;
-    if (type !== undefined) coupon.type = type === 'fixed' ? 'fixed' : (type === 'percentage_capped' ? 'percentage_capped' : 'percentage');
+    if (type !== undefined) coupon.type = ['fixed', 'percentage_capped', 'intro'].includes(type) ? type : 'percentage';
+    if (req.body.ongoingMonthlyPercentOff !== undefined) coupon.ongoingMonthlyPercentOff = parseInt(req.body.ongoingMonthlyPercentOff, 10) || 0;
+    if (req.body.restrictToPackage !== undefined) coupon.restrictToPackage = req.body.restrictToPackage ? String(req.body.restrictToPackage).trim() : '';
     if (req.body.capSetupCents !== undefined) coupon.capSetupCents = parseInt(req.body.capSetupCents, 10) || 0;
     if (req.body.capMonthlyCents !== undefined) coupon.capMonthlyCents = parseInt(req.body.capMonthlyCents, 10) || 0;
     if (req.body.bypassFloors !== undefined) coupon.bypassFloors = req.body.bypassFloors === true;
