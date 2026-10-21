@@ -270,10 +270,17 @@ owner session like the other admin routes.
   subscribers also receive a one-time, account-bound bonus code
   (10 to 25 percent, 30 days) inside their copy.
 - Terms version 2026.6 added Terms section 13 (Group Buys and Event
-  Emails). Accepting the terms (at signup, onboarding, or via the new
-  banner) is what subscribes an account; acceptance replaces the
-  stored acceptance record and re-stamps the time. Existing accounts
-  see a non-dismissible banner until they accept. Unsubscribe works
+  Emails). Accepting the terms is what subscribes an account;
+  acceptance replaces the stored acceptance record and re-stamps the
+  time. Enforcement (Carter's revision, same day): a policy change
+  LOGS established accounts OUT. Email logins must re-check the
+  updated terms in the login form before a session is created;
+  Google logins land on a full-screen re-acceptance gate whose
+  session can do nothing else until accepted. The first time an
+  account accepts through this flow (old accounts included), it gets
+  a welcome email carrying a one-time 5% code generated from the
+  timestamp plus randomness and bound to that account only; one
+  welcome per account, ever. Unsubscribe works
   two ways: reply to any announcement with UNSUBSCRIBE (the daily
   sweep scans the hello@ inbox and honors it) or the one-click link
   in every announcement.

@@ -12,7 +12,7 @@ import { ApiService } from './services/api.service';
 import { VoiceCallModalComponent } from './shared/voice-call-modal/voice-call-modal.component';
 
 import { PromoBannerComponent } from './shared/components/promo-banner/promo-banner.component';
-import { TermsBannerComponent } from './shared/components/terms-banner/terms-banner.component';
+import { TermsGateComponent } from './shared/components/terms-gate/terms-gate.component';
 
 @Component({
   selector: 'app-root',
@@ -29,11 +29,11 @@ import { TermsBannerComponent } from './shared/components/terms-banner/terms-ban
     CartDrawerComponent,
     VoiceCallModalComponent,
     PromoBannerComponent,
-    TermsBannerComponent
+    TermsGateComponent
   ],
   template: `
     <app-promo-banner></app-promo-banner>
-    <app-terms-banner></app-terms-banner>
+    <app-terms-gate></app-terms-gate>
     @defer (on idle) {
       <app-background-animation></app-background-animation>
     }

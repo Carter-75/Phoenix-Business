@@ -222,6 +222,33 @@ require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Terms enforcement: a policy change logs established accounts out.
+// An authenticated, established account (not a pending new Google
+// profile) whose stored acceptance is older than the current terms
+// version loses its session on the next API call and must sign in
+// again through the re-check. The one exception is a session flagged
+// termsGate by the Google callback: it is mid-login, and only the
+// endpoints the re-acceptance gate needs stay open for it.
+const { ACCOUNT_TERMS_VERSION } = require('./services/legal.service');
+app.use((req, res, next) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated() || !req.user || req.user.isPending) return next();
+    if (req.user.termsAcceptedVersion === ACCOUNT_TERMS_VERSION) {
+      if (req.session && req.session.termsGate) delete req.session.termsGate;
+      return next();
+    }
+    const p = req.path || '';
+    if (req.session && req.session.termsGate) {
+      if (p.endsWith('/auth/user') || p.endsWith('/auth/accept-terms') || p.endsWith('/auth/logout')) return next();
+      return res.status(403).json({ error: 'terms_acceptance_required', currentTermsVersion: ACCOUNT_TERMS_VERSION });
+    }
+    if (p.includes('/auth/')) return next();
+    const send = () => res.status(401).json({ error: 'terms_update_required', currentTermsVersion: ACCOUNT_TERMS_VERSION });
+    if (req.session && req.session.destroy) return req.session.destroy(send);
+    return send();
+  } catch (e) { return next(); }
+});
+
 // --- DB Connection Middleware (Blocks until connected for serverless reliability) ---
 const dbCheck = async (req, res, next) => {
   try {

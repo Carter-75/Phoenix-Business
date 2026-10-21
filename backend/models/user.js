@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
   // accepts the current account terms (the terms include these
   // emails); set false when they unsubscribe by reply or link.
   eventEmailsOptIn: { type: Boolean, default: false },
+  // The welcome email (with its one-time 5% code) is sent the first
+  // time an account accepts the current terms at login, old accounts
+  // included. Stamped once; never sent twice to the same account.
+  welcomeEmailSentAt: { type: Date },
+  welcomeCouponCode: { type: String },
   resetPasswordCode: { type: String },
   resetPasswordExpires: { type: Date },
   changePasswordCode: { type: String },

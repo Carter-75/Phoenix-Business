@@ -164,6 +164,11 @@
                 <p *ngIf="authError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{{authError()}}</p>
                 <p *ngIf="authSuccessMsg()" class="text-emerald-400 text-[10px] font-black uppercase tracking-widest text-center">{{authSuccessMsg()}}</p>
 
+                <label *ngIf="loginNeedsTerms()" class="flex items-start gap-3 text-left text-[11px] text-white/80 leading-relaxed cursor-pointer p-3 rounded-lg border border-orange-500/40 bg-orange-500/10">
+                  <input type="checkbox" [checked]="loginTermsChecked()" (change)="loginTermsChecked.set($any($event.target).checked)" class="mt-0.5 accent-orange-500 w-4 h-4 shrink-0">
+                  <span>I have read and accept the updated <a routerLink="/terms" class="underline text-orange-300">Terms of Service</a>, Privacy Policy, and Refund Policy, including occasional group buy and event announcement emails (unsubscribe in every announcement).</span>
+                </label>
+
                 <button (click)="onEmailAuth()" class="premium-btn w-full !py-6">Continue</button>
               </div>
 

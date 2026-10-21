@@ -97,6 +97,10 @@ export class ServicesComponent implements OnInit {
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
   authError = signal<string | null>(null);
+  // Terms re-check at login: set when the backend says this account
+  // must accept the updated terms before a session is created.
+  loginNeedsTerms = signal(false);
+  loginTermsChecked = signal(false);
   authSuccessMsg = signal<string | null>(null);
   authSubView = signal<'login' | 'forgot' | 'reset'>('login');
   forgotEmail = '';
@@ -692,8 +696,10 @@ export class ServicesComponent implements OnInit {
     }
     this.authError.set(null);
     
-    // Attempt Login
-    this.api.login({ email: this.userEmail, password: this.userPassword }).subscribe({
+    // Attempt Login (with the terms re-check once the form shows it)
+    const payload: any = { email: this.userEmail, password: this.userPassword };
+    if (this.loginNeedsTerms()) payload.acceptedTerms = this.loginTermsChecked();
+    this.api.login(payload).subscribe({
       next: () => {
         this.isNewUser = false;
         const user = this.api.currentUser();
@@ -730,8 +736,14 @@ export class ServicesComponent implements OnInit {
         }
       },
       error: (err) => {
+        // 403 TERMS_UPDATE_REQUIRED: terms changed since this account
+        // accepted them; show the re-check box and let them retry.
+        if (err.status === 403 && err.error?.code === 'TERMS_UPDATE_REQUIRED') {
+          this.loginNeedsTerms.set(true);
+          this.authError.set('Our terms were updated. Please re-accept them below to sign in.');
+        }
         // 404 means the user doesn't exist -> Go to onboarding / registration
-        if (err.status === 404) {
+        else if (err.status === 404) {
           this.isNewUser = true;
           const intent = this.api.peekPendingIntent();
           if (intent && intent.type === 'configuration' && intent.configuration) {

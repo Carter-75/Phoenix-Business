@@ -3,6 +3,11 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user');
 const { getDynamicPolicies, ACCOUNT_TERMS_VERSION } = require('../services/legal.service');
+const { mintAndSendWelcome } = require('../services/welcome.service');
+
+function fireWelcome(user) {
+  mintAndSendWelcome(user).catch(e => console.error('[AUTH] welcome email failed', e.message));
+}
 const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
 
 const getFullLegalText = () => Object.values(getDynamicPolicies()).join('\n\n---\n\n');
@@ -36,7 +41,8 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
-    
+    if (acceptedTerms === true) fireWelcome(user);
+
     req.login(user, (err) => {
       if (err) return res.status(500).json({ message: 'Error logging in after registration' });
       return res.status(201).json(user);
@@ -48,13 +54,34 @@ router.post('/register', async (req, res) => {
 
 // @route   POST /auth/login
   router.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', async (err, user, info) => {
       if (err) return next(err);
       if (!user) {
         const status = info.message === 'USER_NOT_FOUND' ? 404 : 401;
         return res.status(status).json({ message: info.message });
       }
-      
+
+      // Terms gate: when the account terms have changed since this
+      // account accepted them, signing in requires re-checking the
+      // updated terms. Without the re-check, no session is created.
+      if (user.termsAcceptedVersion !== ACCOUNT_TERMS_VERSION) {
+        if (req.body && req.body.acceptedTerms === true) {
+          user.termsAcceptedVersion = ACCOUNT_TERMS_VERSION;
+          user.termsAcceptedFullText = getFullLegalText();
+          user.termsAcceptedAt = new Date();
+          user.hasAcceptedContract = true;
+          user.eventEmailsOptIn = true;
+          await user.save();
+          fireWelcome(user);
+        } else {
+          return res.status(403).json({
+            code: 'TERMS_UPDATE_REQUIRED',
+            message: 'Our terms were updated. Please accept the updated terms to sign in.',
+            currentTermsVersion: ACCOUNT_TERMS_VERSION
+          });
+        }
+      }
+
       req.login(user, (err) => {
         if (err) return next(err);
         return res.json(user);
@@ -97,12 +124,20 @@ router.get('/google/callback', (req, res, next) => {
         return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
       }
       
+      // Terms gate for Google sign-in: OAuth has no password step to
+      // attach the re-check to, so an established account on old terms
+      // lands on the re-acceptance gate before anything else opens.
+      if (user.hasFinalizedProfile && user.termsAcceptedVersion !== ACCOUNT_TERMS_VERSION) {
+        req.session.termsGate = true;
+        return res.redirect(`${frontendUrl}/dashboard?terms=update`);
+      }
+
       // Open redirect protection
       let safeReturnUrl = returnUrl;
       if (!safeReturnUrl.startsWith('/')) {
         safeReturnUrl = '/dashboard';
       }
-      
+
       res.redirect(`${frontendUrl}${safeReturnUrl}`);
     });
   })(req, res, next);
@@ -111,6 +146,18 @@ router.get('/google/callback', (req, res, next) => {
 // @route   GET /auth/user
 router.get('/user', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
+    // A policy change logs established accounts out: if this session
+    // predates the current terms and is not the mid-login Google
+    // re-acceptance, the session ends here and the client signs in
+    // again through the re-check. Pending (new Google) accounts are
+    // exempt; their onboarding collects the acceptance.
+    if (!req.user.isPending
+      && req.user.termsAcceptedVersion !== ACCOUNT_TERMS_VERSION
+      && !(req.session && req.session.termsGate)) {
+      const send = () => res.status(401).json({ error: 'terms_update_required', currentTermsVersion: ACCOUNT_TERMS_VERSION });
+      if (req.session && req.session.destroy) return req.session.destroy(send);
+      return send();
+    }
     const userObj = req.user.toObject ? req.user.toObject() : { ...req.user };
     userObj.hasPassword = !!userObj.password;
     delete userObj.password;
@@ -143,6 +190,8 @@ router.post('/accept-terms', async (req, res) => {
     user.hasAcceptedContract = true;
     user.eventEmailsOptIn = true;
     await user.save();
+    if (req.session) delete req.session.termsGate;
+    fireWelcome(user);
     res.json({
       ok: true,
       termsAcceptedVersion: user.termsAcceptedVersion,
@@ -503,6 +552,7 @@ router.post('/finalize-onboarding', async (req, res) => {
     }
 
     await user.save();
+    if (acceptedTerms) fireWelcome(user);
 
     // If it was a new user, we need to log them in fully
     if (req.user.isPending) {

@@ -47,7 +47,7 @@ router.get('/unsubscribe', async (req, res) => {
     }
     const User = require('../models/user');
     await User.findByIdAndUpdate(u, { eventEmailsOptIn: false });
-    res.send('<p style="font-family:Arial">You are unsubscribed from Phoenix Websites AI group buy and event announcement emails. Transactional emails about your orders and account will still be sent. To resubscribe, accept the current terms again from your account banner.</p>');
+    res.send('<p style="font-family:Arial">You are unsubscribed from Phoenix Websites AI group buy and event announcement emails. Transactional emails about your orders and account will still be sent. To resubscribe, accept the current terms again the next time you sign in.</p>');
   } catch (err) {
     res.status(500).send('<p style="font-family:Arial">Something went wrong. Please reply to any announcement email with UNSUBSCRIBE instead.</p>');
   }
