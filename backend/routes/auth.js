@@ -8,6 +8,19 @@ const { mintAndSendWelcome } = require('../services/welcome.service');
 function fireWelcome(user) {
   mintAndSendWelcome(user).catch(e => console.error('[AUTH] welcome email failed', e.message));
 }
+
+/**
+ * Backfill: an account that already accepted the current terms but
+ * never got its welcome email (for example, its acceptance landed
+ * while an older build was still serving) receives it on its next
+ * sign-in or session check. mintAndSendWelcome self-guards, so this
+ * can never send twice. No account is excluded, owner included.
+ */
+function fireWelcomeIfPending(user) {
+  if (user && !user.isPending && user.termsAcceptedVersion === ACCOUNT_TERMS_VERSION && !user.welcomeEmailSentAt) {
+    fireWelcome(user);
+  }
+}
 const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
 
 const getFullLegalText = () => Object.values(getDynamicPolicies()).join('\n\n---\n\n');
@@ -82,6 +95,7 @@ router.post('/register', async (req, res) => {
         }
       }
 
+      fireWelcomeIfPending(user);
       req.login(user, (err) => {
         if (err) return next(err);
         return res.json(user);
@@ -124,6 +138,7 @@ router.get('/google/callback', (req, res, next) => {
         return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
       }
       
+      fireWelcomeIfPending(user);
       // Terms gate for Google sign-in: OAuth has no password step to
       // attach the re-check to, so an established account on old terms
       // lands on the re-acceptance gate before anything else opens.
@@ -158,6 +173,7 @@ router.get('/user', (req, res) => {
       if (req.session && req.session.destroy) return req.session.destroy(send);
       return send();
     }
+    fireWelcomeIfPending(req.user);
     const userObj = req.user.toObject ? req.user.toObject() : { ...req.user };
     userObj.hasPassword = !!userObj.password;
     delete userObj.password;
