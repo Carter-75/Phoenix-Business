@@ -208,6 +208,70 @@ router.post('/validate-discount', async (req, res) => {
 });
 
 /**
+ * Records a database coupon redemption after a completed checkout.
+ *
+ * Performs both bookkeeping effects exactly once per checkout session:
+ *   1. Increments the coupon's usageCount in Mongo ($inc), so usageLimit
+ *      and one-time caps are actually enforced at validation time.
+ *   2. Adds the code to the purchasing user's usedDiscountCodes, so the
+ *      per-customer one-time check in validate-discount can reject reuse.
+ *
+ * The user is resolved the same way validate-discount resolves it: by
+ * user id when known, otherwise by the email on the order/session.
+ * A marker row in ProcessedEvent (unique eventId) claims the session
+ * before any writes, so a duplicate webhook delivery for the same
+ * session (or the completed + async_payment_succeeded pair) cannot
+ * double-record. Legacy DC_/DCL_ env codes keep their existing code
+ * paths and are intentionally untouched here.
+ *
+ * Returns true when a redemption was recorded.
+ */
+async function recordDatabaseCouponRedemption({ code, userId = null, email = null, sessionId = null }) {
+    const cleanCode = String(code || '').trim().toUpperCase();
+    if (!cleanCode) return false;
+
+    const Coupon = require('../models/Coupon');
+    const coupon = await Coupon.findOne({ code: cleanCode });
+    if (!coupon) return false; // Not a database coupon (legacy env code or unknown)
+
+    // Claim this session exactly once before writing anything.
+    if (sessionId) {
+        const ProcessedEvent = require('../models/ProcessedEvent');
+        try {
+            await new ProcessedEvent({ eventId: `coupon-redeem:${sessionId}`, type: 'coupon_redemption' }).save();
+        } catch (claimErr) {
+            // Duplicate key means this session was already recorded.
+            console.log(`[STRIPE] Coupon redemption already recorded for session ${sessionId}, skipping.`);
+            return false;
+        }
+    }
+
+    await Coupon.updateOne({ _id: coupon._id }, { $inc: { usageCount: 1 } });
+
+    // Keep the in-memory pricing cache in step with the incremented count
+    try {
+        const { setDatabaseCoupon } = require('../services/pricing.service');
+        coupon.usageCount = (coupon.usageCount || 0) + 1;
+        setDatabaseCoupon(coupon);
+    } catch (cacheErr) {
+        console.warn('[STRIPE] Coupon cache sync warning:', cacheErr.message);
+    }
+
+    let purchaser = null;
+    if (userId && userId !== 'guest') {
+        purchaser = await User.findById(userId).catch(() => null);
+    }
+    if (!purchaser && email) {
+        purchaser = await User.findOne({ email: String(email).toLowerCase().trim() }).catch(() => null);
+    }
+    if (purchaser) {
+        await User.findByIdAndUpdate(purchaser._id, { $addToSet: { usedDiscountCodes: coupon.code } })
+            .catch(err => console.error('[STRIPE] Failed to record used discount code:', err));
+    }
+    return true;
+}
+
+/**
  * POST /api/stripe/checkout
  * Generates a dynamic Stripe Checkout session for services.
  */
@@ -344,6 +408,17 @@ const createServiceCheckout = async (req, res) => {
                     });
                 } catch (snapErr) {
                     console.warn('OrderSnapshot save warning (free order):', snapErr.message);
+                }
+
+                // Record the database coupon redemption (usage count + per-customer use)
+                if (dbCoupon && calcResult.discounts.coupon.code === dbCoupon.code &&
+                    String(calcResult.discounts.coupon.source || '').startsWith('DATABASE')) {
+                    await recordDatabaseCouponRedemption({
+                        code: dbCoupon.code,
+                        userId: user ? user._id : null,
+                        email: email || (user ? user.email : null),
+                        sessionId: orderId
+                    }).catch(err => console.error('[STRIPE] Failed to record free-order coupon redemption:', err));
                 }
 
                 // Create Contract record
@@ -990,6 +1065,16 @@ router.post('/webhook', async (req, res) => {
                 await User.findByIdAndUpdate(userId, {
                     $addToSet: { usedDiscountCodes: actualCode }
                 }).catch(err => console.error('[STRIPE] Failed to add used discount code:', err));
+            }
+
+            // Record database coupon redemptions (usage count + per-customer use), once per session
+            if (discountCode && !discountCode.startsWith('DCL_')) {
+                await recordDatabaseCouponRedemption({
+                    code: discountCode,
+                    userId: userId || null,
+                    email: (session.customer_details && session.customer_details.email) || session.customer_email || null,
+                    sessionId: session.id
+                }).catch(err => console.error('[STRIPE] Failed to record coupon redemption:', err));
             }
 
             // Automate 12-month subscription schedule if a subscription exists
@@ -1664,3 +1749,6 @@ router.get('/pricing', (req, res) => {
 });
 
 module.exports = router;
+
+// Exposed for the coupon redemption verification harness (not an HTTP route)
+module.exports.recordDatabaseCouponRedemption = recordDatabaseCouponRedemption;

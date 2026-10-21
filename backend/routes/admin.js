@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ownerAuth = require('../middleware/owner-auth');
+const couponApiKeyAuth = require('../middleware/coupon-api-key');
 const Coupon = require('../models/Coupon');
 const OrderSnapshot = require('../models/OrderSnapshot');
 const { 
@@ -11,8 +12,16 @@ const {
 const { getActivePromotion } = require('../services/promotion.service');
 const { syncDatabaseCoupons } = require('../services/pricing.service');
 
-// Protect all admin endpoints with strict owner authorization
-router.use(ownerAuth);
+// Protect all admin endpoints with strict owner authorization.
+// Coupon endpoints may alternatively use the DISCOUNT_API_KEY header
+// (see middleware/coupon-api-key.js); every other admin path still
+// requires an owner session via ownerAuth, unchanged.
+router.use((req, res, next) => {
+  if (req.path === '/coupons' || req.path.startsWith('/coupons/')) {
+    return couponApiKeyAuth(req, res, next);
+  }
+  return ownerAuth(req, res, next);
+});
 
 // ==========================================
 // 1. PROMOTIONS MANAGEMENT
@@ -115,8 +124,11 @@ router.post('/coupons', async (req, res) => {
       usageModel = 'repeatable', // 'single' (1-time) or 'repeatable' (constant multi-use) or 'custom'
       usageLimit = 0, 
       perCustomerLimit,
+      startsAt,
       expiresAt, 
       minimumSetupSubtotal = 0,
+      minimumMonthlySubtotal = 0,
+      eligibleTiers,
       notes = '' 
     } = req.body;
 
@@ -151,10 +163,13 @@ router.post('/coupons', async (req, res) => {
       appliesTo: ['setup', 'monthly', 'both'].includes(appliesTo) ? appliesTo : 'both',
       usageLimit: finalUsageLimit,
       perCustomerLimit: finalPerCustomer,
+      startsAt: startsAt ? new Date(startsAt) : undefined,
       expiresAt: expiresAt ? new Date(expiresAt) : undefined,
       minimumSetupSubtotal: parseInt(minimumSetupSubtotal, 10) || 0,
+      minimumMonthlySubtotal: parseInt(minimumMonthlySubtotal, 10) || 0,
+      eligibleTiers: Array.isArray(eligibleTiers) ? eligibleTiers.map(t => String(t).trim()).filter(Boolean) : [],
       notes: String(notes || (usageModel === 'single' ? '1-Time Single Use' : 'Constant Repeatable')).trim().slice(0, 500),
-      createdBy: req.user.email
+      createdBy: (req.user && req.user.email) || 'discount-api-key'
     });
 
     await coupon.save();
@@ -169,17 +184,36 @@ router.post('/coupons', async (req, res) => {
 
 /**
  * PATCH /api/admin/coupons/:id
- * Toggles or updates coupon properties
+ * Full edit of coupon properties (window, amounts, limits, minimums, notes)
  */
 router.patch('/coupons/:id', async (req, res) => {
   try {
-    const { enabled, usageLimit, expiresAt, notes } = req.body;
+    const {
+      enabled,
+      amount,
+      type,
+      appliesTo,
+      usageLimit,
+      perCustomerLimit,
+      startsAt,
+      expiresAt,
+      minimumSetupSubtotal,
+      minimumMonthlySubtotal,
+      notes
+    } = req.body;
     const coupon = await Coupon.findById(req.params.id);
     if (!coupon) return res.status(404).json({ error: 'Coupon not found.' });
 
     if (typeof enabled === 'boolean') coupon.enabled = enabled;
+    if (amount !== undefined) coupon.amount = parseInt(amount, 10) || 0;
+    if (type !== undefined) coupon.type = type === 'fixed' ? 'fixed' : 'percentage';
+    if (appliesTo !== undefined && ['setup', 'monthly', 'both'].includes(appliesTo)) coupon.appliesTo = appliesTo;
     if (usageLimit !== undefined) coupon.usageLimit = parseInt(usageLimit, 10) || 0;
+    if (perCustomerLimit !== undefined) coupon.perCustomerLimit = parseInt(perCustomerLimit, 10) || 0;
+    if (startsAt !== undefined) coupon.startsAt = startsAt ? new Date(startsAt) : null;
     if (expiresAt !== undefined) coupon.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    if (minimumSetupSubtotal !== undefined) coupon.minimumSetupSubtotal = parseInt(minimumSetupSubtotal, 10) || 0;
+    if (minimumMonthlySubtotal !== undefined) coupon.minimumMonthlySubtotal = parseInt(minimumMonthlySubtotal, 10) || 0;
     if (notes !== undefined) coupon.notes = String(notes).trim().slice(0, 500);
 
     coupon.updatedAt = new Date();

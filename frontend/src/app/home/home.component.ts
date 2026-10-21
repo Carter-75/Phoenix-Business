@@ -60,7 +60,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     usageLimit: 0,
     perCustomerLimit: 0,
     minimumSetupSubtotal: 0,
-    minimumMonthlySubtotal: 0
+    minimumMonthlySubtotal: 0,
+    startsAt: '',
+    expiresAt: ''
+  };
+
+  editingCouponId = signal<string | null>(null);
+  couponEditForm = {
+    startsAt: '',
+    expiresAt: '',
+    usageLimit: 0,
+    perCustomerLimit: 0
   };
 
   promoOverrideForm = {
@@ -314,7 +324,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const cleanCode = this.newCoupon.code.trim().toUpperCase();
     const isSingle = this.newCoupon.usageModel === 'single';
 
-    const payload = {
+    const payload: any = {
       code: cleanCode,
       type: this.newCoupon.type,
       amount: Number(this.newCoupon.amount) || 0,
@@ -323,14 +333,26 @@ export class HomeComponent implements OnInit, OnDestroy {
       usageLimit: isSingle ? 1 : (Number(this.newCoupon.usageLimit) || 0),
       perCustomerLimit: isSingle ? 1 : 0,
       minimumSetupSubtotal: Number(this.newCoupon.minimumSetupSubtotal) || 0,
+      minimumMonthlySubtotal: Number(this.newCoupon.minimumMonthlySubtotal) || 0,
       notes: isSingle ? '1-Time Single Use coupon' : 'Constant Repeatable coupon'
     };
+
+    // Scheduled window: each date is sent only when the owner picked one.
+    // No startsAt means the coupon starts immediately; no expiresAt means it never expires.
+    if (this.newCoupon.startsAt) {
+      payload.startsAt = new Date(this.newCoupon.startsAt).toISOString();
+    }
+    if (this.newCoupon.expiresAt) {
+      payload.expiresAt = new Date(this.newCoupon.expiresAt).toISOString();
+    }
 
     this.api.post<any>('admin/coupons', payload).subscribe({
       next: () => {
         this.adminLoading.set(false);
         this.adminMessage.set(`Coupon "${cleanCode}" created successfully as ${isSingle ? '1-Time Single Use' : 'Constant Repeatable'}!`);
         this.newCoupon.code = '';
+        this.newCoupon.startsAt = '';
+        this.newCoupon.expiresAt = '';
         this.loadAdminData();
       },
       error: (err) => {
@@ -364,6 +386,57 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.adminMessage.set(err.error?.error || 'Failed to delete coupon.');
       }
     });
+  }
+
+  startCouponEdit(coup: any) {
+    if (!this.isOwner()) return;
+    this.editingCouponId.set(coup._id);
+    this.couponEditForm = {
+      startsAt: this.toDateTimeLocal(coup.startsAt),
+      expiresAt: this.toDateTimeLocal(coup.expiresAt),
+      usageLimit: coup.usageLimit || 0,
+      perCustomerLimit: coup.perCustomerLimit || 0
+    };
+  }
+
+  cancelCouponEdit() {
+    this.editingCouponId.set(null);
+  }
+
+  saveCouponEdit(id: string, code: string) {
+    if (!this.isOwner()) return;
+    this.adminLoading.set(true);
+    this.adminMessage.set('');
+
+    // Blank date fields clear the stored date: no startsAt means the
+    // coupon is active immediately, no expiresAt means it never expires.
+    const payload = {
+      startsAt: this.couponEditForm.startsAt ? new Date(this.couponEditForm.startsAt).toISOString() : null,
+      expiresAt: this.couponEditForm.expiresAt ? new Date(this.couponEditForm.expiresAt).toISOString() : null,
+      usageLimit: Number(this.couponEditForm.usageLimit) || 0,
+      perCustomerLimit: Number(this.couponEditForm.perCustomerLimit) || 0
+    };
+
+    this.api.patch<any>(`admin/coupons/${id}`, payload).subscribe({
+      next: () => {
+        this.adminLoading.set(false);
+        this.editingCouponId.set(null);
+        this.adminMessage.set(`Coupon "${code}" schedule and limits updated.`);
+        this.loadAdminData();
+      },
+      error: (err) => {
+        this.adminLoading.set(false);
+        this.adminMessage.set(err.error?.error || 'Failed to update coupon.');
+      }
+    });
+  }
+
+  private toDateTimeLocal(value: any): string {
+    if (!value) return '';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   ngOnDestroy() {

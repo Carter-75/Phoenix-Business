@@ -102,6 +102,7 @@ SMTP_HOST=smtppro.zoho.com
 SMTP_PORT=465
 PROD_FRONTEND_URL=https://phoenixwebsites.ai
 PRODUCTION=true
+DISCOUNT_API_KEY=          # Optional, see "Discount API Key" below
 TWILIO_SID=                # SMS alerts
 TWILIO_AUTH_TOKEN=
 TWILIO_PHONE=
@@ -112,6 +113,12 @@ PRICE_DATA_STARTER=14900
 PRICE_DATA_PRO=49900
 PRICE_DATA_BUNDLE=79900
 ```
+
+### Discount API Key
+
+Setting `DISCOUNT_API_KEY` enables a machine-to-machine alternative to the owner login session for the coupon endpoints only: `GET`, `POST`, `PATCH`, and `DELETE` on `/api/admin/coupons`, plus the coupon toggle. Requests must send the key value in the `x-api-key` header. Promotions, orders, contracts, and every other admin endpoint still require an owner session.
+
+The key is read from the environment only. It is never stored in code, and leaving the variable unset or empty disables key access entirely. Rotate it by changing the value in the Vercel environment and redeploying.
 
 ## Vercel Crons (2 slots)
 

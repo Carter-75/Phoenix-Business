@@ -672,6 +672,19 @@
             </div>
           </div>
 
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Starts At (Optional)</label>
+              <input type="datetime-local" [(ngModel)]="newCoupon.startsAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+              <div class="text-[10px] text-white/40 mt-1">Leave blank to start immediately. Set a future time to schedule the code.</div>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Expires At (Optional)</label>
+              <input type="datetime-local" [(ngModel)]="newCoupon.expiresAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+              <div class="text-[10px] text-white/40 mt-1">Leave blank for no expiry.</div>
+            </div>
+          </div>
+
           <button (click)="submitNewCoupon()" [disabled]="!newCoupon.code || adminLoading()" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40 flex items-center gap-2">
             <i class="fas fa-plus"></i> Create {{ newCoupon.usageModel === 'single' ? '1-Time' : 'Repeatable' }} Coupon
           </button>
@@ -689,7 +702,7 @@
           </div>
 
           <div class="space-y-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-2">
-            <div *ngFor="let coup of adminCoupons()" class="p-3.5 rounded-lg bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div *ngFor="let coup of adminCoupons()" class="p-3.5 rounded-lg bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3">
               <div>
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="font-mono font-bold text-sm text-emerald-400">{{ coup.code }}</span>
@@ -708,6 +721,11 @@
                   <span>Redeemed: <strong class="text-white/70">{{ coup.usageCount }}</strong> / {{ coup.usageLimit > 0 ? coup.usageLimit : '∞' }}</span>
                   <span *ngIf="coup.notes" class="text-white/30">• {{ coup.notes }}</span>
                 </div>
+                <div class="text-[10px] text-white/40 mt-0.5 flex flex-wrap items-center gap-3">
+                  <span *ngIf="coup.startsAt"><i class="fas fa-play mr-1 text-white/30"></i>Starts: <strong class="text-white/70">{{ coup.startsAt | date:'MMM d, y, h:mm a':'America/Chicago' }} CT</strong></span>
+                  <span *ngIf="coup.expiresAt"><i class="fas fa-stop mr-1 text-white/30"></i>Expires: <strong class="text-white/70">{{ coup.expiresAt | date:'MMM d, y, h:mm a':'America/Chicago' }} CT</strong></span>
+                  <span *ngIf="!coup.expiresAt" class="text-white/30">No expiry</span>
+                </div>
               </div>
 
               <div class="flex items-center gap-2 shrink-0">
@@ -721,11 +739,48 @@
                         class="px-3 py-1.5 rounded text-xs font-bold border transition-colors">
                   {{ coup.enabled ? 'Enabled' : 'Disabled' }}
                 </button>
+                <button (click)="startCouponEdit(coup)" 
+                        class="px-3 py-1.5 rounded text-xs font-bold bg-white/10 text-white/80 border border-white/20 hover:bg-white/20 transition-colors"
+                        title="Edit Schedule and Limits">
+                  <i class="fas fa-edit mr-1"></i> Edit
+                </button>
                 <button (click)="deleteCoupon(coup._id, coup.code)" 
                         class="px-2.5 py-1.5 rounded text-xs font-bold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition-colors"
                         title="Delete Coupon">
                   <i class="fas fa-trash-alt mr-1"></i> Delete
                 </button>
+              </div>
+
+              <!-- Inline Edit: Schedule Window and Usage Limits -->
+              <div *ngIf="editingCouponId() === coup._id" class="basis-full w-full p-3 rounded-lg bg-white/[0.04] border border-white/10 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Starts At</label>
+                    <input type="datetime-local" [(ngModel)]="couponEditForm.startsAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+                    <div class="text-[10px] text-white/40 mt-1">Clear the field for active immediately.</div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Expires At</label>
+                    <input type="datetime-local" [(ngModel)]="couponEditForm.expiresAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+                    <div class="text-[10px] text-white/40 mt-1">Clear the field for no expiry.</div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Usage Limit (0 = Unlimited)</label>
+                    <input type="number" [(ngModel)]="couponEditForm.usageLimit" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Per-Customer Limit (0 = Repeatable)</label>
+                    <input type="number" [(ngModel)]="couponEditForm.perCustomerLimit" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button (click)="saveCouponEdit(coup._id, coup.code)" [disabled]="adminLoading()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40">
+                    <i class="fas fa-save mr-1"></i> Save Changes
+                  </button>
+                  <button (click)="cancelCouponEdit()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold text-white/80 transition-all">
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
