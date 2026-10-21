@@ -21,10 +21,13 @@ function makeWelcomeCode() {
 let transporter = null;
 function getTransporter() {
   if (!transporter) {
+    // Mirrors the proven transport in routes/cron.js exactly (port
+    // 465 with secure tied to the port). Do not improvise here: a
+    // 587/no-secure variant silently failed every send in production.
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtppro.zoho.com',
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: false,
+      port: parseInt(process.env.SMTP_PORT || '465', 10),
+      secure: parseInt(process.env.SMTP_PORT || '465', 10) === 465,
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
     });
   }
@@ -32,34 +35,51 @@ function getTransporter() {
 }
 
 /**
- * Mint the code and send the welcome email, unless this account
- * already got one. Returns the code, or null when already sent or
- * when delivery fails (the stamp is only set after a successful
- * send, so a failure can retry on a later acceptance).
+ * Mint the code, stamp the account, and send the welcome email.
+ * Ordering is deliberate and load-bearing:
+ *  1. If a welcome coupon already exists for this account (an
+ *     earlier attempt minted one but never finished), adopt it.
+ *     Never mint a second one.
+ *  2. Stamp the account (code + time) and save BEFORE sending, so a
+ *     failed send can never retrigger a mint/send loop on the next
+ *     session check.
+ *  3. Send the email with the adopted or new code. A send failure
+ *     is logged by the caller; the code stays valid on the account
+ *     and shows in the account record either way.
+ * Returns the account's welcome code, or null when already welcomed.
  */
 async function mintAndSendWelcome(user) {
   if (!user || user.welcomeEmailSentAt) return null;
-  let code = makeWelcomeCode();
-  for (let attempt = 0; attempt < 5; attempt++) {
-    try {
-      await Coupon.create({
-        code,
-        type: 'percentage',
-        amount: 5,
-        appliesTo: 'both',
-        usageLimit: 1,
-        perCustomerLimit: 1,
-        issuedToUserId: String(user._id),
-        startsAt: new Date(),
-        notes: `Welcome code for ${user.email}`,
-        createdBy: 'welcome'
-      });
-      break;
-    } catch (e) {
-      if (e && e.code === 11000 && attempt < 4) { code = makeWelcomeCode(); continue; }
-      throw e;
+  let code = null;
+  const existing = await Coupon.findOne({ issuedToUserId: String(user._id), createdBy: 'welcome' });
+  if (existing) {
+    code = existing.code;
+  } else {
+    code = makeWelcomeCode();
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        await Coupon.create({
+          code,
+          type: 'percentage',
+          amount: 5,
+          appliesTo: 'both',
+          usageLimit: 1,
+          perCustomerLimit: 1,
+          issuedToUserId: String(user._id),
+          startsAt: new Date(),
+          notes: `Welcome code for ${user.email}`,
+          createdBy: 'welcome'
+        });
+        break;
+      } catch (e) {
+        if (e && e.code === 11000 && attempt < 4) { code = makeWelcomeCode(); continue; }
+        throw e;
+      }
     }
   }
+  user.welcomeCouponCode = code;
+  user.welcomeEmailSentAt = new Date();
+  await user.save();
   const base = process.env.PROD_FRONTEND_URL || 'https://phoenixwebsites.ai';
   const text = [
     `Hi ${user.firstName || 'there'}, welcome to Phoenix Websites AI.`,
@@ -77,9 +97,6 @@ async function mintAndSendWelcome(user) {
     text,
     html
   });
-  user.welcomeCouponCode = code;
-  user.welcomeEmailSentAt = new Date();
-  await user.save();
   return code;
 }
 
