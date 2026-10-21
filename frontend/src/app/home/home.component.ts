@@ -43,10 +43,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     const em = (user.email || '').toLowerCase().trim();
     return em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi';
   });
-  activeAdminTab = signal<'visual' | 'promotions' | 'coupons' | 'orders'>('visual');
+  activeAdminTab = signal<'visual' | 'promotions' | 'coupons' | 'orders' | 'groupbuy'>('visual');
 
   adminPromotions = signal<any>(null);
   adminCoupons = signal<any[]>([]);
+  adminGroupBuys = signal<any[]>([]);
+  gbEntries = signal<any[]>([]);
+  gbEntriesFor = signal<string>('');
+  gbForm = {
+    name: '',
+    percentOff: 90,
+    joinPriceDollars: 100,
+    slotsNeeded: 10,
+    windowDays: 6,
+    capSetupDollars: 1000,
+    capMonthlyDollars: 10,
+    capacityReason: '',
+    redeemWindowDays: 90
+  };
   adminOrders = signal<any[]>([]);
   adminLoading = signal(false);
   adminMessage = signal<string>('');
@@ -254,6 +268,64 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  loadGroupBuys() {
+    if (!this.isOwner()) return;
+    this.api.get<any>('group-buy/admin/events').subscribe({
+      next: (res) => this.adminGroupBuys.set(res?.events || []),
+      error: () => {}
+    });
+  }
+
+  createGroupBuy() {
+    if (!this.isOwner()) return;
+    this.adminLoading.set(true);
+    this.adminMessage.set('');
+    const f = this.gbForm;
+    this.api.post<any>('group-buy/admin/events', {
+      name: f.name,
+      percentOff: f.percentOff,
+      joinPriceCents: Math.round(f.joinPriceDollars * 100),
+      slotsNeeded: f.slotsNeeded,
+      windowDays: f.windowDays,
+      capSetupCents: Math.round(f.capSetupDollars * 100),
+      capMonthlyCents: Math.round(f.capMonthlyDollars * 100),
+      capacityReason: f.capacityReason,
+      redeemWindowDays: f.redeemWindowDays
+    }).subscribe({
+      next: () => {
+        this.adminLoading.set(false);
+        this.adminMessage.set('Group buy draft created. Open it when you are ready to start the clock.');
+        this.loadGroupBuys();
+      },
+      error: (err) => {
+        this.adminLoading.set(false);
+        this.adminMessage.set(err.error?.error || 'Could not create the group buy.');
+      }
+    });
+  }
+
+  openGroupBuy(id: string) {
+    this.api.post<any>(`group-buy/admin/events/${id}/open`, {}).subscribe({
+      next: () => { this.adminMessage.set('Group buy is open. The deadline clock is running.'); this.loadGroupBuys(); },
+      error: (err) => this.adminMessage.set(err.error?.error || 'Could not open the event.')
+    });
+  }
+
+  cancelGroupBuy(id: string) {
+    this.api.post<any>(`group-buy/admin/events/${id}/cancel`, {}).subscribe({
+      next: () => { this.adminMessage.set('Group buy cancelled. Joiners were emailed that they were not charged.'); this.loadGroupBuys(); },
+      error: (err) => this.adminMessage.set(err.error?.error || 'Could not cancel the event.')
+    });
+  }
+
+  viewGbEntries(id: string) {
+    this.gbEntriesFor.set(id);
+    this.api.get<any>(`group-buy/admin/events/${id}/entries`).subscribe({
+      next: (res) => this.gbEntries.set(res?.entries || []),
+      error: () => this.gbEntries.set([])
+    });
   }
 
   loadAdminData() {

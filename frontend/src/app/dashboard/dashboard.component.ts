@@ -67,6 +67,16 @@ import { environment } from '../../environments/environment';
             <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
           </div>
 
+          <div *ngIf="groupBuyEntries().length > 0" class="text-left bg-white/5 rounded-2xl border border-orange-500/25 p-6 max-w-4xl mx-auto mb-8 w-full">
+            <h3 class="text-lg font-bold text-white mb-3"><i class="fa-solid fa-users text-orange-500 mr-2"></i>My Group Buys</h3>
+            <div *ngFor="let entry of groupBuyEntries()" class="py-3 border-t border-white/10 first:border-t-0">
+              <p class="text-white font-semibold">{{ entry.event?.name }} <span class="text-orange-400 text-sm font-bold ml-2">{{ entry.status === 'joined' ? 'Joined, waiting on the group' : entry.status === 'charged' ? 'Discount ready' : entry.status === 'charge_failed' ? 'Payment needs fixing' : entry.status === 'not_charged' ? 'Group did not fill, never charged' : entry.status === 'dropped' ? 'Spot released' : entry.status }}</span></p>
+              <p *ngIf="entry.status === 'charged' && entry.couponCode" class="text-slate-300 text-sm mt-1">Your code: <span class="font-mono text-white tracking-widest">{{ entry.couponCode }}</span> ({{ entry.event?.percentOff }}% off up to {{ gbMoney(entry.event?.capSetupCents) }} setup / {{ gbMoney(entry.event?.capMonthlyCents) }} monthly). Enter it at checkout.</p>
+              <p *ngIf="entry.status === 'joined'" class="text-slate-400 text-sm mt-1">Your card is charged {{ gbMoney(entry.joinPriceCents) }} only if the group fills by the deadline. <a routerLink="/group-buy" class="underline text-orange-300">View or leave the group</a></p>
+              <p *ngIf="entry.status === 'charge_failed'" class="text-slate-400 text-sm mt-1">Your saved card could not be charged. <a routerLink="/group-buy" class="underline text-orange-300">Fix payment on the group buy page</a> before {{ entry.fixDeadline | date:'medium' }}.</p>
+            </div>
+          </div>
+
           <div *ngIf="!loadingContracts() && contracts().length === 0" class="text-center py-12 bg-white/5 rounded-2xl border border-white/10 max-w-lg mx-auto">
              <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-4"></i>
              <h3 class="text-xl font-bold text-white mb-2">No Active Projects</h3>
@@ -389,11 +399,25 @@ export class DashboardComponent implements OnInit {
     this.cpConfirm = '';
   }
 
+  groupBuyEntries = signal<any[]>([]);
+
+  gbMoney(cents: number | null | undefined): string {
+    return `$${(((cents || 0) / 100)).toFixed(0)}`;
+  }
+
   constructor() {
     effect(() => {
       if (this.api.currentUser()) {
         this.fetchContracts();
+        this.fetchGroupBuys();
       }
+    });
+  }
+
+  fetchGroupBuys() {
+    this.api.get<any>('group-buy/mine').subscribe({
+      next: (res) => this.groupBuyEntries.set((res?.entries || []).filter((e: any) => e.status !== 'cancelled_by_buyer')),
+      error: () => {}
     });
   }
 

@@ -11,8 +11,33 @@ const couponSchema = new mongoose.Schema({
   },
   type: { 
     type: String, 
-    enum: ['percentage', 'fixed'], 
+    enum: ['percentage', 'fixed', 'percentage_capped'], 
     default: 'percentage' 
+  },
+  // percentage_capped only: the percent applies to at most this much of
+  // the subtotal (in cents). Example: 90% with capSetupCents 100000
+  // takes 90% off the first $1,000 of the setup subtotal, so the total
+  // setup discount can never exceed $900 no matter how big the cart is.
+  capSetupCents: { 
+    type: Number, 
+    default: 0 
+  },
+  capMonthlyCents: { 
+    type: Number, 
+    default: 0 
+  },
+  // When true, this coupon ignores the PRICING_FLOORS minimum prices.
+  // Used by group buy discounts, which are allowed to go below the
+  // normal minimums by design.
+  bypassFloors: { 
+    type: Boolean, 
+    default: false 
+  },
+  // When set, only this user account may redeem the code (group buy
+  // codes are issued to one buyer and must not be shared).
+  issuedToUserId: { 
+    type: String, 
+    default: '' 
   },
   amount: { 
     type: Number, 

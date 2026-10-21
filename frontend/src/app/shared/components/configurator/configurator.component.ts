@@ -648,9 +648,14 @@ export class ProjectConfiguratorComponent {
             type: res.type || 'percentage',
             percentage: res.percentage || 0,
             fixedCents: res.fixedCents || 0,
-            appliesTo: res.appliesTo || 'both'
+            appliesTo: res.appliesTo || 'both',
+            capSetupCents: res.capSetupCents || 0,
+            capMonthlyCents: res.capMonthlyCents || 0,
+            bypassFloors: res.bypassFloors === true
           });
-          const savingsDesc = res.percentage ? `${res.percentage}% off` : `$${(res.fixedCents / 100).toFixed(0)} off`;
+          const savingsDesc = res.type === 'percentage_capped'
+            ? `${res.percentage}% off up to $${((res.capSetupCents || 0) / 100).toFixed(0)}`
+            : res.percentage ? `${res.percentage}% off` : `$${(res.fixedCents / 100).toFixed(0)} off`;
           this.couponMessage.set({ text: `Coupon "${cleanCode}" applied: ${savingsDesc}!`, isError: false });
         } else {
           this.couponMessage.set({ text: res.error || 'This coupon code is not valid.', isError: true });

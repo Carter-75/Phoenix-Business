@@ -411,6 +411,14 @@
                 class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
           <i class="fas fa-ticket-alt mr-1.5"></i> Coupons
         </button>
+        <button (click)="activeAdminTab.set('groupbuy'); loadGroupBuys()" 
+                [class.border-orange-500]="activeAdminTab() === 'groupbuy'"
+                [class.text-orange-400]="activeAdminTab() === 'groupbuy'"
+                [class.border-transparent]="activeAdminTab() !== 'groupbuy'"
+                [class.text-white/60]="activeAdminTab() !== 'groupbuy'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-users mr-1.5"></i> Group Buy
+        </button>
         <button (click)="activeAdminTab.set('orders'); loadAdminData()" 
                 [class.border-orange-500]="activeAdminTab() === 'orders'"
                 [class.text-orange-400]="activeAdminTab() === 'orders'"
@@ -788,6 +796,56 @@
       </div>
 
       <!-- TAB 4: SNAPSHOTS (Owner Only) -->
+      <!-- Group Buy Admin -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'groupbuy'" class="space-y-6">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Group Buy (sells a capped discount, not a website)</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <label class="space-y-1 block"><span class="text-white/60">Name</span>
+              <input [(ngModel)]="gbForm.name" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white" placeholder="October Group Buy"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Percent off</span>
+              <input type="number" [(ngModel)]="gbForm.percentOff" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Join price ($)</span>
+              <input type="number" [(ngModel)]="gbForm.joinPriceDollars" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Slots needed (3-10)</span>
+              <input type="number" [(ngModel)]="gbForm.slotsNeeded" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Window (days)</span>
+              <input type="number" [(ngModel)]="gbForm.windowDays" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Setup cap ($ covered)</span>
+              <input type="number" [(ngModel)]="gbForm.capSetupDollars" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Monthly cap ($ covered)</span>
+              <input type="number" [(ngModel)]="gbForm.capMonthlyDollars" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Redeem window (days)</span>
+              <input type="number" [(ngModel)]="gbForm.redeemWindowDays" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+          </div>
+          <label class="space-y-1 block text-xs"><span class="text-white/60">Capacity reason (printed next to the slot count)</span>
+            <input [(ngModel)]="gbForm.capacityReason" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white" placeholder="One full build block: this many sites is what I can build at once, which is what makes the group price possible."></label>
+          <button (click)="createGroupBuy()" [disabled]="adminLoading()" class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-400 text-xs font-bold uppercase tracking-wider disabled:opacity-50">Create draft</button>
+          <p class="text-[11px] text-white/40">One draft or open event at a time. Opening locks the threshold and starts the deadline. Defaults match the approved numbers: 90% off, $100 join, 10 slots, 6 days, caps $1,000 setup / $10 monthly, 90 days to redeem.</p>
+        </div>
+
+        <div class="space-y-3">
+          <div *ngFor="let ev of adminGroupBuys()" class="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-xs space-y-2">
+            <div class="flex flex-wrap justify-between gap-2">
+              <span class="font-bold text-white text-sm">{{ ev.name }}</span>
+              <span class="uppercase tracking-wider text-orange-300">{{ ev.status }}</span>
+            </div>
+            <p class="text-white/60">{{ ev.percentOff }}% off up to ${{ (ev.capSetupCents/100).toFixed(0) }} setup / ${{ (ev.capMonthlyCents/100).toFixed(0) }} monthly &middot; join ${{ (ev.joinPriceCents/100).toFixed(0) }} &middot; slots {{ ev.slotsNeeded }} &middot; window {{ ev.windowDays }}d<span *ngIf="ev.deadline"> &middot; deadline {{ ev.deadline | date:'medium':'America/Chicago' }}</span></p>
+            <p class="text-white/60">Entries: <span *ngFor="let c of ev.counts | keyvalue">{{ c.key }}: {{ c.value }} &nbsp;</span></p>
+            <div class="flex gap-2 flex-wrap">
+              <button *ngIf="ev.status === 'draft'" (click)="openGroupBuy(ev._id)" class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 font-bold">Open event</button>
+              <button *ngIf="ev.status === 'draft' || ev.status === 'open'" (click)="cancelGroupBuy(ev._id)" class="px-3 py-1.5 rounded bg-red-600/80 hover:bg-red-500 font-bold">Cancel event</button>
+              <button (click)="viewGbEntries(ev._id)" class="px-3 py-1.5 rounded border border-white/25 hover:bg-white/10 font-bold">View entries</button>
+            </div>
+            <div *ngIf="gbEntriesFor() === ev._id" class="pt-2 border-t border-white/10">
+              <p *ngFor="let en of gbEntries()" class="text-white/70 py-0.5">{{ en.user?.email || 'unknown' }} &middot; {{ en.status }}<span *ngIf="en.couponCode"> &middot; code {{ en.couponCode }}</span></p>
+              <p *ngIf="gbEntries().length === 0" class="text-white/40 italic">No entries yet.</p>
+            </div>
+          </div>
+          <p *ngIf="adminGroupBuys().length === 0" class="text-xs text-white/40 italic text-center py-4">No group buys yet.</p>
+        </div>
+      </div>
+
       <div *ngIf="isOwner() && activeAdminTab() === 'orders'" class="space-y-4">
         <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
           <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Immutable Order Snapshots</h4>

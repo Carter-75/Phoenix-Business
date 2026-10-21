@@ -49,6 +49,10 @@ export const routes: Routes = [
     path: 'data-cleanup', 
     loadComponent: () => import('./data-cleanup/data-cleanup.component').then(m => m.DataCleanupComponent) 
   },
+  { 
+    path: 'group-buy', 
+    loadComponent: () => import('./group-buy/group-buy.component').then(m => m.GroupBuyComponent) 
+  },
 
   // Company & Verification
   { 

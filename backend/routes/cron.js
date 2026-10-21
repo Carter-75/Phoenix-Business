@@ -216,6 +216,16 @@ router.get('/daily-renewals', async (req, res) => {
 
     console.log('[CRON] Running daily cron job for contract renewals and review requests...');
     try {
+        // 1b. GROUP BUY DEADLINE SWEEP (no third cron slot exists, so it
+        // rides here: missed deadlines, stalled fills, expired fix windows)
+        try {
+            const { sweepDeadlines } = require('../services/group-buy.service');
+            const gb = await sweepDeadlines();
+            console.log('[CRON] Group buy sweep:', JSON.stringify(gb));
+        } catch (gbErr) {
+            console.error('[CRON] Group buy sweep failed:', gbErr.message);
+        }
+
         // 2. PRODUCTION CONTRACT LIFECYCLE STATUTORY RENEWALS (Wis. Stat. § 134.49)
         const { processDailyRenewals } = require('../services/renewal-scheduler.service');
         const referenceDate = req.query.date ? new Date(req.query.date) : new Date();

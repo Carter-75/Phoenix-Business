@@ -530,7 +530,7 @@ export class PricingService {
   public totalPages = signal<number>(6);
   public selectedFeatures = signal<string[]>([]);
   public discountCode = signal<string>('');
-  public appliedCoupon = signal<{ code: string; type: 'percentage' | 'fixed'; percentage: number; fixedCents: number; appliesTo: string } | null>(null);
+  public appliedCoupon = signal<{ code: string; type: 'percentage' | 'fixed' | 'percentage_capped'; percentage: number; fixedCents: number; appliesTo: string; capSetupCents?: number; capMonthlyCents?: number; bypassFloors?: boolean } | null>(null);
 
   // Comprehensive reactive calculation computed from user state & active promotion
   public calculation = computed<UnifiedPricingCalculation>(() => {
@@ -651,12 +651,16 @@ export class PricingService {
       if (applied.appliesTo === 'setup' || applied.appliesTo === 'both') {
         couponSetupSavings = applied.type === 'percentage'
           ? Math.round(postPromoSetup * (applied.percentage / 100))
-          : Math.min(postPromoSetup, applied.fixedCents);
+          : applied.type === 'percentage_capped'
+            ? Math.round(Math.min(postPromoSetup, applied.capSetupCents || 0) * (applied.percentage / 100))
+            : Math.min(postPromoSetup, applied.fixedCents);
       }
       if (applied.appliesTo === 'monthly' || applied.appliesTo === 'both') {
         couponMonthlySavings = applied.type === 'percentage'
           ? Math.round(postPromoMonthly * (applied.percentage / 100))
-          : Math.min(postPromoMonthly, applied.fixedCents);
+          : applied.type === 'percentage_capped'
+            ? Math.round(Math.min(postPromoMonthly, applied.capMonthlyCents || 0) * (applied.percentage / 100))
+            : Math.min(postPromoMonthly, applied.fixedCents);
       }
     }
 
@@ -672,9 +676,12 @@ export class PricingService {
       : 0;
     const is100PercentDiscount = effectiveSetupDiscountRatio >= 0.9999 && effectiveMonthlyDiscountRatio >= 0.9999;
 
-    // Final prices: bypass floors for 100% discount, otherwise apply minimum floors
-    const finalSetupCents = is100PercentDiscount ? 0 : Math.max(79900, postCouponSetup);
-    const finalMonthlyCents = is100PercentDiscount ? 0 : Math.max(4900, postCouponMonthly);
+    // Final prices: bypass floors for 100% discount and for coupons
+    // flagged bypassFloors (group buy discounts have no minimum),
+    // otherwise apply minimum floors
+    const bypassFloors = Boolean(applied && applied.bypassFloors);
+    const finalSetupCents = is100PercentDiscount ? 0 : bypassFloors ? postCouponSetup : Math.max(79900, postCouponSetup);
+    const finalMonthlyCents = is100PercentDiscount ? 0 : bypassFloors ? postCouponMonthly : Math.max(4900, postCouponMonthly);
 
     // 30-day deferred billing schedule
     const firstBillingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -854,7 +861,7 @@ export class PricingService {
     this.discountCode.set(code.trim().toUpperCase());
   }
 
-  public applyValidatedCoupon(coupon: { code: string; type: 'percentage' | 'fixed'; percentage: number; fixedCents: number; appliesTo: string } | null) {
+  public applyValidatedCoupon(coupon: { code: string; type: 'percentage' | 'fixed' | 'percentage_capped'; percentage: number; fixedCents: number; appliesTo: string; capSetupCents?: number; capMonthlyCents?: number; bypassFloors?: boolean } | null) {
     this.appliedCoupon.set(coupon);
     if (coupon) {
       this.discountCode.set(coupon.code);

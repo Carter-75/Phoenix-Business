@@ -679,6 +679,21 @@ function calculateProjectPrice(input = {}, options = {}) {
             couponDiscountMonthly = Math.min(postPromoMonthly, fixedCents);
           }
           couponSource = `DATABASE ($${(fixedCents / 100).toFixed(2)})`;
+        } else if (dbCoupon.type === 'percentage_capped') {
+          // Percent off, but the percent only applies to a capped slice
+          // of the subtotal, so the maximum dollar discount is bounded:
+          // discount = pct% of min(subtotal, cap). Floors are handled
+          // below via dbCoupon.bypassFloors.
+          const pct = Math.min(100, Math.max(0, parseInt(dbCoupon.amount, 10) || 0));
+          const capS = parseInt(dbCoupon.capSetupCents, 10) || 0;
+          const capM = parseInt(dbCoupon.capMonthlyCents, 10) || 0;
+          if (appliesTo === 'setup' || appliesTo === 'both') {
+            couponDiscountSetup = Math.round(Math.min(postPromoSetup, capS) * (pct / 100));
+          }
+          if (appliesTo === 'monthly' || appliesTo === 'both') {
+            couponDiscountMonthly = Math.round(Math.min(postPromoMonthly, capM) * (pct / 100));
+          }
+          couponSource = `DATABASE (${pct}% capped)`;
         } else {
           const pct = Math.min(100, Math.max(0, parseInt(dbCoupon.amount, 10) || 0));
           if (appliesTo === 'setup' || appliesTo === 'both') {
@@ -727,11 +742,21 @@ function calculateProjectPrice(input = {}, options = {}) {
   let finalSetupCents = finalSetupBeforeFloor;
   let finalMonthlyCents = finalMonthlyBeforeFloor;
 
+  // A coupon flagged bypassFloors (group buy discounts) may push prices
+  // below the profit floors on purpose; there is no minimum for them.
+  const couponBypassesFloors = Boolean(
+    appliedCouponCode && options && options.coupon && options.coupon.bypassFloors
+  );
+
   if (!isTestMode) {
     if (is100PercentDiscount) {
       // 100% discount: bypass floors entirely, allow truly free order
       finalSetupCents = 0;
       finalMonthlyCents = 0;
+    } else if (couponBypassesFloors) {
+      // Floors intentionally skipped for this coupon.
+      finalSetupCents = finalSetupBeforeFloor;
+      finalMonthlyCents = finalMonthlyBeforeFloor;
     } else {
       // Normal case: apply discount cap and minimum floors
       if (totalSetupDiscount > maxAllowedSetupDiscount) {

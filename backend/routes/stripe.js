@@ -168,11 +168,23 @@ router.post('/validate-discount', async (req, res) => {
             if (user && dbCoupon.perCustomerLimit > 0 && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
                 return res.status(400).json({ error: 'You have already used this single-use discount code.' });
             }
+            // Account-bound codes (group buy discounts) belong to one buyer.
+            if (dbCoupon.issuedToUserId) {
+                if (!user) {
+                    return res.status(400).json({ error: 'This code was issued to a specific account. Sign in with that account to use it.' });
+                }
+                if (String(dbCoupon.issuedToUserId) !== String(user._id)) {
+                    return res.status(400).json({ error: 'This discount code belongs to a different account.' });
+                }
+            }
             return res.json({ 
                 valid: true, 
-                percentage: dbCoupon.type === 'percentage' ? dbCoupon.amount : 0, 
+                percentage: (dbCoupon.type === 'percentage' || dbCoupon.type === 'percentage_capped') ? dbCoupon.amount : 0, 
                 fixedCents: dbCoupon.type === 'fixed' ? dbCoupon.amount : 0,
                 type: dbCoupon.type,
+                capSetupCents: dbCoupon.capSetupCents || 0,
+                capMonthlyCents: dbCoupon.capMonthlyCents || 0,
+                bypassFloors: dbCoupon.bypassFloors === true,
                 appliesTo: dbCoupon.appliesTo,
                 usageModel: dbCoupon.usageLimit === 1 ? 'single' : (dbCoupon.usageLimit === 0 ? 'repeatable' : 'custom'),
                 source: 'database'
@@ -328,6 +340,12 @@ const createServiceCheckout = async (req, res) => {
             if (discountCode) {
                 const Coupon = require('../models/Coupon');
                 dbCoupon = await Coupon.findOne({ code: String(discountCode).trim().toUpperCase(), enabled: true });
+            }
+
+            // Account-bound codes (group buy discounts) redeem only for
+            // the account they were issued to.
+            if (dbCoupon && dbCoupon.issuedToUserId && String(dbCoupon.issuedToUserId) !== String(user._id)) {
+                return res.status(403).json({ error: 'This discount code belongs to a different account.' });
             }
 
             calcResult = calculateProjectPrice(calcInput, { coupon: dbCoupon });
@@ -1022,10 +1040,44 @@ router.post('/webhook', async (req, res) => {
     
     // Process the event
     try {
+        // Group buy: a saved card can complete a join even if the buyer
+        // closed the tab before the browser called back.
+        if (event.type === 'setup_intent.succeeded') {
+            try {
+                const intent = event.data.object;
+                if (intent.metadata && intent.metadata.eventId && intent.metadata.userId) {
+                    const User = require('../models/user');
+                    const gbUser = await User.findById(intent.metadata.userId);
+                    if (gbUser) {
+                        const { completeJoin } = require('../services/group-buy.service');
+                        await completeJoin(gbUser, intent.id);
+                    }
+                }
+            } catch (gbErr) {
+                console.error('[STRIPE] Group buy setup_intent handling failed:', gbErr.message);
+            }
+            return res.json({ received: true });
+        }
+
         if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
             const session = event.data.object;
             // Delayed payment methods can complete checkout before money is paid.
             if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return res.json({ received: true, pending: true });
+
+            // Group buy fix-window payment: issue the buyer's discount.
+            if (session.metadata && session.metadata.purpose === 'group_buy_fix') {
+                try {
+                    const User = require('../models/user');
+                    const gbUser = await User.findById(session.metadata.userId);
+                    if (gbUser) {
+                        const { completeFixPayment } = require('../services/group-buy.service');
+                        await completeFixPayment(gbUser, session.metadata.entryId, session.id);
+                    }
+                } catch (gbErr) {
+                    console.error('[STRIPE] Group buy fix payment handling failed:', gbErr.message);
+                }
+                return res.json({ received: true });
+            }
 
             if (session.metadata && session.metadata.action === 'cancellation_payment') {
                 try {

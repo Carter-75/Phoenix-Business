@@ -31,6 +31,7 @@
     { "source": "/services", "destination": { "service": "frontend" } },
     { "source": "/services/:path*", "destination": { "service": "frontend" } },
     { "source": "/data-cleanup", "destination": { "service": "frontend" } },
+    { "source": "/group-buy", "destination": { "service": "frontend" } },
     { "source": "/about", "destination": { "service": "frontend" } },
     { "source": "/reviews", "destination": { "service": "frontend" } },
     { "source": "/terms", "destination": { "service": "frontend" } },

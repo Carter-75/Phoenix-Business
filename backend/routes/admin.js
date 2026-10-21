@@ -158,8 +158,12 @@ router.post('/coupons', async (req, res) => {
 
     const coupon = new Coupon({
       code: cleanCode,
-      type: type === 'fixed' ? 'fixed' : 'percentage',
+      type: type === 'fixed' ? 'fixed' : (type === 'percentage_capped' ? 'percentage_capped' : 'percentage'),
       amount: parseInt(amount, 10),
+      capSetupCents: parseInt(req.body.capSetupCents, 10) || 0,
+      capMonthlyCents: parseInt(req.body.capMonthlyCents, 10) || 0,
+      bypassFloors: req.body.bypassFloors === true,
+      issuedToUserId: req.body.issuedToUserId ? String(req.body.issuedToUserId) : '',
       appliesTo: ['setup', 'monthly', 'both'].includes(appliesTo) ? appliesTo : 'both',
       usageLimit: finalUsageLimit,
       perCustomerLimit: finalPerCustomer,
@@ -206,7 +210,11 @@ router.patch('/coupons/:id', async (req, res) => {
 
     if (typeof enabled === 'boolean') coupon.enabled = enabled;
     if (amount !== undefined) coupon.amount = parseInt(amount, 10) || 0;
-    if (type !== undefined) coupon.type = type === 'fixed' ? 'fixed' : 'percentage';
+    if (type !== undefined) coupon.type = type === 'fixed' ? 'fixed' : (type === 'percentage_capped' ? 'percentage_capped' : 'percentage');
+    if (req.body.capSetupCents !== undefined) coupon.capSetupCents = parseInt(req.body.capSetupCents, 10) || 0;
+    if (req.body.capMonthlyCents !== undefined) coupon.capMonthlyCents = parseInt(req.body.capMonthlyCents, 10) || 0;
+    if (req.body.bypassFloors !== undefined) coupon.bypassFloors = req.body.bypassFloors === true;
+    if (req.body.issuedToUserId !== undefined) coupon.issuedToUserId = req.body.issuedToUserId ? String(req.body.issuedToUserId) : '';
     if (appliesTo !== undefined && ['setup', 'monthly', 'both'].includes(appliesTo)) coupon.appliesTo = appliesTo;
     if (usageLimit !== undefined) coupon.usageLimit = parseInt(usageLimit, 10) || 0;
     if (perCustomerLimit !== undefined) coupon.perCustomerLimit = parseInt(perCustomerLimit, 10) || 0;
