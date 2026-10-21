@@ -334,6 +334,35 @@ router.get('/users', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/admin/users/:id/resend-welcome
+ * Re-sends an account's welcome email (owner only). Clears the
+ * welcomed stamp and runs the welcome flow awaited inside this
+ * request, so the response reports the actual SMTP outcome. The
+ * flow adopts the account's existing code, so the code never
+ * changes. Added after the owner account's own welcome was stamped
+ * but never delivered by a frozen fire-and-forget send.
+ */
+router.post('/users/:id/resend-welcome', async (req, res) => {
+  try {
+    const User = require('../models/user');
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    user.welcomeEmailSentAt = undefined;
+    await user.save();
+    const { mintAndSendWelcome } = require('../services/welcome.service');
+    try {
+      const code = await mintAndSendWelcome(user);
+      return res.json({ success: true, code: code || user.welcomeCouponCode || null });
+    } catch (e) {
+      return res.status(502).json({ success: false, error: `Welcome send failed: ${e.message}` });
+    }
+  } catch (err) {
+    console.error('Error resending welcome:', err);
+    res.status(500).json({ error: 'Failed to resend welcome email.' });
+  }
+});
+
 router.get('/orders', async (req, res) => {
   try {
     const orders = await OrderSnapshot.find().sort({ createdAt: -1 }).limit(100);

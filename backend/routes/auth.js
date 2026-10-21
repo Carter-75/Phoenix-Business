@@ -6,8 +6,15 @@ const { getDynamicPolicies, ACCOUNT_TERMS_VERSION } = require('../services/legal
 const { mintAndSendWelcome } = require('../services/welcome.service');
 const outreachOffer = require('../services/outreach-offer.service');
 
-function fireWelcome(user) {
-  mintAndSendWelcome(user).catch(e => console.error('[AUTH] welcome email failed', e.message));
+async function fireWelcome(user) {
+  // Awaited by every caller on purpose: a fire-and-forget send on
+  // serverless can be frozen after the account stamp saves but
+  // before SMTP finishes, recording a welcome that never left
+  // (proven in production Oct 21, 2026: stamped, no error logged,
+  // and no copy anywhere in the mailbox). This runs once per
+  // account, so the small delay is acceptable.
+  try { await mintAndSendWelcome(user); }
+  catch (e) { console.error('[AUTH] welcome email failed', e.message); }
 }
 
 /**
@@ -17,9 +24,9 @@ function fireWelcome(user) {
  * sign-in or session check. mintAndSendWelcome self-guards, so this
  * can never send twice. No account is excluded, owner included.
  */
-function fireWelcomeIfPending(user) {
+async function fireWelcomeIfPending(user) {
   if (user && !user.isPending && user.termsAcceptedVersion === ACCOUNT_TERMS_VERSION && !user.welcomeEmailSentAt) {
-    fireWelcome(user);
+    await fireWelcome(user);
   }
 }
 const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
@@ -56,7 +63,7 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
-    if (acceptedTerms === true) fireWelcome(user);
+    if (acceptedTerms === true) await fireWelcome(user);
     // Outreach first-5: awaited on purpose (the welcome saga's
     // lesson); a failure is logged and never blocks the signup.
     try { await outreachOffer.issueOutreachCode(user); }
@@ -91,7 +98,7 @@ router.post('/register', async (req, res) => {
           user.hasAcceptedContract = true;
           user.eventEmailsOptIn = true;
           await user.save();
-          fireWelcome(user);
+          await fireWelcome(user);
         } else {
           return res.status(403).json({
             code: 'TERMS_UPDATE_REQUIRED',
@@ -101,7 +108,7 @@ router.post('/register', async (req, res) => {
         }
       }
 
-      fireWelcomeIfPending(user);
+      await fireWelcomeIfPending(user);
       req.login(user, (err) => {
         if (err) return next(err);
         return res.json(user);
@@ -137,14 +144,14 @@ router.get('/google/callback', (req, res, next) => {
     }
     
     // Log the user in
-    req.login(user, (loginErr) => {
+    req.login(user, async (loginErr) => {
       if (loginErr) {
         console.error('[AUTH] Session login error:', loginErr.message);
         const errorMsg = encodeURIComponent('Session error. Please try signing in again.');
         return res.redirect(`${frontendUrl}/services?auth_error=${errorMsg}`);
       }
-      
-      fireWelcomeIfPending(user);
+
+      await fireWelcomeIfPending(user);
       // Terms gate for Google sign-in: OAuth has no password step to
       // attach the re-check to, so an established account on old terms
       // lands on the re-acceptance gate before anything else opens.
@@ -165,7 +172,7 @@ router.get('/google/callback', (req, res, next) => {
 });
 
 // @route   GET /auth/user
-router.get('/user', (req, res) => {
+router.get('/user', async (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
     // A policy change logs established accounts out: if this session
     // predates the current terms and is not the mid-login Google
@@ -179,7 +186,7 @@ router.get('/user', (req, res) => {
       if (req.session && req.session.destroy) return req.session.destroy(send);
       return send();
     }
-    fireWelcomeIfPending(req.user);
+    await fireWelcomeIfPending(req.user);
     const userObj = req.user.toObject ? req.user.toObject() : { ...req.user };
     userObj.hasPassword = !!userObj.password;
     delete userObj.password;
@@ -213,7 +220,7 @@ router.post('/accept-terms', async (req, res) => {
     user.eventEmailsOptIn = true;
     await user.save();
     if (req.session) delete req.session.termsGate;
-    fireWelcome(user);
+    await fireWelcome(user);
     res.json({
       ok: true,
       termsAcceptedVersion: user.termsAcceptedVersion,
@@ -575,7 +582,7 @@ router.post('/finalize-onboarding', async (req, res) => {
     }
 
     await user.save();
-    if (acceptedTerms) fireWelcome(user);
+    if (acceptedTerms) await fireWelcome(user);
     // Outreach first-5 for accounts that carried the ref through a
     // Google signup. Existing accounts only get it if they arrived
     // with the ref on this finalize and never had one recorded.
