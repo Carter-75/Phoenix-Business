@@ -293,6 +293,47 @@ router.delete('/coupons/:id', async (req, res) => {
  * GET /api/admin/orders
  * Returns list of captured order snapshots for the owner console
  */
+/**
+ * GET /api/admin/users
+ * Every account in the database (owner only). Account management
+ * previously had no list surface at all, which made a simple "who
+ * has signed up" question unanswerable; this is that list. Only
+ * account facts are returned, never password hashes or tokens.
+ */
+router.get('/users', async (req, res) => {
+  try {
+    const User = require('../models/user');
+    const users = await User.find({})
+      .select('email firstName lastName businessName createdAt hasFinalizedProfile termsAcceptedVersion termsAcceptedAt eventEmailsOptIn signupRef welcomeCouponCode outreachFreeCode usedDiscountCodes googleId')
+      .sort({ createdAt: 1 })
+      .lean();
+    res.json({
+      success: true,
+      total: users.length,
+      users: users.map(u => ({
+        id: String(u._id),
+        email: u.email,
+        firstName: u.firstName || '',
+        lastName: u.lastName || '',
+        businessName: u.businessName || '',
+        createdAt: u.createdAt,
+        signInMethod: u.googleId ? 'google' : 'email',
+        profileFinalized: u.hasFinalizedProfile === true,
+        termsAcceptedVersion: u.termsAcceptedVersion || null,
+        termsAcceptedAt: u.termsAcceptedAt || null,
+        eventEmailsOptIn: u.eventEmailsOptIn === true,
+        signupRef: u.signupRef || '',
+        welcomeCouponCode: u.welcomeCouponCode || '',
+        outreachFreeCode: u.outreachFreeCode || '',
+        usedDiscountCodes: u.usedDiscountCodes || []
+      }))
+    });
+  } catch (err) {
+    console.error('Error fetching admin users:', err);
+    res.status(500).json({ error: 'Failed to retrieve users.' });
+  }
+});
+
 router.get('/orders', async (req, res) => {
   try {
     const orders = await OrderSnapshot.find().sort({ createdAt: -1 }).limit(100);
