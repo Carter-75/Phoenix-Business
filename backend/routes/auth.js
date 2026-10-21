@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user');
-const { getDynamicPolicies } = require('../services/legal.service');
+const { getDynamicPolicies, ACCOUNT_TERMS_VERSION } = require('../services/legal.service');
 const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml } = require('../services/policy-notice');
 
 const getFullLegalText = () => Object.values(getDynamicPolicies()).join('\n\n---\n\n');
@@ -29,9 +29,10 @@ router.post('/register', async (req, res) => {
       businessName,
       hasFinalizedProfile: true,
       hasAcceptedContract: acceptedTerms === true,
-      termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
+      termsAcceptedVersion: acceptedTerms ? ACCOUNT_TERMS_VERSION : undefined,
       termsAcceptedFullText: acceptedTerms ? getFullLegalText() : undefined,
-      termsAcceptedAt: acceptedTerms ? new Date() : undefined
+      termsAcceptedAt: acceptedTerms ? new Date() : undefined,
+      eventEmailsOptIn: acceptedTerms === true
     });
 
     await user.save();
@@ -116,9 +117,40 @@ router.get('/user', (req, res) => {
     const em = (userObj.email || '').toLowerCase().trim();
     const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
     userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi' || em === ownerEmail;
+    userObj.currentTermsVersion = ACCOUNT_TERMS_VERSION;
+    userObj.needsTermsUpdate = userObj.termsAcceptedVersion !== ACCOUNT_TERMS_VERSION;
     res.json(userObj);
   } else {
     res.json(null);
+  }
+});
+
+// @route   POST /auth/accept-terms
+// Records acceptance of the current account terms. Replaces whatever
+// acceptance was stored before and stamps the time, per the terms
+// update flow. Accepting also subscribes the account to group buy and
+// event announcement emails (Terms section 13), until unsubscribed.
+router.post('/accept-terms', async (req, res) => {
+  try {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.termsAcceptedVersion = ACCOUNT_TERMS_VERSION;
+    user.termsAcceptedFullText = getFullLegalText();
+    user.termsAcceptedAt = new Date();
+    user.hasAcceptedContract = true;
+    user.eventEmailsOptIn = true;
+    await user.save();
+    res.json({
+      ok: true,
+      termsAcceptedVersion: user.termsAcceptedVersion,
+      termsAcceptedAt: user.termsAcceptedAt,
+      needsTermsUpdate: false
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -448,9 +480,10 @@ router.post('/finalize-onboarding', async (req, res) => {
         businessName,
         hasFinalizedProfile: true,
         hasAcceptedContract: acceptedTerms,
-        termsAcceptedVersion: acceptedTerms ? termsAcceptedVersion : undefined,
+        termsAcceptedVersion: acceptedTerms ? ACCOUNT_TERMS_VERSION : undefined,
         termsAcceptedFullText: acceptedTerms ? getFullLegalText() : undefined,
-        termsAcceptedAt: acceptedTerms ? new Date() : undefined
+        termsAcceptedAt: acceptedTerms ? new Date() : undefined,
+        eventEmailsOptIn: acceptedTerms === true
       });
     } else {
       // Update EXISTING user
@@ -462,9 +495,10 @@ router.post('/finalize-onboarding', async (req, res) => {
       user.hasFinalizedProfile = true;
       user.hasAcceptedContract = acceptedTerms;
       if (acceptedTerms) {
-        user.termsAcceptedVersion = termsAcceptedVersion;
+        user.termsAcceptedVersion = ACCOUNT_TERMS_VERSION;
         user.termsAcceptedFullText = getFullLegalText();
         user.termsAcceptedAt = new Date();
+        user.eventEmailsOptIn = true;
       }
     }
 

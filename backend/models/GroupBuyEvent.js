@@ -13,6 +13,8 @@ const mongoose = require('mongoose');
  */
 const groupBuyEventSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
+  // Which rotation preset created this event (empty for manual events).
+  presetKey: { type: String, default: '' },
   percentOff: { type: Number, required: true, min: 1, max: 95 },
   joinPriceCents: { type: Number, required: true, min: 100 },
   slotsNeeded: { type: Number, required: true, min: 3, max: 10 },

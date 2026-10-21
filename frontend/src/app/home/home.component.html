@@ -411,7 +411,7 @@
                 class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
           <i class="fas fa-ticket-alt mr-1.5"></i> Coupons
         </button>
-        <button (click)="activeAdminTab.set('groupbuy'); loadGroupBuys()" 
+        <button (click)="activeAdminTab.set('groupbuy'); loadGroupBuys(); loadRotation()" 
                 [class.border-orange-500]="activeAdminTab() === 'groupbuy'"
                 [class.text-orange-400]="activeAdminTab() === 'groupbuy'"
                 [class.border-transparent]="activeAdminTab() !== 'groupbuy'"
@@ -798,6 +798,21 @@
       <!-- TAB 4: SNAPSHOTS (Owner Only) -->
       <!-- Group Buy Admin -->
       <div *ngIf="isOwner() && activeAdminTab() === 'groupbuy'" class="space-y-6">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Rotation (10 preset events, random order, random gaps)</h4>
+          <p class="text-xs text-white/60" *ngIf="gbRotation()">
+            Status: <span class="text-white font-bold">{{ gbRotation().enabled ? 'ON' : 'OFF' }}</span>
+            &middot; cycle position {{ gbRotation().cyclePosition }} of {{ gbRotation().cycleLength }}
+            <span *ngIf="gbRotation().nextPreset">&middot; up next: {{ gbRotation().nextPreset.name }} ({{ gbRotation().nextPreset.percentOff }}% off, ${{ (gbRotation().nextPreset.joinPriceCents/100).toFixed(0) }} join, {{ gbRotation().nextPreset.slotsNeeded }} slots, {{ gbRotation().nextPreset.windowDays }} days)</span>
+            <span *ngIf="gbRotation().nextOpenAt">&middot; may appear after {{ gbRotation().nextOpenAt | date:'medium':'America/Chicago' }}</span>
+          </p>
+          <div class="flex gap-2 flex-wrap">
+            <button (click)="toggleRotation()" class="px-3 py-1.5 rounded border border-white/25 hover:bg-white/10 text-xs font-bold">{{ gbRotation()?.enabled ? 'Pause rotation' : 'Resume rotation' }}</button>
+            <button (click)="startNextEventNow()" class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">Start next event now</button>
+          </div>
+          <p class="text-[11px] text-white/40">When an event opens, account holders who accepted the current terms get the announcement email. A couple of random subscribers also get a one-time bonus code in their copy. Manual events below still work and pause the rotation while they run.</p>
+        </div>
+
         <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
           <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Group Buy (sells a capped discount, not a website)</h4>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">

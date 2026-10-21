@@ -28,10 +28,28 @@ async function currentEvent() {
 
 router.get('/current', async (req, res) => {
   try {
+    // The rotation appears on its own schedule; a page view is one of
+    // its chances to open the next event when the time has come.
+    await svc.maybeOpenNextEvent().catch(() => {});
     const event = await currentEvent();
     res.json({ event: await svc.publicEventView(event) });
   } catch (err) {
     res.status(500).json({ error: 'Could not load the group buy.' });
+  }
+});
+
+/** One-click unsubscribe from announcement emails (link in every announcement). */
+router.get('/unsubscribe', async (req, res) => {
+  try {
+    const { u, t } = req.query;
+    if (!u || !t || svc.unsubscribeToken(String(u)) !== String(t)) {
+      return res.status(400).send('<p style="font-family:Arial">That unsubscribe link is not valid.</p>');
+    }
+    const User = require('../models/user');
+    await User.findByIdAndUpdate(u, { eventEmailsOptIn: false });
+    res.send('<p style="font-family:Arial">You are unsubscribed from Phoenix Websites AI group buy and event announcement emails. Transactional emails about your orders and account will still be sent. To resubscribe, accept the current terms again from your account banner.</p>');
+  } catch (err) {
+    res.status(500).send('<p style="font-family:Arial">Something went wrong. Please reply to any announcement email with UNSUBSCRIBE instead.</p>');
   }
 });
 
@@ -236,6 +254,7 @@ router.post('/admin/events/:id/open', ownerAuth, async (req, res) => {
     event.deadline = new Date(Date.now() + event.windowDays * 24 * 60 * 60 * 1000);
     event.status = 'open';
     await event.save();
+    svc.announceEvent(event).catch(e => console.error('[GROUP-BUY] announcement failed', e.message));
     res.json({ event });
   } catch (err) {
     res.status(500).json({ error: 'Could not open the event.' });
@@ -256,6 +275,7 @@ router.post('/admin/events/:id/cancel', ownerAuth, async (req, res) => {
       await entry.save();
       await svc.sendNotChargedEmail(event, entry, 'cancelled').catch(() => {});
     }
+    await svc.scheduleNextGap();
     res.json({ event });
   } catch (err) {
     res.status(500).json({ error: 'Could not cancel the event.' });
@@ -275,6 +295,36 @@ router.get('/admin/events/:id/entries', ownerAuth, async (req, res) => {
       user: e.user ? { name: `${e.user.firstName || ''} ${e.user.lastName || ''}`.trim(), email: e.user.email } : null
     }))
   });
+});
+
+router.get('/admin/rotation', ownerAuth, async (req, res) => {
+  const state = await svc.ensureRotation();
+  const { getPreset } = require('../config/group-buy-presets');
+  const nextKey = state.order && state.order[state.nextIndex];
+  res.json({
+    enabled: state.enabled,
+    nextOpenAt: state.nextOpenAt,
+    cyclePosition: state.nextIndex,
+    cycleLength: state.order ? state.order.length : 0,
+    nextPreset: nextKey ? getPreset(nextKey) : null
+  });
+});
+
+router.post('/admin/rotation', ownerAuth, async (req, res) => {
+  const state = await svc.ensureRotation();
+  if (typeof req.body?.enabled === 'boolean') state.enabled = req.body.enabled;
+  await state.save();
+  res.json({ enabled: state.enabled });
+});
+
+router.post('/admin/rotation/next-now', ownerAuth, async (req, res) => {
+  try {
+    const event = await svc.forceOpenNextEvent();
+    if (!event) return res.status(400).json({ error: 'An event is already draft, open, or filling. The rotation runs one at a time.' });
+    res.json({ event });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Could not start the next event.' });
+  }
 });
 
 module.exports = router;

@@ -255,3 +255,31 @@ owner session like the other admin routes.
 3. Charge-failure policy: group runs once filled, failed buyer gets the
    7-day fix window (recommended), or stricter handling.
 4. Approve the design and build order, or change something first.
+
+## v2.1: Rotation, announcements, and the terms update (Carter, Oct 21, 2026)
+
+- Ten preset events live in backend/config/group-buy-presets.js (70 to
+  90 percent, $50 to $150 joins, 5 to 10 slots, 3 to 7 day windows,
+  varying caps). A rotation state shuffles the ten, opens each once
+  per cycle in random order, then reshuffles. After an event closes,
+  the next appears after a random 1 to 4 day gap. The owner secret
+  menu shows rotation status, the next preset, and a start-now button;
+  manual events still work and take precedence while they run.
+- When an event opens, every account holder who accepted the current
+  terms gets an announcement email. Up to two randomly chosen
+  subscribers also receive a one-time, account-bound bonus code
+  (10 to 25 percent, 30 days) inside their copy.
+- Terms version 2026.6 added Terms section 13 (Group Buys and Event
+  Emails). Accepting the terms (at signup, onboarding, or via the new
+  banner) is what subscribes an account; acceptance replaces the
+  stored acceptance record and re-stamps the time. Existing accounts
+  see a non-dismissible banner until they accept. Unsubscribe works
+  two ways: reply to any announcement with UNSUBSCRIBE (the daily
+  sweep scans the hello@ inbox and honors it) or the one-click link
+  in every announcement.
+- Verification: a stubbed harness drives the real service through
+  rotation (full 10-event cycle, reshuffle), announcements (opt-in
+  only, exactly 2 bonus codes), unsubscribe parsing (quoted footers
+  do not false-positive), join, fill, decline plus 7-day fix, and a
+  missed deadline. 35 of 35 checks pass, plus the 14 of 14 pricing
+  harness from v2.

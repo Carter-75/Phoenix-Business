@@ -270,11 +270,40 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  gbRotation = signal<any>(null);
+
   loadGroupBuys() {
     if (!this.isOwner()) return;
     this.api.get<any>('group-buy/admin/events').subscribe({
       next: (res) => this.adminGroupBuys.set(res?.events || []),
       error: () => {}
+    });
+  }
+
+  loadRotation() {
+    if (!this.isOwner()) return;
+    this.api.get<any>('group-buy/admin/rotation').subscribe({
+      next: (res) => this.gbRotation.set(res),
+      error: () => {}
+    });
+  }
+
+  toggleRotation() {
+    const next = !this.gbRotation()?.enabled;
+    this.api.post<any>('group-buy/admin/rotation', { enabled: next }).subscribe({
+      next: () => { this.adminMessage.set(`Rotation ${next ? 'resumed' : 'paused'}.`); this.loadRotation(); },
+      error: (err) => this.adminMessage.set(err.error?.error || 'Could not change the rotation.')
+    });
+  }
+
+  startNextEventNow() {
+    this.api.post<any>('group-buy/admin/rotation/next-now', {}).subscribe({
+      next: (res) => {
+        this.adminMessage.set(`Started "${res.event?.name}" now. Announcement emails are going out to opted-in accounts.`);
+        this.loadGroupBuys();
+        this.loadRotation();
+      },
+      error: (err) => this.adminMessage.set(err.error?.error || 'Could not start the next event.')
     });
   }
 

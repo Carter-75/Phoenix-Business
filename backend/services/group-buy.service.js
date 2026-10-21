@@ -32,12 +32,12 @@ const getTransporter = () => nodemailer.createTransport({
 const money = (cents) => `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const when = (d) => new Date(d).toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
 
-async function sendMail(to, subject, text) {
+async function sendMail(to, subject, text, headers) {
   if (!to) return;
   const html = `<div style="font-family:Arial,sans-serif;color:#2b2118;line-height:1.55">${text.split('\n').map(l => l.trim() === '' ? '' : `<p style="margin:0 0 10px">${l}</p>`).join('')}</div>`;
   await getTransporter().sendMail({
     from: `"Phoenix Websites AI" <${process.env.EMAIL_USER}>`,
-    to, subject, text, html
+    to, subject, text, html, headers: headers || undefined
   });
 }
 
@@ -175,6 +175,7 @@ async function runFillCharges(event) {
     }
   }
   await GroupBuyEvent.findByIdAndUpdate(event._id, { $set: { status: 'completed', closedAt: new Date() } });
+  scheduleNextGap().catch(() => {});
 }
 
 /** If the open event has reached its threshold, claim and run the fill. */
@@ -277,6 +278,7 @@ async function sweepDeadlines() {
       await entry.save();
       await sendNotChargedEmail(event, entry, 'missed').catch(e => console.error('[GROUP-BUY] missed email failed', e.message));
     }
+    await scheduleNextGap();
     summary.missed++;
   }
 
@@ -295,7 +297,222 @@ async function sweepDeadlines() {
     summary.dropped++;
   }
 
+  // Honor unsubscribe replies, then let the rotation appear if it is time.
+  try {
+    const scan = await scanUnsubscribeReplies();
+    summary.unsubscribed = scan.optedOut;
+  } catch (e) { console.error('[GROUP-BUY] unsubscribe scan failed', e.message); }
+  try {
+    const opened = await maybeOpenNextEvent();
+    summary.rotationOpened = opened ? opened.name : null;
+  } catch (e) { console.error('[GROUP-BUY] rotation open failed', e.message); }
+
   return summary;
+}
+
+/** Called whenever an event closes, so the rotation can rest, then appear again. */
+async function scheduleNextGap() {
+  try {
+    const state = await ensureRotation();
+    if (!state.nextOpenAt) {
+      state.nextOpenAt = new Date(Date.now() + (24 + Math.random() * 72) * 60 * 60 * 1000);
+      await state.save();
+    }
+  } catch (e) { console.error('[GROUP-BUY] schedule gap failed', e.message); }
+}
+
+// ---------------------------------------------------------------
+// Rotation: 10 preset events, shuffled, one at a time, appearing
+// after a random 1 to 4 day gap once the previous event closes.
+// ---------------------------------------------------------------
+const GroupBuyRotation = require('../models/GroupBuyRotation');
+const { PRESETS, shuffledKeys, getPreset } = require('../config/group-buy-presets');
+
+async function ensureRotation() {
+  let state = await GroupBuyRotation.findOne({ key: 'singleton' });
+  if (!state) {
+    state = await GroupBuyRotation.create({ key: 'singleton', order: shuffledKeys(), nextIndex: 0, nextOpenAt: null });
+  }
+  if (!state.order || state.order.length !== PRESETS.length) {
+    state.order = shuffledKeys();
+    state.nextIndex = 0;
+    await state.save();
+  }
+  return state;
+}
+
+async function maybeOpenNextEvent() {
+  const state = await ensureRotation();
+  if (!state.enabled) return null;
+  const active = await GroupBuyEvent.findOne({ status: { $in: ['draft', 'open', 'filling'] } });
+  if (active) return null;
+  const anyEvent = await GroupBuyEvent.countDocuments();
+  if (anyEvent > 0 && state.nextOpenAt && Date.now() < new Date(state.nextOpenAt).getTime()) return null;
+  if (state.nextIndex >= state.order.length) {
+    state.order = shuffledKeys();
+    state.nextIndex = 0;
+  }
+  const preset = getPreset(state.order[state.nextIndex]);
+  if (!preset) return null;
+  state.nextIndex += 1;
+  state.nextOpenAt = null;
+  await state.save();
+  const now = new Date();
+  const event = await GroupBuyEvent.create({
+    name: preset.name,
+    presetKey: preset.key,
+    percentOff: preset.percentOff,
+    joinPriceCents: preset.joinPriceCents,
+    slotsNeeded: preset.slotsNeeded,
+    windowDays: preset.windowDays,
+    capSetupCents: preset.capSetupCents,
+    capMonthlyCents: preset.capMonthlyCents,
+    capacityReason: preset.capacityReason,
+    redeemWindowDays: preset.redeemWindowDays,
+    status: 'open',
+    startsAt: now,
+    deadline: new Date(now.getTime() + preset.windowDays * 24 * 60 * 60 * 1000),
+    createdBy: 'rotation'
+  });
+  announceEvent(event).catch(e => console.error('[GROUP-BUY] announcement failed', e.message));
+  return event;
+}
+
+async function forceOpenNextEvent() {
+  const state = await ensureRotation();
+  state.enabled = true;
+  state.nextOpenAt = null;
+  await state.save();
+  return maybeOpenNextEvent();
+}
+
+// ---------------------------------------------------------------
+// Announcements and unsubscribe
+// ---------------------------------------------------------------
+
+function unsubscribeToken(userId) {
+  const secret = process.env.SESSION_SECRET || process.env.CRON_SECRET || 'phoenix-group-buy';
+  return crypto.createHmac('sha256', secret).update(String(userId)).digest('hex').slice(0, 32);
+}
+
+function unsubscribeUrl(userId) {
+  return `${BASE_URL}/api/group-buy/unsubscribe?u=${userId}&t=${unsubscribeToken(userId)}`;
+}
+
+const BONUS_PERCENTS = [10, 15, 20, 25];
+
+/**
+ * Email every opted-in account holder that a new event opened. A
+ * couple of randomly chosen subscribers also get a one-time,
+ * one-person bonus code in their copy of the announcement.
+ */
+async function announceEvent(event) {
+  const users = await User.find({ eventEmailsOptIn: true });
+  if (!users.length) return { sent: 0, bonus: 0 };
+  const shuffled = [...users].sort(() => Math.random() - 0.5);
+  const bonusIds = new Set((users.length >= 3 ? shuffled.slice(0, 2) : []).map(u => String(u._id)));
+  let sent = 0, bonus = 0;
+  for (const u of users) {
+    let bonusBlock = '';
+    if (bonusIds.has(String(u._id))) {
+      const pct = BONUS_PERCENTS[Math.floor(Math.random() * BONUS_PERCENTS.length)];
+      const code = `GBGIFT-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+      try {
+        await Coupon.create({
+          code, type: 'percentage', amount: pct, appliesTo: 'both',
+          usageLimit: 1, perCustomerLimit: 1, issuedToUserId: String(u._id),
+          startsAt: new Date(), expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          notes: `Announcement bonus for "${event.name}"`, createdBy: 'group-buy-announce'
+        });
+        bonusBlock = `\nA small extra, just for you: this announcement included a one-time code for ${pct}% off, only for your account: ${code}. It works once at any checkout in the next 30 days.\n`;
+        bonus++;
+      } catch (e) { console.error('[GROUP-BUY] bonus code failed', e.message); }
+    }
+    const text = [
+      `Hi ${u.firstName || 'there'},`,
+      `A new group buy just opened at Phoenix Websites AI: "${event.name}".`,
+      `It sells a discount, not a website: ${event.percentOff}% off, applied to up to ${money(event.capSetupCents)} of a setup price and up to ${money(event.capMonthlyCents)} of the monthly price. Joining costs ${money(event.joinPriceCents)}, charged only if ${event.slotsNeeded} people join by ${when(event.deadline)}. If the group does not fill, nobody is charged anything.`,
+      bonusBlock,
+      `See the live count and the full terms, or join, here: ${BASE_URL}/group-buy`,
+      `You are getting this because you accepted the Phoenix Websites AI terms, which include occasional group buy and event emails. To stop these announcement emails, reply to this email with the word UNSUBSCRIBE, or use this link: ${unsubscribeUrl(u._id)}`
+    ].join('\n');
+    await sendMail(u.email, `New group buy: ${event.name}`, text, { 'List-Unsubscribe': `<${unsubscribeUrl(u._id)}>` })
+      .then(() => { sent++; })
+      .catch(e => console.error('[GROUP-BUY] announcement email failed', e.message));
+  }
+  return { sent, bonus };
+}
+
+/** True when a reply reads as an unsubscribe request (quotes stripped). */
+function looksLikeUnsubscribe(subject, bodyText) {
+  if (String(subject || '').toLowerCase().includes('unsubscribe')) return true;
+  const lines = String(bodyText || '').split('\n');
+  const cleaned = [];
+  for (const raw of lines) {
+    const l = raw.trim();
+    if (/^on .+ wrote:$/i.test(l)) break;
+    if (l.startsWith('>')) continue;
+    cleaned.push(l);
+  }
+  return cleaned.join(' ').toLowerCase().includes('unsubscribe');
+}
+
+/** Scan the hello@ inbox for unsubscribe replies and honor them. */
+async function scanUnsubscribeReplies() {
+  const Imap = require('imap');
+  const { simpleParser } = require('mailparser');
+  const host = process.env.IMAP_HOST;
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+  const port = parseInt(process.env.IMAP_PORT || '993', 10);
+  if (!host || !user || !pass) return { scanned: 0, optedOut: 0 };
+  return new Promise((resolve) => {
+    let settled = false;
+    const done = (r) => { if (!settled) { settled = true; resolve(r); } };
+    const timer = setTimeout(() => done({ scanned: 0, optedOut: 0 }), 25000);
+    const imap = new Imap({ user, password: pass, host, port, tls: true, tlsOptions: { rejectUnauthorized: false }, authTimeout: 5000, connTimeout: 10000 });
+    imap.once('error', () => { clearTimeout(timer); done({ scanned: 0, optedOut: 0 }); });
+    imap.once('ready', () => {
+      imap.openBox('INBOX', false, (err) => {
+        if (err) { clearTimeout(timer); imap.end(); return done({ scanned: 0, optedOut: 0 }); }
+        const since = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+        imap.search([['SINCE', since], ['TEXT', 'unsubscribe']], async (sErr, results) => {
+          if (sErr || !results || !results.length) { clearTimeout(timer); imap.end(); return done({ scanned: 0, optedOut: 0 }); }
+          let scanned = 0, optedOut = 0;
+          const fetcher = imap.fetch(results, { bodies: '' });
+          const jobs = [];
+          fetcher.on('message', (msg) => {
+            jobs.push(new Promise((res2) => {
+              msg.on('body', (stream) => {
+                simpleParser(stream, async (pErr, parsed) => {
+                  try {
+                    if (!pErr && parsed && looksLikeUnsubscribe(parsed.subject, parsed.text)) {
+                      const from = parsed.from && parsed.from.value && parsed.from.value[0] && parsed.from.value[0].address;
+                      if (from) {
+                        const u = await User.findOne({ email: from.toLowerCase().trim(), eventEmailsOptIn: true });
+                        if (u) { u.eventEmailsOptIn = false; await u.save(); optedOut++; }
+                      }
+                    }
+                    scanned++;
+                  } catch (e) { /* one bad message never breaks the scan */ }
+                  res2();
+                });
+              });
+              msg.once('end', () => {});
+            }));
+          });
+          fetcher.once('end', async () => {
+            await Promise.allSettled(jobs);
+            clearTimeout(timer);
+            imap.end();
+            done({ scanned, optedOut });
+          });
+          fetcher.once('error', () => { clearTimeout(timer); imap.end(); done({ scanned, optedOut }); });
+        });
+      });
+    });
+    imap.connect();
+  });
 }
 
 /** Shape an event for the public page: no Stripe or admin internals. */
@@ -331,5 +548,14 @@ module.exports = {
   runFillCharges,
   sweepDeadlines,
   publicEventView,
+  ensureRotation,
+  maybeOpenNextEvent,
+  forceOpenNextEvent,
+  scheduleNextGap,
+  announceEvent,
+  unsubscribeToken,
+  unsubscribeUrl,
+  looksLikeUnsubscribe,
+  scanUnsubscribeReplies,
   FIX_WINDOW_DAYS
 };

@@ -69,6 +69,9 @@ IN NO EVENT SHALL PHOENIX WEBSITES AI BE LIABLE FOR ANY INDIRECT, CONSEQUENTIAL,
 11. Governing Law & Venue
 This agreement is governed by the laws of the State of Wisconsin. Exclusive jurisdiction lies in the state and federal courts located in Wisconsin.
 ${clientCommunicationPolicy(12)}
+
+13. Group Buys and Event Emails
+Phoenix Websites AI occasionally runs group buys: a small number of customers join to unlock a group discount, and nobody is charged unless the group reaches its stated size by its stated deadline, exactly as described on the group buy page at the time of joining. A group buy sells a discount only; it does not include a website by itself. By creating an account and accepting these Terms, you agree to receive occasional group buy and event announcement emails from us. You may stop those announcement emails at any time by replying to any announcement with the word UNSUBSCRIBE, or by using the unsubscribe link included in every announcement email. Unsubscribing stops announcement emails only; transactional emails about your orders, account, and this policy will still be sent.
         `,
         PRIVACY_POLICY: `
 PRIVACY POLICY
@@ -221,5 +224,9 @@ const generateMergedLegalPDF = async (contractData = {}) => {
 
 module.exports = {
     generateMergedLegalPDF,
-    getDynamicPolicies
+    getDynamicPolicies,
+    // Canonical account terms version. Bump when the Terms change in a
+    // way account holders must re-accept. 2026.6 added section 13
+    // (Group Buys and Event Emails).
+    ACCOUNT_TERMS_VERSION: '2026.6'
 };

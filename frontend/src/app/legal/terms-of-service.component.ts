@@ -104,6 +104,12 @@ import { ApiService } from '../services/api.service';
             <p><strong>Reviews:</strong> Nothing in this policy prohibits, restricts, or penalizes honest reviews. If you leave a review on phoenixwebsites.ai, it will remain public and searchable even if your project is archived under this policy. If your project is archived, a short factual note will be added to your review stating that the project was archived under this communication policy after a 5-day notice went unanswered, and the review will no longer be counted in our displayed rating totals and averages.</p>
             <p><strong>Scope:</strong> This communication policy applies to paid engagements; free or promotional orders are exempt.</p>
           </div>
+
+          <div class="space-y-4">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tight">14. Group Buys and Event Emails</h2>
+            <p>Phoenix Websites AI occasionally runs group buys: a small number of customers join to unlock a group discount, and nobody is charged unless the group reaches its stated size by its stated deadline, exactly as described on the group buy page at the time of joining. A group buy sells a discount only; it does not include a website by itself.</p>
+            <p>By creating an account and accepting these Terms, you agree to receive occasional group buy and event announcement emails from us. You may stop those announcement emails at any time by replying to any announcement with the word UNSUBSCRIBE, or by using the unsubscribe link included in every announcement email. Unsubscribing stops announcement emails only; transactional emails about your orders, account, and policies will still be sent.</p>
+          </div>
         </div>
 
         <footer class="mt-24 pt-12 border-t border-white/5 flex flex-col gap-12">

@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
   stripeCustomerId: { type: String },
   subscriptionStatus: { type: String, default: 'none' },
   usedDiscountCodes: [{ type: String }],
+  // Group buy and event announcement emails. Set true when the user
+  // accepts the current account terms (the terms include these
+  // emails); set false when they unsubscribe by reply or link.
+  eventEmailsOptIn: { type: Boolean, default: false },
   resetPasswordCode: { type: String },
   resetPasswordExpires: { type: Date },
   changePasswordCode: { type: String },
