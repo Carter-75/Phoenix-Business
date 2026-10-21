@@ -179,11 +179,13 @@ router.post('/validate-discount', async (req, res) => {
             }
             return res.json({ 
                 valid: true, 
-                percentage: (dbCoupon.type === 'percentage' || dbCoupon.type === 'percentage_capped') ? dbCoupon.amount : 0, 
+                percentage: (dbCoupon.type === 'percentage' || dbCoupon.type === 'percentage_capped' || dbCoupon.type === 'intro') ? dbCoupon.amount : 0, 
                 fixedCents: dbCoupon.type === 'fixed' ? dbCoupon.amount : 0,
                 type: dbCoupon.type,
                 capSetupCents: dbCoupon.capSetupCents || 0,
                 capMonthlyCents: dbCoupon.capMonthlyCents || 0,
+                ongoingMonthlyPercentOff: dbCoupon.ongoingMonthlyPercentOff || 0,
+                restrictToPackage: dbCoupon.restrictToPackage || '',
                 bypassFloors: dbCoupon.bypassFloors === true,
                 appliesTo: dbCoupon.appliesTo,
                 usageModel: dbCoupon.usageLimit === 1 ? 'single' : (dbCoupon.usageLimit === 0 ? 'repeatable' : 'custom'),
@@ -353,6 +355,13 @@ const createServiceCheckout = async (req, res) => {
             monthlyFee = calcResult.finalPrices.monthlyRecurring;
             resolvedProjectType = projectType || calcResult.tier.name;
             appliedDiscountCode = calcResult.discounts.coupon.code || discountCode || '';
+
+            // A code that cannot apply to this cart (for example an
+            // intro code on the wrong tier) stops the checkout with
+            // the reason instead of silently charging full price.
+            if (discountCode && calcResult.couponError) {
+                return res.status(400).json({ error: calcResult.couponError });
+            }
 
             // Handle $0 orders (100% discount): skip Stripe, record order directly
             if (setupFee === 0 && monthlyFee === 0) {
@@ -595,7 +604,10 @@ const createServiceCheckout = async (req, res) => {
 
         if (mode === 'subscription') {
             sessionConfig.subscription_data = {
-                trial_period_days: 30
+                // Intro offers (outreach first-5) run a 60-day trial
+                // so the first monthly cycle is the free month; the
+                // subscription itself is priced at the ongoing rate.
+                trial_period_days: (calcResult && calcResult.schedule && calcResult.schedule.trialDays) || 30
             };
         }
 

@@ -655,6 +655,9 @@ function calculateProjectPrice(input = {}, options = {}) {
   let couponDiscountMonthly = 0;
   let appliedCouponCode = null;
   let couponSource = null;
+  let couponError = null;
+  let introApplied = false;
+  let introOngoingPercentOff = 0;
 
   if (input.discountCode || (options && options.coupon)) {
     const rawCode = String(input.discountCode || (options.coupon && options.coupon.code)).trim().toUpperCase();
@@ -694,6 +697,30 @@ function calculateProjectPrice(input = {}, options = {}) {
             couponDiscountMonthly = Math.round(Math.min(postPromoMonthly, capM) * (pct / 100));
           }
           couponSource = `DATABASE (${pct}% capped)`;
+        } else if (dbCoupon.type === 'intro') {
+          // Intro offer (outreach first-5): 100% off up to the caps
+          // covers the setup and the FIRST monthly cycle; after that
+          // the monthly continues at ongoingMonthlyPercentOff off,
+          // ongoing. Tier locked to restrictToPackage when set: any
+          // other package is refused with a reason, never silently
+          // applied and never silently ignored.
+          const restrict = dbCoupon.restrictToPackage || '';
+          if (restrict && baseProject.id !== restrict) {
+            appliedCouponCode = null;
+            couponError = `This code only works on the ${(BASE_PROJECTS[restrict] && BASE_PROJECTS[restrict].name) || restrict} package.`;
+          } else {
+            const capS = parseInt(dbCoupon.capSetupCents, 10) || 0;
+            const capM = parseInt(dbCoupon.capMonthlyCents, 10) || 0;
+            if (appliesTo === 'setup' || appliesTo === 'both') {
+              couponDiscountSetup = Math.min(postPromoSetup, capS);
+            }
+            if (appliesTo === 'monthly' || appliesTo === 'both') {
+              couponDiscountMonthly = Math.min(postPromoMonthly, capM);
+            }
+            introApplied = true;
+            introOngoingPercentOff = Math.min(100, Math.max(0, parseInt(dbCoupon.ongoingMonthlyPercentOff, 10) || 0));
+            couponSource = `DATABASE (intro: setup + first month free, then ${introOngoingPercentOff}% off monthly)`;
+          }
         } else {
           const pct = Math.min(100, Math.max(0, parseInt(dbCoupon.amount, 10) || 0));
           if (appliesTo === 'setup' || appliesTo === 'both') {
@@ -767,8 +794,27 @@ function calculateProjectPrice(input = {}, options = {}) {
     }
   }
 
+  // Intro offers: finalMonthlyCents becomes the ONGOING monthly rate
+  // (what the subscription is priced at). The first monthly cycle is
+  // separate: post-promo monthly minus the intro coupon's first-month
+  // coverage, and it is never charged because checkout extends the
+  // subscription trial to 60 days when an intro coupon applies.
+  let introFirstMonthCents = null;
+  let introOngoingMonthlyCents = null;
+  if (introApplied) {
+    introFirstMonthCents = Math.max(0, postPromoMonthly - couponDiscountMonthly);
+    introOngoingMonthlyCents = Math.round(postPromoMonthly * (1 - introOngoingPercentOff / 100));
+    finalMonthlyCents = introOngoingMonthlyCents;
+  }
+
   // 9. First Monthly Billing Schedule (Starts ~30 days post-purchase)
   const firstMonthlyDate = new Date(calcDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const firstPaidDate = introApplied ? new Date(calcDate.getTime() + 60 * 24 * 60 * 60 * 1000) : firstMonthlyDate;
+  const firstPaidDisplay = firstPaidDate.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
   const firstMonthlyDisplay = firstMonthlyDate.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -842,14 +888,19 @@ function calculateProjectPrice(input = {}, options = {}) {
     `Add-Ons: ${featureNames}`,
     supportBriefLine,
     `Due Today: $${(finalSetupCents / 100).toFixed(2)} (Standard: $${(normalSetupSubtotal / 100).toFixed(2)})`,
-    `First Monthly Care: $${(finalMonthlyCents / 100).toFixed(2)} on ${firstMonthlyDisplay}`,
-    `Subsequent Care: $${(finalMonthlyCents / 100).toFixed(2)}/mo (Standard: $${(normalMonthlySubtotal / 100).toFixed(2)}/mo)`,
+    introApplied
+      ? `First Monthly Care: $${(introFirstMonthCents / 100).toFixed(2)} (free first month with your outreach code)`
+      : `First Monthly Care: $${(finalMonthlyCents / 100).toFixed(2)} on ${firstMonthlyDisplay}`,
+    introApplied
+      ? `Subsequent Care: $${(introOngoingMonthlyCents / 100).toFixed(2)}/mo starting ${firstPaidDisplay} (Standard: $${(normalMonthlySubtotal / 100).toFixed(2)}/mo)`
+      : `Subsequent Care: $${(finalMonthlyCents / 100).toFixed(2)}/mo (Standard: $${(normalMonthlySubtotal / 100).toFixed(2)}/mo)`,
     `Initial Commitment: 12 Consecutive Months with 30-Day Subscription Trial`,
     `Promotion: ${activePromo.name} (${globalPromoDiscountPercent}% Global Savings Applied)`
   ].join('\n');
 
   return {
     success: true,
+    couponError,
     tier: {
       id: baseProject.id,
       name: baseProject.name,
@@ -903,7 +954,11 @@ function calculateProjectPrice(input = {}, options = {}) {
         setupSavings: couponDiscountSetup,
         monthlySavings: couponDiscountMonthly,
         savingsSetup: couponDiscountSetup,
-        savingsMonthly: couponDiscountMonthly
+        savingsMonthly: couponDiscountMonthly,
+        introApplied,
+        introFirstMonthCents,
+        introOngoingMonthlyCents,
+        introOngoingPercentOff: introApplied ? introOngoingPercentOff : 0
       },
       effectiveSetupPercent: effectiveSetupDiscountPct,
       effectiveMonthlyPercent: effectiveMonthlyDiscountPct
@@ -926,8 +981,10 @@ function calculateProjectPrice(input = {}, options = {}) {
     schedule: {
       dueTodayCents: finalSetupCents,
       monthlyRecurringCents: finalMonthlyCents,
-      trialDays: 30,
-      firstMonthlyBillingDate: firstMonthlyDate.toISOString(),
+      trialDays: introApplied ? 60 : 30,
+      firstMonthCents: introApplied ? introFirstMonthCents : finalMonthlyCents,
+      ongoingMonthlyCents: introApplied ? introOngoingMonthlyCents : finalMonthlyCents,
+      firstMonthlyBillingDate: firstPaidDate.toISOString(),
       firstMonthlyBillingDisplay: firstMonthlyDisplay,
       websiteCommitmentMonths: 12,
       commitmentMonths: 12, // alias

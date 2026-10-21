@@ -4,6 +4,7 @@ const passport = require('passport');
 const User = require('../models/user');
 const { getDynamicPolicies, ACCOUNT_TERMS_VERSION } = require('../services/legal.service');
 const { mintAndSendWelcome } = require('../services/welcome.service');
+const outreachOffer = require('../services/outreach-offer.service');
 
 function fireWelcome(user) {
   mintAndSendWelcome(user).catch(e => console.error('[AUTH] welcome email failed', e.message));
@@ -28,7 +29,7 @@ const getFullLegalText = () => Object.values(getDynamicPolicies()).join('\n\n---
 // @route   POST /auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion } = req.body;
+    const { email, password, firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion, signupRef } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
@@ -50,11 +51,16 @@ router.post('/register', async (req, res) => {
       termsAcceptedVersion: acceptedTerms ? ACCOUNT_TERMS_VERSION : undefined,
       termsAcceptedFullText: acceptedTerms ? getFullLegalText() : undefined,
       termsAcceptedAt: acceptedTerms ? new Date() : undefined,
-      eventEmailsOptIn: acceptedTerms === true
+      eventEmailsOptIn: acceptedTerms === true,
+      signupRef: signupRef === outreachOffer.REF_VALUE ? outreachOffer.REF_VALUE : ''
     });
 
     await user.save();
     if (acceptedTerms === true) fireWelcome(user);
+    // Outreach first-5: awaited on purpose (the welcome saga's
+    // lesson); a failure is logged and never blocks the signup.
+    try { await outreachOffer.issueOutreachCode(user); }
+    catch (e) { console.error('[AUTH] outreach first-5 issue failed', e && e.message); }
 
     req.login(user, (err) => {
       if (err) return res.status(500).json({ message: 'Error logging in after registration' });
@@ -526,7 +532,7 @@ router.post('/update-profile', async (req, res) => {
 // @route   POST /auth/finalize-onboarding
 router.post('/finalize-onboarding', async (req, res) => {
   try {
-    const { firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion } = req.body;
+    const { firstName, lastName, businessName, acceptedTerms, termsAcceptedVersion, signupRef } = req.body;
     
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: 'Authentication required to finalize profile' });
@@ -548,7 +554,8 @@ router.post('/finalize-onboarding', async (req, res) => {
         termsAcceptedVersion: acceptedTerms ? ACCOUNT_TERMS_VERSION : undefined,
         termsAcceptedFullText: acceptedTerms ? getFullLegalText() : undefined,
         termsAcceptedAt: acceptedTerms ? new Date() : undefined,
-        eventEmailsOptIn: acceptedTerms === true
+        eventEmailsOptIn: acceptedTerms === true,
+        signupRef: signupRef === outreachOffer.REF_VALUE ? outreachOffer.REF_VALUE : ''
       });
     } else {
       // Update EXISTING user
@@ -569,6 +576,16 @@ router.post('/finalize-onboarding', async (req, res) => {
 
     await user.save();
     if (acceptedTerms) fireWelcome(user);
+    // Outreach first-5 for accounts that carried the ref through a
+    // Google signup. Existing accounts only get it if they arrived
+    // with the ref on this finalize and never had one recorded.
+    try {
+      if (!user.signupRef && signupRef === outreachOffer.REF_VALUE) {
+        user.signupRef = outreachOffer.REF_VALUE;
+        await user.save();
+      }
+      await outreachOffer.issueOutreachCode(user);
+    } catch (e) { console.error('[AUTH] outreach first-5 issue failed', e && e.message); }
 
     // If it was a new user, we need to log them in fully
     if (req.user.isPending) {

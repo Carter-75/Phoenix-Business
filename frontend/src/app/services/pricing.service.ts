@@ -107,6 +107,10 @@ export interface UnifiedPricingCalculation {
       code: string | null;
       setupSavings: number;
       monthlySavings: number;
+      introApplied?: boolean;
+      introFirstMonthCents?: number | null;
+      introOngoingMonthlyCents?: number | null;
+      introOngoingPercentOff?: number;
     };
     effectiveSetupPercent: number;
     effectiveMonthlyPercent: number;
@@ -123,6 +127,8 @@ export interface UnifiedPricingCalculation {
     dueTodayCents: number;
     monthlyRecurringCents: number;
     trialDays: number;
+    firstMonthCents?: number;
+    ongoingMonthlyCents?: number;
     firstMonthlyBillingDate: string;
     firstMonthlyBillingDisplay: string;
     websiteCommitmentMonths: number;
@@ -530,7 +536,7 @@ export class PricingService {
   public totalPages = signal<number>(6);
   public selectedFeatures = signal<string[]>([]);
   public discountCode = signal<string>('');
-  public appliedCoupon = signal<{ code: string; type: 'percentage' | 'fixed' | 'percentage_capped'; percentage: number; fixedCents: number; appliesTo: string; capSetupCents?: number; capMonthlyCents?: number; bypassFloors?: boolean } | null>(null);
+  public appliedCoupon = signal<{ code: string; type: 'percentage' | 'fixed' | 'percentage_capped' | 'intro'; percentage: number; fixedCents: number; appliesTo: string; capSetupCents?: number; capMonthlyCents?: number; bypassFloors?: boolean; ongoingMonthlyPercentOff?: number; restrictToPackage?: string } | null>(null);
 
   // Comprehensive reactive calculation computed from user state & active promotion
   public calculation = computed<UnifiedPricingCalculation>(() => {
@@ -645,22 +651,29 @@ export class PricingService {
 
     // Coupon discount calculation
     const applied = this.appliedCoupon();
+    // Intro offers are tier locked: on any other package the code
+    // simply does not apply here (checkout refuses it with a reason).
+    const introApplied = Boolean(applied && applied.type === 'intro' && (!applied.restrictToPackage || applied.restrictToPackage === baseProject.id));
     let couponSetupSavings = 0;
     let couponMonthlySavings = 0;
-    if (applied) {
+    if (applied && (applied.type !== 'intro' || introApplied)) {
       if (applied.appliesTo === 'setup' || applied.appliesTo === 'both') {
         couponSetupSavings = applied.type === 'percentage'
           ? Math.round(postPromoSetup * (applied.percentage / 100))
           : applied.type === 'percentage_capped'
             ? Math.round(Math.min(postPromoSetup, applied.capSetupCents || 0) * (applied.percentage / 100))
-            : Math.min(postPromoSetup, applied.fixedCents);
+            : applied.type === 'intro'
+              ? Math.min(postPromoSetup, applied.capSetupCents || 0)
+              : Math.min(postPromoSetup, applied.fixedCents);
       }
       if (applied.appliesTo === 'monthly' || applied.appliesTo === 'both') {
         couponMonthlySavings = applied.type === 'percentage'
           ? Math.round(postPromoMonthly * (applied.percentage / 100))
           : applied.type === 'percentage_capped'
             ? Math.round(Math.min(postPromoMonthly, applied.capMonthlyCents || 0) * (applied.percentage / 100))
-            : Math.min(postPromoMonthly, applied.fixedCents);
+            : applied.type === 'intro'
+              ? Math.min(postPromoMonthly, applied.capMonthlyCents || 0)
+              : Math.min(postPromoMonthly, applied.fixedCents);
       }
     }
 
@@ -681,10 +694,22 @@ export class PricingService {
     // otherwise apply minimum floors
     const bypassFloors = Boolean(applied && applied.bypassFloors);
     const finalSetupCents = is100PercentDiscount ? 0 : bypassFloors ? postCouponSetup : Math.max(79900, postCouponSetup);
-    const finalMonthlyCents = is100PercentDiscount ? 0 : bypassFloors ? postCouponMonthly : Math.max(4900, postCouponMonthly);
+    let finalMonthlyCents = is100PercentDiscount ? 0 : bypassFloors ? postCouponMonthly : Math.max(4900, postCouponMonthly);
+    // Intro offer: the recurring rate shown and charged is the
+    // ongoing rate (percent off, ongoing). The first month is free
+    // and handled by the longer trial at checkout.
+    const introFirstMonthCents = introApplied ? postCouponMonthly : null;
+    const introOngoingMonthlyCents = introApplied ? Math.round(postPromoMonthly * (1 - ((applied as any).ongoingMonthlyPercentOff || 0) / 100)) : null;
+    if (introApplied) finalMonthlyCents = introOngoingMonthlyCents as number;
 
     // 30-day deferred billing schedule
     const firstBillingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const firstPaidBillingDate = introApplied ? new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) : firstBillingDate;
+    const firstPaidBillingDisplay = firstPaidBillingDate.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
     const firstBillingDisplay = firstBillingDate.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
@@ -754,9 +779,13 @@ export class PricingService {
       `Add-Ons: ${featureNames}`,
       supportBriefLine,
       `Due Today: $${(finalSetupCents / 100).toFixed(2)} (Standard: $${(normalSetupSubtotal / 100).toFixed(2)})`,
-      `First Monthly Care: $${(finalMonthlyCents / 100).toFixed(2)} on ${firstBillingDisplay}`,
-      `Subsequent Care: $${(finalMonthlyCents / 100).toFixed(2)}/mo (Standard: $${(normalMonthlySubtotal / 100).toFixed(2)}/mo)`,
-      `12-Month Initial Commitment with 30-Day Subscription Trial`,
+      introApplied
+        ? `First Monthly Care: $${((introFirstMonthCents || 0) / 100).toFixed(2)} (free first month with your outreach code)`
+        : `First Monthly Care: $${(finalMonthlyCents / 100).toFixed(2)} on ${firstBillingDisplay}`,
+      introApplied
+        ? `Subsequent Care: $${((introOngoingMonthlyCents || 0) / 100).toFixed(2)}/mo starting ${firstPaidBillingDisplay} (Standard: $${(normalMonthlySubtotal / 100).toFixed(2)}/mo)`
+        : `Subsequent Care: $${(finalMonthlyCents / 100).toFixed(2)}/mo (Standard: $${(normalMonthlySubtotal / 100).toFixed(2)}/mo)`,
+      introApplied ? `12-Month Initial Commitment with 60-Day Subscription Trial` : `12-Month Initial Commitment with 30-Day Subscription Trial`,
       `Promotion: ${promoInfo.name} (${globalPromoPercent}% Global Discount Applied)`
     ].join('\n');
 
@@ -798,7 +827,11 @@ export class PricingService {
         coupon: {
           code: applied ? applied.code : (this.discountCode() || null),
           setupSavings: couponSetupSavings,
-          monthlySavings: couponMonthlySavings
+          monthlySavings: couponMonthlySavings,
+          introApplied,
+          introFirstMonthCents,
+          introOngoingMonthlyCents,
+          introOngoingPercentOff: introApplied ? ((applied as any).ongoingMonthlyPercentOff || 0) : 0
         },
         effectiveSetupPercent: effectiveSetupPct,
         effectiveMonthlyPercent: effectiveMonthlyPct
@@ -812,9 +845,11 @@ export class PricingService {
       schedule: {
         dueTodayCents: finalSetupCents,
         monthlyRecurringCents: finalMonthlyCents,
-        trialDays: 30,
-        firstMonthlyBillingDate: firstBillingDate.toISOString(),
-        firstMonthlyBillingDisplay: firstBillingDisplay,
+        trialDays: introApplied ? 60 : 30,
+        firstMonthCents: introApplied ? (introFirstMonthCents || 0) : finalMonthlyCents,
+        ongoingMonthlyCents: introApplied ? (introOngoingMonthlyCents || 0) : finalMonthlyCents,
+        firstMonthlyBillingDate: firstPaidBillingDate.toISOString(),
+        firstMonthlyBillingDisplay: firstPaidBillingDisplay,
         websiteCommitmentMonths: 12,
         commitmentMonths: 12,
         supportDurationMonths: supportDetails ? supportDetails.durationMonths : 0,
@@ -861,7 +896,7 @@ export class PricingService {
     this.discountCode.set(code.trim().toUpperCase());
   }
 
-  public applyValidatedCoupon(coupon: { code: string; type: 'percentage' | 'fixed' | 'percentage_capped'; percentage: number; fixedCents: number; appliesTo: string; capSetupCents?: number; capMonthlyCents?: number; bypassFloors?: boolean } | null) {
+  public applyValidatedCoupon(coupon: { code: string; type: 'percentage' | 'fixed' | 'percentage_capped' | 'intro'; percentage: number; fixedCents: number; appliesTo: string; capSetupCents?: number; capMonthlyCents?: number; bypassFloors?: boolean; ongoingMonthlyPercentOff?: number; restrictToPackage?: string } | null) {
     this.appliedCoupon.set(coupon);
     if (coupon) {
       this.discountCode.set(coupon.code);

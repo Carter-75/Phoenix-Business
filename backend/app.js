@@ -349,6 +349,7 @@ const adminRouter = require('./routes/admin');
 
 const contractsRouter = require('./routes/contracts');
 const groupBuyRouter = require('./routes/group-buy');
+const offersRouter = require('./routes/offers');
 
 // Mount routes
 const featureRoutes = [
@@ -356,6 +357,7 @@ const featureRoutes = [
   { path: '/admin', router: adminRouter },
   { path: '/contracts', router: contractsRouter },
   { path: '/group-buy', router: groupBuyRouter },
+  { path: '/offers', router: offersRouter },
   { path: '/leads', router: leadsRouter },
   { path: '/pricing', router: pricingRouter },
   { path: '/promotions', router: promotionsRouter },

@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
   // time an account accepts the current terms at login, old accounts
   // included. Stamped once; never sent twice to the same account.
   welcomeEmailSentAt: { type: Date },
+  // Signup attribution (for example 'outreach5' from the outreach
+  // email link) and the personal first-5 free code issued for it.
+  signupRef: { type: String, default: '' },
+  outreachFreeCode: { type: String, default: '' },
   welcomeCouponCode: { type: String },
   resetPasswordCode: { type: String },
   resetPasswordExpires: { type: Date },

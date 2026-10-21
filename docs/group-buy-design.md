@@ -290,3 +290,24 @@ owner session like the other admin routes.
   do not false-positive), join, fill, decline plus 7-day fix, and a
   missed deadline. 35 of 35 checks pass, plus the 14 of 14 pricing
   harness from v2.
+
+## Outreach first-5 offer (Oct 21, 2026)
+Carter's outreach email carries a link to /services?ref=outreach5. The
+first 5 accounts created through that link each get their own personal
+intro code, emailed at signup: Starter package ONLY, setup free in
+full (up to the non-discounted $1,499), first month free (up to the
+non-discounted $99), then half off the monthly ongoing (the ongoing
+rate is 50% of the post-promo monthly at checkout time). Codes are
+account-bound, one use, counted by createdBy so at most 5 exist.
+
+New coupon type 'intro' (percentage-like caps + restrictToPackage +
+ongoingMonthlyPercentOff). Checkout for an intro order prices the
+Stripe subscription at the ongoing (half) rate with trial_days 60 so
+the free first month needs no renewal machinery. A code entered on
+any package other than Starter is rejected with a named reason at
+pricing time and a 400 at checkout, never silently ignored.
+Signup attribution rides localStorage ('pw_signup_ref') through the
+Google round trip; the services page shows the live remaining-spot
+banner; GET /api/offers/first5 reports the counter. Issuance is
+awaited in the register/finalize paths, stamps before sending, and
+adopts rather than duplicates (the welcome flow's lessons).

@@ -97,6 +97,8 @@ export class ServicesComponent implements OnInit {
   checkoutLoading = signal(false);
   modalStep = signal<'auth' | 'onboarding'>('auth');
   authError = signal<string | null>(null);
+  outreachRefActive = signal(false);
+  first5Remaining = signal<number | null>(null);
   // Terms re-check at login: set when the backend says this account
   // must accept the updated terms before a session is created.
   loginNeedsTerms = signal(false);
@@ -250,6 +252,22 @@ export class ServicesComponent implements OnInit {
         'areaServed': 'US'
       }
     });
+
+    // Outreach first-5 attribution: the outreach email links here
+    // with ?ref=outreach5. Persist it so it survives the Google
+    // sign-in round trip, include it in the signup payload, and show
+    // the live spot count while spots remain.
+    try {
+      const refParam = new URLSearchParams(window.location.search).get('ref');
+      if (refParam) localStorage.setItem('pw_signup_ref', refParam);
+      if (localStorage.getItem('pw_signup_ref') === 'outreach5') {
+        this.outreachRefActive.set(true);
+        this.api.get<any>('offers/first5').subscribe({
+          next: (s) => { if (s && s.success) this.first5Remaining.set(s.remaining); },
+          error: () => {}
+        });
+      }
+    } catch {}
 
     // Fetch Dynamic Pricing
     this.api.get<any>('stripe/pricing').subscribe({
@@ -524,6 +542,7 @@ export class ServicesComponent implements OnInit {
       businessName: this.businessName,
       acceptedTerms: this.acceptedTerms,
       termsAcceptedVersion: this.TERMS_VERSION_TEXT,
+      signupRef: (() => { try { return localStorage.getItem('pw_signup_ref') || ''; } catch { return ''; } })(),
       email: this.userEmail,
       password: this.userPassword // Only used if isNewUser
     };

@@ -11,8 +11,21 @@ const couponSchema = new mongoose.Schema({
   },
   type: { 
     type: String, 
-    enum: ['percentage', 'fixed', 'percentage_capped'], 
+    enum: ['percentage', 'fixed', 'percentage_capped', 'intro'], 
     default: 'percentage' 
+  },
+  // intro only (outreach first-5 offer): after the free first month,
+  // the monthly continues at this percent off, ongoing. The free
+  // amounts themselves are 100% up to capSetupCents / capMonthlyCents.
+  ongoingMonthlyPercentOff: { 
+    type: Number, 
+    default: 0 
+  },
+  // intro only: when set, the code can only be redeemed on this
+  // package id (for example 'starter'). Any other package is refused.
+  restrictToPackage: { 
+    type: String, 
+    default: '' 
   },
   // percentage_capped only: the percent applies to at most this much of
   // the subtotal (in cents). Example: 90% with capSetupCents 100000

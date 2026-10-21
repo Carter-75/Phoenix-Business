@@ -1,5 +1,16 @@
 <div class="min-h-screen pt-24 sm:pt-40 pb-16 sm:pb-32">
   <div class="max-w-[1400px] mx-auto px-4 sm:px-16">
+    @if (outreachRefActive()) {
+      <div class="mb-10 rounded-2xl border border-orange-500/40 bg-orange-500/10 px-6 py-4 text-sm sm:text-base text-orange-100">
+        @if (first5Remaining() === null) {
+          <span class="font-bold text-orange-400">Outreach offer:</span> you came through our outreach email. Sign up on this page and, if one of the 5 free Starter spots is still open, your personal code arrives by email right after signup.
+        } @else if (first5Remaining()! > 0) {
+          <span class="font-bold text-orange-400">Outreach offer:</span> {{ first5Remaining() }} of the 5 free Starter spots are still open. Sign up on this page and your personal code arrives by email right after signup: setup free, first month free, then half off monthly.
+        } @else {
+          <span class="font-bold text-orange-400">Outreach offer:</span> all 5 free Starter spots have been claimed. You still get a personal 5% welcome code by email when you sign up.
+        }
+      </div>
+    }
     <header class="mb-16 sm:mb-32 max-w-4xl" appScrollReveal>
       <div class="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div class="w-8 sm:w-12 h-[1px] bg-orange-600 flex-shrink-0"></div>

@@ -651,9 +651,13 @@ export class ProjectConfiguratorComponent {
             appliesTo: res.appliesTo || 'both',
             capSetupCents: res.capSetupCents || 0,
             capMonthlyCents: res.capMonthlyCents || 0,
-            bypassFloors: res.bypassFloors === true
+            bypassFloors: res.bypassFloors === true,
+            ongoingMonthlyPercentOff: res.ongoingMonthlyPercentOff || 0,
+            restrictToPackage: res.restrictToPackage || ''
           });
-          const savingsDesc = res.type === 'percentage_capped'
+          const savingsDesc = res.type === 'intro'
+            ? `setup and first month free, then ${res.ongoingMonthlyPercentOff || 0}% off monthly (Starter package only)`
+            : res.type === 'percentage_capped'
             ? `${res.percentage}% off up to $${((res.capSetupCents || 0) / 100).toFixed(0)}`
             : res.percentage ? `${res.percentage}% off` : `$${(res.fixedCents / 100).toFixed(0)} off`;
           this.couponMessage.set({ text: `Coupon "${cleanCode}" applied: ${savingsDesc}!`, isError: false });
