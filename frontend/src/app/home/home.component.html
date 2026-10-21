@@ -419,6 +419,14 @@
                 class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
           <i class="fas fa-users mr-1.5"></i> Group Buy
         </button>
+        <button (click)="activeAdminTab.set('users'); loadAdminData()"
+                [class.border-orange-500]="activeAdminTab() === 'users'"
+                [class.text-orange-400]="activeAdminTab() === 'users'"
+                [class.border-transparent]="activeAdminTab() !== 'users'"
+                [class.text-white/60]="activeAdminTab() !== 'users'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-address-book mr-1.5"></i> Users
+        </button>
         <button (click)="activeAdminTab.set('orders'); loadAdminData()" 
                 [class.border-orange-500]="activeAdminTab() === 'orders'"
                 [class.text-orange-400]="activeAdminTab() === 'orders'"
@@ -858,6 +866,29 @@
             </div>
           </div>
           <p *ngIf="adminGroupBuys().length === 0" class="text-xs text-white/40 italic text-center py-4">No group buys yet.</p>
+        </div>
+      </div>
+
+      <div *ngIf="isOwner() && activeAdminTab() === 'users'" class="space-y-4">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-white">All Accounts</h4>
+            <span class="text-[10px] text-white/40">{{ adminUsers().length }} accounts</span>
+          </div>
+          <p *ngIf="welcomeResendMsg()" class="text-xs text-emerald-300 mb-3">{{ welcomeResendMsg() }}</p>
+          <div *ngIf="adminUsers().length === 0" class="text-xs text-white/40 italic py-2">
+            No accounts found.
+          </div>
+          <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            <div *ngFor="let u of adminUsers()" class="p-3 rounded-lg bg-black/40 border border-white/10 text-xs flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-bold text-white">{{ u.email }}</div>
+                <div class="text-white/50 text-[11px]">{{ u.firstName }} {{ u.lastName }}<span *ngIf="u.businessName"> &middot; {{ u.businessName }}</span> &middot; {{ u.signInMethod }} &middot; joined {{ u.createdAt | date:'mediumDate' }}</div>
+                <div class="text-white/40 text-[11px]">Terms: <span class="inline-block max-w-[380px] truncate align-bottom">{{ u.termsAcceptedVersion || 'none' }}</span><span *ngIf="u.signupRef"> &middot; ref {{ u.signupRef }}</span><span *ngIf="u.welcomeCouponCode"> &middot; welcome code {{ u.welcomeCouponCode }}</span><span *ngIf="u.outreachFreeCode"> &middot; first-5 code {{ u.outreachFreeCode }}</span></div>
+              </div>
+              <button (click)="resendWelcome(u)" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 rounded text-[11px] font-bold uppercase tracking-wider text-white transition-all">Resend welcome</button>
+            </div>
+          </div>
         </div>
       </div>
 

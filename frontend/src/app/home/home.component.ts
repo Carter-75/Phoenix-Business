@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const em = (user.email || '').toLowerCase().trim();
     return em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi';
   });
-  activeAdminTab = signal<'visual' | 'promotions' | 'coupons' | 'orders' | 'groupbuy'>('visual');
+  activeAdminTab = signal<'visual' | 'promotions' | 'coupons' | 'orders' | 'groupbuy' | 'users'>('visual');
 
   adminPromotions = signal<any>(null);
   adminCoupons = signal<any[]>([]);
@@ -62,6 +62,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     redeemWindowDays: 90
   };
   adminOrders = signal<any[]>([]);
+  adminUsers = signal<any[]>([]);
+  welcomeResendMsg = signal('');
   adminLoading = signal(false);
   adminMessage = signal<string>('');
 
@@ -380,6 +382,21 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.adminOrders.set(list);
       },
       error: () => {}
+    });
+    this.api.get<any>('admin/users').subscribe({
+      next: (res) => {
+        const list = Array.isArray(res) ? res : (res?.users || []);
+        this.adminUsers.set(list);
+      },
+      error: () => {}
+    });
+  }
+
+  resendWelcome(u: any) {
+    this.welcomeResendMsg.set('');
+    this.api.post<any>(`admin/users/${u.id}/resend-welcome`, {}).subscribe({
+      next: (res) => this.welcomeResendMsg.set(`Welcome email re-sent to ${u.email} (code ${res?.code || u.welcomeCouponCode || 'n/a'})`),
+      error: (err) => this.welcomeResendMsg.set(`Resend failed for ${u.email}: ${err?.error?.error || 'unknown error'}`)
     });
   }
 
