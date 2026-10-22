@@ -344,6 +344,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  gbDeadlineById: Record<string, string> = {};
+
+  extendGroupBuyDeadline(ev: any) {
+    const value = this.gbDeadlineById[ev._id];
+    if (!value) { this.adminMessage.set('Pick a new deadline date and time first.'); return; }
+    this.api.post<any>(`group-buy/admin/events/${ev._id}/deadline`, { deadline: new Date(value).toISOString() }).subscribe({
+      next: () => { this.adminMessage.set('Deadline updated. Check the event row shows the new closing time.'); this.loadGroupBuys(); },
+      error: (err) => this.adminMessage.set(err.error?.error || 'Could not update the deadline.')
+    });
+  }
+
   cancelGroupBuy(id: string) {
     this.api.post<any>(`group-buy/admin/events/${id}/cancel`, {}).subscribe({
       next: () => { this.adminMessage.set('Group buy cancelled. Joiners were emailed that they were not charged.'); this.loadGroupBuys(); },

@@ -282,6 +282,22 @@ router.post('/admin/events/:id/cancel', ownerAuth, async (req, res) => {
   }
 });
 
+router.post('/admin/events/:id/deadline', ownerAuth, async (req, res) => {
+  try {
+    const event = await GroupBuyEvent.findById(req.params.id);
+    if (!event) return res.status(404).json({ error: 'Event not found.' });
+    if (!['open', 'filling'].includes(event.status)) return res.status(400).json({ error: 'Only an open event has a live deadline to change.' });
+    const next = new Date((req.body || {}).deadline);
+    if (isNaN(next.getTime())) return res.status(400).json({ error: 'A valid deadline is required.' });
+    if (next <= new Date()) return res.status(400).json({ error: 'The new deadline must be in the future.' });
+    event.deadline = next;
+    await event.save();
+    res.json({ event });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not update the deadline.' });
+  }
+});
+
 router.get('/admin/events/:id/entries', ownerAuth, async (req, res) => {
   const entries = await GroupBuyEntry.find({ event: req.params.id }).sort({ createdAt: 1 }).populate('user', 'firstName lastName email');
   res.json({
