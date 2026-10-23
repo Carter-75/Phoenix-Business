@@ -39,6 +39,7 @@
     { "source": "/refunds", "destination": { "service": "frontend" } },
     
     { "source": "/dashboard", "destination": { "service": "frontend" } },
+    { "source": "/owner", "destination": { "service": "frontend" } },
     { "source": "/checkout", "destination": { "service": "frontend" } },
     { "source": "/checkout-success", "destination": { "service": "frontend" } },
     { "source": "/growth-crm", "destination": { "service": "frontend" } },

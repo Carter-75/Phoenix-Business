@@ -96,6 +96,10 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent) 
   },
   { 
+    path: 'owner', 
+    loadComponent: () => import('./owner-console/owner-console.component').then(m => m.OwnerConsoleComponent) 
+  },
+  { 
     path: 'admin-reviews', 
     loadComponent: () => import('./admin-reviews/admin-reviews.component').then(m => m.AdminReviewsComponent) 
   },

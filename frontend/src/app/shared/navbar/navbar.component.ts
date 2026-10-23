@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
@@ -26,6 +26,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
           <a routerLink="/data-cleanup" routerLinkActive="text-white !after:w-full" class="nav-link">Data Cleanup</a>
           <a routerLink="/reviews" routerLinkActive="text-white !after:w-full" class="nav-link">Reviews</a>
           <a *ngIf="api.currentUser()" routerLink="/dashboard" routerLinkActive="text-white !after:w-full" class="nav-link">Dashboard</a>
+          <a *ngIf="isOwner()" routerLink="/owner" routerLinkActive="text-white !after:w-full" class="nav-link">Owner</a>
           <a href="https://carter-portfolio.fyi" target="_blank" class="nav-link !text-orange-500/80 hover:!text-orange-500 flex items-center gap-2">
             Carter's Portfolio
           </a>
@@ -94,6 +95,9 @@ import { VoiceCallService } from '../../services/voice-call.service';
         <a *ngIf="api.currentUser()" routerLink="/dashboard" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors flex items-center gap-3">
           <i class="fa-solid fa-gauge text-base"></i> Dashboard
         </a>
+        <a *ngIf="isOwner()" routerLink="/owner" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors flex items-center gap-3">
+          <i class="fa-solid fa-crown text-base"></i> Owner
+        </a>
 
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
         
@@ -119,6 +123,10 @@ export class NavbarComponent implements OnInit {
   public api = inject(ApiService);
   public voiceCall = inject(VoiceCallService);
   private router = inject(Router);
+  isOwner = computed(() => {
+    const u: any = this.api.currentUser();
+    return !!u && u.isOwner === true;
+  });
   scrolled = signal(false);
   mobileMenuOpen = signal(false);
 

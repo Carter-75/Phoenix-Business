@@ -1,0 +1,589 @@
+<div class="min-h-screen relative section-padding">
+  <div class="max-w-2xl mx-auto w-full py-10">
+    <div *ngIf="isOwner(); else ownerAccessNotice">
+      <div class="relative glass-card !bg-[#050508]/95 !border-white/15 w-full p-6 sm:p-10 rounded-2xl shadow-2xl">
+      
+
+      <!-- Header & Status -->
+      <div class="mb-6 pr-10">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" [class.bg-emerald-400]="themePromo.mode() === 'auto'" [class.bg-amber-400]="themePromo.mode() === 'manual'"></span>
+            <span class="text-[9px] font-black uppercase tracking-[0.25em]" [class.text-emerald-400]="themePromo.mode() === 'auto'" [class.text-amber-400]="themePromo.mode() === 'manual'">
+              {{ themePromo.mode() === 'auto' ? 'AUTO SEASONAL CALENDAR ACTIVE' : 'MANUAL VISUAL PREVIEW ACTIVE' }}
+            </span>
+          </div>
+
+          <!-- Account & Owner Verification Status -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span *ngIf="api.currentUser()" class="text-[9px] font-mono text-white/70 bg-white/5 px-2.5 py-1 rounded-md border border-white/10">
+              <i class="fas fa-user-circle mr-1 text-white/40"></i>{{ api.currentUser()?.email }}
+            </span>
+            <span *ngIf="isOwner()" class="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Owner Verified
+            </span>
+            <span *ngIf="api.currentUser() && !isOwner()" class="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[9px] font-black uppercase tracking-widest">
+              Standard User
+            </span>
+            <span *ngIf="!api.currentUser()" class="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-white/50 text-[9px] font-black uppercase tracking-widest">
+              Guest Preview
+            </span>
+            <a *ngIf="!isOwner()" routerLink="/services" [queryParams]="{login: 'true'}" class="text-[9px] font-bold text-orange-400 hover:text-orange-300 underline uppercase tracking-wider ml-1">
+              Sign In as Owner
+            </a>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-black uppercase tracking-tight text-white">
+          {{ isOwner() ? 'Phoenix Operational & Theme Console' : 'Phoenix Tri-Engine & Theme Studio' }}
+        </h3>
+        <p class="text-xs text-white/50 mt-1">
+          {{ isOwner() ? 'Secure owner administration for real-time promotion overrides, coupon management, and design tokens.' : 'Control WebGL phoenix particles and preview all 12 seasonal themes in real time. (Owner privileges required for promotions & coupons).' }}
+        </p>
+      </div>
+
+      <!-- Owner Admin Navigation Tabs -->
+      <div *ngIf="isOwner()" class="flex border-b border-white/10 mb-6 gap-2 overflow-x-auto pb-1">
+        <button (click)="activeAdminTab.set('visual')" 
+                [class.border-orange-500]="activeAdminTab() === 'visual'"
+                [class.text-orange-400]="activeAdminTab() === 'visual'"
+                [class.border-transparent]="activeAdminTab() !== 'visual'"
+                [class.text-white/60]="activeAdminTab() !== 'visual'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-palette mr-1.5"></i> Visual Studio
+        </button>
+        <button (click)="activeAdminTab.set('promotions'); loadAdminData()" 
+                [class.border-orange-500]="activeAdminTab() === 'promotions'"
+                [class.text-orange-400]="activeAdminTab() === 'promotions'"
+                [class.border-transparent]="activeAdminTab() !== 'promotions'"
+                [class.text-white/60]="activeAdminTab() !== 'promotions'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-bullhorn mr-1.5"></i> Promotions
+        </button>
+        <button (click)="activeAdminTab.set('coupons'); loadAdminData()" 
+                [class.border-orange-500]="activeAdminTab() === 'coupons'"
+                [class.text-orange-400]="activeAdminTab() === 'coupons'"
+                [class.border-transparent]="activeAdminTab() !== 'coupons'"
+                [class.text-white/60]="activeAdminTab() !== 'coupons'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-ticket-alt mr-1.5"></i> Coupons
+        </button>
+        <button (click)="activeAdminTab.set('groupbuy'); loadGroupBuys(); loadRotation()" 
+                [class.border-orange-500]="activeAdminTab() === 'groupbuy'"
+                [class.text-orange-400]="activeAdminTab() === 'groupbuy'"
+                [class.border-transparent]="activeAdminTab() !== 'groupbuy'"
+                [class.text-white/60]="activeAdminTab() !== 'groupbuy'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-users mr-1.5"></i> Group Buy
+        </button>
+        <button (click)="activeAdminTab.set('users'); loadAdminData()"
+                [class.border-orange-500]="activeAdminTab() === 'users'"
+                [class.text-orange-400]="activeAdminTab() === 'users'"
+                [class.border-transparent]="activeAdminTab() !== 'users'"
+                [class.text-white/60]="activeAdminTab() !== 'users'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-address-book mr-1.5"></i> Users
+        </button>
+        <button (click)="activeAdminTab.set('orders'); loadAdminData()" 
+                [class.border-orange-500]="activeAdminTab() === 'orders'"
+                [class.text-orange-400]="activeAdminTab() === 'orders'"
+                [class.border-transparent]="activeAdminTab() !== 'orders'"
+                [class.text-white/60]="activeAdminTab() !== 'orders'"
+                class="px-4 py-2 border-b-2 text-xs font-black uppercase tracking-wider transition-all hover:text-white shrink-0">
+          <i class="fas fa-history mr-1.5"></i> Snapshots
+        </button>
+      </div>
+
+      <!-- Admin Status Message -->
+      <div *ngIf="adminMessage()" class="mb-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs flex justify-between items-center">
+        <span>{{ adminMessage() }}</span>
+        <button (click)="adminMessage.set('')" class="text-white/40 hover:text-white"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- TAB 1: VISUAL STUDIO (Visible to all authorized or guest previewers) -->
+      <div *ngIf="activeAdminTab() === 'visual' || !isOwner()">
+        <!-- Mode Selector -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-white/10 mb-6">
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">Active Mode: <span class="text-orange-400">{{ themePromo.mode() | uppercase }}</span></div>
+            <div class="text-[10px] text-white/40">Current: {{ themePromo.activeTheme().name }}</div>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="themePromo.returnToAuto()"
+                    [class.bg-orange-600]="themePromo.mode() === 'auto'"
+                    [class.bg-white/5]="themePromo.mode() !== 'auto'"
+                    class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-orange-500">
+              Auto Mode
+            </button>
+          </div>
+        </div>
+
+        <!-- Phoenix Individual Toggles (3 Birds) -->
+        <div class="mb-8">
+          <div class="text-[10px] font-black uppercase tracking-[0.25em] text-white/40 mb-3">Tri-Engine Particle Controls</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <!-- Phoenix 1 (Primary) -->
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="themePromo.activePhoenixes().phoenix1.color"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">{{ themePromo.activePhoenixes().phoenix1.name }}</span>
+                </div>
+                <div class="text-[9px] text-white/40 uppercase">Slot 1 • Theme Primary</div>
+              </div>
+              <button (click)="settings.toggleBird('fire')"
+                      [attr.aria-label]="'Toggle ' + themePromo.activePhoenixes().phoenix1.name"
+                      class="w-10 h-5 rounded-full transition-colors relative"
+                      [style.backgroundColor]="settings.fireEnabled() ? themePromo.activePhoenixes().phoenix1.color : 'rgba(255,255,255,0.1)'">
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                     [class.translate-x-5]="settings.fireEnabled()"></div>
+              </button>
+            </div>
+
+            <!-- Phoenix 2 (Secondary) -->
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="themePromo.activePhoenixes().phoenix2.color"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">{{ themePromo.activePhoenixes().phoenix2.name }}</span>
+                </div>
+                <div class="text-[9px] text-white/40 uppercase">Slot 2 • Theme Secondary</div>
+              </div>
+              <button (click)="settings.toggleBird('ice')"
+                      [attr.aria-label]="'Toggle ' + themePromo.activePhoenixes().phoenix2.name"
+                      class="w-10 h-5 rounded-full transition-colors relative"
+                      [style.backgroundColor]="settings.iceEnabled() ? themePromo.activePhoenixes().phoenix2.color : 'rgba(255,255,255,0.1)'">
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                     [class.translate-x-5]="settings.iceEnabled()"></div>
+              </button>
+            </div>
+
+            <!-- Phoenix 3 (Tertiary) -->
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full" [style.backgroundColor]="themePromo.activePhoenixes().phoenix3.color"></span>
+                  <span class="text-xs font-bold text-white uppercase tracking-wider">{{ themePromo.activePhoenixes().phoenix3.name }}</span>
+                </div>
+                <div class="text-[9px] text-white/40 uppercase">Slot 3 • Theme Tertiary</div>
+              </div>
+              <button (click)="settings.toggleBird('eclipse')"
+                      [attr.aria-label]="'Toggle ' + themePromo.activePhoenixes().phoenix3.name"
+                      class="w-10 h-5 rounded-full transition-colors relative"
+                      [style.backgroundColor]="settings.eclipseEnabled() ? themePromo.activePhoenixes().phoenix3.color : 'rgba(255,255,255,0.1)'">
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                     [class.translate-x-5]="settings.eclipseEnabled()"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12 Seasonal Themes Grid -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-[10px] font-black uppercase tracking-[0.25em] text-white/40">Seasonal Theme Catalog (12 Configured)</div>
+            <span class="text-[10px] text-white/40">Click any theme to preview</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            <button *ngFor="let camp of themePromo.campaigns"
+                    (click)="themePromo.setManualTheme(camp.id)"
+                    [class.border-orange-500]="themePromo.activeTheme().id === camp.id"
+                    [class.bg-white/[0.08]]="themePromo.activeTheme().id === camp.id"
+                    [class.border-white/10]="themePromo.activeTheme().id !== camp.id"
+                    class="p-2.5 rounded-xl bg-white/[0.02] border text-left transition-all hover:bg-white/[0.05] flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-white truncate">{{ camp.displayName }}</span>
+                <span *ngIf="themePromo.activeTheme().id === camp.id" class="text-[9px] text-orange-400 font-bold">✓</span>
+              </div>
+              
+              <!-- 3 Color Swatches -->
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm" [style.backgroundColor]="camp.theme.colors.primary" [title]="'Primary: ' + camp.theme.colors.primary"></span>
+                <span class="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm" [style.backgroundColor]="camp.theme.colors.secondary" [title]="'Secondary: ' + camp.theme.colors.secondary"></span>
+                <span class="w-3.5 h-3.5 rounded-full border border-black/40 shadow-sm" [style.backgroundColor]="camp.theme.colors.tertiary" [title]="'Tertiary: ' + camp.theme.colors.tertiary"></span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pricing Safety Notice -->
+        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] leading-relaxed">
+          <i class="fas fa-shield-alt mr-1"></i>
+          <strong>Pricing Isolation Guard:</strong> Manual theme preview is 100% visual only. It updates CSS design tokens and WebGL phoenix shaders in your browser, but does <em>not</em> alter client pricing or Stripe checkout charges. Authoritative pricing is calculated strictly by the server based on calendar dates.
+        </div>
+      </div>
+
+      <!-- TAB 2: PROMOTION OVERRIDES (Owner Only) -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'promotions'" class="space-y-6">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400 mb-2">Active Server Campaign</h4>
+          <div *ngIf="adminPromotions()?.activePromotion as act; else loadingPromo">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-base font-black text-white">{{ act.displayName }} ({{ act.id }})</span>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-black">{{ act.discountPercentage }}% Global Discount</span>
+            </div>
+            <p class="text-xs text-white/60 mb-1"><strong>Banner:</strong> "{{ act.bannerText }}"</p>
+            <p class="text-[10px] text-white/40">Calendar Window: {{ act.startDate || 'Evergreen' }} to {{ act.endDate || 'Ongoing' }}</p>
+          </div>
+          <ng-template #loadingPromo>
+            <p class="text-xs text-white/40 italic">Loading active promotion from authoritative server...</p>
+          </ng-template>
+        </div>
+
+        <!-- Promotion Override Form -->
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white">Live Promotion Override</h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Target Campaign</label>
+              <select [(ngModel)]="promoOverrideForm.campaignId" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                <option *ngFor="let camp of themePromo.campaigns" [value]="camp.id">{{ camp.displayName }} ({{ camp.id }})</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Global Discount Percentage</label>
+              <input type="number" min="5" max="50" [(ngModel)]="promoOverrideForm.discountPercentage" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Custom Banner Text (Optional)</label>
+            <input type="text" [(ngModel)]="promoOverrideForm.bannerText" placeholder="Leave blank to keep default banner text" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button (click)="submitPromoOverride()" [disabled]="adminLoading()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-50">
+              Apply Live Override
+            </button>
+            <button (click)="resetPromoOverrides()" [disabled]="adminLoading()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all">
+              Reset To Calendar Defaults
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: COUPONS (Owner Only) -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'coupons'" class="space-y-6">
+        <!-- New Coupon Form -->
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Database-Backed Coupon</h4>
+            <span class="text-[9px] text-white/40 uppercase tracking-widest">Client Redemption Engine</span>
+          </div>
+
+          <!-- Usage Model Selector: Single-Use vs. Repeatable -->
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-white/60 mb-1.5">Coupon Usage Type</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5"
+                     [class.border-orange-500]="newCoupon.usageModel === 'repeatable'"
+                     [class.bg-orange-500/10]="newCoupon.usageModel === 'repeatable'"
+                     [class.border-white/10]="newCoupon.usageModel !== 'repeatable'"
+                     [class.bg-white/[0.02]]="newCoupon.usageModel !== 'repeatable'">
+                <input type="radio" name="usageModel" value="repeatable" [(ngModel)]="newCoupon.usageModel" class="mt-0.5 accent-orange-500">
+                <div>
+                  <div class="text-xs font-bold text-white">Constant Repeatable</div>
+                  <div class="text-[10px] text-white/50">Multi-use coupon. Anyone who knows the code can apply it.</div>
+                </div>
+              </label>
+
+              <label class="p-3 rounded-lg border cursor-pointer transition-all flex items-start gap-2.5"
+                     [class.border-orange-500]="newCoupon.usageModel === 'single'"
+                     [class.bg-orange-500/10]="newCoupon.usageModel === 'single'"
+                     [class.border-white/10]="newCoupon.usageModel !== 'single'"
+                     [class.bg-white/[0.02]]="newCoupon.usageModel !== 'single'">
+                <input type="radio" name="usageModel" value="single" [(ngModel)]="newCoupon.usageModel" class="mt-0.5 accent-orange-500">
+                <div>
+                  <div class="text-xs font-bold text-white">1-Time Single Use</div>
+                  <div class="text-[10px] text-white/50">One-off coupon. Burns and expires immediately after 1 client checkout.</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Coupon Code</label>
+              <input type="text" [(ngModel)]="newCoupon.code" placeholder="e.g. VIP500 or ONEOFF20" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white font-mono uppercase">
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Discount Type</label>
+              <select [(ngModel)]="newCoupon.type" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Dollar ($)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">
+                {{ newCoupon.type === 'percentage' ? 'Percentage Off (%)' : 'Dollar Amount ($)' }}
+              </label>
+              <input type="number" [(ngModel)]="newCoupon.amount" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Applies To</label>
+              <select [(ngModel)]="newCoupon.appliesTo" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                <option value="both">Both Setup Fee &amp; Monthly Retainer</option>
+                <option value="setup">Setup Fee Only</option>
+                <option value="monthly">Monthly Fee Only</option>
+              </select>
+            </div>
+            <div *ngIf="newCoupon.usageModel === 'repeatable'">
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Usage Cap (0 = Unlimited)</label>
+              <input type="number" [(ngModel)]="newCoupon.usageLimit" placeholder="0 for unlimited" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div *ngIf="newCoupon.usageModel === 'single'">
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Redemption Cap</label>
+              <div class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-amber-400 font-mono flex items-center gap-1.5">
+                <i class="fas fa-lock text-[10px]"></i> Fixed at 1 Single Customer Checkout
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Starts At (Optional)</label>
+              <input type="datetime-local" [(ngModel)]="newCoupon.startsAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+              <div class="text-[10px] text-white/40 mt-1">Leave blank to start immediately. Set a future time to schedule the code.</div>
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Expires At (Optional)</label>
+              <input type="datetime-local" [(ngModel)]="newCoupon.expiresAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+              <div class="text-[10px] text-white/40 mt-1">Leave blank for no expiry.</div>
+            </div>
+          </div>
+
+          <button (click)="submitNewCoupon()" [disabled]="!newCoupon.code || adminLoading()" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40 flex items-center gap-2">
+            <i class="fas fa-plus"></i> Create {{ newCoupon.usageModel === 'single' ? '1-Time' : 'Repeatable' }} Coupon
+          </button>
+        </div>
+
+        <!-- Active Coupons Table -->
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-white">Active Database Coupons</h4>
+            <span class="text-[10px] text-white/40">{{ adminCoupons().length }} coupons registered</span>
+          </div>
+
+          <div *ngIf="adminCoupons().length === 0" class="text-xs text-white/40 italic py-4 text-center">
+            No active coupons found. Create a constant or 1-time coupon above.
+          </div>
+
+          <div class="space-y-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            <div *ngFor="let coup of adminCoupons()" class="p-3.5 rounded-lg bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono font-bold text-sm text-emerald-400">{{ coup.code }}</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/80 font-bold">
+                    {{ coup.type === 'percentage' ? coup.amount + '%' : '$' + coup.amount }} OFF ({{ coup.appliesTo }})
+                  </span>
+                  <!-- Usage Model Badge -->
+                  <span *ngIf="coup.usageLimit === 1" class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold uppercase tracking-wider">
+                    <i class="fas fa-bolt mr-1"></i>1-Time Single Use
+                  </span>
+                  <span *ngIf="coup.usageLimit !== 1" class="text-[9px] px-2 py-0.5 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold uppercase tracking-wider">
+                    <i class="fas fa-repeat mr-1"></i>Repeatable
+                  </span>
+                </div>
+                <div class="text-[10px] text-white/40 mt-1 flex items-center gap-3">
+                  <span>Redeemed: <strong class="text-white/70">{{ coup.usageCount }}</strong> / {{ coup.usageLimit > 0 ? coup.usageLimit : '∞' }}</span>
+                  <span *ngIf="coup.notes" class="text-white/30">• {{ coup.notes }}</span>
+                </div>
+                <div class="text-[10px] text-white/40 mt-0.5 flex flex-wrap items-center gap-3">
+                  <span *ngIf="coup.startsAt"><i class="fas fa-play mr-1 text-white/30"></i>Starts: <strong class="text-white/70">{{ coup.startsAt | date:'MMM d, y, h:mm a':'America/Chicago' }} CT</strong></span>
+                  <span *ngIf="coup.expiresAt"><i class="fas fa-stop mr-1 text-white/30"></i>Expires: <strong class="text-white/70">{{ coup.expiresAt | date:'MMM d, y, h:mm a':'America/Chicago' }} CT</strong></span>
+                  <span *ngIf="!coup.expiresAt" class="text-white/30">No expiry</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                <button (click)="toggleCoupon(coup._id, coup.enabled)" 
+                        [class.bg-emerald-500/20]="coup.enabled"
+                        [class.text-emerald-400]="coup.enabled"
+                        [class.border-emerald-500/30]="coup.enabled"
+                        [class.bg-red-500/20]="!coup.enabled"
+                        [class.text-red-400]="!coup.enabled"
+                        [class.border-red-500/30]="!coup.enabled"
+                        class="px-3 py-1.5 rounded text-xs font-bold border transition-colors">
+                  {{ coup.enabled ? 'Enabled' : 'Disabled' }}
+                </button>
+                <button (click)="startCouponEdit(coup)" 
+                        class="px-3 py-1.5 rounded text-xs font-bold bg-white/10 text-white/80 border border-white/20 hover:bg-white/20 transition-colors"
+                        title="Edit Schedule and Limits">
+                  <i class="fas fa-edit mr-1"></i> Edit
+                </button>
+                <button (click)="deleteCoupon(coup._id, coup.code)" 
+                        class="px-2.5 py-1.5 rounded text-xs font-bold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/40 transition-colors"
+                        title="Delete Coupon">
+                  <i class="fas fa-trash-alt mr-1"></i> Delete
+                </button>
+              </div>
+
+              <!-- Inline Edit: Schedule Window and Usage Limits -->
+              <div *ngIf="editingCouponId() === coup._id" class="basis-full w-full p-3 rounded-lg bg-white/[0.04] border border-white/10 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Starts At</label>
+                    <input type="datetime-local" [(ngModel)]="couponEditForm.startsAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+                    <div class="text-[10px] text-white/40 mt-1">Clear the field for active immediately.</div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Expires At</label>
+                    <input type="datetime-local" [(ngModel)]="couponEditForm.expiresAt" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white [color-scheme:dark]">
+                    <div class="text-[10px] text-white/40 mt-1">Clear the field for no expiry.</div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Usage Limit (0 = Unlimited)</label>
+                    <input type="number" [(ngModel)]="couponEditForm.usageLimit" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Per-Customer Limit (0 = Repeatable)</label>
+                    <input type="number" [(ngModel)]="couponEditForm.perCustomerLimit" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white">
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button (click)="saveCouponEdit(coup._id, coup.code)" [disabled]="adminLoading()" class="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-black uppercase tracking-wider text-white transition-all disabled:opacity-40">
+                    <i class="fas fa-save mr-1"></i> Save Changes
+                  </button>
+                  <button (click)="cancelCouponEdit()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold text-white/80 transition-all">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SNAPSHOTS (Owner Only) -->
+      <!-- Group Buy Admin -->
+      <div *ngIf="isOwner() && activeAdminTab() === 'groupbuy'" class="space-y-6">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Rotation (10 preset events, random order, random gaps)</h4>
+          <p class="text-xs text-white/60" *ngIf="gbRotation()">
+            Status: <span class="text-white font-bold">{{ gbRotation().enabled ? 'ON' : 'OFF' }}</span>
+            &middot; cycle position {{ gbRotation().cyclePosition }} of {{ gbRotation().cycleLength }}
+            <span *ngIf="gbRotation().nextPreset">&middot; up next: {{ gbRotation().nextPreset.name }} ({{ gbRotation().nextPreset.percentOff }}% off, ${{ (gbRotation().nextPreset.joinPriceCents/100).toFixed(0) }} join, {{ gbRotation().nextPreset.slotsNeeded }} slots, {{ gbRotation().nextPreset.windowDays }} days)</span>
+            <span *ngIf="gbRotation().nextOpenAt">&middot; may appear after {{ gbRotation().nextOpenAt | date:'medium':'America/Chicago' }}</span>
+          </p>
+          <div class="flex gap-2 flex-wrap">
+            <button (click)="toggleRotation()" class="px-3 py-1.5 rounded border border-white/25 hover:bg-white/10 text-xs font-bold">{{ gbRotation()?.enabled ? 'Pause rotation' : 'Resume rotation' }}</button>
+            <button (click)="startNextEventNow()" class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-xs font-bold">Start next event now</button>
+          </div>
+          <p class="text-[11px] text-white/40">When an event opens, account holders who accepted the current terms get the announcement email. A couple of random subscribers also get a one-time bonus code in their copy. Manual events below still work and pause the rotation while they run.</p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-orange-400">Create Group Buy (sells a capped discount, not a website)</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <label class="space-y-1 block"><span class="text-white/60">Name</span>
+              <input [(ngModel)]="gbForm.name" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white" placeholder="October Group Buy"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Percent off</span>
+              <input type="number" [(ngModel)]="gbForm.percentOff" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Join price ($)</span>
+              <input type="number" [(ngModel)]="gbForm.joinPriceDollars" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Slots needed (3-10)</span>
+              <input type="number" [(ngModel)]="gbForm.slotsNeeded" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Window (days)</span>
+              <input type="number" [(ngModel)]="gbForm.windowDays" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Setup cap ($ covered)</span>
+              <input type="number" [(ngModel)]="gbForm.capSetupDollars" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Monthly cap ($ covered)</span>
+              <input type="number" [(ngModel)]="gbForm.capMonthlyDollars" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+            <label class="space-y-1 block"><span class="text-white/60">Redeem window (days)</span>
+              <input type="number" [(ngModel)]="gbForm.redeemWindowDays" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white"></label>
+          </div>
+          <label class="space-y-1 block text-xs"><span class="text-white/60">Capacity reason (printed next to the slot count)</span>
+            <input [(ngModel)]="gbForm.capacityReason" class="w-full bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white" placeholder="One full build block: this many sites is what I can build at once, which is what makes the group price possible."></label>
+          <button (click)="createGroupBuy()" [disabled]="adminLoading()" class="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-400 text-xs font-bold uppercase tracking-wider disabled:opacity-50">Create draft</button>
+          <p class="text-[11px] text-white/40">One draft or open event at a time. Opening locks the threshold and starts the deadline. Defaults match the approved numbers: 90% off, $100 join, 10 slots, 6 days, caps $1,000 setup / $10 monthly, 90 days to redeem.</p>
+        </div>
+
+        <div class="space-y-3">
+          <div *ngFor="let ev of adminGroupBuys()" class="p-4 rounded-xl bg-white/[0.03] border border-white/10 text-xs space-y-2">
+            <div class="flex flex-wrap justify-between gap-2">
+              <span class="font-bold text-white text-sm">{{ ev.name }}</span>
+              <span class="uppercase tracking-wider text-orange-300">{{ ev.status }}</span>
+            </div>
+            <p class="text-white/60">{{ ev.percentOff }}% off up to ${{ (ev.capSetupCents/100).toFixed(0) }} setup / ${{ (ev.capMonthlyCents/100).toFixed(0) }} monthly &middot; join ${{ (ev.joinPriceCents/100).toFixed(0) }} &middot; slots {{ ev.slotsNeeded }} &middot; window {{ ev.windowDays }}d<span *ngIf="ev.deadline"> &middot; deadline {{ ev.deadline | date:'medium':'America/Chicago' }}</span></p>
+            <p class="text-white/60">Entries: <span *ngFor="let c of ev.counts | keyvalue">{{ c.key }}: {{ c.value }} &nbsp;</span></p>
+            <div class="flex gap-2 flex-wrap">
+              <button *ngIf="ev.status === 'draft'" (click)="openGroupBuy(ev._id)" class="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 font-bold">Open event</button>
+              <button *ngIf="ev.status === 'draft' || ev.status === 'open'" (click)="cancelGroupBuy(ev._id)" class="px-3 py-1.5 rounded bg-red-600/80 hover:bg-red-500 font-bold">Cancel event</button>
+              <button (click)="viewGbEntries(ev._id)" class="px-3 py-1.5 rounded border border-white/25 hover:bg-white/10 font-bold">View entries</button>
+            </div>
+            <div *ngIf="ev.status === 'open' || ev.status === 'filling'" class="flex gap-2 flex-wrap items-center pt-1">
+              <input type="datetime-local" [(ngModel)]="gbDeadlineById[ev._id]" class="bg-black/40 border border-white/15 rounded px-2 py-1.5 text-white" aria-label="New deadline">
+              <button (click)="extendGroupBuyDeadline(ev)" class="px-3 py-1.5 rounded bg-sky-700 hover:bg-sky-600 font-bold">Set deadline</button>
+              <span class="text-white/40">Current deadline shown above (Chicago time).</span>
+            </div>
+            <div *ngIf="gbEntriesFor() === ev._id" class="pt-2 border-t border-white/10">
+              <p *ngFor="let en of gbEntries()" class="text-white/70 py-0.5">{{ en.user?.email || 'unknown' }} &middot; {{ en.status }}<span *ngIf="en.couponCode"> &middot; code {{ en.couponCode }}</span></p>
+              <p *ngIf="gbEntries().length === 0" class="text-white/40 italic">No entries yet.</p>
+            </div>
+          </div>
+          <p *ngIf="adminGroupBuys().length === 0" class="text-xs text-white/40 italic text-center py-4">No group buys yet.</p>
+        </div>
+      </div>
+
+      <div *ngIf="isOwner() && activeAdminTab() === 'users'" class="space-y-4">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-white">All Accounts</h4>
+            <span class="text-[10px] text-white/40">{{ adminUsers().length }} accounts</span>
+          </div>
+          <p *ngIf="welcomeResendMsg()" class="text-xs text-emerald-300 mb-3">{{ welcomeResendMsg() }}</p>
+          <div *ngIf="adminUsers().length === 0" class="text-xs text-white/40 italic py-2">
+            No accounts found.
+          </div>
+          <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            <div *ngFor="let u of adminUsers()" class="p-3 rounded-lg bg-black/40 border border-white/10 text-xs flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-bold text-white">{{ u.email }}</div>
+                <div class="text-white/50 text-[11px]">{{ u.firstName }} {{ u.lastName }}<span *ngIf="u.businessName"> &middot; {{ u.businessName }}</span> &middot; {{ u.signInMethod }} &middot; joined {{ u.createdAt | date:'mediumDate' }}</div>
+                <div class="text-white/40 text-[11px]">Terms: <span class="inline-block max-w-[380px] truncate align-bottom">{{ u.termsAcceptedVersion || 'none' }}</span><span *ngIf="u.signupRef"> &middot; ref {{ u.signupRef }}</span><span *ngIf="u.welcomeCouponCode"> &middot; welcome code {{ u.welcomeCouponCode }}</span><span *ngIf="u.outreachFreeCode"> &middot; first-5 code {{ u.outreachFreeCode }}</span></div>
+              </div>
+              <button (click)="resendWelcome(u)" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 rounded text-[11px] font-bold uppercase tracking-wider text-white transition-all">Resend welcome</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isOwner() && activeAdminTab() === 'orders'" class="space-y-4">
+        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Immutable Order Snapshots</h4>
+          <div *ngIf="adminOrders().length === 0" class="text-xs text-white/40 italic py-2">
+            No orders captured in this environment yet. Checkouts will record immutable snapshots here.
+          </div>
+          <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+            <div *ngFor="let ord of adminOrders()" class="p-3 rounded-lg bg-black/40 border border-white/10 text-xs">
+              <div class="flex justify-between items-start mb-1">
+                <span class="font-bold text-white uppercase">{{ ord.tierId }}</span>
+                <span class="text-[10px] text-white/40">{{ ord.createdAt | date:'short' }}</span>
+              </div>
+              <div class="flex gap-4 text-white/70 text-[11px]">
+                <span>Due Today: <strong class="text-white">${{ ord.finalPrices?.dueToday }}</strong></span>
+                <span>Monthly: <strong class="text-white">${{ ord.finalPrices?.recurringMonthly }}/mo</strong></span>
+                <span>Promo: <strong class="text-orange-400">{{ ord.discounts?.globalPromotion?.discountPercentage }}%</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <ng-template #ownerAccessNotice>
+      <div class="relative glass-card !bg-[#050508]/95 !border-white/15 w-full p-6 sm:p-10 rounded-2xl shadow-2xl text-center">
+        <h1 class="text-white font-black uppercase tracking-wider text-lg mb-3">Owner Console</h1>
+        <p class="text-white/60 text-sm mb-5">This page is available only to the site owner. Sign in with the owner account to use it.</p>
+        <a routerLink="/services" [queryParams]="{login: 'true'}" class="text-orange-400 hover:text-orange-300 underline text-sm font-bold uppercase tracking-wider">Log in</a>
+      </div>
+    </ng-template>
+  </div>
+</div>
