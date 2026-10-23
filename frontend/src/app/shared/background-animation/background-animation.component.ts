@@ -2,6 +2,8 @@ import { Component, ElementRef, OnInit, OnDestroy, ViewChild, NgZone, inject, ef
 import * as THREE from 'three';
 import { PhoenixSettingsService } from '../../services/phoenix-settings.service';
 
+const UP_VECTOR = new THREE.Vector3(0, 1, 0);
+
 interface PhoenixState {
   theme: 'orange' | 'blue' | 'purple';
   group: THREE.Group;
@@ -52,6 +54,25 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private particles!: THREE.Points;
+
+  // Preallocated scratch objects for the render loop. The loop used
+  // to allocate fresh vectors for every force and every one of the
+  // 12,000 particles on every frame; reusing scratch values keeps
+  // the math (and therefore the visuals) identical while removing
+  // the garbage-collection churn.
+  private readonly _wander = new THREE.Vector3();
+  private readonly _toTarget = new THREE.Vector3();
+  private readonly _curveRight = new THREE.Vector3();
+  private readonly _contain = new THREE.Vector3();
+  private readonly _center = new THREE.Vector3();
+  private readonly _avoid = new THREE.Vector3();
+  private readonly _repel = new THREE.Vector3();
+  private readonly _desired = new THREE.Vector3();
+  private readonly _look = new THREE.Vector3();
+  private readonly _vDiff = new THREE.Vector3();
+  private readonly _right = new THREE.Vector3();
+  private readonly _offset = new THREE.Vector3();
+  private readonly _dummy = new THREE.Object3D();
   private animationId!: number;
   
   private birds: PhoenixState[] = [];
@@ -482,39 +503,37 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             bird.wanderPhi += (Math.random() - 0.5) * 0.05;
             bird.wanderPhi = Math.max(Math.PI / 3, Math.min(2 * Math.PI / 3, bird.wanderPhi));
 
-            const wanderForce = new THREE.Vector3(
-                Math.sin(bird.wanderPhi) * Math.cos(bird.wanderTheta), 
-                Math.cos(bird.wanderPhi), 
+            const wanderForce = this._wander.set(
+                Math.sin(bird.wanderPhi) * Math.cos(bird.wanderTheta),
+                Math.cos(bird.wanderPhi),
                 Math.sin(bird.wanderPhi) * Math.sin(bird.wanderTheta)
             ).normalize().multiplyScalar(0.005); 
 
             // 2. S-Curve Waypoint Pull
-            const directToTarget = bird.targetWaypoint.clone().sub(bird.position);
+            const directToTarget = this._toTarget.copy(bird.targetWaypoint).sub(bird.position);
             directToTarget.normalize();
             
             bird.curvePhase += 0.015; 
             const curveIntensity = Math.sin(bird.curvePhase) * 0.8; 
             
-            const up = new THREE.Vector3(0, 1, 0);
-            let curveRight = new THREE.Vector3().crossVectors(directToTarget, up).normalize();
-            if (curveRight.lengthSq() < 0.001) curveRight = new THREE.Vector3(1, 0, 0); 
+            const curveRight = this._curveRight.crossVectors(directToTarget, UP_VECTOR).normalize();
+            if (curveRight.lengthSq() < 0.001) curveRight.set(1, 0, 0);
             
             const curveVector = curveRight.multiplyScalar(curveIntensity);
             const waypointForce = directToTarget.add(curveVector).normalize().multiplyScalar(0.005);
 
             // 3. Loose Containment 
-            let containForce = new THREE.Vector3();
+            const containForce = this._contain.set(0, 0, 0);
             const distX = Math.abs(bird.position.x);
             const distY = Math.abs(bird.position.y);
             if (distX > this.boundX * 1.3 || distY > this.boundY * 1.3) {
-                const centerXY = new THREE.Vector3(0, 0, bird.position.z);
-                containForce = centerXY.sub(bird.position).normalize().multiplyScalar(0.01);
+                containForce.copy(this._center.set(0, 0, bird.position.z)).sub(bird.position).normalize().multiplyScalar(0.01);
             }
             if (bird.position.z < -25) containForce.z += 0.01;
             else if (bird.position.z > -10) containForce.z -= 0.01;
             
             // 4. Mutual Avoidance Force (Boid Separation)
-            let avoidForce = new THREE.Vector3();
+            const avoidForce = this._avoid.set(0, 0, 0);
             for (let j = 0; j < this.birds.length; j++) {
               if (i !== j) {
                 const otherBird = this.birds[j];
@@ -527,7 +546,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
                   
                   // If they get within 15 units of each other, strongly repel
                   if (distToOther < 15.0 && distToOther > 0) {
-                    const repel = bird.position.clone().sub(otherBird.position).normalize();
+                    const repel = this._repel.copy(bird.position).sub(otherBird.position).normalize();
                     // Closer they are, stronger the repel
                     const repelStrength = (15.0 - distToOther) / 15.0; 
                     avoidForce.add(repel.multiplyScalar(repelStrength * 0.015)); 
@@ -549,7 +568,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             let maxTurnForce = (baseTurn + (edgeProximity * edgeBonus)) / this.birdScale; 
             
             // Reynolds Steering Algorithm
-            const desiredVelocity = bird.velocity.clone().add(combinedForce).normalize().multiplyScalar(speed);
+            const desiredVelocity = this._desired.copy(bird.velocity).add(combinedForce).normalize().multiplyScalar(speed);
             const steering = desiredVelocity.sub(bird.velocity);
             if (steering.length() > maxTurnForce) steering.normalize().multiplyScalar(maxTurnForce);
 
@@ -557,14 +576,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
             bird.velocity.normalize().multiplyScalar(speed);
             bird.position.add(bird.velocity);
 
-            const lookTarget = bird.position.clone().add(bird.velocity.clone().multiplyScalar(100));
-            const dummy = new THREE.Object3D();
+            const lookTarget = this._look.copy(bird.velocity).multiplyScalar(100).add(bird.position);
+            const dummy = this._dummy;
             dummy.position.copy(bird.position);
             dummy.lookAt(lookTarget);
             dummy.rotateY(Math.PI); 
 
-            const vDiff = bird.velocity.clone().sub(bird.previousVelocity);
-            const right = new THREE.Vector3(1, 0, 0).applyQuaternion(dummy.quaternion);
+            const vDiff = this._vDiff.copy(bird.velocity).sub(bird.previousVelocity);
+            const right = this._right.set(1, 0, 0).applyQuaternion(dummy.quaternion);
             let targetBank = vDiff.dot(right) * 400; 
             targetBank = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, targetBank));
             bird.currentBank += (targetBank - bird.currentBank) * 0.05;
@@ -604,7 +623,7 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
               const flickerX = (Math.random() - 0.5) * 0.05 * this.birdScale;
               const flickerY = (Math.random() - 0.5) * 0.05 * this.birdScale;
               
-              const localOffset = new THREE.Vector3(scaledBaseX + flickerX, scaledBaseY + flapOffset + flickerY, 0);
+              const localOffset = this._offset.set(scaledBaseX + flickerX, scaledBaseY + flapOffset + flickerY, 0);
               localOffset.applyQuaternion(hQuat);
               
               pPositions[idx] = hPos.x + localOffset.x;

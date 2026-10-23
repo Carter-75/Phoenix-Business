@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../services/api.service';
+import { SkeletonComponent } from '../shared/skeleton/skeleton.component';
 import { environment } from '../../environments/environment';
 
 declare global {
@@ -18,11 +19,11 @@ declare global {
 @Component({
   selector: 'app-group-buy',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, SkeletonComponent],
   template: `
   <main class="max-w-3xl mx-auto px-6 pt-40 pb-24 text-white">
     @if (loading()) {
-      <p class="text-white/70">Loading the group buy...</p>
+      <app-skeleton variant="page" [count]="2"></app-skeleton>
     } @else if (!event()) {
       <h1 class="text-3xl font-bold mb-4">Group Buy</h1>
       <p class="text-white/80 leading-relaxed">

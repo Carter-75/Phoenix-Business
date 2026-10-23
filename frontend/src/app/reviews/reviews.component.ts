@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api.service';
+import { SkeletonComponent } from '../shared/skeleton/skeleton.component';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { SeoService } from '../services/seo.service';
@@ -8,7 +9,7 @@ import { SeoService } from '../services/seo.service';
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent],
   template: `
     <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
@@ -79,8 +80,8 @@ import { SeoService } from '../services/seo.service';
           </div>
         </div>
 
-        <div *ngIf="loading()" class="py-24 flex justify-center">
-          <i class="fa-solid fa-circle-notch fa-spin text-5xl text-orange-600"></i>
+        <div *ngIf="loading()" class="py-12">
+          <app-skeleton variant="cards" [count]="3"></app-skeleton>
         </div>
 
         <!-- MY REVIEWS (ALWAYS TOP) -->

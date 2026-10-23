@@ -146,6 +146,38 @@
   </script>
 </head>
 <body class="bg-transparent overflow-x-hidden w-full relative">
-  <app-root></app-root>
+  <style>
+    /* Pre-bootstrap skeleton: replaced by the app the moment it boots.
+       Mirrors the dark theme and page shape so first paint is a
+       content placeholder instead of a blank screen. */
+    .boot-skeleton { background: #020205; min-height: 100vh; padding: 0 2rem; box-sizing: border-box; }
+    .boot-nav { height: 88px; display: flex; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto; }
+    .boot-block { background: rgba(255,255,255,0.07); border-radius: 8px; animation: boot-pulse 1.4s ease-in-out infinite; }
+    .boot-main { max-width: 1400px; margin: 0 auto; padding-top: 9vh; }
+    .boot-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
+    @media (max-width: 900px) { .boot-cards { grid-template-columns: 1fr; } }
+    @keyframes boot-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  </style>
+  <app-root>
+    <div class="boot-skeleton" aria-hidden="true">
+      <div class="boot-nav">
+        <div class="boot-block" style="width:150px;height:26px;"></div>
+        <div class="boot-block" style="width:340px;height:16px;"></div>
+      </div>
+      <div class="boot-main">
+        <div class="boot-block" style="width:180px;height:12px;margin-bottom:28px;"></div>
+        <div class="boot-block" style="width:62%;height:52px;margin-bottom:16px;"></div>
+        <div class="boot-block" style="width:44%;height:52px;margin-bottom:30px;"></div>
+        <div class="boot-block" style="width:52%;height:16px;margin-bottom:12px;"></div>
+        <div class="boot-block" style="width:38%;height:16px;margin-bottom:40px;"></div>
+        <div class="boot-block" style="width:190px;height:46px;border-radius:999px;"></div>
+        <div class="boot-cards">
+          <div class="boot-block" style="height:210px;border-radius:16px;"></div>
+          <div class="boot-block" style="height:210px;border-radius:16px;"></div>
+          <div class="boot-block" style="height:210px;border-radius:16px;"></div>
+        </div>
+      </div>
+    </div>
+  </app-root>
 </body>
 </html>

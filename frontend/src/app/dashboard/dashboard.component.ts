@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
+import { SkeletonComponent } from '../shared/skeleton/skeleton.component';
 import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent],
   template: `
     <section class="min-h-screen pt-32 sm:pt-48 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
@@ -63,8 +64,8 @@ import { environment } from '../../environments/environment';
           <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Portal</span></h1>
           <p class="text-xl text-slate-400 mb-12 font-medium">Manage your active projects, view termination options, and download invoices.</p>
           
-          <div *ngIf="loadingContracts()" class="flex justify-center py-12">
-            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
+          <div *ngIf="loadingContracts()" class="max-w-4xl mx-auto text-left py-4">
+            <app-skeleton variant="cards" [count]="2"></app-skeleton>
           </div>
 
           <div *ngIf="groupBuyEntries().length > 0" class="text-left bg-white/5 rounded-2xl border border-orange-500/25 p-6 max-w-4xl mx-auto mb-8 w-full">
@@ -212,8 +213,8 @@ import { environment } from '../../environments/environment';
           </div>
         </header>
 
-        <div *ngIf="loadingQuote()" class="py-12 flex justify-center">
-          <i class="fa-solid fa-circle-notch fa-spin text-4xl text-orange-600"></i>
+        <div *ngIf="loadingQuote()" class="py-8 max-w-2xl mx-auto text-left">
+          <app-skeleton variant="lines" [count]="4"></app-skeleton>
         </div>
 
         <!-- FREE ORDER STATE (100% discount promotional orders) -->
