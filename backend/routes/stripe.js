@@ -1091,6 +1091,18 @@ router.post('/webhook', async (req, res) => {
                 return res.json({ received: true });
             }
 
+            // Post-purchase add-on payment: apply the frozen purchase
+            // to the customer's order and subscription.
+            if (session.metadata && session.metadata.purpose === 'addon_purchase') {
+                try {
+                    const { applyAddonPurchase } = require('../services/addons.service');
+                    await applyAddonPurchase(stripe, session.metadata.purchaseId);
+                } catch (addonErr) {
+                    console.error('[STRIPE] Addon purchase handling failed:', addonErr.message);
+                }
+                return res.json({ received: true });
+            }
+
             if (session.metadata && session.metadata.action === 'cancellation_payment') {
                 try {
                     const subId = session.metadata.subscriptionId;

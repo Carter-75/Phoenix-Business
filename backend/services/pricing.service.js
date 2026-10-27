@@ -996,6 +996,161 @@ function calculateProjectPrice(input = {}, options = {}) {
   };
 }
 
+/**
+ * Prices a post-purchase add-on selection for an existing order.
+ *
+ * Mirrors calculateProjectPrice's discount order exactly, applied to the
+ * add-on subtotals only: bundle discount (2+ add-ons), then the active
+ * site-wide promotion, then the coupon. The package-level profit floors
+ * and the max combined discount cap are NOT applied here: those protect
+ * whole package prices, and a standalone add-on must be able to reach
+ * $0 when Carter comps it or issues a 100% one-time code. Amounts are
+ * still clamped at zero, and a package-locked intro coupon is refused
+ * with a reason instead of being silently applied or ignored.
+ *
+ * input:  { addonIds: string[], discountCode?: string }
+ * options: { coupon?: resolved Coupon doc, ownedAddonIds?: string[] }
+ *   ownedAddonIds are dropped before pricing (never sold twice), and
+ *   dependency add-ons (auth requires database, etc.) are auto-added
+ *   with the same rules as the main engine, minus the ones already owned.
+ */
+function calculateAddonPrice(input = {}, options = {}) {
+  const owned = new Set(options.ownedAddonIds || []);
+  const requested = Array.isArray(input.addonIds) ? input.addonIds : [];
+  const selected = new Set();
+  for (const id of requested) {
+    if (FEATURE_ADDONS[id] && !owned.has(id)) selected.add(id);
+  }
+
+  // Auto-satisfy dependencies (same closure as calculateProjectPrice).
+  if (selected.has('dashboard')) { selected.add('auth'); selected.add('database'); }
+  if (selected.has('auth')) { selected.add('database'); }
+  if (selected.has('roles')) { selected.add('auth'); selected.add('database'); }
+  if (selected.has('ecommerce')) { selected.add('payments'); }
+  for (const id of [...selected]) {
+    if (owned.has(id)) selected.delete(id);
+  }
+
+  const addons = [];
+  let subtotalSetup = 0;
+  let subtotalMonthly = 0;
+  for (const id of selected) {
+    const feat = FEATURE_ADDONS[id];
+    if (feat.group === 'support-duration') continue; // support plans are not self-serve add-ons
+    subtotalSetup += feat.setupPrice;
+    subtotalMonthly += feat.monthlyPrice;
+    addons.push({
+      id: feat.id,
+      name: feat.name,
+      description: feat.description,
+      category: feat.category,
+      billingType: feat.billingType,
+      setupCents: feat.setupPrice,
+      monthlyCents: feat.monthlyPrice,
+      autoAdded: !requested.includes(id)
+    });
+  }
+
+  const bundle = calculateBundleDiscount(addons.length);
+  const bundleDiscountPercent = bundle.discountPercent;
+  const bundleDiscountSetupCents = Math.round(subtotalSetup * (bundleDiscountPercent / 100));
+  const bundleDiscountMonthlyCents = Math.round(subtotalMonthly * (bundleDiscountPercent / 100));
+  const postBundleSetup = subtotalSetup - bundleDiscountSetupCents;
+  const postBundleMonthly = subtotalMonthly - bundleDiscountMonthlyCents;
+
+  const activePromo = getActivePromotion(new Date());
+  const promoPercent = activePromo.discountPercent || 20;
+  const promoDiscountSetupCents = Math.round(postBundleSetup * (promoPercent / 100));
+  const promoDiscountMonthlyCents = Math.round(postBundleMonthly * (promoPercent / 100));
+  const postPromoSetup = Math.max(0, postBundleSetup - promoDiscountSetupCents);
+  const postPromoMonthly = Math.max(0, postBundleMonthly - promoDiscountMonthlyCents);
+
+  let couponDiscountSetupCents = 0;
+  let couponDiscountMonthlyCents = 0;
+  let appliedCouponCode = null;
+  let couponError = null;
+
+  const dbCoupon = options.coupon || null;
+  const rawCode = input.discountCode
+    ? String(input.discountCode).trim().toUpperCase()
+    : (dbCoupon ? dbCoupon.code : null);
+
+  if (dbCoupon && dbCoupon.enabled !== false) {
+    const now = new Date();
+    const isExpired = dbCoupon.expiresAt && new Date(dbCoupon.expiresAt) < now;
+    const isLimitReached = dbCoupon.usageLimit > 0 && (dbCoupon.usageCount || 0) >= dbCoupon.usageLimit;
+    if (!isExpired && !isLimitReached) {
+      const appliesTo = dbCoupon.appliesTo || 'both';
+      if (dbCoupon.type === 'intro') {
+        couponError = 'This code only works on a new website package, not on add-ons.';
+      } else if (dbCoupon.type === 'fixed') {
+        const fixedCents = parseInt(dbCoupon.amount, 10) || 0;
+        if (appliesTo === 'setup' || appliesTo === 'both') {
+          couponDiscountSetupCents = Math.min(postPromoSetup, fixedCents);
+        }
+        if (appliesTo === 'monthly') {
+          couponDiscountMonthlyCents = Math.min(postPromoMonthly, fixedCents);
+        }
+        appliedCouponCode = dbCoupon.code;
+      } else if (dbCoupon.type === 'percentage_capped') {
+        const pct = Math.min(100, Math.max(0, parseInt(dbCoupon.amount, 10) || 0));
+        const capS = parseInt(dbCoupon.capSetupCents, 10) || 0;
+        const capM = parseInt(dbCoupon.capMonthlyCents, 10) || 0;
+        if (appliesTo === 'setup' || appliesTo === 'both') {
+          couponDiscountSetupCents = Math.round(Math.min(postPromoSetup, capS) * (pct / 100));
+        }
+        if (appliesTo === 'monthly' || appliesTo === 'both') {
+          couponDiscountMonthlyCents = Math.round(Math.min(postPromoMonthly, capM) * (pct / 100));
+        }
+        appliedCouponCode = dbCoupon.code;
+      } else {
+        const pct = Math.min(100, Math.max(0, parseInt(dbCoupon.amount, 10) || 0));
+        if (appliesTo === 'setup' || appliesTo === 'both') {
+          couponDiscountSetupCents = Math.round(postPromoSetup * (pct / 100));
+        }
+        if (appliesTo === 'monthly' || appliesTo === 'both') {
+          couponDiscountMonthlyCents = Math.round(postPromoMonthly * (pct / 100));
+        }
+        appliedCouponCode = dbCoupon.code;
+      }
+    }
+  }
+
+  if (!appliedCouponCode && !couponError && rawCode && !dbCoupon) {
+    const dcVal = process.env[`DC_${rawCode}`];
+    const dclVal = process.env[`DCL_${rawCode}`];
+    if (dcVal || dclVal) {
+      const pct = parseInt(dcVal || dclVal, 10);
+      if (!isNaN(pct) && pct > 0) {
+        couponDiscountSetupCents = Math.round(postPromoSetup * (pct / 100));
+        couponDiscountMonthlyCents = Math.round(postPromoMonthly * (pct / 100));
+        appliedCouponCode = rawCode;
+      }
+    }
+  }
+
+  return {
+    addons,
+    addonCount: addons.length,
+    subtotalSetupCents: subtotalSetup,
+    subtotalMonthlyCents: subtotalMonthly,
+    bundleDiscountPercent,
+    bundleDiscountSetupCents,
+    bundleDiscountMonthlyCents,
+    promotionId: activePromo.id || 'default',
+    promotionName: activePromo.name || 'Promotion',
+    promotionDiscountPercent: promoPercent,
+    promoDiscountSetupCents: promoDiscountSetupCents,
+    promoDiscountMonthlyCents: promoDiscountMonthlyCents,
+    couponCode: appliedCouponCode,
+    couponError,
+    couponDiscountSetupCents,
+    couponDiscountMonthlyCents,
+    dueTodayCents: Math.max(0, postPromoSetup - couponDiscountSetupCents),
+    monthlyDeltaCents: Math.max(0, postPromoMonthly - couponDiscountMonthlyCents)
+  };
+}
+
 module.exports = {
   BASE_PROJECTS,
   TIER_ALIASES,
@@ -1005,6 +1160,7 @@ module.exports = {
   calculateBundleDiscount,
   evaluateDynamicFactors,
   calculateProjectPrice,
+  calculateAddonPrice,
   syncDatabaseCoupons,
   setDatabaseCoupon,
   removeDatabaseCoupon,

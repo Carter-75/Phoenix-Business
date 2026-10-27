@@ -5,12 +5,13 @@ import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { PhoenixSettingsService } from '../services/phoenix-settings.service';
 import { SkeletonComponent } from '../shared/skeleton/skeleton.component';
+import { AddonsCardComponent } from './addons-card.component';
 import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent, AddonsCardComponent],
   template: `
     <section class="min-h-screen pt-32 sm:pt-48 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
@@ -180,6 +181,9 @@ import { environment } from '../../environments/environment';
               <p class="text-slate-400 text-sm">You sign in with Google, so there is no Phoenix Websites AI password to change. Manage your password in your Google account.</p>
             </ng-template>
           </div>
+
+          <!-- ADD TO YOUR WEBSITE (post-purchase add-ons) -->
+          <app-addons-card *ngIf="api.currentUser()"></app-addons-card>
 
           <!-- SITE PHOENIXES (OWNER ONLY) -->
           <div *ngIf="isOwner()" class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-sm mb-12 text-left max-w-lg mx-auto">
