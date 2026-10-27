@@ -196,14 +196,14 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
               </div>
               <h5 class="text-sm font-bold text-white mb-1.5">{{ item.shortName }}</h5>
               <p class="text-[11px] text-white/50 leading-relaxed mb-3">{{ item.blurb }}</p>
-              <p *ngIf="item.autoNote && !isIncludedInBase(item.feat.id)" class="text-[10px] font-bold text-amber-400/90 mb-4">{{ item.autoNote }}</p>
+              <p *ngIf="item.autoNote && !isIncludedInBase(item.feat.id)" class="text-[10px] font-bold text-orange-300/90 mb-4">{{ item.autoNote }}</p>
             </div>
 
             <div class="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
               <span *ngIf="isIncludedInBase(item.feat.id)" class="text-[10px] font-black uppercase tracking-wider text-emerald-400">
                 Included in Your Tier
               </span>
-              <span *ngIf="!isIncludedInBase(item.feat.id) && isAutoAdded(item.feat.id)" class="text-[10px] font-black uppercase tracking-wider text-amber-400">
+              <span *ngIf="!isIncludedInBase(item.feat.id) && isAutoAdded(item.feat.id)" class="text-[10px] font-black uppercase tracking-wider text-orange-300">
                 Added Automatically
               </span>
               <div *ngIf="!isIncludedInBase(item.feat.id)" class="flex flex-col text-right ml-auto">
@@ -265,7 +265,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
             <div>
               <span class="text-[10px] uppercase font-bold text-white/40 block">Coverage Ends:</span>
               <span class="text-white font-bold block">{{ pricing.calculation().support!.endDisplay }}</span>
-              <span class="text-[10px] text-amber-400/90 block">No Auto-Renewal</span>
+              <span class="text-[10px] text-orange-300/90 block">No Auto-Renewal</span>
             </div>
           </div>
 
@@ -288,7 +288,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
               <li *ngFor="let inc of pricing.calculation().support!.inclusions">{{ inc }}</li>
             </ul>
 
-            <div class="text-[10px] uppercase tracking-wider font-bold text-amber-400/80 mt-2">Explicitly Excluded:</div>
+            <div class="text-[10px] uppercase tracking-wider font-bold text-orange-300/80 mt-2">Explicitly Excluded:</div>
             <p class="text-[10px] text-white/40">Completely new features, major layout redesigns, and large architectural builds remain separate paid work.</p>
 
             <!-- Deterministic 24-Month Rule Disclosure -->

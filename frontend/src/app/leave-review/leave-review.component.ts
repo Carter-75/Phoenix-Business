@@ -59,7 +59,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 
           <!-- Carousel Card -->
           <div class="bg-[#050505] border border-white/10 rounded-2xl w-full z-10 relative overflow-hidden shadow-2xl text-left">
-            <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-600 to-yellow-500"></div>
+            <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-600 to-red-600"></div>
             
             <form (ngSubmit)="submitReview()" class="p-6 sm:p-10">
               
@@ -98,7 +98,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 <ng-container *ngFor="let star of [1,2,3,4,5]">
                   <div class="relative cursor-pointer text-5xl">
                     <i class="fa-regular fa-star text-slate-800"></i>
-                    <i class="fa-solid fa-star absolute top-0 left-0 text-yellow-500 transition-all duration-75" 
+                    <i class="fa-solid fa-star absolute top-0 left-0 text-orange-500 transition-all duration-75" 
                        [ngStyle]="{'clip-path': getStarClipPath(star)}"></i>
                     
                     <div class="absolute inset-0 flex" role="radiogroup" aria-label="Your rating">

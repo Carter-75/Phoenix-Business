@@ -7,10 +7,9 @@
     --bg-deep: #020205;
     --accent-fire: #ff4d00;
     --accent-fire-glow: rgba(255, 77, 0, 0.2);
-    /* Secondary accent: the antique gold used on the About and legal
-       pages and the brand mark. One gold, defined once. */
-    --accent-gold: #d4af37;
-    --accent-gold-glow: rgba(212, 175, 55, 0.2);
+    /* Brand palette (Carter, Oct 27, 2026): obsidian black, fire orange,
+       ember orange, flame red for gradient depth, off-white and zinc
+       neutrals. No gold and no yellow anywhere on the site. */
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.5);
     --glass-surface: rgba(255, 255, 255, 0.02);

@@ -139,7 +139,7 @@ import { ApiService, CartItem } from '../services/api.service';
           <p *ngIf="pricingError()" class="text-red-400 mb-4">{{ pricingError() }}</p>
           <button (click)="proceedToPayment()" 
                   [disabled]="paymentLoading() || !pricing() || !acceptedContract || cartItems().length !== 1"
-                  class="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_8px_30px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                  class="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-red-600 text-white font-black uppercase tracking-widest text-sm hover:shadow-[0_8px_30px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
             {{ paymentLoading() ? 'Processing...' : 'Continue to secure payment' }}
           </button>
         </div>

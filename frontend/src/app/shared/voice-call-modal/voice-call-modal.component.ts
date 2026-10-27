@@ -44,7 +44,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
         <!-- Visualizer Wave -->
         <div class="h-24 flex items-center justify-center gap-1.5 my-8 relative z-10">
           <div *ngFor="let bar of visualizerBars" 
-               class="w-1.5 rounded-full bg-gradient-to-t from-orange-600 to-amber-400 transition-all duration-150"
+               class="w-1.5 rounded-full bg-gradient-to-t from-orange-600 to-orange-400 transition-all duration-150"
                [style.height.%]="call.isSpeaking() ? (bar * randomMultiplier()) : (call.isCallActive() ? 20 + bar * 0.3 : 10)">
           </div>
         </div>

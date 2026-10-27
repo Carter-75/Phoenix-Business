@@ -51,7 +51,7 @@ import { ApiService } from '../services/api.service';
                     <div class="text-[10px] uppercase tracking-widest text-orange-500 mt-1">{{ r.businessName }}</div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center text-yellow-500 font-bold text-base gap-1">
+                    <div class="flex items-center text-orange-500 font-bold text-base gap-1">
                       <span>{{ r.rating }}</span> <i class="fa-solid fa-star text-xs relative top-[1px]"></i>
                     </div>
                   </td>

@@ -9,7 +9,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full" [class.bg-emerald-400]="themePromo.mode() === 'auto'" [class.bg-amber-400]="themePromo.mode() === 'manual'"></span>
-            <span class="text-[9px] font-black uppercase tracking-[0.25em]" [class.text-emerald-400]="themePromo.mode() === 'auto'" [class.text-amber-400]="themePromo.mode() === 'manual'">
+            <span class="text-[9px] font-black uppercase tracking-[0.25em]" [class.text-emerald-400]="themePromo.mode() === 'auto'" [class.text-orange-300]="themePromo.mode() === 'manual'">
               {{ themePromo.mode() === 'auto' ? 'AUTO SEASONAL CALENDAR ACTIVE' : 'MANUAL VISUAL PREVIEW ACTIVE' }}
             </span>
           </div>
@@ -23,7 +23,7 @@
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Owner Verified
             </span>
-            <span *ngIf="api.currentUser() && !isOwner()" class="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-[9px] font-black uppercase tracking-widest">
+            <span *ngIf="api.currentUser() && !isOwner()" class="px-2.5 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300 text-[9px] font-black uppercase tracking-widest">
               Standard User
             </span>
             <span *ngIf="!api.currentUser()" class="px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-white/50 text-[9px] font-black uppercase tracking-widest">
@@ -210,7 +210,7 @@
         </div>
 
         <!-- Pricing Safety Notice -->
-        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] leading-relaxed">
+        <div class="p-3.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[10px] leading-relaxed">
           <i class="fas fa-shield-alt mr-1"></i>
           <strong>Pricing Isolation Guard:</strong> Manual theme preview is 100% visual only. It updates CSS design tokens and WebGL phoenix shaders in your browser, but does <em>not</em> alter client pricing or Stripe checkout charges. Authoritative pricing is calculated strictly by the server based on calendar dates.
         </div>
@@ -340,7 +340,7 @@
             </div>
             <div *ngIf="newCoupon.usageModel === 'single'">
               <label class="block text-[10px] uppercase font-bold text-white/50 mb-1">Redemption Cap</label>
-              <div class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-amber-400 font-mono flex items-center gap-1.5">
+              <div class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-orange-300 font-mono flex items-center gap-1.5">
                 <i class="fas fa-lock text-[10px]"></i> Fixed at 1 Single Customer Checkout
               </div>
             </div>
@@ -384,7 +384,7 @@
                     {{ coup.type === 'percentage' ? coup.amount + '%' : '$' + coup.amount }} OFF ({{ coup.appliesTo }})
                   </span>
                   <!-- Usage Model Badge -->
-                  <span *ngIf="coup.usageLimit === 1" class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold uppercase tracking-wider">
+                  <span *ngIf="coup.usageLimit === 1" class="text-[9px] px-2 py-0.5 rounded bg-orange-500/20 border border-orange-500/30 text-orange-300 font-bold uppercase tracking-wider">
                     <i class="fas fa-bolt mr-1"></i>1-Time Single Use
                   </span>
                   <span *ngIf="coup.usageLimit !== 1" class="text-[9px] px-2 py-0.5 rounded bg-blue-500/20 border border-blue-500/30 text-blue-300 font-bold uppercase tracking-wider">

@@ -14,8 +14,8 @@ import { VoiceCallService } from '../../services/voice-call.service';
       <div class="max-w-[1400px] mx-auto px-8 sm:px-16 flex items-center justify-between">
         <!-- Logo -->
         <a routerLink="/" class="flex items-center gap-4 group">
-          <div class="w-8 h-[1px] bg-[#D4AF37] group-hover:w-12 transition-all duration-700"></div>
-          <span class="text-white font-black uppercase tracking-[0.8em] text-[10px] group-hover:text-[#D4AF37] transition-colors">Phoenix</span>
+          <div class="w-8 h-[1px] bg-[#FF4D00] group-hover:w-12 transition-all duration-700"></div>
+          <span class="text-white font-black uppercase tracking-[0.8em] text-[10px] group-hover:text-[#FF4D00] transition-colors">Phoenix</span>
         </a>
 
         <!-- Navigation Pages -->
@@ -82,31 +82,31 @@ import { VoiceCallService } from '../../services/voice-call.service';
          [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()"
          [class.opacity-0]="!mobileMenuOpen()" [class.pointer-events-none]="!mobileMenuOpen()">
       <div class="min-h-full w-full flex flex-col justify-start items-center pt-32 pb-20 gap-8 sm:gap-12 transition-transform duration-700" [class.translate-y-0]="mobileMenuOpen()" [class.translate-y-8]="!mobileMenuOpen()">
-        <a routerLink="/" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Home</a>
-        <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">About</a>
-        <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Services</a>
-        <a routerLink="/data-cleanup" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Data Cleanup</a>
-        <a routerLink="/reviews" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#D4AF37] transition-colors">Reviews</a>
+        <a routerLink="/" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#FF4D00] transition-colors">Home</a>
+        <a routerLink="/about" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#FF4D00] transition-colors">About</a>
+        <a routerLink="/services" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#FF4D00] transition-colors">Services</a>
+        <a routerLink="/data-cleanup" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#FF4D00] transition-colors">Data Cleanup</a>
+        <a routerLink="/reviews" (click)="closeMobileMenu()" class="text-3xl font-black uppercase tracking-[0.2em] hover:text-[#FF4D00] transition-colors">Reviews</a>
         
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
         
         <a href="https://carter-portfolio.fyi" target="_blank" class="text-xl font-black uppercase tracking-[0.2em] text-orange-500/80 hover:text-orange-500 transition-colors">Carter's Portfolio</a>
 
-        <a *ngIf="api.currentUser()" routerLink="/dashboard" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors flex items-center gap-3">
+        <a *ngIf="api.currentUser()" routerLink="/dashboard" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#FF4D00] hover:text-white transition-colors flex items-center gap-3">
           <i class="fa-solid fa-gauge text-base"></i> Dashboard
         </a>
-        <a *ngIf="isOwner()" routerLink="/owner" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors flex items-center gap-3">
+        <a *ngIf="isOwner()" routerLink="/owner" (click)="closeMobileMenu()" class="text-xl font-black uppercase tracking-[0.2em] text-[#FF4D00] hover:text-white transition-colors flex items-center gap-3">
           <i class="fa-solid fa-crown text-base"></i> Owner
         </a>
 
         <div class="w-12 h-[1px] bg-white/10 my-2"></div>
         
-        <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#D4AF37] transition-colors">
+        <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" (click)="closeMobileMenu()" class="text-sm font-black uppercase tracking-[0.4em] text-white/50 hover:text-[#FF4D00] transition-colors">
           Login
         </a>
 
         <div *ngIf="api.currentUser()" class="text-xs font-bold uppercase tracking-[0.1em] text-slate-400 text-center flex flex-col gap-1 items-center px-4 py-3 bg-white/5 rounded-xl border border-white/10">
-          <i class="fa-solid fa-user-circle text-2xl text-[#D4AF37] mb-1"></i>
+          <i class="fa-solid fa-user-circle text-2xl text-[#FF4D00] mb-1"></i>
           <span class="text-white">{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</span>
           <span class="text-[10px] font-mono text-orange-400 lowercase tracking-normal">{{ api.currentUser()?.email }}</span>
           <span *ngIf="api.currentUser()?.businessName" class="text-[9px] text-slate-400">({{ api.currentUser()?.businessName }})</span>

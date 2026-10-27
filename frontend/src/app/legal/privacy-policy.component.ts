@@ -12,12 +12,12 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
     <div class="min-h-screen bg-slate-950 text-white/90 pt-32 pb-20 px-8 sm:px-16 overflow-hidden">
       <div class="max-w-[1000px] mx-auto relative">
         <!-- Background Glow -->
-        <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div>
+        <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#FF4D00]/5 blur-[150px] rounded-full pointer-events-none"></div>
         
         <header class="mb-20">
           <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-[1px] bg-[#D4AF37]"></div>
-            <span class="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">Legal Infrastructure</span>
+            <div class="w-12 h-[1px] bg-[#FF4D00]"></div>
+            <span class="text-[#FF4D00] font-black uppercase tracking-[0.4em] text-xs">Legal Infrastructure</span>
           </div>
           <h1 class="fluid-h1 font-black uppercase tracking-tighter leading-[0.9]">
             Privacy<br><span class="text-white/20">Policy</span>
