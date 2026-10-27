@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
+import { PhoenixSettingsService } from '../services/phoenix-settings.service';
 import { SkeletonComponent } from '../shared/skeleton/skeleton.component';
 import { environment } from '../../environments/environment';
 
@@ -176,6 +177,31 @@ import { environment } from '../../environments/environment';
             </ng-template>
           </div>
 
+          <!-- SITE PHOENIXES (OWNER ONLY) -->
+          <div *ngIf="isOwner()" class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 backdrop-blur-sm mb-12 text-left max-w-lg mx-auto">
+            <div class="flex items-center gap-3 mb-2">
+              <i class="fa-solid fa-fire text-orange-500"></i>
+              <h3 class="text-lg font-black text-white uppercase tracking-tight">Site Phoenixes</h3>
+            </div>
+            <p class="text-slate-400 text-sm mb-5">The animated phoenixes in the background of the site, for every visitor on every device. This switch is only on your admin account, and it is off by default, so the phoenixes show for no one until you turn them on.</p>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm font-bold" [class.text-emerald-400]="phoenixSettings.phoenixesEnabled()" [class.text-slate-400]="!phoenixSettings.phoenixesEnabled()">
+                {{ phoenixSettings.phoenixesEnabled() ? 'On for everyone' : 'Off for everyone' }}
+              </span>
+              <button type="button" role="switch" [attr.aria-checked]="phoenixSettings.phoenixesEnabled()"
+                      (click)="phoenixSettings.setPhoenixesEnabled(!phoenixSettings.phoenixesEnabled())"
+                      [disabled]="phoenixSettings.phoenixesSaving()"
+                      class="relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
+                      [class.bg-emerald-500]="phoenixSettings.phoenixesEnabled()"
+                      [class.bg-white/15]="!phoenixSettings.phoenixesEnabled()">
+                <span class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform"
+                      [class.translate-x-7]="phoenixSettings.phoenixesEnabled()"
+                      [class.translate-x-1]="!phoenixSettings.phoenixesEnabled()"></span>
+              </button>
+            </div>
+            <p *ngIf="phoenixSettings.phoenixesError()" class="text-xs text-red-400 font-bold mt-3">{{ phoenixSettings.phoenixesError() }}</p>
+          </div>
+
           <button *ngIf="api.currentUser()" (click)="logout()" class="text-slate-500 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-widest mt-12 block mx-auto">
             Sign Out
           </button>
@@ -298,6 +324,8 @@ import { environment } from '../../environments/environment';
 })
 export class DashboardComponent implements OnInit {
   api = inject(ApiService);
+  phoenixSettings = inject(PhoenixSettingsService);
+  isOwner = computed(() => !!this.api.currentUser()?.isOwner);
   route = inject(ActivatedRoute);
   router = inject(Router);
 

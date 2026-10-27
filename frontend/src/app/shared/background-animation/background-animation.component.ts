@@ -483,10 +483,14 @@ export class BackgroundAnimationComponent implements OnInit, OnDestroy {
           const bird = this.birds[i];
           
           if (bird.group) {
-            // Respect visibility toggles from Settings Service
-            const isVisible = (bird.theme === 'orange' && this.settings.fireEnabled()) ||
-                              (bird.theme === 'blue' && this.settings.iceEnabled()) ||
-                              (bird.theme === 'purple' && this.settings.eclipseEnabled());
+            // Respect visibility toggles from Settings Service. The
+            // server-side master switch (phoenixesEnabled, owner
+            // controlled, default off) gates every bird for every
+            // visitor; the per-bird toggles only apply on top of it.
+            const isVisible = this.settings.phoenixesEnabled() &&
+                              ((bird.theme === 'orange' && this.settings.fireEnabled()) ||
+                               (bird.theme === 'blue' && this.settings.iceEnabled()) ||
+                               (bird.theme === 'purple' && this.settings.eclipseEnabled()));
             
             bird.group.visible = isVisible;
 
