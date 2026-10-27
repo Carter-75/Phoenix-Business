@@ -154,7 +154,7 @@ router.delete('/:reviewId', async (req, res) => {
       const userEmail = (req.user.email || '').toLowerCase().trim();
       const isOwnerEmail = userEmail === ownerEmail ||
                            userEmail === 'hello@phoenixwebsites.ai' ||
-                           userEmail === 'partnership@carter-portfolio.fyi';
+                           userEmail === 'partnerships@carter-portfolio.fyi';
       const isOwnerId = process.env.GROWTH_ADMIN_USER_ID && String(req.user._id) === process.env.GROWTH_ADMIN_USER_ID;
       if (isOwnerEmail || isOwnerId) {
         review = await Review.findById(req.params.reviewId);

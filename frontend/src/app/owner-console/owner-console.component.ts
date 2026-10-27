@@ -23,7 +23,7 @@ export class OwnerConsoleComponent implements OnInit {
     if (!user) return false;
     if (user.isOwner) return true;
     const em = (user.email || '').toLowerCase().trim();
-    return em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi';
+    return em === 'hello@phoenixwebsites.ai' || em === 'partnerships@carter-portfolio.fyi';
   });
   activeAdminTab = signal<'visual' | 'promotions' | 'coupons' | 'orders' | 'groupbuy' | 'users'>('visual');
 

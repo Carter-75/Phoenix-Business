@@ -23,7 +23,7 @@ module.exports = function ownerAuth(req, res, next) {
 
   const isOwnerEmail = userEmail === ownerEmail || 
                        userEmail === 'hello@phoenixwebsites.ai' || 
-                       userEmail === 'partnership@carter-portfolio.fyi';
+                       userEmail === 'partnerships@carter-portfolio.fyi';
   const isOwnerId = process.env.GROWTH_ADMIN_USER_ID && String(user._id) === process.env.GROWTH_ADMIN_USER_ID;
 
   if (!isOwnerEmail && !isOwnerId) {

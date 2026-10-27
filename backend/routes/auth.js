@@ -192,7 +192,7 @@ router.get('/user', async (req, res) => {
     delete userObj.password;
     const em = (userObj.email || '').toLowerCase().trim();
     const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
-    userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi' || em === ownerEmail;
+    userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnerships@carter-portfolio.fyi' || em === ownerEmail;
     userObj.currentTermsVersion = ACCOUNT_TERMS_VERSION;
     userObj.needsTermsUpdate = userObj.termsAcceptedVersion !== ACCOUNT_TERMS_VERSION;
     res.json(userObj);
@@ -344,7 +344,7 @@ router.post('/reset-password', async (req, res) => {
       const userObj = user.toObject ? user.toObject() : { ...user };
       const em = (userObj.email || '').toLowerCase().trim();
       const ownerEmail = (process.env.OWNER_EMAIL || 'hello@phoenixwebsites.ai').toLowerCase().trim();
-      userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnership@carter-portfolio.fyi' || em === ownerEmail;
+      userObj.isOwner = em === 'hello@phoenixwebsites.ai' || em === 'partnerships@carter-portfolio.fyi' || em === ownerEmail;
       return res.json({ success: true, message: 'Password reset successfully.', user: userObj });
     });
   } catch (err) {
