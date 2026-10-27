@@ -130,6 +130,19 @@ router.patch('/:reviewId', async (req, res) => {
 //          it; the site owner (admin account) can delete any review.
 router.delete('/:reviewId', async (req, res) => {
   try {
+    // Admin API key path: the same DISCOUNT_API_KEY that guards the
+    // coupon admin endpoints may delete any review. This exists for
+    // moderation cleanups run without an owner browser session.
+    const configuredKey = process.env.DISCOUNT_API_KEY;
+    if (configuredKey && req.headers['x-api-key'] === configuredKey) {
+      const target = await Review.findById(req.params.reviewId);
+      if (!target) {
+        return res.status(404).json({ message: 'Review not found' });
+      }
+      await Review.deleteOne({ _id: target._id });
+      return res.json({ success: true });
+    }
+
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
