@@ -20,7 +20,6 @@ interface ServiceTier {
   baseSetup?: string | null;
   features: string[];
   featured?: boolean;
-  checkoutUrl: string;
   color: string;
 }
 
@@ -173,8 +172,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '99',
       setup: '1349',
       baseSetup: '1499',
-      description: 'The essential foundation for your business. A fully custom, lightning-fast website designed to convert visitors into clients. Includes ongoing basic maintenance and hosting, but no ongoing edits. Maximum 2-week delivery. You will receive an email 3 weeks after purchase to rate the project.',
-      checkoutUrl: '#',
+      description: 'A custom website, designed and built for your business, with hosting and basic maintenance included. No ongoing edits. Delivered in at most 2 weeks. You will receive an email 3 weeks after purchase to rate the project.',
       features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Standard Contact Forms'],
       featured: false,
       color: '#34d399'
@@ -186,8 +184,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '299',
       setup: '3149',
       baseSetup: '3499',
-      description: 'Peace of mind with ongoing support and maintenance. We keep your business running smoothly. Includes On-Demand Edits (Small content and image updates). Maximum 3-week delivery. You will receive an email 4 weeks after purchase to rate the project.',
-      checkoutUrl: '#',
+      description: 'Everything in Simple Launch, plus ongoing support and on-demand edits (small content and image updates). Delivered in at most 3 weeks. You will receive an email 4 weeks after purchase to rate the project.',
       features: ['30-Day Subscription Trial', 'Everything in Simple Launch', 'Max 3-Week Delivery', '2 Hours/Mo Custom Edits', 'Hosting & 24/7 Monitoring', 'Google Business Management'],
       featured: true,
       color: '#f97316'
@@ -199,8 +196,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '599',
       setup: '7199',
       baseSetup: '7999',
-      description: 'Scaling your revenue through data-driven improvements and intelligent automation. Includes Priority Support & Advanced Edits (Layouts, features). Maximum 4-week delivery. You will receive an email 5 weeks after purchase to rate the project.',
-      checkoutUrl: '#',
+      description: 'Everything in Essential Care, plus priority support and advanced edits (layouts and features), monthly analytics and SEO work, and AI chatbot upkeep. Delivered in at most 4 weeks. You will receive an email 5 weeks after purchase to rate the project.',
       features: ['30-Day Subscription Trial', 'Everything in Essential Care', 'Max 4-Week Delivery', '5 Hours/Mo Custom Edits', 'Monthly Analytics & SEO', 'AI Chatbot Upkeep'],
       featured: false,
       color: '#818cf8'
@@ -212,8 +208,7 @@ export class ServicesComponent implements OnInit {
       baseCost: '999',
       setup: '13499',
       baseSetup: '14999',
-      description: 'Fully custom enterprise architecture built for scale. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope. You will receive an email to rate the project 1 week after expected completion.',
-      checkoutUrl: '#',
+      description: 'Fully custom enterprise architecture. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope. You will receive an email to rate the project 1 week after expected completion.',
       features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
       featured: false,
       color: '#c084fc'
@@ -227,7 +222,6 @@ export class ServicesComponent implements OnInit {
       setup: null,
       baseSetup: null,
       description: 'Turn the files you already have into clear, organized information. We clean spreadsheets, standardize formats, and prepare useful reports with Microsoft tools and AI assistance. Scope and price are agreed before work starts.',
-      checkoutUrl: '#',
       features: ['Work On Your Own Files', 'Spreadsheet Cleanup', 'Consistent Formats', 'Duplicate Review', 'Clear Reports', 'Quote Before Work Starts'],
       featured: false,
       color: '#22d3ee'
@@ -435,7 +429,7 @@ export class ServicesComponent implements OnInit {
     });
 
     this.seo.updateMeta(
-      'Care Plans & Growth Packages — Phoenix',
+      'Care Plans & Growth Packages | Phoenix',
       'Website design and care plans from Phoenix. Review setup fees, monthly costs, scope, and contract terms before purchase.'
     );
     

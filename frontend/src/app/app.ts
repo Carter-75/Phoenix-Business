@@ -44,6 +44,7 @@ import { TermsGateComponent } from './shared/components/terms-gate/terms-gate.co
       <div class="fire-bar" style="left: 70%; animation-delay: -1s;"></div>
       <div class="fire-bar" style="left: 90%; animation-delay: -7s;"></div>
     </div>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[400] focus:bg-orange-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg text-xs font-bold">Skip to main content</a>
     <app-navbar></app-navbar>
     <main id="main-content">
       <router-outlet></router-outlet>

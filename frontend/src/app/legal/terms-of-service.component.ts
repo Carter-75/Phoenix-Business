@@ -13,9 +13,9 @@ import { ApiService } from '../services/api.service';
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%]"></div>
       
       <div class="max-w-4xl mx-auto relative z-10">
-        <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase mb-8 sm:mb-12" appScrollReveal>Terms of <span class="text-orange-500">Service</span></h1>
+        <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase mb-8 sm:mb-12">Terms of <span class="text-orange-500">Service</span></h1>
         
-        <div class="space-y-8 sm:space-y-12 text-slate-400 font-medium leading-relaxed text-sm sm:text-base" appScrollReveal>
+        <div class="space-y-8 sm:space-y-12 text-slate-400 font-medium leading-relaxed text-sm sm:text-base">
           <div class="space-y-3 sm:space-y-4">
             <h2 class="text-xl sm:text-2xl font-black text-white uppercase tracking-tight">1. The Agreement</h2>
             <p>By engaging with Phoenix Websites AI ("we", "us", "our"), you agree to enter into a legally binding service agreement. These terms apply to all clients, visitors, and users of our digital infrastructure and software engineering services.</p>
@@ -52,7 +52,7 @@ import { ApiService } from '../services/api.service';
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">5. Website Source Code Buyout &amp; IP Transfer</h2>
             <p>During the active subscription term, the client receives an exclusive commercial license to use the deployed website while hosted on Phoenix infrastructure. The client may at any time voluntarily elect a permanent <strong>Website Source Code Buyout</strong>.</p>
-            <p><strong>Nature of the Buyout Fee:</strong> The Buyout Fee is exactly <strong>50% of the original one-time setup fee</strong>. The parties agree that this fee is <em>separate and independent consideration</em> for the permanent purchase, copyright assignment, and transfer of the uncompiled source code, database schemas, and bespoke assets, and for the permanent deactivation of automated licensing checks—not liquidated damages or a cancellation penalty. Upon payment, full intellectual property rights and deployment independence are irreversibly transferred to the client.</p>
+            <p><strong>Nature of the Buyout Fee:</strong> The Buyout Fee is exactly <strong>50% of the original one-time setup fee</strong>. The parties agree that this fee is <em>separate and independent consideration</em> for the permanent purchase, copyright assignment, and transfer of the uncompiled source code, database schemas, and bespoke assets, and for the permanent deactivation of automated licensing checks, not liquidated damages or a cancellation penalty. Upon payment, full intellectual property rights and deployment independence are irreversibly transferred to the client.</p>
           </div>
 
           <div class="space-y-4">
@@ -124,7 +124,7 @@ import { ApiService } from '../services/api.service';
             </a>
           </div>
           <div class="text-white/30 text-[10px] font-black uppercase tracking-widest">
-            Last Updated: {{currentDate}} • Phoenix Digital Infrastructure
+            Last Updated: October 21, 2026 • Phoenix Websites AI
           </div>
         </footer>
       </div>
@@ -144,7 +144,6 @@ export class TermsComponent implements OnInit {
     enterprise_monthly: 999
   });
 
-  currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   ngOnInit() {
     this.api.get<any>('stripe/pricing').subscribe({

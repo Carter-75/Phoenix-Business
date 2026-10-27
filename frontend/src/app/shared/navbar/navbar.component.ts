@@ -34,31 +34,31 @@ import { VoiceCallService } from '../../services/voice-call.service';
 
         <div class="flex items-center gap-6 sm:gap-8">
           <!-- Web Call Button -->
-          <button (click)="voiceCall.startCall()" class="px-3.5 py-1.5 rounded-full bg-orange-600/20 border border-orange-500/40 hover:bg-orange-600 text-orange-400 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
-            <i class="fas fa-phone"></i>
+          <button (click)="voiceCall.startCall()" aria-label="Start a voice call with the AI assistant" class="px-3.5 py-1.5 rounded-full bg-orange-600/20 border border-orange-500/40 hover:bg-orange-600 text-orange-400 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+            <i class="fas fa-phone" aria-hidden="true"></i>
             <span class="hidden sm:inline">Call AI</span>
           </button>
 
-          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-[#D4AF37] transition-all">
+          <a *ngIf="!api.currentUser()" routerLink="/services" [queryParams]="{login: 'true'}" class="hidden sm:block text-[10px] font-black uppercase tracking-[0.4em] text-white/30 hover:text-orange-500 transition-all">
             Login
           </a>
 
           <!-- Profile Dropdown Container -->
           <div *ngIf="api.currentUser()" class="relative group hidden lg:block cursor-pointer py-4">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-300 uppercase tracking-widest hover:bg-white/10 transition-colors">
-              <i class="fa-solid fa-user-circle text-[#D4AF37]"></i> 
+            <div tabindex="0" role="button" aria-haspopup="true" aria-label="Account menu" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-300 uppercase tracking-widest hover:bg-white/10 transition-colors">
+              <i class="fa-solid fa-user-circle text-orange-500" aria-hidden="true"></i>
               <span class="max-w-[150px] truncate lowercase">{{ api.currentUser()?.email }}</span>
               <i class="fa-solid fa-chevron-down text-[8px] ml-1 transition-transform group-hover:rotate-180"></i>
             </div>
             
             <!-- Dropdown Menu -->
-            <div class="absolute right-0 top-full mt-[-8px] w-64 bg-[#05050A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden">
+            <div class="absolute right-0 top-full mt-[-8px] w-64 bg-[#05050A] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible group-focus-within:scale-100 transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden">
               <div class="px-4 py-3 border-b border-white/5 bg-white/[0.02]">
                 <div class="text-[10px] font-bold text-white truncate">{{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }}</div>
                 <div class="text-[9px] font-mono text-orange-400 truncate lowercase">{{ api.currentUser()?.email }}</div>
                 <div *ngIf="api.currentUser()?.businessName" class="text-[8px] text-white/40 truncate mt-0.5">{{ api.currentUser()?.businessName }}</div>
               </div>
-              <a routerLink="/dashboard" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-[#D4AF37] hover:bg-white/5 transition-all flex items-center gap-3 no-underline">
+              <a routerLink="/dashboard" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-orange-500 hover:bg-white/5 transition-all flex items-center gap-3 no-underline">
                 <i class="fa-solid fa-gauge"></i> Dashboard
               </a>
               <button (click)="api.logout()" class="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-red-500 hover:bg-white/5 transition-all flex items-center gap-3">
@@ -68,7 +68,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
           </div>
           
           <!-- Hamburger Button -->
-          <button (click)="toggleMobileMenu()" class="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 z-[110] relative">
+          <button (click)="toggleMobileMenu()" aria-label="Toggle navigation menu" [attr.aria-expanded]="mobileMenuOpen()" class="lg:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 z-[110] relative">
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.rotate-45]="mobileMenuOpen()" [class.translate-y-[7px]]="mobileMenuOpen()"></div>
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.opacity-0]="mobileMenuOpen()"></div>
             <div class="w-6 h-[1px] bg-white transition-all duration-300" [class.-rotate-45]="mobileMenuOpen()" [class.-translate-y-[7px]]="mobileMenuOpen()"></div>

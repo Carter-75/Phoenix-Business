@@ -49,7 +49,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
         <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-orange-500/20 relative overflow-hidden">
           <div class="max-w-3xl">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">The AI-Native Model</span>
-            <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight mb-6">We Build It For You — Not A DIY Tool</h2>
+            <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight mb-6">We Build It For You, Not a DIY Tool</h2>
             <div class="grid sm:grid-cols-2 gap-8 text-sm text-white/70 leading-relaxed">
               <div class="space-y-3">
                 <h3 class="text-white font-bold text-base flex items-center gap-2">
@@ -142,7 +142,7 @@ export class AiWebDevelopmentComponent implements OnInit {
   ngOnInit() {
     this.seo.updateMeta({
       title: 'AI Web Development Company | Phoenix Websites AI',
-      description: 'Hire Phoenix Websites AI for custom AI-assisted web development with human oversight. Fast, bespoke, high-performance websites engineered for your business.',
+      description: 'Hire Phoenix Websites AI for custom AI-assisted web development with human oversight. Fast, custom, high-performance websites engineered for your business.',
       canonicalUrl: 'https://phoenixwebsites.ai/services/ai-web-development',
       jsonLd: {
         '@context': 'https://schema.org',

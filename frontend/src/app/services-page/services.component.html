@@ -11,14 +11,14 @@
         }
       </div>
     }
-    <header class="mb-16 sm:mb-32 max-w-4xl" appScrollReveal>
+    <header class="mb-16 sm:mb-32 max-w-4xl">
       <div class="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div class="w-8 sm:w-12 h-[1px] bg-orange-600 flex-shrink-0"></div>
         <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] sm:text-xs">Our Services</span>
       </div>
       <h1 class="fluid-h1 font-black mb-8 sm:mb-12">
-        WEBSITES &<br>
-        <span class="text-white/20">GROWTH PLANS</span>
+        WEBSITE PACKAGES<br>
+        <span class="text-white/20">HONEST PRICES</span>
       </h1>
       <p class="fluid-p">
         Business sites, online shops, portfolios, and custom web projects are welcome. Tell us what you want your website to do, and choose a plan that fits its scope. All monthly plans include a 12-month commitment.
@@ -48,7 +48,7 @@
         <a routerLink="/services/custom-websites" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
           <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">03 / Custom Sites</div>
           <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Custom Websites</h3>
-          <p class="text-xs text-white/50 leading-relaxed">Bespoke engineering for businesses and shops without DIY builder template bloat.</p>
+          <p class="text-xs text-white/50 leading-relaxed">Custom engineering for businesses and shops, with no DIY builder template bloat.</p>
           <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
         </a>
         <a routerLink="/services/automation" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
@@ -127,7 +127,7 @@
             {{modalStep() === 'auth' ? (pendingConfigIntent ? 'Create Account or Sign In' : 'Identity Verification') : 'Finalize Agreement'}}
           </h2>
           <p class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600">
-            {{modalStep() === 'auth' ? (pendingConfigIntent ? 'Save Your Configured System & Continue' : 'Step 1: Authenticate') : 'Step 2: Onboarding' + (selectedTier() ? ' — ' + selectedTier()!.title : (pendingConfigIntent ? ' — Configured System' : ''))}}
+            {{modalStep() === 'auth' ? (pendingConfigIntent ? 'Save Your Configured System & Continue' : 'Step 1: Authenticate') : 'Step 2: Onboarding' + (selectedTier() ? ': ' + selectedTier()!.title : (pendingConfigIntent ? ': Configured System' : ''))}}
           </p>
         </header>
 
@@ -151,7 +151,7 @@
 
             <div *ngIf="!api.currentUser()" class="relative flex items-center justify-center py-2">
               <div class="border-t border-white/5 w-full"></div>
-              <span class="bg-[#050505] px-4 text-white/20 text-[8px] font-black uppercase tracking-[0.2em] absolute">or legacy email</span>
+              <span class="bg-[#050505] px-4 text-white/20 text-[8px] font-black uppercase tracking-[0.2em] absolute">or use email and password</span>
             </div>
 
             <!-- EMAIL / PASSWORD AUTH SUBVIEWS -->
@@ -159,10 +159,16 @@
               <!-- SUBVIEW 1: STANDARD LOGIN / REGISTER -->
               <div *ngIf="authSubView() === 'login'" class="space-y-4">
                 <div class="grid gap-3">
-                  <input [(ngModel)]="userEmail" type="email" placeholder="EMAIL@BUSINESS.COM"
-                         class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
-                  <input [(ngModel)]="userPassword" type="password" placeholder="PASSWORD"
-                         class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-600 transition-all">
+                  <div class="space-y-2">
+                    <label for="auth-email" class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Email</label>
+                    <input id="auth-email" [(ngModel)]="userEmail" type="email" placeholder="you@business.com" autocomplete="email"
+                           class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-sm outline-none focus:border-orange-600 transition-all">
+                  </div>
+                  <div class="space-y-2">
+                    <label for="auth-password" class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Password</label>
+                    <input id="auth-password" [(ngModel)]="userPassword" type="password" placeholder="Your password" autocomplete="current-password"
+                           class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-sm outline-none focus:border-orange-600 transition-all">
+                  </div>
                 </div>
 
                 <div class="flex items-center justify-between px-1">
@@ -191,7 +197,7 @@
                 </div>
 
                 <input [(ngModel)]="forgotEmail" type="email" placeholder="YOUR-ACCOUNT-EMAIL@DOMAIN.COM"
-                       class="w-full bg-black/60 border border-white/15 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-500 transition-all rounded-lg">
+                       class="w-full bg-black/60 border border-white/15 px-6 py-4 text-sm outline-none focus:border-orange-500 transition-all rounded-lg">
 
                 <p *ngIf="authError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{{authError()}}</p>
 
@@ -223,12 +229,12 @@
                   <div>
                     <label class="block text-[9px] uppercase font-bold text-white/40 mb-1">New Password</label>
                     <input [(ngModel)]="newResetPassword" type="password" placeholder="MIN 6 CHARACTERS"
-                           class="w-full bg-black/60 border border-white/15 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-500 transition-all rounded-lg">
+                           class="w-full bg-black/60 border border-white/15 px-6 py-4 text-sm outline-none focus:border-orange-500 transition-all rounded-lg">
                   </div>
                   <div>
                     <label class="block text-[9px] uppercase font-bold text-white/40 mb-1">Confirm New Password</label>
                     <input [(ngModel)]="confirmResetPassword" type="password" placeholder="RE-ENTER NEW PASSWORD"
-                           class="w-full bg-black/60 border border-white/15 px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-orange-500 transition-all rounded-lg">
+                           class="w-full bg-black/60 border border-white/15 px-6 py-4 text-sm outline-none focus:border-orange-500 transition-all rounded-lg">
                   </div>
                 </div>
 
@@ -256,19 +262,19 @@
               <div class="space-y-2">
                 <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">First Name</label>
                 <input [(ngModel)]="firstName" type="text" placeholder="ALEX"
-                       class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-red-600 transition-all">
+                       class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-sm outline-none focus:border-orange-600 transition-all">
               </div>
               <div class="space-y-2">
                 <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Last Name</label>
                 <input [(ngModel)]="lastName" type="text" placeholder="RIVERA"
-                       class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-red-600 transition-all">
+                       class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-sm outline-none focus:border-orange-600 transition-all">
               </div>
             </div>
 
             <div class="space-y-2">
               <label class="text-[9px] font-black uppercase tracking-[0.3em] text-white/30 ml-4">Business Name</label>
               <input [(ngModel)]="businessName" type="text" placeholder="PHOENIX LLC"
-                     class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-red-600 transition-all">
+                     class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-sm outline-none focus:border-orange-600 transition-all">
             </div>
 
             <div class="space-y-6 pt-8 border-t border-white/5">
@@ -290,7 +296,7 @@
                 </span>
               </div>
               <input [(ngModel)]="discountCode" type="text" placeholder="ENTER CODE"
-                     class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-xs font-black uppercase tracking-widest outline-none focus:border-green-500 transition-all text-green-400 font-mono">
+                     class="w-full bg-white/[0.02] border border-white/10 px-6 py-4 sm:px-8 sm:py-5 text-sm outline-none focus:border-orange-500 transition-all text-green-400 font-mono">
               <p *ngIf="discountError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest mt-2 ml-4">{{discountError()}}</p>
             </div>
 
@@ -309,33 +315,12 @@
     </div>
   </div>
 
-  <!-- Discount Sci-Fi Animation Overlay -->
-  <div *ngIf="isAnimatingDiscount()" class="fixed inset-0 z-[300] flex items-center justify-center bg-[#020205] overflow-hidden">
-    <!-- Sci-fi grid / scanline effect -->
-    <div class="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(34,197,94,0.02)_1px,transparent_1px)] bg-[size:100%_4px] opacity-50"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020205_100%)]"></div>
-    
-    <div class="relative z-10 w-full max-w-3xl px-8 border-l-4 border-green-500 py-12 bg-green-500/5 backdrop-blur-sm">
-      <div class="flex items-center gap-6 mb-8">
-        <div class="relative">
-          <i class="fas fa-shield-check text-5xl text-green-500 animate-pulse"></i>
-          <div class="absolute inset-0 border-2 border-green-500 rounded-full animate-ping opacity-30"></div>
-        </div>
-        <div>
-          <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-[0.2em] text-green-500 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]">
-            Override Accepted
-          </h2>
-          <p class="text-[10px] font-black uppercase tracking-[0.4em] text-green-400/60 mt-2">SYSTEM SECURE BRIDGE</p>
-        </div>
-      </div>
-      
-      <div class="space-y-4 font-mono text-xs sm:text-sm text-green-400">
-        <p class="animate-[typing_0.5s_steps(40,end)] overflow-hidden whitespace-nowrap">> Validating access code signature...</p>
-        <p class="animate-[typing_0.5s_steps(40,end)_0.5s_both] overflow-hidden whitespace-nowrap">> Match found. Authorization granted.</p>
-        <p class="animate-[typing_0.5s_steps(40,end)_1s_both] overflow-hidden whitespace-nowrap">> Compiling contract adjustments...</p>
-        <p class="animate-[typing_0.5s_steps(40,end)_1.5s_both] overflow-hidden whitespace-nowrap text-white font-bold bg-green-500/20 px-4 py-2 mt-4 inline-block border border-green-500/30">> APPLYING ADDITIONAL {{appliedDiscountPercentage()}}% REDUCTION</p>
-        <p class="animate-[typing_0.5s_steps(40,end)_2.2s_both] overflow-hidden whitespace-nowrap">> Initializing secure payment gateway...</p>
-      </div>
+  <!-- Discount applied confirmation -->
+  <div *ngIf="isAnimatingDiscount()" class="fixed inset-0 z-[300] flex items-center justify-center bg-[#020205]/90 px-4">
+    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-[#0a0a0f] p-8 text-center shadow-2xl">
+      <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-4" aria-hidden="true"></i>
+      <h2 class="text-2xl font-black text-white mb-2">Code applied</h2>
+      <p class="text-sm text-white/60 leading-relaxed">Your {{appliedDiscountPercentage()}}% discount is in. The prices on this page now include it.</p>
     </div>
   </div>
 </div>

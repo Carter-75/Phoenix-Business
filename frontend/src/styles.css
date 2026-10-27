@@ -7,8 +7,10 @@
     --bg-deep: #020205;
     --accent-fire: #ff4d00;
     --accent-fire-glow: rgba(255, 77, 0, 0.2);
-    --accent-gold: #ffcc00;
-    --accent-gold-glow: rgba(255, 204, 0, 0.2);
+    /* Secondary accent: the antique gold used on the About and legal
+       pages and the brand mark. One gold, defined once. */
+    --accent-gold: #d4af37;
+    --accent-gold-glow: rgba(212, 175, 55, 0.2);
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.5);
     --glass-surface: rgba(255, 255, 255, 0.02);
@@ -38,6 +40,33 @@
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     @apply font-black uppercase tracking-tighter;
+  }
+
+  /* Visible keyboard focus everywhere. Mouse clicks stay clean because
+     :focus-visible only triggers for keyboard and assistive navigation. */
+  :focus-visible {
+    outline: 2px solid var(--theme-primary, #ff4d00);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Respect reduced-motion: the decorative infinite animations (fire
+     bars, glow flicker, pulses) stop, and smooth scrolling turns off. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    .fire-bar,
+    .glow-orb {
+      animation: none;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

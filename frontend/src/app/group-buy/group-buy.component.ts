@@ -136,7 +136,8 @@ declare global {
               {{ event().slotsNeeded }} people by {{ deadlineText() }}. If it does not,
               the card is never charged.
             </p>
-            <div id="gb-card-element" class="p-3 rounded-lg bg-white text-black"></div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">Card details</label>
+      <div id="gb-card-element" role="group" aria-label="Card details" class="p-3 rounded-lg bg-white text-black"></div>
             <button (click)="confirmJoin()" [disabled]="busy()" class="mt-4 px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-400 font-semibold disabled:opacity-50 cursor-pointer">
               {{ busy() ? 'Saving your card...' : 'Save card and join' }}
             </button>

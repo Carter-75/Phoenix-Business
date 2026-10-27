@@ -21,7 +21,7 @@ import { SeoService } from '../services/seo.service';
             <i class="fa-solid fa-star text-3xl"></i>
           </div>
           <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Ratings</span></h1>
-          <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed mb-6">Real feedback from verified businesses scaling their web presence and systems with Phoenix Websites AI.</p>
+          <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed mb-6">Reviews from Phoenix Websites AI customers.</p>
           <div *ngIf="api.currentUser()" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <i class="fa-solid fa-user-circle text-orange-500"></i> Logged in as: {{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName">({{ api.currentUser()?.businessName }})</span>
           </div>
@@ -97,13 +97,13 @@ import { SeoService } from '../services/seo.service';
               <div *ngFor="let review of myReviews()" class="bg-green-500/5 border border-green-500/20 rounded-2xl p-6 sm:p-8 relative group hover:border-green-500/40 transition-colors">
                 
                 <div class="absolute top-4 right-4 flex gap-2">
-                  <button *ngIf="editingReviewId() !== review._id" (click)="startEdit(review)" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+                  <button *ngIf="editingReviewId() !== review._id" (click)="startEdit(review)" aria-label="Edit review" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-pen text-xs"></i>
                   </button>
-                  <button *ngIf="editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
+                  <button *ngIf="editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" aria-label="Delete review" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
                     <i class="fa-solid fa-trash-can text-xs"></i>
                   </button>
-                  <button *ngIf="editingReviewId() === review._id" (click)="cancelEdit()" class="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-500 transition-colors flex items-center justify-center">
+                  <button *ngIf="editingReviewId() === review._id" (click)="cancelEdit()" aria-label="Cancel editing" class="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-500 transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-xs"></i>
                   </button>
                 </div>
@@ -125,9 +125,9 @@ import { SeoService } from '../services/seo.service';
                            <i class="fa-solid fa-star absolute top-0 left-0 text-orange-500 transition-all duration-75" 
                               [ngStyle]="{'clip-path': getEditStarClipPath(star)}"></i>
                            
-                           <div class="absolute inset-0 flex z-10">
-                             <div class="w-1/2 h-full" (mouseenter)="hoverEditRating.set(Math.max(1, star - 0.5))" (click)="$event.stopPropagation(); editRating.set(Math.max(1, star - 0.5))"></div>
-                             <div class="w-1/2 h-full" (mouseenter)="hoverEditRating.set(star)" (click)="$event.stopPropagation(); editRating.set(star)"></div>
+                           <div class="absolute inset-0 flex z-10" role="radiogroup" aria-label="Your rating">
+                             <button type="button" class="w-1/2 h-full" role="radio" [attr.aria-checked]="editRating() === Math.max(1, star - 0.5)" [attr.aria-label]="'Rate ' + Math.max(1, star - 0.5) + ' stars'" (mouseenter)="hoverEditRating.set(Math.max(1, star - 0.5))" (click)="$event.stopPropagation(); editRating.set(Math.max(1, star - 0.5))"></button>
+                             <button type="button" class="w-1/2 h-full" role="radio" [attr.aria-checked]="editRating() === star" [attr.aria-label]="'Rate ' + star + ' stars'" (mouseenter)="hoverEditRating.set(star)" (click)="$event.stopPropagation(); editRating.set(star)"></button>
                            </div>
                          </div>
                        </ng-container>

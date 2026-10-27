@@ -43,7 +43,7 @@ interface ChatMessage {
         <!-- Welcome Message -->
         <div class="flex flex-col gap-1 items-start">
           <div class="bg-white/10 text-white border border-white/5 p-3 rounded-2xl rounded-tl-sm text-sm shadow-sm max-w-[85%]">
-            Hello! I am Phoenix, the official AI assistant for Phoenix Digital. How can I help you with your custom web development or software infrastructure needs today?
+            Hello! I am Phoenix, the official AI assistant for Phoenix Websites AI. How can I help you with your custom web development or software infrastructure needs today?
           </div>
         </div>
 

@@ -23,7 +23,7 @@ import { ApiService, CartItem } from '../services/api.service';
 
         <!-- Empty Cart -->
         <div *ngIf="cartItems().length === 0" class="text-center py-20">
-          <p class="text-5xl mb-4 opacity-30">🛒</p>
+          <p class="mb-4 opacity-30"><i class="fa-solid fa-cart-shopping text-5xl text-white" aria-hidden="true"></i></p>
           <p class="text-white/40 text-lg mb-4">Your cart is empty</p>
           <button (click)="goBack()" class="text-orange-400 text-sm font-bold uppercase tracking-widest hover:text-orange-300 transition-colors">
             Browse Services
@@ -56,7 +56,7 @@ import { ApiService, CartItem } from '../services/api.service';
             <div class="flex items-center gap-4 ml-4">
               <span class="text-xl font-black text-orange-500" *ngIf="item.price">{{ subtotal() | currency }} setup</span>
               <span class="text-xl font-black text-orange-500" *ngIf="!item.price && item.type !== 'service'">\${{ dataBlockPrice }}</span>
-              <button (click)="removeItem(i)" class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all text-xs flex items-center justify-center cursor-pointer">
+              <button (click)="removeItem(i)" aria-label="Remove item" class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all text-xs flex items-center justify-center cursor-pointer">
                 ✕
               </button>
             </div>
@@ -65,7 +65,7 @@ import { ApiService, CartItem } from '../services/api.service';
 
         <!-- Discount Code Section -->
         <div *ngIf="cartItems().length > 0" class="rounded-2xl bg-white/[0.03] border border-white/10 p-6 mb-8">
-          <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mb-3">Discount / Access Code (Optional)</p>
+          <label for="checkout-discount" class="block text-[10px] font-black uppercase tracking-widest text-white/30 mb-3">Discount / Access Code (Optional)</label>
           
           <!-- Applied discount -->
           <div *ngIf="appliedDiscount()" class="flex items-center justify-between p-4 rounded-xl bg-green-500/10 border border-green-500/20">
@@ -81,7 +81,7 @@ import { ApiService, CartItem } from '../services/api.service';
 
           <!-- Discount input -->
           <div *ngIf="!appliedDiscount()" class="flex gap-3">
-            <input [(ngModel)]="discountInput" 
+            <input id="checkout-discount" [(ngModel)]="discountInput" 
                    (keydown.enter)="applyDiscount()"
                    placeholder="Enter code" 
                    class="flex-1 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-semibold uppercase tracking-widest outline-none focus:border-orange-500/40 transition-colors"

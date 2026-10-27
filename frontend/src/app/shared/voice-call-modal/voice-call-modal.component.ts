@@ -10,12 +10,12 @@ import { VoiceCallService } from '../../services/voice-call.service';
     <!-- Error Toast -->
     <div *ngIf="call.errorMessage()" 
          class="fixed bottom-6 right-6 z-[300] max-w-md bg-red-950/90 border border-red-500/50 text-red-200 p-5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <span class="text-2xl">⚠️</span>
+      <i class="fa-solid fa-triangle-exclamation text-2xl text-red-400" aria-hidden="true"></i>
       <div class="flex-1">
         <h4 class="text-xs font-black uppercase tracking-widest text-red-400 mb-1">Voice Agent Error</h4>
         <p class="text-xs leading-relaxed text-red-200/90">{{ call.errorMessage() }}</p>
       </div>
-      <button (click)="call.errorMessage.set(null)" class="text-red-400 hover:text-white text-sm font-bold">✕</button>
+      <button (click)="call.errorMessage.set(null)" aria-label="Dismiss error" class="text-red-400 hover:text-white text-sm font-bold">✕</button>
     </div>
 
     <!-- Active Call Modal -->
@@ -57,7 +57,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
         <!-- Control Buttons -->
         <div class="flex items-center justify-center gap-6 relative z-10">
           <!-- Mute Mic Button -->
-          <button (click)="call.toggleMute()" 
+          <button (click)="call.toggleMute()" [attr.aria-pressed]="call.isMuted()" [attr.aria-label]="call.isMuted() ? 'Unmute microphone' : 'Mute microphone'" 
                   [class.bg-red-500/20]="call.isMuted()"
                   [class.border-red-500/40]="call.isMuted()"
                   [class.text-red-400]="call.isMuted()"
@@ -69,7 +69,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
           </button>
 
           <!-- Hang Up Button -->
-          <button (click)="call.endCall()" 
+          <button (click)="call.endCall()" aria-label="End call" 
                   class="w-20 h-20 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center text-2xl shadow-[0_0_30px_rgba(220,38,38,0.5)] hover:scale-105 active:scale-95 transition-all">
             <i class="fas fa-phone-slash"></i>
           </button>

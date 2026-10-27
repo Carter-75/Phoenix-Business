@@ -37,22 +37,19 @@
       </h1>
 
       <p class="text-base sm:text-xl text-white/60 leading-relaxed mb-10 max-w-3xl mx-auto font-normal">
-        Transform disorganized spreadsheets, scanned physical documents, and messy web feeds into pristine, analysis-ready assets. Led by Carter — Microsoft Office Specialist (Excel, Word, PowerPoint) & Full-Stack Developer with a 99.9% precision guarantee.
+        Messy spreadsheets, scanned documents, and web feeds, turned into clean files you can actually use. The work is done by Carter, a Microsoft Office Specialist (Excel, Word, PowerPoint) and full-stack developer, and every file is checked before it goes back to you.
       </p>
 
       <!-- Trust Badges -->
       <div class="flex flex-wrap items-center justify-center gap-3 mb-10">
         <div class="px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold flex items-center gap-2">
-          <span class="text-emerald-400 font-black">✓</span> 99.9% Accuracy Guarantee
+          <span class="text-emerald-400 font-black">✓</span> Every file checked before delivery
         </div>
         <div class="px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-bold flex items-center gap-2">
           <span>★</span> MOS Certified (Excel, Word, PPT)
         </div>
         <div class="px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold flex items-center gap-2">
-          <span class="text-blue-400">⚡</span> 24–48hr Fast Turnaround
-        </div>
-        <div class="px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold flex items-center gap-2">
-          <span class="text-purple-400">🔒</span> 100% NDA & Privacy Compliant
+          <i class="fa-solid fa-bolt text-blue-400" aria-hidden="true"></i> 24–48hr typical turnaround
         </div>
       </div>
 
@@ -76,12 +73,12 @@
           <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Verification Accuracy</p>
         </div>
         <div class="text-center">
-          <p class="text-3xl sm:text-4xl font-black text-emerald-400">&lt; 24hr</p>
-          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Express Turnaround</p>
+          <p class="text-3xl sm:text-4xl font-black text-emerald-400">24–48hr</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Typical Turnaround</p>
         </div>
         <div class="text-center">
-          <p class="text-3xl sm:text-4xl font-black text-yellow-400">50K+</p>
-          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Records Normalized</p>
+          <p class="text-3xl sm:text-4xl font-black text-yellow-400">1:1</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-white/40 mt-1">Work Directly With Carter</p>
         </div>
         <div class="text-center">
           <p class="text-3xl sm:text-4xl font-black text-blue-400">MOS</p>
@@ -104,8 +101,8 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let cap of capabilities" class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300 group">
-          <div class="text-3xl mb-4 group-hover:scale-110 transition-transform inline-block">
-            {{ cap.icon }}
+          <div class="mb-4">
+            <i [class]="'text-3xl text-orange-500 ' + cap.icon" aria-hidden="true"></i>
           </div>
           <h3 class="text-lg font-bold text-white mb-2">{{ cap.title }}</h3>
           <p class="text-sm text-white/50 leading-relaxed">{{ cap.description }}</p>
@@ -351,8 +348,8 @@
           <button (click)="openInquiry('Professional Cleanse & Modeling')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-xs font-black uppercase tracking-widest hover:shadow-xl hover:shadow-orange-600/30 transition-all cursor-pointer">
             Launch Data Inquiry →
           </button>
-          <a href="mailto:partnership@carter-portfolio.fyi" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white text-xs font-black uppercase tracking-widest transition-all">
-            partnership@carter-portfolio.fyi
+          <a href="mailto:partnerships@carter-portfolio.fyi" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white/80 hover:text-white text-xs font-black uppercase tracking-widest transition-all">
+            partnerships@carter-portfolio.fyi
           </a>
         </div>
       </div>
@@ -365,10 +362,6 @@
         <span>•</span>
         <a href="https://carter-portfolio.fyi" target="_blank" class="hover:text-orange-400 transition-colors">Carter's Portfolio</a>
       </div>
-      <!-- REVERSION TRIGGER BUTTON -->
-      <button (click)="toggleLegacyDataBlocks()" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] font-mono uppercase tracking-wider text-white/40 hover:text-orange-400 transition-colors cursor-pointer border border-white/5">
-        🛠️ Toggle Legacy Data Blocks Marketplace View (Admin Revert)
-      </button>
     </footer>
 
   </div>
@@ -435,7 +428,7 @@
       </div>
 
       <p class="text-[10px] text-white/30 text-center mt-2">
-        Or email directly: <strong class="text-orange-400">partnership@carter-portfolio.fyi</strong>
+        Or email directly: <strong class="text-orange-400">partnerships@carter-portfolio.fyi</strong>
       </p>
     </div>
   </div>
@@ -486,12 +479,12 @@
       </div>
 
       <div class="discount-input-row mt-4">
-        <input [(ngModel)]="discountCode" placeholder="Discount code" class="discount-input" />
+        <input [(ngModel)]="discountCode" placeholder="Discount code" aria-label="Discount code" class="discount-input" />
       </div>
 
       <div class="checkout-review-actions">
         <button (click)="proceedToPayment()" [disabled]="checkoutLoading()" class="proceed-payment-btn">
-          {{ checkoutLoading() ? 'Processing...' : 'Proceed to Payment — $' + cartTotalPrice() }}
+          {{ checkoutLoading() ? 'Processing...' : 'Proceed to Payment: $' + cartTotalPrice() }}
         </button>
         <button (click)="abandonReservation()" class="abandon-btn">
           Cancel & Release Records
@@ -579,7 +572,7 @@
           </div>
         </div>
         <button (click)="addToCart()" [disabled]="cartLoading()" class="mt-6 px-8 py-4 rounded-xl bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-sm font-black uppercase tracking-wider hover:shadow-xl hover:shadow-orange-600/30 transition-all">
-          {{ cartLoading() ? 'Adding...' : 'Add Data Block to Cart — $' + pricePerBlock() }}
+          {{ cartLoading() ? 'Adding...' : 'Add Data Block to Cart: $' + pricePerBlock() }}
         </button>
       </div>
 
@@ -609,7 +602,7 @@
         <span class="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">Public Records</span>
       </h1>
       <p class="text-lg text-white/50 leading-relaxed mb-10 max-w-xl mx-auto">
-        Building permits, government contracts, and business filings — structured, analyzed, and ready for action.
+        Building permits, government contracts, and business filings, structured, analyzed, and ready for action.
       </p>
 
       <!-- Stats -->
@@ -707,7 +700,7 @@
       <div *ngIf="blockSize() > 0 && !isLoading()" class="flex items-center gap-3">
         <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest">{{ blockSize() }} records in block</span>
         <button (click)="addToCart()" [disabled]="cartLoading()" class="add-cart-btn">
-          {{ cartLoading() ? 'Adding...' : '🛒 Add Block to Cart — $' + pricePerBlock() }}
+          {{ cartLoading() ? 'Adding...' : '🛒 Add Block to Cart: $' + pricePerBlock() }}
         </button>
       </div>
     </div>
@@ -733,7 +726,7 @@
 
     <!-- Results Grid -->
     <div *ngIf="records().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div *ngFor="let record of records()" (click)="viewRecord(record)"
+      <div *ngFor="let record of records()" tabindex="0" role="button" (keydown.enter)="viewRecord(record)" (click)="viewRecord(record)"
            class="rounded-2xl bg-white/[0.02] border border-white/5 p-6 cursor-pointer hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300 group">
         <div class="flex items-center justify-between mb-4">
           <span class="px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-[9px] font-black uppercase tracking-widest text-orange-400">
@@ -767,14 +760,14 @@
 
     <!-- Pagination -->
     <div *ngIf="totalPages() > 1" class="flex items-center justify-center gap-4 py-8">
-      <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+      <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1" aria-label="Previous page"
               class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-white disabled:opacity-30 transition-all">
         ←
       </button>
       <span class="text-[10px] font-black uppercase tracking-widest text-white/40">
         Page {{ currentPage() }} of {{ totalPages() }}
       </span>
-      <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+      <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()" aria-label="Next page"
               class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-white disabled:opacity-30 transition-all">
         →
       </button>
@@ -782,7 +775,7 @@
 
     <!-- CTA Section -->
     <div class="mt-16 mb-12 text-center rounded-2xl bg-gradient-to-b from-orange-600/10 to-transparent border border-orange-600/20 p-12">
-      <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">Unlock Full Access</h2>
+      <h2 class="text-3xl font-black uppercase tracking-tighter mb-4">Get The Full Records</h2>
       <p class="text-white/50 mb-8 max-w-lg mx-auto">Get complete contact information, AI-generated summaries, and full record access. One-time purchase, instant access, no recurring fees.</p>
       <div class="text-center px-10 py-8 rounded-2xl bg-orange-500/10 border border-orange-500/30 ring-2 ring-orange-500/20">
           <p *ngIf="discountPercent() > 0" class="text-xl font-bold line-through text-white/30">${{ basePrice() }}</p>
@@ -826,7 +819,7 @@
     <!-- Purchase List -->
     <div *ngIf="api.currentUser() && purchases().length > 0 && !selectedPurchase()" class="space-y-4">
       <h2 class="text-2xl font-black uppercase tracking-tighter mb-6">Your Data Purchases</h2>
-      <div *ngFor="let p of purchases()" (click)="viewPurchase(p)" class="purchase-card">
+      <div *ngFor="let p of purchases()" tabindex="0" role="button" (keydown.enter)="viewPurchase(p)" (click)="viewPurchase(p)" class="purchase-card">
         <div class="purchase-card-left">
           <p class="purchase-label">{{ p.blockLabel || 'Data Block' }}</p>
           <p class="purchase-meta">{{ p.totalRecords }} records • {{ formatDate(p.paidAt) }}</p>
@@ -877,7 +870,7 @@
 
   <!-- Footer note -->
   <p class="text-center text-[10px] text-white/15 font-bold uppercase tracking-widest pb-8">
-    Phoenix Data Intelligence — All data sourced from public records under FOIA
+    Phoenix Data Intelligence. All data sourced from public records under FOIA
   </p>
 </div>
 

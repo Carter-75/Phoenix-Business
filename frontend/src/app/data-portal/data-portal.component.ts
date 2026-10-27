@@ -125,32 +125,32 @@ export class DataPortalComponent implements OnInit, OnDestroy {
   // Core Capabilities
   readonly capabilities = [
     {
-      icon: '📊',
+      icon: 'fa-solid fa-table',
       title: 'MOS-Certified Excel Engineering',
       description: 'Advanced workbook architecture, complex lookup formulas (XLOOKUP, INDEX/MATCH), automated dropdowns, conditional logic, and executive Pivot Table dashboards.'
     },
     {
-      icon: '🧹',
+      icon: 'fa-solid fa-broom',
       title: 'Deep Data Hygiene & Deduplication',
       description: 'Eliminating duplicate entries, repairing broken schemas, normalizing telephone/address/date standards, and validating domains/emails with 99.9% precision.'
     },
     {
-      icon: '📄',
+      icon: 'fa-solid fa-file-lines',
       title: 'Document & Receipt Digitization',
       description: 'Accurate transcription from physical paperwork, PDFs, scanned invoices, handwritten notes, and legacy databases into structured digital records.'
     },
     {
-      icon: '🗄️',
+      icon: 'fa-solid fa-database',
       title: 'Database Staging & SQL / Mongo ETL',
       description: 'Structuring, migrating, and seeding clean datasets into MongoDB, PostgreSQL, MySQL, or cloud CRMs (HubSpot, Salesforce, Airtable).'
     },
     {
-      icon: '📑',
+      icon: 'fa-solid fa-file-invoice',
       title: 'Executive Word & PowerPoint Assets',
       description: 'MOS-certified document formatting for board presentations, sales pitch decks, investor tear-sheets, and executive Word documentation.'
     },
     {
-      icon: '🤖',
+      icon: 'fa-solid fa-robot',
       title: 'AI Prompting & Human-in-the-Loop QA',
       description: 'Accelerated processing using advanced AI prompting techniques paired with rigorous manual verification so zero hallucinated or flawed data slips through.'
     }
@@ -232,7 +232,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       `Project Details / Instructions:\n${this.inquiryNotes || 'None specified'}\n\n` +
       `Sent via Phoenix Data Portal`
     );
-    window.open(`mailto:partnership@carter-portfolio.fyi?subject=${subject}&body=${body}`, '_blank');
+    window.open(`mailto:partnerships@carter-portfolio.fyi?subject=${subject}&body=${body}`, '_blank');
     this.inquirySent.set(true);
   }
 
@@ -245,7 +245,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
       `Scope: ${this.inquiryProjectScope}\n` +
       `Estimated Records: ${this.inquiryRecordCount}\n` +
       `Details: ${this.inquiryNotes || 'None'}\n\n` +
-      `Direct Email: partnership@carter-portfolio.fyi`;
+      `Direct Email: partnerships@carter-portfolio.fyi`;
     navigator.clipboard.writeText(text).then(() => {
       this.copySuccess.set(true);
       setTimeout(() => this.copySuccess.set(false), 3000);
@@ -343,12 +343,12 @@ export class DataPortalComponent implements OnInit, OnDestroy {
     }
 
     if (!this.showDataBlocks()) {
-      this.title.setTitle('Data Operations & Hygiene — Precision Data Entry, Cleaning & Modeling | Carter');
+      this.title.setTitle('Data Operations & Hygiene: Precision Data Entry, Cleaning & Modeling | Carter');
       this.meta.updateTag({ name: 'description', content: 'Professional data entry, spreadsheet engineering, deduplication, and database preparation by Carter. MOS Certified in Excel, Word, and PowerPoint with 99.9% precision.' });
       this.meta.updateTag({ property: 'og:title', content: 'Carter | Professional Data Entry & Operations' });
       this.meta.updateTag({ property: 'og:description', content: 'Transform raw, messy datasets into structured, pristine spreadsheets and databases. Fast turnaround, MOS-certified precision.' });
     } else {
-      this.title.setTitle('Data Intelligence — AI-Enriched Public Records | Phoenix');
+      this.title.setTitle('Data Intelligence: AI-Enriched Public Records | Phoenix');
       this.meta.updateTag({ name: 'description', content: 'Search AI-enriched building permits, government contracts, and public records. Real-time data intelligence for businesses. One-time purchase, instant access.' });
       this.meta.updateTag({ property: 'og:title', content: 'Phoenix Data Intelligence' });
       this.meta.updateTag({ property: 'og:description', content: 'AI-enriched public records for businesses. Building permits, government contracts, and more.' });
@@ -565,7 +565,7 @@ export class DataPortalComponent implements OnInit, OnDestroy {
         this.singleRecord.set(record);
         this.showSingleView.set(true);
         this.isLoading.set(false);
-        this.title.setTitle(`${record.companyName} — ${record.projectType} | Phoenix Data Intelligence`);
+        this.title.setTitle(`${record.companyName}: ${record.projectType} | Phoenix Data Intelligence`);
         this.meta.updateTag({ name: 'description', content: record.executiveSummary || `AI-enriched record for ${record.companyName}` });
       },
       error: () => {

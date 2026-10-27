@@ -98,7 +98,7 @@
       <!-- Admin Status Message -->
       <div *ngIf="adminMessage()" class="mb-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs flex justify-between items-center">
         <span>{{ adminMessage() }}</span>
-        <button (click)="adminMessage.set('')" class="text-white/40 hover:text-white"><i class="fas fa-times"></i></button>
+        <button (click)="adminMessage.set('')" aria-label="Dismiss message" class="text-white/40 hover:text-white"><i class="fas fa-times" aria-hidden="true"></i></button>
       </div>
 
       <!-- TAB 1: VISUAL STUDIO (Visible to all authorized or guest previewers) -->

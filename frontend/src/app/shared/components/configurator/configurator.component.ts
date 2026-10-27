@@ -22,13 +22,13 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
              [style.borderColor]="'var(--theme-border, rgba(255, 77, 0, 0.2))'"
              [style.backgroundColor]="'var(--theme-bg-accent, rgba(255, 77, 0, 0.05))'"
              [style.color]="'var(--theme-primary, #ff4d00)'">
-          <span>⚡ Unified Dynamic Pricing &amp; Contract Engine</span>
+          <span>Pricing and contract, calculated as you go</span>
         </div>
         <h2 class="text-3xl sm:text-5xl font-black text-white uppercase tracking-tight mb-4">
-          Configure Your System
+          Build Your Website Package
         </h2>
         <p class="text-white/60 text-sm sm:text-base leading-relaxed">
-          Select your base platform, customize page scope, and add modular upgrades. Every tier includes a one-time build fee and managed monthly cloud care with a 30-day deferred billing trial.
+          Pick a base package, set your page count, and add only the extras you need. Every package has a one-time build fee and a monthly care plan, and billing starts after a 30-day trial.
         </p>
       </div>
 
@@ -161,7 +161,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
         <!-- Bundle Savings Indicator -->
         <div *ngIf="pricing.calculation().eligibleAddonCount > 0" class="mb-6 p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <span class="text-lg">🎁</span>
+            <i class="fa-solid fa-gift text-lg text-orange-500" aria-hidden="true"></i>
             <div>
               <span class="text-xs font-black text-white uppercase tracking-wider">
                 Volume Bundle Discount: {{ pricing.calculation().discounts.bundle.percent }}% OFF Add-Ons
@@ -178,8 +178,9 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
 
         <!-- Horizontal Rotating Wheel -->
         <div #addonWheel (scroll)="onWheelScroll()" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div
+          <button type="button"
             *ngFor="let item of wheelAddons"
+            [attr.aria-pressed]="isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id) || isIncludedInBase(item.feat.id)"
             (click)="!isIncludedInBase(item.feat.id) && pricing.toggleFeature(item.feat.id)"
             [class.cursor-pointer]="!isIncludedInBase(item.feat.id)"
             [class.opacity-60]="isIncludedInBase(item.feat.id)"
@@ -187,7 +188,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
             [ngClass]="(isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id)) ? '!bg-white/[0.06] border-orange-500/80 ring-1 ring-orange-500/50' : 'bg-white/[0.02] border-white/5 hover:border-white/15'">
             <div>
               <div class="flex items-center justify-between mb-3">
-                <span class="text-2xl">{{ item.icon }}</span>
+                <i [class]="'text-2xl text-orange-500 ' + item.icon" aria-hidden="true"></i>
                 <div class="w-4 h-4 rounded border flex items-center justify-center transition-all"
                      [ngClass]="(isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id) || isIncludedInBase(item.feat.id)) ? 'bg-orange-600 border-orange-600 text-white' : 'border-white/20 bg-white/5'">
                   <span *ngIf="isFeatureSelected(item.feat.id) || isAutoAdded(item.feat.id) || isIncludedInBase(item.feat.id)" class="text-[10px] font-bold">✓</span>
@@ -210,7 +211,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
                 <span *ngIf="item.feat.monthlyPrice > 0" class="text-[10px] text-white/60">+\${{ (item.feat.monthlyPrice / 100).toLocaleString() }}/mo</span>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         <!-- Wheel Dots -->
@@ -235,7 +236,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
              [ngClass]="pricing.calculation().support ? 'bg-orange-500/[0.04] border-orange-500/30' : 'bg-white/[0.02] border-white/5'">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div class="flex items-center gap-2">
-              <span class="text-base">{{ pricing.calculation().support ? '🛡️' : 'ℹ️' }}</span>
+              <i [class]="pricing.calculation().support ? 'fa-solid fa-shield-halved text-base text-orange-500' : 'fa-solid fa-circle-info text-base text-white/50'" aria-hidden="true"></i>
               <span class="text-xs font-black uppercase tracking-widest text-white">
                 {{ pricing.calculation().support ? 'Optional Support Add-On: ' + pricing.calculation().support!.name : 'Baseline Included Support (No Additional Add-On)' }}
               </span>
@@ -461,7 +462,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
                   </div>
                   <div>
                     <span class="text-white/90 block font-bold mb-0.5">&bull; Intellectual Property:</span>
-                    Carter Cole / Phoenix Websites AI retains core engineering assets; separate source code IP buyout is available.
+                    Phoenix Websites AI retains core engineering assets; a separate source code IP buyout is available.
                   </div>
                 </div>
               </div>
@@ -480,7 +481,7 @@ import { ApiService, PendingIntent } from '../../../services/api.service';
         <!-- Promo / Discount Code Input -->
         <div class="flex flex-col gap-1.5 w-full sm:w-auto">
           <div *ngIf="!pricing.appliedCoupon()" class="flex items-center gap-2">
-            <input 
+            <input aria-label="Coupon code" 
               type="text"
               [(ngModel)]="discountCodeInput"
               (keydown.enter)="applyCoupon()"
@@ -548,29 +549,29 @@ export class ProjectConfiguratorComponent {
   // but ordering stays simple: database or not, accounts, payments, store, AI.
   public wheelMeta: Record<string, { icon: string; shortName: string; blurb: string; autoNote?: string }> = {
     database: {
-      icon: '🗄️',
+      icon: 'fa-solid fa-database',
       shortName: 'Database',
       blurb: 'Your site stores real records: orders, customers, content. Pick this if the site needs to remember anything.',
     },
     auth: {
-      icon: '🔐',
+      icon: 'fa-solid fa-user-lock',
       shortName: 'User Accounts & Sign-In',
       blurb: 'Customers register and log in with email or Google, with their own profiles and password reset.',
       autoNote: 'Adds the Database automatically.',
     },
     payments: {
-      icon: '💳',
+      icon: 'fa-solid fa-credit-card',
       shortName: 'Online Payments',
       blurb: 'Checkout on the payment service you already use: Stripe, PayPal, Venmo, Square, and more, each connected through its own API. No Stripe account needed.',
     },
     ecommerce: {
-      icon: '🛒',
+      icon: 'fa-solid fa-store',
       shortName: 'Online Store',
       blurb: 'Product catalog, cart, inventory tracking, and discount codes so you can sell online.',
       autoNote: 'Adds Online Payments automatically.',
     },
     ai_assistant: {
-      icon: '🤖',
+      icon: 'fa-solid fa-robot',
       shortName: 'AI Assistant',
       blurb: 'A 24/7 chatbot trained on your business that answers visitors and captures leads while you sleep.',
     },

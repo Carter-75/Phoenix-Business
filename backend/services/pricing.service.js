@@ -68,7 +68,7 @@ const BASE_PROJECTS = {
     id: 'business',
     name: 'Custom Business Website',
     shortName: 'Business',
-    description: 'Comprehensive 4-6 page business platform with service showcases, team/portfolio, and lead automation.',
+    description: 'Comprehensive 4-6 page business platform with service pages, team and portfolio pages, and lead automation.',
     baseSetupPrice: 249900, // $2,499.00
     baseMonthlyPrice: 19900, // $199.00/mo (Managed hosting, 24/7 monitoring, security updates, 2 hrs/mo custom edits)
     pagesIncluded: 6,
@@ -105,7 +105,7 @@ const BASE_PROJECTS = {
     id: 'enterprise',
     name: 'Enterprise Custom Platform',
     shortName: 'Enterprise',
-    description: 'Bespoke enterprise architecture with multi-role permissions, high-concurrency database, and dedicated account SLAs.',
+    description: 'Custom enterprise architecture with multi-role permissions, high-concurrency database, and dedicated account SLAs.',
     baseSetupPrice: 1499900, // $14,999.00
     baseMonthlyPrice: 99900, // $999.00/mo (Dedicated account manager, enterprise SLAs, 10+ hrs/mo dedicated engineering)
     pagesIncluded: 15,

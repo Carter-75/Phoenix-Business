@@ -33,7 +33,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             <span class="text-white/30">&amp; Custom Web Apps</span>
           </h1>
           <p class="text-lg sm:text-2xl text-white/80 font-normal leading-relaxed mb-6">
-            Build custom web applications, SaaS MVPs, customer dashboards, and backend data pipelines. We combine AI-accelerated programming with senior architectural engineering to deliver robust, scalable software.
+            Custom web applications, SaaS MVPs, customer dashboards, and the backend pipelines behind them. AI speeds up the coding; a senior engineer designs the system so it holds up as you grow.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
             <a href="#configurator" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20">
@@ -55,7 +55,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-4">
               <div class="text-orange-500 font-black text-xl">01</div>
               <h3 class="text-xl font-bold">Custom Web Applications &amp; MVPs</h3>
-              <p class="text-sm text-white/60 leading-relaxed">Turn product concepts into working software. Bespoke frontends paired with robust backend APIs, database models, and secure authentication.</p>
+              <p class="text-sm text-white/60 leading-relaxed">Turn a product idea into working software. A frontend built for your users, backed by APIs, database models, and sign-in that keeps accounts secure.</p>
             </div>
             <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-4">
               <div class="text-orange-500 font-black text-xl">02</div>
@@ -65,7 +65,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-4">
               <div class="text-orange-500 font-black text-xl">03</div>
               <h3 class="text-xl font-bold">API &amp; Third-Party Integrations</h3>
-              <p class="text-sm text-white/60 leading-relaxed">Seamless connectivity with Stripe payments, CRM systems, SMS notifications, external REST APIs, and automated webhook pipelines.</p>
+              <p class="text-sm text-white/60 leading-relaxed">Connections to Stripe payments, CRM systems, SMS notifications, outside REST APIs, and automated webhooks, built and tested end to end.</p>
             </div>
           </div>
         </section>
@@ -102,7 +102,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
               <h4 class="text-white font-bold text-base flex items-center gap-2">
                 <span class="text-orange-500">✓</span> Source Code Buyout Available
               </h4>
-              <p class="text-xs text-white/50 leading-relaxed">During subscription, you have exclusive commercial license. Full IP transfer via Source Code Buyout—no proprietary agency lock-in.</p>
+              <p class="text-xs text-white/50 leading-relaxed">During subscription, you have exclusive commercial license. Full IP transfer via Source Code Buyout, with no proprietary agency lock-in.</p>
             </div>
           </div>
         </section>

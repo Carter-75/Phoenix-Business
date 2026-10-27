@@ -104,7 +104,7 @@ export class VoiceCallService {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (err: any) {
       console.warn('Microphone permission denied or not available:', err);
-      this.lastTranscript.set('(Microphone access muted — listening to assistant)');
+      this.lastTranscript.set('(Microphone access muted, listening to assistant)');
     }
   }
 

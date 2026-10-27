@@ -72,7 +72,7 @@ import { ApiService } from '../services/api.service';
                       </div>
                       
                       <div *ngIf="r.isEditingReply" class="flex flex-col gap-2 mt-1">
-                        <textarea [(ngModel)]="r.draftReply" rows="2" class="bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white w-full focus:border-orange-500 outline-none resize-none" placeholder="Type your reply..."></textarea>
+                        <textarea aria-label="Reply to review" [(ngModel)]="r.draftReply" rows="2" class="bg-white/5 border border-white/10 rounded px-3 py-2 text-xs text-white w-full focus:border-orange-500 outline-none resize-none" placeholder="Type your reply..."></textarea>
                         <div class="flex gap-2">
                           <button (click)="saveReply(r)" [disabled]="r.saving" class="text-[10px] bg-orange-600 hover:bg-orange-500 text-white px-3 py-1 rounded font-bold transition-colors uppercase tracking-widest disabled:opacity-50">
                             {{ r.saving ? 'Saving...' : 'Save' }}

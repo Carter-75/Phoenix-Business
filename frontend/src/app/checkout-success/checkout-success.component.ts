@@ -5,11 +5,14 @@ import { ConversionService } from '../services/conversion.service';
 @Component({
  selector: 'app-checkout-success', standalone: true, imports: [RouterLink],
  template: `<main class="max-w-2xl mx-auto px-6 pt-40 pb-24 text-white">
- <h1 class="text-3xl font-bold mb-6">{{ isFreeOrder() && paid() ? 'Order Confirmed' : isFreeOrder() ? 'Order Status' : 'Payment Status' }}</h1>
- <p role="status">{{ message() }}</p>
- @if (!paid()) { <button class="mt-6 p-3 border rounded" [disabled]="busy()" (click)="check()">Check again</button> }
- @if (paid()) { <a class="inline-block mt-6 p-3 border rounded" routerLink="/leave-review">Continue</a> }
- <a class="block mt-6 underline" routerLink="/dashboard">Go to your dashboard</a></main>`
+ <div class="rounded-3xl border border-white/10 bg-white/[0.02] p-8 sm:p-12 text-center shadow-2xl">
+ @if (paid()) { <i class="fa-solid fa-circle-check text-5xl text-emerald-400 mb-6" aria-hidden="true"></i> } @else { <i class="fa-solid fa-clock text-5xl text-orange-500 mb-6" aria-hidden="true"></i> }
+ <h1 class="text-3xl font-black uppercase tracking-tight mb-4">{{ isFreeOrder() && paid() ? 'Order Confirmed' : isFreeOrder() ? 'Order Status' : 'Payment Status' }}</h1>
+ <p role="status" class="text-white/60 leading-relaxed">{{ message() }}</p>
+ @if (!paid()) { <button class="premium-btn mt-8" [disabled]="busy()" (click)="check()">Check again</button> }
+ @if (paid()) { <a class="premium-btn inline-block mt-8" routerLink="/leave-review">Continue</a> }
+ <a class="block mt-6 text-sm text-orange-400 hover:text-orange-300 underline" routerLink="/dashboard">Go to your dashboard</a>
+ </div></main>`
 })
 export class CheckoutSuccessComponent implements OnInit {
  private api = inject(ApiService); private route = inject(ActivatedRoute);

@@ -69,7 +69,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
     discountPercent: 20, // 20% evergreen acquisition promotion
     priority: 0,
     enabled: true,
-    bannerText: 'Founder Special: Save 20% on custom web development, full-stack systems, and digital platforms.',
+    bannerText: 'Save 20% on website packages.',
     ctaText: 'Explore Services',
     ctaLink: '/services',
     dateRange: null,
@@ -103,7 +103,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
     discountPercent: 25,
     priority: 15,
     enabled: true,
-    bannerText: 'New Year Digital Ignition: 25% off all custom website & web app builds through January 7.',
+    bannerText: 'Save 25% on website packages through January 7.',
     ctaText: 'Start Your Build',
     ctaLink: '/services',
     dateRange: {
@@ -455,7 +455,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
     discountPercent: 45, // Pinnacle annual promotion (45% launch acquisition discount)
     priority: 20,
     enabled: true,
-    bannerText: 'Black Friday & Cyber Week Megasale: Save 45% on all custom web applications, SaaS MVPs, and business platforms.',
+    bannerText: 'Save 45% on website packages for Black Friday and Cyber Week.',
     ctaText: 'Lock In 45% Off',
     ctaLink: '/services',
     dateRange: {

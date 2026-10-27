@@ -8,12 +8,12 @@ import { RouterLink } from '@angular/router';
   template: `
     <footer class="py-20 px-8 sm:px-16 lg:px-32 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12 bg-[#050505]">
       <div class="flex items-center gap-4">
-        <div class="w-8 h-[1px] bg-[#D4AF37]"></div>
+        <div class="w-8 h-[1px] bg-orange-600"></div>
         <span class="text-white font-black uppercase tracking-[0.8em] text-xs">Phoenix</span>
       </div>
-      
+
       <div class="flex flex-wrap justify-center gap-6 sm:gap-12 text-[10px] font-black uppercase tracking-[0.4em] text-white/30">
-        <a href="tel:+17603347874" class="hover:text-orange-500 text-orange-400/80 transition-colors flex items-center gap-2">📞 +1 (760) 334-7874</a>
+        <a href="tel:+17603347874" class="hover:text-orange-500 text-orange-400/80 transition-colors flex items-center gap-2"><i class="fa-solid fa-phone" aria-hidden="true"></i> +1 (760) 334-7874</a>
         <a routerLink="/terms" class="hover:text-white transition-colors">Terms</a>
         <a routerLink="/privacy" class="hover:text-white transition-colors">Privacy</a>
         <a routerLink="/refunds" class="hover:text-white transition-colors">Refunds</a>
@@ -26,7 +26,7 @@ import { RouterLink } from '@angular/router';
       </nav>
       <div class="flex flex-col items-center gap-4">
         <div class="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 text-center">
-          © 2026 PHOENIX OPERATIONS | BASED IN WISCONSIN
+          © 2026 PHOENIX WEBSITES AI | BASED IN WISCONSIN, USA
         </div>
         <a href="https://carter-portfolio.fyi" target="_blank" class="text-[9px] font-black uppercase tracking-[0.4em] text-orange-600/60 hover:text-orange-600 transition-colors flex items-center gap-2">
           Developed by Carter

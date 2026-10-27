@@ -32,7 +32,7 @@ import { SeoService } from '../services/seo.service';
             <span class="text-white/30">Website Development</span>
           </h1>
           <p class="text-lg sm:text-2xl text-white/80 font-normal leading-relaxed mb-6">
-            You hire Phoenix Websites AI to handle your entire web project from architecture to launch. We build bespoke, lightning-fast web applications—not bloated DIY website builder templates.
+            You hire Phoenix Websites AI to handle your entire web project from architecture to launch. We build custom, fast web applications, not bloated DIY website builder templates.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
             <a routerLink="/" fragment="audit" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20">
@@ -60,7 +60,7 @@ import { SeoService } from '../services/seo.service';
                 <h3 class="text-white font-bold text-base flex items-center gap-2">
                   <span class="text-orange-500">✓</span> AI-Accelerated Engineering
                 </h3>
-                <p>We leverage modern AI tools to accelerate repetitive code generation and component scaffolding, passing rapid turnaround times to you while human engineering ensures clean architecture, security, and peak Core Web Vitals.</p>
+                <p>We use AI tools for the repetitive parts of coding, the scaffolding and boilerplate, so your project moves faster. A human engineer owns the architecture, the security, and the final performance checks.</p>
               </div>
             </div>
           </div>

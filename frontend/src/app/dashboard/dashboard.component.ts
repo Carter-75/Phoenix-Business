@@ -90,13 +90,13 @@ import { environment } from '../../environments/environment';
             <div *ngFor="let contract of contracts()" class="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
               
               <!-- Review Corner Wrapper -->
-              <div *ngIf="!contract.reviewInfo?.hasReview" class="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-2 rounded-bl-lg cursor-pointer hover:bg-orange-500 transition-colors z-20 flex items-center gap-2" (click)="goToReview()">
-                <i class="fa-solid fa-star"></i> Leave Review
-              </div>
+              <button type="button" *ngIf="!contract.reviewInfo?.hasReview" class="absolute top-0 right-0 bg-orange-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-2 rounded-bl-lg cursor-pointer hover:bg-orange-500 transition-colors z-20 flex items-center gap-2" (click)="goToReview()">
+                <i class="fa-solid fa-star" aria-hidden="true"></i> Leave Review
+              </button>
               
               <div *ngIf="contract.reviewInfo?.hasReview && contract.reviewInfo?.rating <= 3.5 && !contract.reviewInfo?.dismissedLowRating" class="absolute top-0 right-0 bg-slate-800 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-2 rounded-bl-lg flex items-center gap-2 z-20 border-b border-l border-white/10">
-                <span class="cursor-pointer hover:text-orange-400 transition-colors" (click)="goToReview()">Update Review ({{contract.reviewInfo?.rating}}★)</span>
-                <i class="fa-solid fa-xmark cursor-pointer hover:text-red-400 text-xs ml-1" (click)="dismissLowRating(contract.reviewInfo?.reviewId)"></i>
+                <button type="button" class="cursor-pointer hover:text-orange-400 transition-colors uppercase tracking-[0.2em] font-black" (click)="goToReview()">Update Review ({{contract.reviewInfo?.rating}}★)</button>
+                <button type="button" aria-label="Dismiss review reminder" class="cursor-pointer hover:text-red-400 text-xs ml-1" (click)="dismissLowRating(contract.reviewInfo?.reviewId)"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
               </div>
               
               <div *ngIf="contract.reviewInfo?.hasReview && (contract.reviewInfo?.rating > 3.5 || contract.reviewInfo?.dismissedLowRating)" class="absolute top-0 right-0 bg-green-500/20 text-green-500 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-bl-lg z-20">
@@ -113,7 +113,7 @@ import { environment } from '../../environments/environment';
                 {{ contract.status }}
               </div>
 
-              <h3 class="text-xl font-black text-white mb-1">{{ contract.projectName || 'Phoenix Digital Services' }}</h3>
+              <h3 class="text-xl font-black text-white mb-1">{{ contract.projectName || 'Your website project' }}</h3>
               <p class="text-xs text-orange-500 font-bold uppercase tracking-widest mb-6">{{ contract.contractType }}</p>
 
               <div class="flex flex-col gap-3 mt-auto">
@@ -149,13 +149,17 @@ import { environment } from '../../environments/environment';
                 </button>
                 <p *ngIf="cpCodeSent()" class="text-xs text-emerald-400 font-bold">Code sent to {{ api.currentUser()?.email }}. It expires in 15 minutes.</p>
 
-                <input type="password" [(ngModel)]="cpCurrent" placeholder="Current password" autocomplete="current-password"
+                <label for="cp-current" class="block text-left text-[11px] font-bold uppercase tracking-widest text-white/50 mb-1">Current password</label>
+                <input id="cp-current" type="password" [(ngModel)]="cpCurrent" placeholder="Current password" autocomplete="current-password"
                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500">
-                <input type="text" [(ngModel)]="cpCode" placeholder="6-digit code from email" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                <label for="cp-code" class="block text-left text-[11px] font-bold uppercase tracking-widest text-white/50 mb-1 mt-3">Verification code from email</label>
+                <input id="cp-code" type="text" [(ngModel)]="cpCode" placeholder="6-digit code from email" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 tracking-[0.3em]">
-                <input type="password" [(ngModel)]="cpNew" placeholder="New password (at least 6 characters)" autocomplete="new-password"
+                <label for="cp-new" class="block text-left text-[11px] font-bold uppercase tracking-widest text-white/50 mb-1 mt-3">New password (at least 6 characters)</label>
+                <input id="cp-new" type="password" [(ngModel)]="cpNew" placeholder="New password (at least 6 characters)" autocomplete="new-password"
                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500">
-                <input type="password" [(ngModel)]="cpConfirm" placeholder="Confirm new password" autocomplete="new-password"
+                <label for="cp-confirm" class="block text-left text-[11px] font-bold uppercase tracking-widest text-white/50 mb-1 mt-3">Confirm new password</label>
+                <input id="cp-confirm" type="password" [(ngModel)]="cpConfirm" placeholder="Confirm new password" autocomplete="new-password"
                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-orange-500">
 
                 <div *ngIf="cpError()" class="text-xs text-red-400 font-bold">{{ cpError() }}</div>

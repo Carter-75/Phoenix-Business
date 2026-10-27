@@ -48,14 +48,12 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
           
           <!-- Carousel Navigation (Top) -->
           <div *ngIf="reviewItems().length > 1" class="flex items-center justify-center gap-4 mb-6">
-            <button (click)="prevSlide()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center disabled:opacity-30">
-              <i class="fa-solid fa-chevron-left"></i>
+            <button (click)="prevSlide()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center disabled:opacity-30" aria-label="Previous project"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
             </button>
             <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">
               Order {{ currentIndex() + 1 }} of {{ reviewItems().length }}
             </div>
-            <button (click)="nextSlide()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center disabled:opacity-30">
-              <i class="fa-solid fa-chevron-right"></i>
+            <button (click)="nextSlide()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center disabled:opacity-30" aria-label="Next project"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
             </button>
           </div>
 
@@ -87,7 +85,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 
               <!-- Update Prompt -->
               <div *ngIf="activeItem()?.hasReview && activeItem()?.rating <= 3.5" class="mb-8 p-4 bg-white/5 border border-white/10 rounded-xl">
-                <p class="text-sm text-slate-300">You previously left a <strong>{{ activeItem()?.rating }} star</strong> review. We noticed it was a bit low—if we've resolved your issues, we'd love it if you updated your rating!</p>
+                <p class="text-sm text-slate-300">You previously left a <strong>{{ activeItem()?.rating }} star</strong> review. You can update your review below if your experience has changed.</p>
               </div>
 
               <div class="text-center mb-8">
@@ -103,9 +101,9 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                     <i class="fa-solid fa-star absolute top-0 left-0 text-yellow-500 transition-all duration-75" 
                        [ngStyle]="{'clip-path': getStarClipPath(star)}"></i>
                     
-                    <div class="absolute inset-0 flex">
-                      <div class="w-1/2 h-full" (mouseenter)="hoverRating.set(Math.max(1, star - 0.5))" (click)="$event.stopPropagation(); setRating(Math.max(1, star - 0.5))"></div>
-                      <div class="w-1/2 h-full" (mouseenter)="hoverRating.set(star)" (click)="$event.stopPropagation(); setRating(star)"></div>
+                    <div class="absolute inset-0 flex" role="radiogroup" aria-label="Your rating">
+                      <button type="button" class="w-1/2 h-full" role="radio" [attr.aria-checked]="rating() === Math.max(1, star - 0.5)" [attr.aria-label]="'Rate ' + Math.max(1, star - 0.5) + ' stars'" (mouseenter)="hoverRating.set(Math.max(1, star - 0.5))" (click)="$event.stopPropagation(); setRating(Math.max(1, star - 0.5))"></button>
+                      <button type="button" class="w-1/2 h-full" role="radio" [attr.aria-checked]="rating() === star" [attr.aria-label]="'Rate ' + star + ' stars'" (mouseenter)="hoverRating.set(star)" (click)="$event.stopPropagation(); setRating(star)"></button>
                     </div>
                   </div>
                 </ng-container>
@@ -123,7 +121,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
               <div class="space-y-4">
                 <div *ngIf="!activeItem()?.hasReview">
                   <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Business Name *</label>
-                  <input type="text" [(ngModel)]="businessName" name="businessName" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 transition-colors" placeholder="e.g. Phoenix Digital" required>
+                  <input type="text" [(ngModel)]="businessName" name="businessName" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 transition-colors" placeholder="e.g. Wild Rise Sourdough" required>
                 </div>
                 
                 <div *ngIf="!activeItem()?.hasReview" class="grid grid-cols-2 gap-4">

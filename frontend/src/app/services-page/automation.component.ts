@@ -32,7 +32,7 @@ import { SeoService } from '../services/seo.service';
             <span class="text-white/30">Automation</span>
           </h1>
           <p class="text-lg sm:text-2xl text-white/80 font-normal leading-relaxed mb-6">
-            Stop losing leads and wasting hours on repetitive manual tasks. We engineer robust, automated pipelines connecting your website, email, SMS alerts, and internal systems.
+            Stop losing leads to slow follow-up, and hours to copy-paste work. We connect your website, email, SMS alerts, and internal systems so the information moves on its own, and a person only touches it when a person should.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
             <a routerLink="/" fragment="audit" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20">
@@ -62,14 +62,14 @@ import { SeoService } from '../services/seo.service';
               <div class="text-orange-500 font-black text-xl">02</div>
               <h3 class="text-xl font-bold">CRM &amp; Database Sync</h3>
               <p class="text-sm text-white/60 leading-relaxed">
-                Seamlessly pipe inbound inquiries and customer activity into your database, CRM, or spreadsheets with zero manual data entry or copy-pasting errors.
+                Every inquiry and customer update lands in your database, CRM, or spreadsheet on its own. No retyping, no copy-paste errors.
               </p>
             </div>
             <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-4">
               <div class="text-orange-500 font-black text-xl">03</div>
               <h3 class="text-xl font-bold">Webhook &amp; API Pipelines</h3>
               <p class="text-sm text-white/60 leading-relaxed">
-                Connect disparate services—Stripe payments, billing systems, communication providers, and operational dashboards—with resilient webhooks and error logging.
+                Connect separate services, Stripe payments, billing systems, communication providers, and operational dashboards, with resilient webhooks and error logging.
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export class AutomationComponent implements OnInit {
   ngOnInit() {
     this.seo.updateMeta({
       title: 'Business Process Automation Services | Phoenix Websites AI',
-      description: 'Streamline customer intake, lead notifications, SMS alerts, and CRM integrations with custom workflow automation from Phoenix Websites AI.',
+      description: 'Custom workflow automation for customer intake, lead notifications, SMS alerts, and CRM connections, from Phoenix Websites AI.',
       canonicalUrl: 'https://phoenixwebsites.ai/services/automation',
       jsonLd: {
         '@context': 'https://schema.org',
