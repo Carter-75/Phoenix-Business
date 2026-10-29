@@ -26,6 +26,97 @@
       </p>
     </header>
 
+    </div>
+
+    <!-- Live group buy deal, rendered only while an event is open -->
+    <app-group-buy-strip></app-group-buy-strip>
+
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-16">
+    <!-- The Packages, in plain numbers -->
+    <section class="mb-12 sm:mb-20 mt-12 sm:mt-20">
+      <div class="mb-6 sm:mb-8">
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] block mb-2">The Packages</span>
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight">What Each Package Costs and Includes</h2>
+        <p class="text-sm text-white/50 mt-3 max-w-3xl">Standard prices, shown in full. The current promotion and any discount code you have apply on top in the configurator below, and you see the exact total before you pay anything.</p>
+      </div>
+      <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+          <h3 class="text-lg font-black text-white uppercase tracking-tight">Starter Launch Website</h3>
+          <p class="text-3xl font-black text-white mt-3">$1,499 <span class="text-sm font-bold text-white/40">setup</span></p>
+          <p class="text-orange-400 font-black text-lg">+ $99/mo</p>
+          <ul class="text-sm text-white/60 space-y-2 mt-4 flex-1">
+            <li>Up to 3 pages, custom design</li>
+            <li>Delivered in at most 2 weeks</li>
+            <li>Managed hosting, SSL, daily backups</li>
+            <li>Lead capture and contact forms</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-2xl bg-orange-600/[0.06] border border-orange-500/40 flex flex-col relative">
+          <span class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em]">Most Popular</span>
+          <h3 class="text-lg font-black text-white uppercase tracking-tight">Custom Business Website</h3>
+          <p class="text-3xl font-black text-white mt-3">$2,499 <span class="text-sm font-bold text-white/40">setup</span></p>
+          <p class="text-orange-400 font-black text-lg">+ $199/mo</p>
+          <ul class="text-sm text-white/60 space-y-2 mt-4 flex-1">
+            <li>Up to 6 pages: services, team, portfolio</li>
+            <li>Delivered in at most 3 weeks</li>
+            <li>Hosting, 24/7 monitoring, security updates</li>
+            <li>2 hours of custom edits every month</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+          <h3 class="text-lg font-black text-white uppercase tracking-tight">E-Commerce Storefront</h3>
+          <p class="text-3xl font-black text-white mt-3">$3,499 <span class="text-sm font-bold text-white/40">setup</span></p>
+          <p class="text-orange-400 font-black text-lg">+ $299/mo</p>
+          <ul class="text-sm text-white/60 space-y-2 mt-4 flex-1">
+            <li>Up to 8 pages with a full online store</li>
+            <li>Delivered in at most 4 weeks</li>
+            <li>Product catalog, cart, and checkout included</li>
+            <li>3 hours of custom edits every month</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+          <h3 class="text-lg font-black text-white uppercase tracking-tight">Full-Stack Web App / SaaS MVP</h3>
+          <p class="text-3xl font-black text-white mt-3">$4,999 <span class="text-sm font-bold text-white/40">setup</span></p>
+          <p class="text-orange-400 font-black text-lg">+ $399/mo</p>
+          <ul class="text-sm text-white/60 space-y-2 mt-4 flex-1">
+            <li>Up to 10 pages or views</li>
+            <li>Delivered in at most 5 weeks</li>
+            <li>User accounts, database, and client dashboard included</li>
+            <li>5 hours of engineering every month</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+          <h3 class="text-lg font-black text-white uppercase tracking-tight">Enterprise Custom Platform</h3>
+          <p class="text-3xl font-black text-white mt-3">$14,999 <span class="text-sm font-bold text-white/40">setup</span></p>
+          <p class="text-orange-400 font-black text-lg">+ $999/mo</p>
+          <ul class="text-sm text-white/60 space-y-2 mt-4 flex-1">
+            <li>Up to 15 pages, custom architecture</li>
+            <li>Timeline agreed by scope before work starts</li>
+            <li>Multi-role permissions and dedicated support</li>
+            <li>10+ hours of dedicated engineering every month</li>
+          </ul>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-dashed border-white/15 flex flex-col justify-center">
+          <h3 class="text-lg font-black text-white uppercase tracking-tight">Not Sure Which Fits?</h3>
+          <p class="text-sm text-white/60 mt-3 flex-1">Get the free website audit. You will get three specific fixes and a straight recommendation, including if the honest answer is the smallest package or no package at all.</p>
+          <a routerLink="/" fragment="audit" class="mt-4 text-[11px] font-black uppercase tracking-[0.25em] text-orange-400 hover:text-orange-300 transition-colors">Get the free audit &rarr;</a>
+        </div>
+      </div>
+
+      <!-- The terms, stated up front -->
+      <div class="mt-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+        <h3 class="text-base font-black text-white uppercase tracking-tight mb-3">The Terms, Stated Up Front</h3>
+        <div class="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-white/60">
+          <p><strong class="text-white">Commitment:</strong> every package carries a 12-month plan.</p>
+          <p><strong class="text-white">Price lock:</strong> your monthly rate never increases while your plan stays active.</p>
+          <p><strong class="text-white">Refunds:</strong> payments are non-refundable once work begins, with one written exception: if we completely fail to deliver the core service you bought, you get your money back.</p>
+          <p><strong class="text-white">Ownership:</strong> full source code buyout is available at 50% of the setup fee.</p>
+          <p><strong class="text-white">The monthly covers:</strong> hosting, security, backups, monitoring, and the edit hours in your package.</p>
+          <p><strong class="text-white">Later additions:</strong> add features any time after launch from your client dashboard.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Dedicated Service Links -->
     <section class="mb-12 sm:mb-20">
       <div class="mb-6 sm:mb-8">
@@ -101,7 +192,7 @@
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
           <h3 class="text-lg font-bold text-white mb-2">What are the delivery timelines?</h3>
           <p class="text-sm text-white/70 leading-relaxed">
-            Every tier has a maximum delivery deadline from onboarding completion: Simple Launch delivers in 2 weeks maximum; Essential Care delivers in 3 weeks maximum; Professional Growth delivers in 4 weeks maximum. Enterprise Custom projects follow a custom milestone schedule agreed upon before work starts.
+            Every package has a maximum delivery deadline from onboarding completion: the Starter Launch Website delivers in 2 weeks maximum; the Custom Business Website in 3 weeks; the E-Commerce Storefront in 4 weeks; the Full-Stack Web App / SaaS MVP in 5 weeks. Enterprise Custom Platform projects follow a custom milestone schedule agreed upon before work starts.
           </p>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5">

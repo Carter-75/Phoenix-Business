@@ -11,8 +11,8 @@
         </div>
         <div class="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8 hero-reveal">
           <h1 class="fluid-h1 font-black select-none">
-            AI-POWERED<br class="sm:hidden"> FULL-STACK<br>
-            <span class="text-white/70">WEB DEVELOPMENT</span>
+            CUSTOM WEBSITES<br class="sm:hidden"> BUILT FOR<br>
+            <span class="text-white/70">YOUR BUSINESS</span>
           </h1>
           <img src="/favicon.png" alt="Phoenix Websites AI Logo" width="96" height="96" class="w-16 h-16 sm:w-28 sm:h-28 object-contain mb-2 sm:mb-4 opacity-80 hover:opacity-100 transition-opacity duration-700">
         </div>
@@ -21,17 +21,17 @@
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-end">
         <div class="hero-reveal">
           <p class="fluid-p max-w-xl mb-6">
-            Phoenix Websites AI builds custom websites and full-stack web applications for businesses that want a finished product, engineered for them. AI speeds up the build. A human engineer checks the architecture, the code, and the security before anything ships.
+            A finished, custom website for your business, live in 2 to 5 weeks, without you touching a builder or a template. AI speeds up the build. Carter Moyer, the founder and engineer, designs, reviews, and ships every project himself, and you work with him directly from the first conversation to launch.
           </p>
           <div class="grid grid-cols-2 gap-2.5 mb-10 text-xs text-white/60">
-            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> AI-Accelerated Speed</div>
-            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> 100% Human Oversight</div>
-            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> IP Buyout Available</div>
-            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> Not a DIY Builder or Template</div>
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> Live in 2 to 5 weeks</div>
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> Work directly with the founder</div>
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> 30-day trial before monthly billing starts</div>
+            <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> Monthly rate locked, never goes up</div>
           </div>
           <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-            <a routerLink="/services" class="premium-btn text-center">Configure Your Project</a>
-            <button (click)="scrollToAudit()" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center">Request Free Audit</button>
+            <button (click)="scrollToAudit()" class="premium-btn text-center">Get a Free Website Audit</button>
+            <a routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center">See Packages and Prices</a>
           </div>
         </div>
 
@@ -66,6 +66,9 @@
     </div>
   </section>
 
+  <!-- Live group buy deal, rendered only while an event is open -->
+  <app-group-buy-strip></app-group-buy-strip>
+
   <!-- Core Pillars -->
   <section class="section-padding bg-white/[0.01] border-y border-white/[0.05]">
     <div class="max-w-[1400px] mx-auto">
@@ -84,6 +87,38 @@
           <span class="text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-orange-600 mb-4 sm:mb-8 block">03 / Ownership</span>
           <h3 class="fluid-h3 mb-4 sm:mb-6">Source Code Buyout</h3>
           <p class="text-white/40 text-sm leading-relaxed font-medium">Custom software built on open frameworks. Full IP transfer available via buyout, with no proprietary lock-in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section-padding bg-black/40 border-b border-white/[0.05]">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="mb-10 sm:mb-14">
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-3 sm:mb-4 block">How It Works</span>
+        <h2 class="fluid-h2">FROM FIRST CALL<br><span class="text-white/20">TO LAUNCH</span></h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="glass-card !bg-transparent">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 block mb-3">Step 1</span>
+          <h3 class="text-lg font-bold text-white mb-2">Free Website Audit</h3>
+          <p class="text-white/40 text-sm leading-relaxed">You send your current site, or just your business name if you do not have one. You get three specific fixes, in plain language, with no purchase required.</p>
+        </div>
+        <div class="glass-card !bg-transparent">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 block mb-3">Step 2</span>
+          <h3 class="text-lg font-bold text-white mb-2">Pick a Package</h3>
+          <p class="text-white/40 text-sm leading-relaxed">Fixed packages from $1,499 with the monthly care rate locked for as long as your plan stays active. You see the full price before you commit to anything.</p>
+        </div>
+        <div class="glass-card !bg-transparent">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 block mb-3">Step 3</span>
+          <h3 class="text-lg font-bold text-white mb-2">Design and Build</h3>
+          <p class="text-white/40 text-sm leading-relaxed">Carter builds your site with AI acceleration and human review at every step. Most packages are ready for your review in 2 to 5 weeks.</p>
+        </div>
+        <div class="glass-card !bg-transparent">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 block mb-3">Step 4</span>
+          <h3 class="text-lg font-bold text-white mb-2">Launch and Care</h3>
+          <p class="text-white/40 text-sm leading-relaxed">Your site goes live on managed hosting with backups and monitoring. Your monthly plan covers the care, and you can add features later any time from your dashboard.</p>
         </div>
       </div>
     </div>
@@ -155,6 +190,89 @@
     </div>
   </section>
 
+  <!-- Why Phoenix: the honest comparison -->
+  <section class="section-padding bg-white/[0.01] border-b border-white/[0.05]">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="mb-10 sm:mb-14">
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-3 sm:mb-4 block">Your Real Options</span>
+        <h2 class="fluid-h2">WHY BUSINESSES<br><span class="text-white/20">CHOOSE PHOENIX</span></h2>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-white/10 mb-6">
+        <table class="w-full text-left text-sm min-w-[720px]">
+          <thead>
+            <tr class="bg-white/[0.04] text-white">
+              <th class="p-4 font-black uppercase tracking-wider text-xs">&nbsp;</th>
+              <th class="p-4 font-black uppercase tracking-wider text-xs text-orange-400">Phoenix Websites AI</th>
+              <th class="p-4 font-black uppercase tracking-wider text-xs">DIY Builder</th>
+              <th class="p-4 font-black uppercase tracking-wider text-xs">Freelancer</th>
+              <th class="p-4 font-black uppercase tracking-wider text-xs">Traditional Agency</th>
+            </tr>
+          </thead>
+          <tbody class="text-white/60">
+            <tr class="border-t border-white/5">
+              <td class="p-4 font-bold text-white">Who builds it</td>
+              <td class="p-4">Carter, the founder and engineer, personally</td>
+              <td class="p-4">You, in your spare time</td>
+              <td class="p-4">Whoever you can find and vet</td>
+              <td class="p-4">A rotating team you rarely meet</td>
+            </tr>
+            <tr class="border-t border-white/5">
+              <td class="p-4 font-bold text-white">Time to launch</td>
+              <td class="p-4">2 to 5 weeks for most packages</td>
+              <td class="p-4">Weeks to months of your evenings</td>
+              <td class="p-4">Varies, often months</td>
+              <td class="p-4">Commonly 6 to 12 weeks or more</td>
+            </tr>
+            <tr class="border-t border-white/5">
+              <td class="p-4 font-bold text-white">What it costs</td>
+              <td class="p-4">From $1,499 setup, from $99/mo, published in full</td>
+              <td class="p-4">Low monthly fee, paid in your hours instead</td>
+              <td class="p-4">A few hundred to several thousand, scope creep extra</td>
+              <td class="p-4">Commonly $5,000 to $25,000+ for custom work</td>
+            </tr>
+            <tr class="border-t border-white/5">
+              <td class="p-4 font-bold text-white">After launch</td>
+              <td class="p-4">Hosting, backups, monitoring, and edits handled for you</td>
+              <td class="p-4">You maintain everything yourself</td>
+              <td class="p-4">Depends on finding them again</td>
+              <td class="p-4">Retainers and hourly rates</td>
+            </tr>
+            <tr class="border-t border-white/5">
+              <td class="p-4 font-bold text-white">The fine print</td>
+              <td class="p-4">12-month plan, rate locked, refund window in writing</td>
+              <td class="p-4">You rent the site; leaving means rebuilding</td>
+              <td class="p-4">Often no contract at all</td>
+              <td class="p-4">Long contracts and change-order fees</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-white/35 mb-14">Comparison reflects typical market offerings as of October 2026. Your situation may differ; the free audit is the honest way to compare for your business.</p>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="glass-card !bg-transparent">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 block mb-4">What AI Speeds Up</span>
+          <ul class="space-y-2.5 text-sm text-white/50">
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> Page scaffolding and layout code</li>
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> Boilerplate, forms, and routine logic</li>
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> First drafts of copy structure and styling</li>
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> Repetitive testing and checks</li>
+          </ul>
+        </div>
+        <div class="glass-card !bg-transparent">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600 block mb-4">What Carter Checks Personally</span>
+          <ul class="space-y-2.5 text-sm text-white/50">
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> The design, and whether it sounds like your business</li>
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> Architecture, code quality, and security</li>
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> Mobile layout, speed, and accessibility</li>
+            <li class="flex gap-2"><span class="text-orange-500 font-bold">✓</span> Every link, form, and checkout before launch</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Design Portfolio — Concept Builds -->
   <section class="section-padding bg-white/[0.01]">
     <div class="max-w-[1400px] mx-auto">
@@ -189,84 +307,14 @@
     </div>
   </section>
 
-  <!-- AI Search & Knowledge Base Section (GEO / AEO Optimized) -->
-  <section class="section-padding bg-black/60 border-t border-white/[0.05]" id="faq">
-    <div class="max-w-[1200px] mx-auto">
-      <div class="mb-10 sm:mb-16 text-center max-w-3xl mx-auto">
-        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-3 sm:mb-4 block">Frequently Asked Questions</span>
-        <h2 class="fluid-h2 mb-4">HOW WE WORK &amp;<br><span class="text-white/20">COMMON QUESTIONS</span></h2>
-        <p class="text-white/50 text-sm leading-relaxed px-2 sm:px-0">
-          Everything you need to know about our AI-accelerated development process, human engineering oversight, and service guarantees.
-        </p>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-6 text-left">
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">What is Phoenix Websites AI?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            Phoenix Websites AI is an AI-native web development company that builds custom websites and full-stack web applications for clients. AI accelerates the development process, while senior human engineers provide architecture, review, security audits, and delivery.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">Is Phoenix Websites AI an AI website builder?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            No. We are not a DIY website builder, a template marketplace, or a prompt-it-yourself tool. Clients hire us to handle every phase of design, custom engineering, testing, and managed hosting.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">Do customers have to write prompts or build the website?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            No. Customers never write prompts or wrestle with code. You simply provide your business requirements, goals, and content; our engineering team executes the AI workflows and human quality control.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">How is AI used in development?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            AI is used to accelerate the development lifecycle: generating component scaffolding, creating automated unit tests, drafting responsive CSS, and writing boilerplate logic. This cuts turnaround time by 50% or more.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">Are humans involved and what do they oversee?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            Yes, 100%. Carter Moyer and senior engineers oversee system architecture, database schema design, security boundaries, API authentication, code review, responsiveness, and final quality assurance.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">Can Phoenix Websites AI build custom full-stack applications?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            Yes. We build custom full-stack web applications, authenticated client portals, admin dashboards, relational/document databases, Stripe payment workflows, and third-party API integrations.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">Who owns the finished website and code?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            During your subscription, you receive an exclusive commercial license to use and deploy your custom website. Full intellectual property ownership is available via our Source Code Buyout option (50% of the original setup fee), which transfers complete IP rights with zero ongoing obligations and no vendor lock-in.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
-          <h3 class="text-lg font-bold text-white">How quickly can projects be completed and how much does it cost?</h3>
-          <p class="text-sm text-white/60 leading-relaxed">
-            Starter custom websites start at $1,499 and deliver within 2 weeks. Comprehensive business websites start at $2,499 and deliver within 3 weeks. You can configure your exact requirements on our <a routerLink="/services" class="text-orange-400 underline font-bold">interactive pricing configurator</a>.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Lead Capture Section -->
   <section class="section-padding relative" id="audit">
     <div class="glow-orb bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-orange-600/5"></div>
     <div class="max-w-[1000px] mx-auto text-center">
       <div class="mb-12 sm:mb-20">
-        <h2 class="fluid-h2 mb-6 sm:mb-8">Ready to <span class="text-white/20">Start?</span></h2>
-        <p class="fluid-p max-w-2xl mx-auto px-2 sm:px-0">Request a short review of your mobile page, contact path, and service message. You will get three practical fixes. No purchase is required.</p>
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-4 block">Free Website Audit</span>
+        <h2 class="fluid-h2 mb-6 sm:mb-8">FIND OUT WHAT YOUR<br><span class="text-white/20">WEBSITE IS COSTING YOU</span></h2>
+        <p class="fluid-p max-w-2xl mx-auto px-2 sm:px-0">Send us your current website, or just your business name if you do not have one yet. You get a short review of your mobile page, your contact path, and your service message, with three practical fixes you can use whether you hire us or not. No purchase required, no obligation.</p>
       </div>
 
       <!-- AI Inbound Phone Call & Web Voice Assistant -->
@@ -332,6 +380,83 @@
     </div>
   </section>
 
+  <!-- AI Search & Knowledge Base Section (GEO / AEO Optimized) -->
+  <section class="section-padding bg-black/60 border-t border-white/[0.05]" id="faq">
+    <div class="max-w-[1200px] mx-auto">
+      <div class="mb-10 sm:mb-16 text-center max-w-3xl mx-auto">
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] mb-3 sm:mb-4 block">Frequently Asked Questions</span>
+        <h2 class="fluid-h2 mb-4">HOW WE WORK &amp;<br><span class="text-white/20">COMMON QUESTIONS</span></h2>
+        <p class="text-white/50 text-sm leading-relaxed px-2 sm:px-0">
+          Everything you need to know about our AI-accelerated development process, human engineering oversight, and service guarantees.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 text-left">
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">What is Phoenix Websites AI?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Phoenix Websites AI is an AI-native web development studio run by its founder, Carter Moyer. It builds custom websites and full-stack web applications for clients. AI accelerates the development process, while Carter personally handles architecture, review, security, and delivery.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">Is Phoenix Websites AI an AI website builder?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            No. We are not a DIY website builder, a template marketplace, or a prompt-it-yourself tool. Clients hire us to handle every phase of design, custom engineering, testing, and managed hosting.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">Do customers have to write prompts or build the website?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            No. Customers never write prompts or wrestle with code. You simply provide your business requirements, goals, and content; our engineering team executes the AI workflows and human quality control.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">How is AI used in development?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            AI is used to accelerate the development lifecycle: generating component scaffolding, creating automated unit tests, drafting responsive CSS, and writing boilerplate logic. That saved time goes into design, testing, and review instead of typing.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">Are humans involved and what do they oversee?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Yes, 100%. Carter Moyer personally oversees system architecture, database schema design, security boundaries, API authentication, code review, responsiveness, and final quality assurance on every project.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">Can Phoenix Websites AI build custom full-stack applications?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Yes. We build custom full-stack web applications, authenticated client portals, admin dashboards, relational/document databases, Stripe payment workflows, and third-party API integrations.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">Who owns the finished website and code?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            During your subscription, you receive an exclusive commercial license to use and deploy your custom website. Full intellectual property ownership is available via our Source Code Buyout option (50% of the original setup fee), which transfers complete IP rights with zero ongoing obligations and no vendor lock-in.
+          </p>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+          <h3 class="text-lg font-bold text-white">How quickly can projects be completed and how much does it cost?</h3>
+          <p class="text-sm text-white/60 leading-relaxed">
+            Starter custom websites start at $1,499 and deliver within 2 weeks. Comprehensive business websites start at $2,499 and deliver within 3 weeks. You can configure your exact requirements on our <a routerLink="/services" class="text-orange-400 underline font-bold">interactive pricing configurator</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Hidden Phoenix & Theme Control Menu -->
+
+  <!-- Sticky mobile call to action: the two moves that matter, always in reach on a phone -->
+  <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-[#050505]/95 backdrop-blur border-t border-white/10 px-4 py-3 flex gap-3">
+    <button (click)="scrollToAudit()" class="flex-1 py-3 rounded-full bg-orange-600 text-white text-[11px] font-black uppercase tracking-[0.2em]">Free Audit</button>
+    <a routerLink="/services" class="flex-1 py-3 rounded-full bg-white/10 border border-white/15 text-white text-[11px] font-black uppercase tracking-[0.2em] text-center">Packages</a>
+  </div>
 </div>
 

@@ -146,6 +146,16 @@ declare global {
         @if (message()) { <p class="mt-4 text-sm" [class.text-red-300]="isError()" [class.text-white/80]="!isError()">{{ message() }}</p> }
       }
     }
+    <section class="mt-16 pt-10 border-t border-white/10">
+      <h2 class="text-xl font-bold mb-4">How the Group Buy Works</h2>
+      <ol class="list-decimal ml-5 space-y-3 text-white/70 leading-relaxed">
+        <li>A small group of businesses joins one event before its deadline. The joined count and deadline on this page are the real numbers, updated as people join.</li>
+        <li>Joining saves your card with Stripe. You are charged the join price once, only if the group fills. If the group does not fill, your card is never charged and there is nothing to refund.</li>
+        <li>If the group fills, you receive a personal discount code for the stated percent off, up to the stated dollar caps, usable on any website package. The group buy sells the discount; the website is bought separately at checkout with your code.</li>
+        <li>You can cancel your spot free any time while the event is still open from your dashboard.</li>
+      </ol>
+      <p class="text-white/50 leading-relaxed mt-4">Group buys run occasionally and one at a time. When none is open, regular pricing on the <a routerLink="/services" class="underline">services page</a> is always available, and the free website audit is always free.</p>
+    </section>
   </main>`,
   styles: [`:host { display: block; }`]
 })

@@ -181,7 +181,20 @@ import { SeoService } from '../services/seo.service';
             <div class="w-full h-[1px] bg-white/5 flex-grow"></div>
           </div>
 
-          <div *ngIf="filteredOtherReviews().length === 0" class="text-center py-24 bg-white/5 rounded-2xl border border-white/10">
+          <div *ngIf="filteredOtherReviews().length === 0 && (ratingSummary()?.count ?? 0) === 0 && myReviews().length === 0" class="py-16 px-6 sm:px-12 bg-white/5 rounded-2xl border border-white/10">
+            <div class="max-w-2xl mx-auto text-center">
+              <i class="fa-solid fa-shield-halved text-4xl text-orange-500 mb-4"></i>
+              <h3 class="text-xl font-bold text-white mb-3">No Reviews Yet, On Purpose</h3>
+              <p class="text-slate-400 text-sm leading-relaxed mb-4">Reviews on this page come only from verified customers, through a private link sent after their project is delivered. Phoenix Websites AI is a young studio and its first projects are being built now, so this page is honestly empty rather than stocked with examples or borrowed praise.</p>
+              <p class="text-slate-400 text-sm leading-relaxed mb-8">Until the first reviews land, judge us by the protections in writing instead: a written agreement on every project, a refund if we completely fail to deliver the core service you bought, a monthly rate that never increases while your plan stays active, and a 30-day trial before monthly billing starts.</p>
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a routerLink="/services" class="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white transition-all rounded-full text-xs font-bold uppercase tracking-widest">See Packages and Prices</a>
+                <a routerLink="/" fragment="audit" class="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-all rounded-full text-xs font-bold uppercase tracking-widest">Get a Free Audit</a>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="filteredOtherReviews().length === 0 && ((ratingSummary()?.count ?? 0) > 0 || myReviews().length > 0)" class="text-center py-24 bg-white/5 rounded-2xl border border-white/10">
             <i class="fa-solid fa-comment-slash text-4xl text-slate-600 mb-4"></i>
             <h3 class="text-xl font-bold text-white mb-2">No Ratings Found</h3>
             <p class="text-slate-400 text-sm">No reviews match your current filter.</p>

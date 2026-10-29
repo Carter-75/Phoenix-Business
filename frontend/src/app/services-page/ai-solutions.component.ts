@@ -150,13 +150,13 @@ import { VoiceCallService } from '../services/voice-call.service';
         <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-orange-500/30">
           <div class="max-w-3xl">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Pricing &amp; Plans</span>
-            <h2 class="text-3xl font-black uppercase tracking-tight mb-4">Included In Growth Plans Or Custom Quote</h2>
+            <h2 class="text-3xl font-black uppercase tracking-tight mb-4">Add It to Any Website Package</h2>
             <p class="text-sm text-white/70 leading-relaxed mb-6">
-              AI Chatbot upkeep is included in our Professional Growth plan ($539/month) and Enterprise Custom plans. Standalone AI voice assistants and custom enterprise integrations are quoted based on expected conversation volume and custom system integration requirements.
+              The AI Assistant is an add-on available on any website package: $900 setup and $50/mo at standard pricing, with the current promotion applied in the configurator, and it can also be added later from your client dashboard. Standalone AI voice assistants and custom enterprise integrations are quoted based on expected conversation volume and custom system integration requirements.
             </p>
             <div class="flex flex-wrap gap-4">
               <a routerLink="/services" class="px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
-                See Professional Growth Plan
+                See Website Packages
               </a>
               <a routerLink="/" fragment="audit" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
                 Request Custom AI Scope

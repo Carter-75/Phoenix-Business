@@ -158,26 +158,35 @@ import { SeoService } from '../services/seo.service';
               We offer both structured subscription tiers with lifetime price locks and custom quote projects. Each tier includes a mandatory 12-month commitment, setup fee, and clear maximum delivery windows:
             </p>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm mb-8">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm mb-8">
             <div class="p-5 rounded-2xl bg-black/40 border border-white/10">
-              <div class="text-xs font-black uppercase tracking-widest text-emerald-400 mb-1">Simple Launch</div>
+              <div class="text-xs font-black uppercase tracking-widest text-white/60 mb-1">Starter Launch Website</div>
               <div class="font-bold text-white text-base">Max 2-Week Delivery</div>
-              <p class="text-xs text-white/60 mt-2">Essential business site, custom design, mobile &amp; SEO setup, basic maintenance.</p>
+              <p class="text-xs text-white/60 mt-2">Up to 3 pages, custom design, mobile and SEO setup, hosting, SSL, and daily backups.</p>
             </div>
-            <div class="p-5 rounded-2xl bg-black/40 border border-white/10">
-              <div class="text-xs font-black uppercase tracking-widest text-orange-400 mb-1">Essential Care</div>
+            <div class="p-5 rounded-2xl bg-black/40 border border-orange-500/30">
+              <div class="text-xs font-black uppercase tracking-widest text-orange-400 mb-1">Custom Business Website</div>
               <div class="font-bold text-white text-base">Max 3-Week Delivery</div>
-              <p class="text-xs text-white/60 mt-2">Adds 2 hours/mo custom edits, ongoing Google Business management, hosting &amp; monitoring.</p>
+              <p class="text-xs text-white/60 mt-2">Up to 6 pages, adds 2 hours/mo custom edits, 24/7 monitoring, and security updates.</p>
             </div>
             <div class="p-5 rounded-2xl bg-black/40 border border-white/10">
-              <div class="text-xs font-black uppercase tracking-widest text-indigo-400 mb-1">Professional Growth</div>
+              <div class="text-xs font-black uppercase tracking-widest text-white/60 mb-1">E-Commerce Storefront</div>
               <div class="font-bold text-white text-base">Max 4-Week Delivery</div>
-              <p class="text-xs text-white/60 mt-2">Adds 5 hours/mo custom edits, monthly analytics, and AI chatbot upkeep.</p>
+              <p class="text-xs text-white/60 mt-2">Up to 8 pages with a full online store, cart, and checkout, plus 3 hours/mo custom edits.</p>
             </div>
             <div class="p-5 rounded-2xl bg-black/40 border border-white/10">
-              <div class="text-xs font-black uppercase tracking-widest text-purple-400 mb-1">Enterprise Custom</div>
+              <div class="text-xs font-black uppercase tracking-widest text-white/60 mb-1">Full-Stack Web App / SaaS MVP</div>
+              <div class="font-bold text-white text-base">Max 5-Week Delivery</div>
+              <p class="text-xs text-white/60 mt-2">User accounts, database, and client dashboard included, plus 5 hours/mo engineering.</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-black/40 border border-white/10">
+              <div class="text-xs font-black uppercase tracking-widest text-white/60 mb-1">Enterprise Custom Platform</div>
               <div class="font-bold text-white text-base">Timeline By Scope</div>
-              <p class="text-xs text-white/60 mt-2">Advanced architecture, custom database models, 10+ hours/mo edits, dedicated manager.</p>
+              <p class="text-xs text-white/60 mt-2">Advanced architecture, multi-role permissions, 10+ hours/mo dedicated engineering, dedicated manager.</p>
+            </div>
+            <div class="p-5 rounded-2xl bg-black/40 border border-white/10 flex flex-col justify-center">
+              <div class="font-bold text-white text-base">Every Package</div>
+              <p class="text-xs text-white/60 mt-2">12-month plan, 30-day trial before monthly billing starts, monthly rate locked for life, and source code buyout available.</p>
             </div>
           </div>
           <div class="flex items-center gap-4">

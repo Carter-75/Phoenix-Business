@@ -17,7 +17,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           <div class="space-y-4">
             <h2 class="text-2xl font-black text-white uppercase tracking-tight">1. General Policy</h2>
             <p>At Phoenix, we provide specialized digital infrastructure and high-performance architectural services. Due to the high-resource intensity of our initial setup and the dedicated reservation of edge-network capacity, <strong>we maintain a strict no-refund policy for all payments made for Subscription Tiers 1, 2, and 3.</strong> However, this does not apply in the rare event that Phoenix completely fails to deliver the core services agreed upon.</p>
-            <p><strong>Tier 4 (Enterprise Custom) Exception:</strong> For Tier 4 custom projects, you may request a full refund via our official Refund Request email procedure <em>only if</em> the request is made <strong>before</strong> the final custom specifications, extra fees, and scope of work have been formally agreed upon. Once the final agreement is made for a Tier 4 project, the strict no-refund policy applies.</p>
+            <p><strong>Tier 4 (Enterprise Custom Platform) Exception:</strong> For Tier 4 custom projects, you may request a full refund via our official Refund Request email procedure <em>only if</em> the request is made <strong>before</strong> the final custom specifications, extra fees, and scope of work have been formally agreed upon. Once the final agreement is made for a Tier 4 project, the strict no-refund policy applies.</p>
           </div>
 
           <div class="space-y-4">

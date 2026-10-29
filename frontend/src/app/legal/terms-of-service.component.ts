@@ -136,10 +136,10 @@ export class TermsComponent implements OnInit {
   prices = signal<any>({
     simple_setup: 1499,
     simple_monthly: 99,
-    essential_setup: 3499,
-    essential_monthly: 299,
-    professional_setup: 7999,
-    professional_monthly: 599,
+    essential_setup: 2499,
+    essential_monthly: 199,
+    professional_setup: 3499,
+    professional_monthly: 299,
     enterprise_setup: 14999,
     enterprise_monthly: 999
   });

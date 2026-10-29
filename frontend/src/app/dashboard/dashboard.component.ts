@@ -282,7 +282,7 @@ import { environment } from '../../environments/environment';
         <!-- TIER 1 OUTRIGHT OWNERSHIP STATE -->
         <div *ngIf="!loadingQuote() && cancelQuote()?.isOneTimePurchase && !cancelQuote()?.isFreeOrder" class="space-y-6">
           <div class="border border-blue-500/30 bg-blue-500/5 rounded-2xl p-6 relative overflow-hidden">
-            <h3 class="text-xl font-black text-white mb-2">Simple Launch Plan</h3>
+            <h3 class="text-xl font-black text-white mb-2">Outright Ownership</h3>
             <p class="text-sm text-slate-400 mb-6 leading-relaxed">You have fully purchased and own the rights to your custom website infrastructure. There are no monthly subscriptions, buyout fees, or early termination penalties to worry about.</p>
             
             <button (click)="closeCancelModal()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors">

@@ -24,12 +24,13 @@ interface ServiceTier {
 }
 
 import { ProjectConfiguratorComponent } from '../shared/components/configurator/configurator.component';
+import { GroupBuyStripComponent } from '../shared/group-buy-strip/group-buy-strip.component';
 
 @Component({
   selector: 'app-services',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ScrollRevealDirective, FormsModule, RouterLink, ProjectConfiguratorComponent],
+  imports: [CommonModule, ScrollRevealDirective, FormsModule, RouterLink, ProjectConfiguratorComponent, GroupBuyStripComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './services.component.html',
   styles: [`
@@ -167,51 +168,63 @@ export class ServicesComponent implements OnInit {
   tiers = signal<ServiceTier[]>([
     {
       id: 'simple',
-      title: 'Simple Launch',
-      cost: '89',
+      title: 'Starter Launch Website',
+      cost: '99',
       baseCost: '99',
-      setup: '1349',
+      setup: '1499',
       baseSetup: '1499',
-      description: 'A custom website, designed and built for your business, with hosting and basic maintenance included. No ongoing edits. Delivered in at most 2 weeks. You will receive an email 3 weeks after purchase to rate the project.',
-      features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Custom AI-Assisted Design', 'Mobile & SEO Optimized', 'Standard Contact Forms'],
+      description: 'A custom website of up to 3 pages, designed and built for your business, with managed hosting, SSL, and daily backups included. Delivered in at most 2 weeks. You will receive an email 3 weeks after purchase to rate the project.',
+      features: ['30-Day Subscription Trial', 'Max 2-Week Delivery', 'Up to 3 Pages', 'Custom Design, No Templates', 'Hosting, SSL and Daily Backups', 'Mobile and SEO Optimized'],
       featured: false,
-      color: '#34d399'
+      color: '#EA580C'
     },
     {
       id: 'essential',
-      title: 'Essential Care',
-      cost: '269',
-      baseCost: '299',
-      setup: '3149',
-      baseSetup: '3499',
-      description: 'Everything in Simple Launch, plus ongoing support and on-demand edits (small content and image updates). Delivered in at most 3 weeks. You will receive an email 4 weeks after purchase to rate the project.',
-      features: ['30-Day Subscription Trial', 'Everything in Simple Launch', 'Max 3-Week Delivery', '2 Hours/Mo Custom Edits', 'Hosting & 24/7 Monitoring', 'Google Business Management'],
+      title: 'Custom Business Website',
+      cost: '199',
+      baseCost: '199',
+      setup: '2499',
+      baseSetup: '2499',
+      description: 'Everything in the Starter Launch Website, with up to 6 pages (services, team, portfolio), 24/7 monitoring, security updates, and 2 hours of custom edits every month. Delivered in at most 3 weeks. You will receive an email 4 weeks after purchase to rate the project.',
+      features: ['30-Day Subscription Trial', 'Everything in Starter Launch', 'Max 3-Week Delivery', 'Up to 6 Pages', '2 Hours/Mo Custom Edits', 'Hosting, Monitoring and Security Updates'],
       featured: true,
-      color: '#f97316'
+      color: '#FF4D00'
     },
     {
       id: 'professional',
-      title: 'Professional Growth',
-      cost: '539',
-      baseCost: '599',
-      setup: '7199',
-      baseSetup: '7999',
-      description: 'Everything in Essential Care, plus priority support and advanced edits (layouts and features), monthly analytics and SEO work, and AI chatbot upkeep. Delivered in at most 4 weeks. You will receive an email 5 weeks after purchase to rate the project.',
-      features: ['30-Day Subscription Trial', 'Everything in Essential Care', 'Max 4-Week Delivery', '5 Hours/Mo Custom Edits', 'Monthly Analytics & SEO', 'AI Chatbot Upkeep'],
+      title: 'E-Commerce Storefront',
+      cost: '299',
+      baseCost: '299',
+      setup: '3499',
+      baseSetup: '3499',
+      description: 'Everything in the Custom Business Website, plus a full online store: product catalog, cart, and checkout through your payment provider, with catalog and checkout support and 3 hours of custom edits every month. Delivered in at most 4 weeks. You will receive an email 5 weeks after purchase to rate the project.',
+      features: ['30-Day Subscription Trial', 'Everything in Custom Business', 'Max 4-Week Delivery', 'Up to 8 Pages', 'Store, Cart and Checkout Included', '3 Hours/Mo Custom Edits'],
       featured: false,
-      color: '#818cf8'
+      color: '#DC2626'
+    },
+    {
+      id: 'webapp',
+      title: 'Full-Stack Web App / SaaS MVP',
+      cost: '399',
+      baseCost: '399',
+      setup: '4999',
+      baseSetup: '4999',
+      description: 'A custom web application with user accounts, a database, and a client dashboard included, plus API monitoring, security patching, and 5 hours of engineering every month. Delivered in at most 5 weeks. You will receive an email 6 weeks after purchase to rate the project.',
+      features: ['30-Day Subscription Trial', 'Max 5-Week Delivery', 'Up to 10 Pages or Views', 'User Accounts and Database Included', 'Client Dashboard Included', '5 Hours/Mo Engineering'],
+      featured: false,
+      color: '#EA580C'
     },
     {
       id: 'enterprise',
-      title: 'Enterprise Custom',
-      cost: '899',
+      title: 'Enterprise Custom Platform',
+      cost: '999',
       baseCost: '999',
-      setup: '13499',
+      setup: '14999',
       baseSetup: '14999',
-      description: 'Fully custom enterprise architecture. Includes priority maintenance and up to 10 hours of custom development per month. Timeline varies by scope. You will receive an email to rate the project 1 week after expected completion.',
-      features: ['30-Day Subscription Trial', 'Everything in Professional Growth', 'Timeline Varies By Scope', '10+ Hours/Mo Custom Edits', 'Dedicated Account Manager', 'Custom Database & SLAs'],
+      description: 'Fully custom enterprise architecture with multi-role permissions, a dedicated account manager, and 10 or more hours of dedicated engineering per month. Timeline varies by scope. You will receive an email to rate the project 1 week after expected completion.',
+      features: ['30-Day Subscription Trial', 'Timeline Varies By Scope', 'Up to 15 Pages', 'Multi-Role Permissions', '10+ Hours/Mo Dedicated Engineering', 'Dedicated Account Manager and SLAs'],
       featured: false,
-      color: '#c084fc'
+      color: '#FF4D00'
     },
     // --- Data Intelligence (One-Time, Non-Refundable, Rebuyable) ---
     {
@@ -224,7 +237,7 @@ export class ServicesComponent implements OnInit {
       description: 'Turn the files you already have into clear, organized information. We clean spreadsheets, standardize formats, and prepare useful reports with Microsoft tools and AI assistance. Scope and price are agreed before work starts.',
       features: ['Work On Your Own Files', 'Spreadsheet Cleanup', 'Consistent Formats', 'Duplicate Review', 'Clear Reports', 'Quote Before Work Starts'],
       featured: false,
-      color: '#22d3ee'
+      color: '#A1A1AA'
     }
   ]);
 
@@ -276,6 +289,7 @@ export class ServicesComponent implements OnInit {
           if (t.id === 'simple') { baseCostCents = data.basePrices.simple_monthly; baseSetupCents = data.basePrices.simple_setup; }
           if (t.id === 'essential') { baseCostCents = data.basePrices.essential_monthly; baseSetupCents = data.basePrices.essential_setup; }
           if (t.id === 'professional') { baseCostCents = data.basePrices.professional_monthly; baseSetupCents = data.basePrices.professional_setup; }
+          if (t.id === 'webapp') { baseCostCents = data.basePrices.webapp_monthly; baseSetupCents = data.basePrices.webapp_setup; }
           if (t.id === 'enterprise') { baseCostCents = data.basePrices.enterprise_monthly; baseSetupCents = data.basePrices.enterprise_setup; }
           // Data tier: one-time price only (no setup, no monthly)
           if (t.id === 'data') return t;

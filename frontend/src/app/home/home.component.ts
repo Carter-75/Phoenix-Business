@@ -9,13 +9,14 @@ import { SafePipe } from '../shared/pipes/safe.pipe';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { VoiceCallService } from '../services/voice-call.service';
 import { SeoService } from '../services/seo.service';
+import { GroupBuyStripComponent } from '../shared/group-buy-strip/group-buy-strip.component';
 
 gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule, ScrollRevealDirective, SafePipe],
+  imports: [RouterLink, CommonModule, ScrollRevealDirective, SafePipe, GroupBuyStripComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {
