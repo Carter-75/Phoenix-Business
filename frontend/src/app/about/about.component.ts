@@ -118,7 +118,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             <p class="text-white/50 text-sm leading-relaxed max-w-xl">Phoenix Websites AI is based in La Crosse, Wisconsin and works with businesses anywhere. Email <a href="mailto:hello@phoenixwebsites.ai" class="text-orange-400 underline">hello@phoenixwebsites.ai</a> or call <a href="tel:+17603347874" class="text-orange-400 underline">+1 (760) 334-7874</a>.</p>
           </div>
           <div class="flex flex-col sm:flex-row gap-4 shrink-0">
-            <a routerLink="/" fragment="audit" class="premium-btn text-center">Get a Free Website Audit</a>
+            <a routerLink="/" fragment="audit" class="px-12 py-6 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.3em] text-[10px] transition-all text-center shadow-lg shadow-orange-600/30">Get a Free Website Audit</a>
             <a routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center">See Packages and Prices</a>
           </div>
         </div>
