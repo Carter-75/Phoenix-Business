@@ -1807,17 +1807,49 @@ router.post('/webhook', async (req, res) => {
  */
 router.get('/pricing', (req, res) => {
     const isTestMode = process.env.TEST_MODE === 'true';
+    // Single source of truth: the pricing engine's BASE_PROJECTS, mapped
+    // through the same aliases checkout uses (simple = starter,
+    // essential = business, professional = ecommerce). This endpoint
+    // previously carried its own env-driven defaults, and the essential
+    // and professional values had drifted away from what checkout
+    // actually charges (essential showed the e-commerce prices;
+    // professional showed prices no tier has). Never reintroduce a
+    // second price list here.
+    const { BASE_PROJECTS } = require('../services/pricing.service');
+    const { getActivePromotion } = require('../services/promotion.service');
+    const activePromo = getActivePromotion();
+    const legacyEnvDiscount = isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0', 10);
+    const discountPercentage = isTestMode ? 0 : Math.max(activePromo.discountPercent || 20, legacyEnvDiscount);
+    const bp = (tier, testValue) => isTestMode ? testValue : {
+        setup: tier.baseSetupPrice,
+        monthly: tier.baseMonthlyPrice
+    };
+    const simple = bp(BASE_PROJECTS.starter, 100);
+    const essential = bp(BASE_PROJECTS.business, 200);
+    const professional = bp(BASE_PROJECTS.ecommerce, 300);
+    const webapp = bp(BASE_PROJECTS.webapp, 350);
+    const enterprise = bp(BASE_PROJECTS.enterprise, 400);
     res.json({
-        discountPercentage: isTestMode ? 0 : parseInt(process.env.DISCOUNT_PERCENTAGE || '0'),
+        discountPercentage,
+        activePromotion: {
+            id: activePromo.id,
+            name: activePromo.name,
+            displayName: activePromo.displayName,
+            discountPercent: discountPercentage,
+            bannerText: activePromo.bannerText,
+            theme: activePromo.theme
+        },
         basePrices: {
-            simple_setup: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'),
-            simple_monthly: isTestMode ? 100 : parseInt(process.env.PRICE_SIMPLE_MONTHLY || '9900'),
-            essential_setup: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'),
-            essential_monthly: isTestMode ? 200 : parseInt(process.env.PRICE_ESSENTIAL_MONTHLY || '29900'),
-            professional_setup: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'),
-            professional_monthly: isTestMode ? 300 : parseInt(process.env.PRICE_PROFESSIONAL_MONTHLY || '59900'),
-            enterprise_setup: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'),
-            enterprise_monthly: isTestMode ? 400 : parseInt(process.env.PRICE_ENTERPRISE_MONTHLY || '99900'),
+            simple_setup: simple.setup,
+            simple_monthly: simple.monthly,
+            essential_setup: essential.setup,
+            essential_monthly: essential.monthly,
+            professional_setup: professional.setup,
+            professional_monthly: professional.monthly,
+            webapp_setup: webapp.setup,
+            webapp_monthly: webapp.monthly,
+            enterprise_setup: enterprise.setup,
+            enterprise_monthly: enterprise.monthly,
             // Data Intelligence Tiers (One-Time, Non-Refundable)
             data: isTestMode ? 100 : parseInt(process.env.PRICE_DATA || '24900')
         }
