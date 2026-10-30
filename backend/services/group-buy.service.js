@@ -516,6 +516,32 @@ async function scanUnsubscribeReplies() {
 }
 
 /** Shape an event for the public page: no Stripe or admin internals. */
+/** True when an open event's deadline has passed (it is closed at read time). */
+function isPastDeadline(event, now = new Date()) {
+  return !!(event && event.deadline && new Date(event.deadline).getTime() <= now.getTime());
+}
+
+/**
+ * Read-time close: an open event past its deadline is treated as closed
+ * even before the daily sweep runs. If nobody holds a seat it is safe to
+ * persist 'missed' now (no entries to update, no emails to send) and to
+ * schedule the next rotation gap, exactly as the sweep would. If seats
+ * exist, leave the persisted close and the not-charged emails to the
+ * sweep; callers still see it as missed via publicEventView.
+ */
+async function closeIfExpired(event) {
+  if (!event || event.status !== 'open' || !isPastDeadline(event)) return event;
+  const live = await GroupBuyEntry.countDocuments({ event: event._id, status: { $in: ['joined', 'charged'] } });
+  if (live > 0) return event;
+  const closed = await GroupBuyEvent.findOneAndUpdate(
+    { _id: event._id, status: 'open', deadline: { $lte: new Date() } },
+    { $set: { status: 'missed', closedAt: new Date() } },
+    { new: true }
+  );
+  if (closed) await scheduleNextGap();
+  return closed || event;
+}
+
 async function publicEventView(event) {
   if (!event) return null;
   const joinedCount = await GroupBuyEntry.countDocuments({ event: event._id, status: { $in: ['joined', 'charged'] } });
@@ -530,7 +556,7 @@ async function publicEventView(event) {
     capMonthlyCents: event.capMonthlyCents,
     capacityReason: event.capacityReason,
     redeemWindowDays: event.redeemWindowDays,
-    status: event.status,
+    status: (event.status === 'open' && isPastDeadline(event)) ? 'missed' : event.status,
     startsAt: event.startsAt,
     deadline: event.deadline
   };
@@ -548,6 +574,8 @@ module.exports = {
   runFillCharges,
   sweepDeadlines,
   publicEventView,
+  isPastDeadline,
+  closeIfExpired,
   ensureRotation,
   maybeOpenNextEvent,
   forceOpenNextEvent,

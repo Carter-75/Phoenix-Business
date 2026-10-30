@@ -35,7 +35,9 @@ export class GroupBuyStripComponent implements OnInit {
     this.api.get<any>('group-buy/current').subscribe({
       next: (r) => {
         const ev = r && r.event ? r.event : null;
-        if (ev && (ev.status === 'open' || ev.status === 'filling')) this.event.set(ev);
+        const live = ev && (ev.status === 'open' || ev.status === 'filling');
+        const expired = ev && ev.status === 'open' && ev.deadline && new Date(ev.deadline).getTime() <= Date.now();
+        if (live && !expired) this.event.set(ev);
       },
       error: () => this.event.set(null)
     });

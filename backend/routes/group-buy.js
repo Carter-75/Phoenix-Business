@@ -17,7 +17,8 @@ function requireUser(req, res, next) {
 
 /** The event the public page should show: an open one, else the latest. */
 async function currentEvent() {
-  const open = await GroupBuyEvent.findOne({ status: { $in: ['open', 'filling'] } }).sort({ createdAt: -1 });
+  let open = await GroupBuyEvent.findOne({ status: { $in: ['open', 'filling'] } }).sort({ createdAt: -1 });
+  if (open) open = await svc.closeIfExpired(open).catch(() => open);
   if (open) return open;
   return GroupBuyEvent.findOne({ status: { $in: ['draft', 'completed', 'missed', 'cancelled'] } }).sort({ createdAt: -1 });
 }
@@ -60,7 +61,7 @@ router.get('/unsubscribe', async (req, res) => {
 /** Step 1 of joining: create the SetupIntent that saves the card. */
 router.post('/join/setup-intent', requireUser, async (req, res) => {
   try {
-    const event = await GroupBuyEvent.findOne({ status: 'open' }).sort({ createdAt: -1 });
+    const event = await GroupBuyEvent.findOne({ status: 'open', deadline: { $gt: new Date() } }).sort({ createdAt: -1 });
     if (!event) return res.status(404).json({ error: 'No group buy is open right now.' });
     if (event.deadline && new Date() > event.deadline) return res.status(400).json({ error: 'The deadline for this group buy has passed.' });
     const existing = await GroupBuyEntry.findOne({ event: event._id, user: req.user._id });
