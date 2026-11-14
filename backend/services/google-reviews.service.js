@@ -24,6 +24,7 @@ const API_KEY = process.env.GOOGLE_PLACES_API_KEY || '';
 
 const STALE_MS = 24 * 60 * 60 * 1000; // refresh the cache at most once a day
 let refreshInFlight = null;
+let lastError = null; // last Places fetch failure, for the status endpoint
 
 function isConfigured() {
   return Boolean(API_KEY && PLACE_ID);
@@ -58,9 +59,16 @@ async function refresh() {
         }
       });
       if (!res.ok) {
-        console.error(`[GoogleReviews] Places API ${res.status}`);
+        let detail = '';
+        try {
+          const errBody = await res.json();
+          detail = (errBody && errBody.error && errBody.error.message) || '';
+        } catch { /* non-JSON error body */ }
+        lastError = `Places API ${res.status}${detail ? `: ${detail}` : ''}`.slice(0, 300);
+        console.error(`[GoogleReviews] ${lastError}`);
         return null;
       }
+      lastError = null;
       const data = await res.json();
       const reviews = Array.isArray(data.reviews) ? data.reviews.map(r => ({
         authorName: (r.authorAttribution && r.authorAttribution.displayName) || 'Google user',
@@ -81,6 +89,7 @@ async function refresh() {
       ).lean();
       return doc;
     } catch (err) {
+      lastError = `Fetch failed: ${err.message}`.slice(0, 300);
       console.error('[GoogleReviews] refresh failed:', err.message);
       return null;
     } finally {
@@ -136,6 +145,7 @@ async function getGoogleBlock() {
     rating: cached ? (cached.rating || 0) : 0,
     count,
     syncedAt: cached ? (cached.fetchedAt || null) : null,
+    lastError,
     reviews: cached && Array.isArray(cached.reviews) ? cached.reviews : []
   };
 }
