@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, effect, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -40,16 +40,16 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
           <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">All Caught Up!</h3>
           <p class="text-slate-400 text-sm mb-8">You have no pending reviews at this time. Thank you for your feedback!</p>
           <div *ngIf="googleReviewUrl()" class="mb-8 p-5 bg-white/5 border border-white/10 rounded-xl">
-            <p class="text-white font-bold text-sm mb-1">One more thing, if you have a minute</p>
-            <p class="text-slate-400 text-xs leading-relaxed mb-4">Posting the same review on Google helps other local businesses find us. It takes about 30 seconds.</p>
-            <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Post It on Google Too</a>
+            <p class="text-white font-bold text-sm mb-1">Still want to leave a review?</p>
+            <p class="text-slate-400 text-xs leading-relaxed mb-4">You can still review us directly on Google. It takes about 30 seconds, and it shows on our reviews page automatically.</p>
+            <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Review Us on Google</a>
           </div>
           <a routerLink="/dashboard" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
             Return to Dashboard
           </a>
         </div>
 
-        <div *ngIf="!loading() && reviewItems().length > 0" class="relative">
+        <div *ngIf="!loading() && reviewItems().length > 0 && !handoffActive()" class="relative">
           
           <!-- Carousel Navigation (Top) -->
           <div *ngIf="reviewItems().length > 1" class="flex items-center justify-center gap-4 mb-6">
@@ -122,11 +122,6 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 {{ formSuccess() }}
               </div>
 
-              <div *ngIf="formSuccess() && googleReviewUrl()" class="mb-6 p-4 bg-white/5 border border-white/10 rounded-lg text-center">
-                <p class="text-slate-300 text-xs font-bold mb-3">Would you also post this review on Google? It really helps.</p>
-                <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-[10px] font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Post It on Google Too</a>
-              </div>
-
               <!-- Form Fields -->
               <div class="space-y-4">
                 <div *ngIf="!activeItem()?.hasReview">
@@ -152,9 +147,91 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
               </div>
 
               <button type="submit" [disabled]="submitting()" class="w-full mt-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-600/20">
-                {{ submitting() ? 'Processing...' : (activeItem()?.hasReview ? 'Update Review' : 'Submit Review') }}
+                {{ submitting() ? 'Processing...' : (activeItem()?.hasReview ? 'Update Review' : 'Continue to Google') }}
               </button>
+              <p *ngIf="!activeItem()?.hasReview" class="text-center text-slate-500 text-[11px] leading-relaxed mt-4">You write it here, then post it on Google in one tap. Your words are copied for you, and your review shows on our reviews page automatically once it is live on Google.</p>
+              <div *ngIf="!activeItem()?.hasReview && googleReviewUrl()" class="text-center mt-3">
+                <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" (click)="recordSkipHandoff()" class="text-slate-400 hover:text-white text-[11px] font-bold uppercase tracking-widest underline underline-offset-4 decoration-slate-600 hover:decoration-white transition-colors">Rather write it directly on Google? Skip this form</a>
+              </div>
             </form>
+          </div>
+        </div>
+
+        <!-- Google Handoff Panel -->
+        <div *ngIf="!loading() && handoffActive()" class="bg-[#050505] border border-white/10 rounded-2xl w-full z-10 relative overflow-hidden shadow-2xl text-left">
+          <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-600 to-red-600"></div>
+          <div class="p-6 sm:p-10">
+
+            <ng-container *ngIf="handoffStep() === 'waiting'">
+              <div class="text-center mb-8">
+                <div class="w-20 h-20 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center mx-auto mb-6">
+                  <i class="fa-brands fa-google text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Almost Done: Post It on Google</h3>
+                <p class="text-slate-400 text-sm">Google opened in a new tab. Three quick steps there, then come back to this tab:</p>
+              </div>
+              <div class="space-y-4 max-w-md mx-auto">
+                <div class="flex items-start gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
+                  <div class="w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-black flex items-center justify-center shrink-0">1</div>
+                  <div>
+                    <p class="text-white text-sm font-bold mb-1">Tap your stars</p>
+                    <div class="flex items-center gap-1 text-orange-500 text-lg">
+                      <i *ngFor="let s of googleStarArray()" class="fa-solid fa-star"></i>
+                    </div>
+                    <p *ngIf="rating() % 1 !== 0" class="text-slate-500 text-[11px] mt-1">Google uses whole stars only, so your {{ rating() }} rounds to {{ googleStars() }}.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
+                  <div class="w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-black flex items-center justify-center shrink-0">2</div>
+                  <div class="flex-1">
+                    <p class="text-white text-sm font-bold mb-1">Paste your words</p>
+                    <p class="text-slate-400 text-xs leading-relaxed mb-3">Your review text was copied automatically. Just paste it into the box on Google. Lost it? Copy it again:</p>
+                    <div class="p-3 bg-black/40 border border-white/10 rounded-lg text-slate-300 text-xs leading-relaxed mb-3 whitespace-pre-wrap">{{ draftText() || '(star rating only, no written review)' }}</div>
+                    <button type="button" (click)="copyDraftText()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white text-[10px] font-bold uppercase tracking-widest">{{ copied() ? 'Copied' : 'Copy My Text' }}</button>
+                  </div>
+                </div>
+                <div class="flex items-start gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
+                  <div class="w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-black flex items-center justify-center shrink-0">3</div>
+                  <div>
+                    <p class="text-white text-sm font-bold mb-1">Add photos there if you want, then tap Post</p>
+                    <p class="text-slate-400 text-xs leading-relaxed">Photos are added with Google's own photo button in that window. When you are done, come back to this tab and we will confirm your review is live.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center mt-8">
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-4"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Watching for your review to appear</p>
+                <a *ngIf="googleReviewUrl()" [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Open Google Again</a>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="handoffStep() === 'found'">
+              <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-6">
+                  <i class="fa-solid fa-check text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Your Review Is Live</h3>
+                <p class="text-slate-400 text-sm mb-8">It is posted on Google and now shows on our reviews page too. Thank you!</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <a routerLink="/reviews" class="px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">See It on Our Reviews Page</a>
+                  <a routerLink="/" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">Back to Home</a>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="handoffStep() === 'timeout'">
+              <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center mx-auto mb-6">
+                  <i class="fa-solid fa-clock text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Google Is Still Publishing It</h3>
+                <p class="text-slate-400 text-sm mb-8">Google sometimes takes a while to show a new review. Nothing more for you to do: it will appear on our reviews page automatically as soon as Google makes it public.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <a routerLink="/reviews" class="px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">Go to Reviews Page</a>
+                  <a routerLink="/" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">Back to Home</a>
+                </div>
+              </div>
+            </ng-container>
+
           </div>
         </div>
 
@@ -162,7 +239,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
     </section>
   `
 })
-export class LeaveReviewComponent implements OnInit {
+export class LeaveReviewComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   route = inject(ActivatedRoute);
 
@@ -176,6 +253,8 @@ export class LeaveReviewComponent implements OnInit {
     return this.rawItems().filter(item => {
       // Keep if no review exists
       if (!item.hasReview) return true;
+      // Contracts already handed off to Google are done, not editable here
+      if (item.viaGoogle) return false;
       // Keep if review exists, is <= 3.5, and has NOT been dismissed
       if (item.hasReview && item.rating <= 3.5 && !item.dismissedLowRating) return true;
       return false;
@@ -200,6 +279,23 @@ export class LeaveReviewComponent implements OnInit {
   formSuccess = signal('');
   submitting = signal(false);
   googleReviewUrl = signal('');
+
+  // Google handoff state: the review is written here, posted on Google, and
+  // this page then watches for it to appear in the synced Google feed.
+  handoffStep = signal<'idle' | 'waiting' | 'found' | 'timeout'>('idle');
+  handoffActive = computed(() => this.handoffStep() !== 'idle');
+  draftText = signal('');
+  draftName = signal('');
+  copied = signal(false);
+  googleStars = computed(() => Math.max(1, Math.round(this.rating())));
+  googleStarArray = computed(() => Array.from({ length: this.googleStars() }, (_, i) => i + 1));
+  private watchTimer: any = null;
+  private watchStartedAt = 0;
+  private visibilityHandler = () => {
+    if (document.visibilityState === 'visible' && this.handoffStep() === 'waiting') {
+      this.checkForMyReview();
+    }
+  };
 
   constructor() {
     effect(() => {
@@ -331,31 +427,10 @@ export class LeaveReviewComponent implements OnInit {
       return;
     }
 
-    this.submitting.set(true);
-
-    if (this.reviewToken()) {
-      // Unauthenticated submission using token
-      if (!this.businessName() || !this.firstName()) {
-        this.formError.set('Business Name and First Name are required.');
-        this.submitting.set(false);
-        return;
-      }
-
-      this.api.post<any>(`reviews/token/${this.reviewToken()}`, {
-        businessName: this.businessName(),
-        firstName: this.firstName(),
-        lastName: this.lastName(),
-        rating: this.rating(),
-        message: this.message()
-      }).subscribe({
-        next: (res: any) => this.handleSuccess('Review submitted successfully!', res),
-        error: (err: any) => this.handleError(err)
-      });
-      return;
-    }
-
     if (active.hasReview) {
-      // UPDATE existing review
+      // Legacy website review update. Reviews posted on Google are edited
+      // on Google, never here.
+      this.submitting.set(true);
       this.api.patch<any>(`reviews/${active.reviewId}`, {
         rating: this.rating(),
         message: this.message()
@@ -363,27 +438,117 @@ export class LeaveReviewComponent implements OnInit {
         next: (res: any) => this.handleSuccess('Review updated successfully!', res),
         error: (err: any) => this.handleError(err)
       });
-    } else {
-      // CREATE new review
-      if (!this.businessName() || !this.firstName()) {
-        this.formError.set('Business Name and First Name are required.');
-        this.submitting.set(false);
-        return;
-      }
-
-      this.api.post<any>('reviews', {
-        contractId: active.contractId,
-        projectName: active.projectName,
-        businessName: this.businessName(),
-        firstName: this.firstName(),
-        lastName: this.lastName(),
-        rating: this.rating(),
-        message: this.message()
-      }).subscribe({
-        next: (res: any) => this.handleSuccess('Review submitted successfully!', res),
-        error: (err: any) => this.handleError(err)
-      });
+      return;
     }
+
+    if (!this.businessName() || !this.firstName()) {
+      this.formError.set('Business Name and First Name are required.');
+      return;
+    }
+
+    this.startGoogleHandoff();
+  }
+
+  /**
+   * The composer flow: nothing is stored as a website review. The client's
+   * words are copied to their clipboard, Google opens, and this page watches
+   * the synced Google feed for their review to appear.
+   */
+  startGoogleHandoff() {
+    this.draftText.set(this.message().trim());
+    this.draftName.set(`${this.firstName()} ${this.lastName()}`.trim());
+    try {
+      sessionStorage.setItem('phoenix_review_draft', JSON.stringify({
+        name: this.draftName(),
+        rating: this.rating(),
+        text: this.draftText()
+      }));
+    } catch { /* private browsing: the in-page copy still works */ }
+    this.copyDraftText();
+    const url = this.googleReviewUrl();
+    if (url) window.open(url, '_blank', 'noopener');
+    this.postHandoff();
+    this.handoffStep.set('waiting');
+    this.startReturnWatch();
+  }
+
+  postHandoff() {
+    const active = this.activeItem();
+    if (!active) return;
+    const body: any = { rating: this.rating() };
+    if (this.reviewToken()) body.token = this.reviewToken();
+    else body.contractId = active.contractId;
+    this.api.post<any>('reviews/handoff', body).subscribe({ next: () => {}, error: () => {} });
+  }
+
+  recordSkipHandoff() {
+    this.postHandoff();
+  }
+
+  copyDraftText() {
+    const text = this.draftText();
+    if (!text) return;
+    try {
+      navigator.clipboard.writeText(text).then(() => this.copied.set(true)).catch(() => {});
+    } catch { /* clipboard unavailable: the text stays visible to copy by hand */ }
+  }
+
+  startReturnWatch() {
+    this.watchStartedAt = Date.now();
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+    this.watchTimer = setInterval(() => this.checkForMyReview(), 20000);
+  }
+
+  stopReturnWatch() {
+    if (this.watchTimer) {
+      clearInterval(this.watchTimer);
+      this.watchTimer = null;
+    }
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  ngOnDestroy() {
+    this.stopReturnWatch();
+  }
+
+  checkForMyReview() {
+    if (this.handoffStep() !== 'waiting') return;
+    if (Date.now() - this.watchStartedAt > 5 * 60 * 1000) {
+      this.handoffStep.set('timeout');
+      this.stopReturnWatch();
+      return;
+    }
+    this.api.post<any>('reviews/google/refresh', {}).subscribe({
+      next: () => this.fetchAndMatch(),
+      error: () => this.fetchAndMatch()
+    });
+  }
+
+  fetchAndMatch() {
+    this.api.get<any[]>('reviews/public').subscribe({
+      next: (list) => {
+        if (this.handoffStep() !== 'waiting') return;
+        const mine = (list || []).some(r => r && r.source === 'google' && this.matchesDraft(r));
+        if (mine) {
+          this.handoffStep.set('found');
+          this.stopReturnWatch();
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  matchesDraft(r: any): boolean {
+    if (r.rating !== this.googleStars()) return false;
+    const norm = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+    const gName = norm(`${r.firstName || ''} ${r.lastName || ''}`);
+    const dName = norm(this.draftName());
+    if (!gName || !dName || gName !== dName) return false;
+    const gText = norm(r.message);
+    const dText = norm(this.draftText());
+    if (!dText && !gText) return true;
+    if (!dText || !gText) return false;
+    return gText === dText || gText.startsWith(dText.slice(0, 50)) || dText.startsWith(gText.slice(0, 50));
   }
 
   handleSuccess(msg: string, updatedReview: any) {

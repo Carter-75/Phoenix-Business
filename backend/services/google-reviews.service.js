@@ -103,6 +103,25 @@ async function refreshIfStale() {
   }
 }
 
+const FORCE_FLOOR_MS = 5 * 60 * 1000; // a forced refresh at most every 5 min
+
+/**
+ * Forced refresh used when a client returns from posting on Google, so the
+ * site can spot their new review quickly. Floored at 5 minutes so this can
+ * never be used to hammer the Places API. Never throws.
+ */
+async function forceRefresh() {
+  try {
+    if (!isConfigured()) return null;
+    const cached = await getCached();
+    if (cached && (Date.now() - new Date(cached.fetchedAt).getTime()) < FORCE_FLOOR_MS) return cached;
+    return await refresh();
+  } catch (err) {
+    console.error('[GoogleReviews] forceRefresh failed:', err.message);
+    return null;
+  }
+}
+
 /**
  * Google data shaped for the reviews endpoints. `active` follows Carter's
  * rule: the merge only lights up once Google has at least 1 rating.
@@ -176,6 +195,7 @@ module.exports = {
   getCached,
   refresh,
   refreshIfStale,
+  forceRefresh,
   getGoogleBlock,
   isSameReview,
   mergedGoogleReviews

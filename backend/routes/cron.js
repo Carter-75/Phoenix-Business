@@ -318,11 +318,11 @@ router.get('/daily-renewals', async (req, res) => {
                             <p>Hi ${contract.userId.firstName || contract.userId.name || 'there'},</p>
                             <p>It's been a few weeks since we kicked off your <b>${contract.projectName || contract.contractType}</b> project, and we want to know how things are going.</p>
                             <p>Your feedback is incredibly important to us and helps us improve our services.</p>
-                            <p>Please take 60 seconds to rate your experience by clicking the secure link below:</p>
+                            <p>Please take 60 seconds to rate your experience by clicking the secure link below. You write your review on our site and we walk you through posting it on Google. It then shows on our reviews page automatically.</p>
                             <div style="text-align: center; margin: 30px 0;">
                                 <a href="${reviewUrl}" style="background-color: #ea580c; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Leave a Quick Review</a>
                             </div>
-                            <p style="text-align: center;">Rather use Google? <a href="${require('../services/google-reviews.service').getReviewUrl()}" style="color: #ea580c; font-weight: bold;">Rate us on Google instead</a>. Reviews left in either place show together on our reviews page.</p>
+                            <p style="text-align: center;">In a hurry? <a href="${require('../services/google-reviews.service').getReviewUrl()}" style="color: #ea580c; font-weight: bold;">Review us directly on Google</a> instead. Either way, it appears on our reviews page automatically.</p>
                             <p>Thank you for choosing Phoenix!</p>
                             ${subjectWordNoticeHtml('ORDER')}
                             <br><br>

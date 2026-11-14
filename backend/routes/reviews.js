@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const ownerOnly = require('../middleware/growth-admin');
 const Review = require('../models/Review');
+const ReviewHandoff = require('../models/ReviewHandoff');
 const Contract = require('../models/Contract');
 const { RATING_TOTALS_FILTER, summarizeRatings } = require('../services/review-totals');
 const googleReviews = require('../services/google-reviews.service');
@@ -20,17 +21,23 @@ router.get('/status', async (req, res) => {
     // Get all reviews for this user
     const reviews = await Review.find({ userId: req.user._id });
 
+    // Reviews are posted on Google now; a handoff means this contract went
+    // through the composer and was sent to Google to post there.
+    const handoffs = await ReviewHandoff.find({ userId: req.user._id });
+
     const reviewStatusArray = contracts.map(contract => {
       // Find review for this specific contract
       const review = reviews.find(r => r.contractId.toString() === contract._id.toString());
-      
+      const handoff = handoffs.find(h => h.contractId.toString() === contract._id.toString());
+
       return {
         contractId: contract._id,
         projectName: contract.projectName || contract.contractType,
         contractStatus: contract.status,
-        hasReview: !!review,
+        hasReview: !!review || !!handoff,
+        viaGoogle: !review && !!handoff,
         reviewId: review ? review._id : null,
-        rating: review ? review.rating : null,
+        rating: review ? review.rating : (handoff ? handoff.rating : null),
         message: review ? review.message : null,
         adminComment: review ? review.adminComment : null,
         dismissedLowRating: review ? review.dismissedLowRating : false
@@ -302,6 +309,57 @@ router.get('/google', async (req, res) => {
   } catch (err) {
     console.error('Error fetching Google review info:', err);
     res.status(500).json({ reviewUrl: googleReviews.getReviewUrl(), active: false, rating: 0, count: 0 });
+  }
+});
+
+// @route   POST /api/reviews/handoff
+// @desc    Record that a client finished the website composer and was handed
+//          off to Google to post the review there. Accepts either the email
+//          review token or an authenticated contractId. Stores no review
+//          content: the review itself lives only on Google.
+router.post('/handoff', async (req, res) => {
+  try {
+    const { token, contractId, rating } = req.body || {};
+    let contract = null;
+    if (token) {
+      contract = await Contract.findOne({ reviewToken: token });
+    } else if (contractId && req.isAuthenticated()) {
+      contract = await Contract.findOne({ _id: contractId, userId: req.user._id });
+    }
+    if (!contract) {
+      return res.status(404).json({ message: 'Contract not found for this review.' });
+    }
+    const existing = await ReviewHandoff.findOne({ contractId: contract._id });
+    if (!existing) {
+      await ReviewHandoff.create({
+        contractId: contract._id,
+        userId: contract.userId || null,
+        rating: typeof rating === 'number' ? rating : undefined
+      });
+    }
+    res.json({ ok: true, reviewUrl: googleReviews.getReviewUrl() });
+  } catch (err) {
+    console.error('Error recording review handoff:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// @route   POST /api/reviews/google/refresh
+// @desc    Force a Google reviews cache refresh (floored server-side) when a
+//          client returns from posting on Google, then report the aggregate.
+router.post('/google/refresh', async (req, res) => {
+  try {
+    await googleReviews.forceRefresh();
+    const googleBlock = await googleReviews.getGoogleBlock();
+    res.json({
+      reviewUrl: googleBlock.reviewUrl,
+      active: googleBlock.active,
+      rating: googleBlock.rating,
+      count: googleBlock.count
+    });
+  } catch (err) {
+    console.error('Error refreshing Google reviews:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
