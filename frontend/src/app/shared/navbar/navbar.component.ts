@@ -10,7 +10,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
   imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
     <nav class="fixed top-0 left-0 w-full z-[110] transition-all duration-1000" 
-         [class.bg-[#020205]/80]="scrolled()" [class.backdrop-blur-3xl]="scrolled()" [class.py-8]="scrolled()" [class.py-12]="!scrolled()">
+         [class.bg-[#020205]/80]="scrolled()" [class.backdrop-blur-3xl]="scrolled()" [class.py-4]="scrolled()" [class.sm:py-8]="scrolled()" [class.py-6]="!scrolled()" [class.sm:py-12]="!scrolled()">
       <div class="max-w-[1400px] mx-auto px-8 sm:px-16 flex items-center justify-between">
         <!-- Logo -->
         <a routerLink="/" class="flex items-center gap-4 group">

@@ -80,18 +80,15 @@ export class ThemePromotionService {
   }
 
   private initFromStorage() {
+    // Manual theme previews are session-only: a stored manual theme used to
+    // stick to a browser forever, so a one-time preview (e.g. St. Patrick's
+    // green) kept recoloring the site on that device long after testing.
+    // Always start in auto and clear any legacy stored selection.
     try {
-      const savedMode = localStorage.getItem(this.STORAGE_MODE_KEY);
-      if (savedMode === 'manual' || savedMode === 'auto') {
-        this.mode.set(savedMode);
-      }
-      const savedTheme = localStorage.getItem(this.STORAGE_MANUAL_THEME_KEY);
-      if (savedTheme && HOLIDAY_CAMPAIGNS.some(c => c.id === savedTheme)) {
-        this.manualThemeId.set(savedTheme);
-      }
-    } catch (e) {
-      console.warn('Could not read theme preferences from storage', e);
-    }
+      localStorage.removeItem(this.STORAGE_MODE_KEY);
+      localStorage.removeItem(this.STORAGE_MANUAL_THEME_KEY);
+    } catch (e) {}
+    this.mode.set('auto');
   }
 
   /**
@@ -154,10 +151,8 @@ export class ThemePromotionService {
    * Switches theme mode (AUTO vs MANUAL)
    */
   public setMode(newMode: 'auto' | 'manual') {
+    // Session-only on purpose (see initFromStorage): never persisted.
     this.mode.set(newMode);
-    try {
-      localStorage.setItem(this.STORAGE_MODE_KEY, newMode);
-    } catch (e) {}
   }
 
   /**
@@ -168,9 +163,6 @@ export class ThemePromotionService {
     if (!HOLIDAY_CAMPAIGNS.some(c => c.id === themeId)) return;
     this.manualThemeId.set(themeId);
     this.setMode('manual');
-    try {
-      localStorage.setItem(this.STORAGE_MANUAL_THEME_KEY, themeId);
-    } catch (e) {}
   }
 
   /**
