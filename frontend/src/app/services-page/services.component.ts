@@ -8,6 +8,7 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
 import { environment } from '../../environments/environment';
 import { ApiService } from '../services/api.service';
+import { PricingService } from '../services/pricing.service';
 import { SafePipe } from '../shared/pipes/safe.pipe';
 
 interface ServiceTier {
@@ -55,6 +56,7 @@ export class ServicesComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   public api = inject(ApiService);
+  private pricing = inject(PricingService);
 
   readonly stripePublishableKey = environment.stripePublishableKey;
   
@@ -134,6 +136,14 @@ export class ServicesComponent implements OnInit {
         this.modalStep.set('auth');
       }
     }, { allowSignalWrites: true });
+  }
+
+  // A package card's Start button: preselect that package in the
+  // configurator and take the visitor straight to it, so the cards
+  // above and the checkout below are one obvious path.
+  startWithPackage(id: string): void {
+    this.pricing.setProjectType(id);
+    this.doc.getElementById('configurator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   onRequestAuthFromConfigurator() {

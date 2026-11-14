@@ -32,12 +32,28 @@
     <app-group-buy-strip></app-group-buy-strip>
 
     <div class="max-w-[1400px] mx-auto px-4 sm:px-16">
+    <!-- How buying works, in three steps -->
+    <div class="mt-12 sm:mt-20 grid sm:grid-cols-3 gap-4">
+      <div class="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+        <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">Step 1 / Pick</div>
+        <p class="text-sm text-white/70 leading-relaxed">Compare the five packages below and tap <strong class="text-white">Start</strong> on the one that fits.</p>
+      </div>
+      <div class="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+        <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">Step 2 / Check Out</div>
+        <p class="text-sm text-white/70 leading-relaxed">The builder right below loads your package. Add only what you need and see the exact total before you pay.</p>
+      </div>
+      <div class="p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+        <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">Step 3 / We Build It</div>
+        <p class="text-sm text-white/70 leading-relaxed">Most packages launch in 2 to 5 weeks, and your monthly rate is locked for life.</p>
+      </div>
+    </div>
+
     <!-- The Packages, in plain numbers -->
-    <section class="mb-12 sm:mb-20 mt-12 sm:mt-20">
+    <section class="mb-12 sm:mb-20 mt-10 sm:mt-14">
       <div class="mb-6 sm:mb-8">
         <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] block mb-2">The Packages</span>
         <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight">What Each Package Costs and Includes</h2>
-        <p class="text-sm text-white/50 mt-3 max-w-3xl">Standard prices, shown in full. The current promotion and any discount code you have apply on top in the configurator below, and you see the exact total before you pay anything.</p>
+        <p class="text-sm text-white/50 mt-3 max-w-3xl">Standard prices, shown in full. Tap Start on the package you want and the builder right below loads it for you. The current promotion and any discount code you have apply there, and you see the exact total before you pay anything.</p>
       </div>
       <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
@@ -50,6 +66,7 @@
             <li>Managed hosting, SSL, daily backups</li>
             <li>Lead capture and contact forms</li>
           </ul>
+          <button (click)="startWithPackage('starter')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Starter</button>
         </div>
         <div class="p-6 rounded-2xl bg-orange-600/[0.06] border border-orange-500/40 flex flex-col relative">
           <span class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em]">Most Popular</span>
@@ -62,6 +79,7 @@
             <li>Hosting, 24/7 monitoring, security updates</li>
             <li>2 hours of custom edits every month</li>
           </ul>
+          <button (click)="startWithPackage('business')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Custom Business</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
           <h3 class="text-lg font-black text-white uppercase tracking-tight">E-Commerce Storefront</h3>
@@ -73,6 +91,7 @@
             <li>Product catalog, cart, and checkout included</li>
             <li>3 hours of custom edits every month</li>
           </ul>
+          <button (click)="startWithPackage('ecommerce')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With E-Commerce</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Full-Stack Web App / SaaS MVP</h3>
@@ -84,6 +103,7 @@
             <li>User accounts, database, and client dashboard included</li>
             <li>5 hours of engineering every month</li>
           </ul>
+          <button (click)="startWithPackage('webapp')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Web App</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Enterprise Custom Platform</h3>
@@ -95,6 +115,7 @@
             <li>Multi-role permissions and dedicated support</li>
             <li>10+ hours of dedicated engineering every month</li>
           </ul>
+          <button (click)="startWithPackage('enterprise')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Enterprise</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-dashed border-white/15 flex flex-col justify-center">
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Not Sure Which Fits?</h3>
@@ -103,72 +124,30 @@
         </div>
       </div>
 
-      <!-- The terms, stated up front -->
-      <div class="mt-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5">
-        <h3 class="text-base font-black text-white uppercase tracking-tight mb-3">The Terms, Stated Up Front</h3>
-        <div class="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-white/60">
-          <p><strong class="text-white">Commitment:</strong> every package carries a 12-month plan.</p>
-          <p><strong class="text-white">Price lock:</strong> your monthly rate never increases while your plan stays active.</p>
-          <p><strong class="text-white">Refunds:</strong> payments are non-refundable once work begins, with one written exception: if we completely fail to deliver the core service you bought, you get your money back.</p>
-          <p><strong class="text-white">Ownership:</strong> full source code buyout is available at 50% of the setup fee.</p>
-          <p><strong class="text-white">The monthly covers:</strong> hosting, security, backups, monitoring, and the edit hours in your package.</p>
-          <p><strong class="text-white">Later additions:</strong> add features any time after launch from your client dashboard.</p>
-        </div>
-      </div>
     </section>
 
-    <!-- Dedicated Service Links -->
-    <section class="mb-12 sm:mb-20">
+    <!-- Configure and check out: this is the store -->
+    <section id="configurator" class="mb-12 sm:mb-20 scroll-mt-28">
       <div class="mb-6 sm:mb-8">
-        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] block mb-2">Specialized Solutions</span>
-        <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight">Explore Dedicated Services</h2>
+        <span class="text-orange-600 font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] block mb-2">Step 2 / Configure and Check Out</span>
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight">Build Your Project Here</h2>
+        <p class="text-sm text-white/50 mt-3 max-w-3xl">This is where you buy. The package you picked above is already selected. Add only what you need, apply any code you have, and see the exact total before you check out.</p>
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <a routerLink="/services/ai-web-development" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">01 / AI-Native Web</div>
-          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">AI Web Development</h3>
-          <p class="text-xs text-white/50 leading-relaxed">AI-accelerated coding with human architecture, security, and quality assurance.</p>
-          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
-        </a>
-        <a routerLink="/services/full-stack-development" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">02 / Full-Stack</div>
-          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Full-Stack Development</h3>
-          <p class="text-xs text-white/50 leading-relaxed">Custom web applications, SaaS MVPs, customer dashboards, databases, and APIs.</p>
-          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
-        </a>
-        <a routerLink="/services/custom-websites" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">03 / Custom Sites</div>
-          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Custom Websites</h3>
-          <p class="text-xs text-white/50 leading-relaxed">Custom engineering for businesses and shops, with no DIY builder template bloat.</p>
-          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
-        </a>
-        <a routerLink="/services/automation" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">04 / Workflows</div>
-          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Process Automation</h3>
-          <p class="text-xs text-white/50 leading-relaxed">Lead routing, SMS/email alerts, and CRM pipelines that eliminate manual tasks.</p>
-          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
-        </a>
-        <a routerLink="/services/ai-solutions" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">05 / Intelligence</div>
-          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">AI Solutions</h3>
-          <p class="text-xs text-white/50 leading-relaxed">24/7 web voice assistants, grounded inquiry chatbots, and intelligent lead triage.</p>
-          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
-        </a>
-        <a routerLink="/data-cleanup" class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/40 hover:bg-white/[0.04] transition-all group block">
-          <div class="text-orange-500 text-xs font-black uppercase tracking-widest mb-2">06 / Data</div>
-          <h3 class="text-lg font-bold text-white group-hover:text-orange-400 transition-colors mb-2">Data Cleanup</h3>
-          <p class="text-xs text-white/50 leading-relaxed">Spreadsheet normalization and error correction on client-provided files.</p>
-          <span class="text-[10px] font-black uppercase tracking-widest text-orange-500 mt-4 inline-block">Learn More &rarr;</span>
-        </a>
-      </div>
-    </section>
-
-    <!-- Dynamic Project Configurator -->
-    <section class="mb-28">
       <app-project-configurator (requestAuthModal)="onRequestAuthFromConfigurator()"></app-project-configurator>
     </section>
 
-    <!-- End Dynamic Project Configurator -->
+    <!-- The terms, stated up front -->
+    <div class="mb-12 sm:mb-20 p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+      <h3 class="text-base font-black text-white uppercase tracking-tight mb-3">The Terms, Stated Up Front</h3>
+      <div class="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm text-white/60">
+        <p><strong class="text-white">Commitment:</strong> every package carries a 12-month plan.</p>
+        <p><strong class="text-white">Price lock:</strong> your monthly rate never increases while your plan stays active.</p>
+        <p><strong class="text-white">Refunds:</strong> payments are non-refundable once work begins, with one written exception: if we completely fail to deliver the core service you bought, you get your money back.</p>
+        <p><strong class="text-white">Ownership:</strong> full source code buyout is available at 50% of the setup fee.</p>
+        <p><strong class="text-white">The monthly covers:</strong> hosting, security, backups, monitoring, and the edit hours in your package.</p>
+        <p><strong class="text-white">Later additions:</strong> add features any time after launch from your client dashboard.</p>
+      </div>
+    </div>
 
     <!-- Frequently Asked Questions -->
     <section class="mb-16 sm:mb-32 max-w-4xl mx-auto">
