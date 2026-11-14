@@ -304,7 +304,9 @@ router.get('/google', async (req, res) => {
       reviewUrl: googleBlock.reviewUrl,
       active: googleBlock.active,
       rating: googleBlock.rating,
-      count: googleBlock.count
+      count: googleBlock.count,
+      configured: googleBlock.configured,
+      syncedAt: googleBlock.syncedAt
     });
   } catch (err) {
     console.error('Error fetching Google review info:', err);
@@ -355,7 +357,9 @@ router.post('/google/refresh', async (req, res) => {
       reviewUrl: googleBlock.reviewUrl,
       active: googleBlock.active,
       rating: googleBlock.rating,
-      count: googleBlock.count
+      count: googleBlock.count,
+      configured: googleBlock.configured,
+      syncedAt: googleBlock.syncedAt
     });
   } catch (err) {
     console.error('Error refreshing Google reviews:', err);

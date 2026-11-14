@@ -135,6 +135,7 @@ async function getGoogleBlock() {
     active: count >= 1,
     rating: cached ? (cached.rating || 0) : 0,
     count,
+    syncedAt: cached ? (cached.fetchedAt || null) : null,
     reviews: cached && Array.isArray(cached.reviews) ? cached.reviews : []
   };
 }
