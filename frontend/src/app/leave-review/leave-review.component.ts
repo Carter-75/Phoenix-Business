@@ -62,8 +62,31 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
             </button>
           </div>
 
-          <!-- Carousel Card -->
-          <div class="bg-[#050505] border border-white/10 rounded-2xl w-full z-10 relative overflow-hidden shadow-2xl text-left">
+          <!-- Direct-to-Google Card (new reviews are written on Google) -->
+          <div *ngIf="activeItem() && !activeItem()?.hasReview" class="bg-[#050505] border border-white/10 rounded-2xl w-full z-10 relative overflow-hidden shadow-2xl text-left">
+            <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-600 to-red-600"></div>
+            <div class="p-6 sm:p-10 text-center">
+              <div class="mb-8 p-4 bg-orange-600/5 border border-orange-500/20 rounded-xl flex items-center gap-4 text-left">
+                <div class="w-12 h-12 rounded-lg bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-box-open text-xl"></i>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Reviewing Order</div>
+                  <h3 class="text-white font-black text-lg leading-tight">{{ activeItem()?.projectName || 'Custom Project' }}</h3>
+                </div>
+              </div>
+              <div class="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6">
+                <i class="fa-brands fa-google text-4xl text-white"></i>
+              </div>
+              <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-3">Write Your Review on <span class="text-orange-500">Google</span></h2>
+              <p class="text-slate-400 text-sm leading-relaxed max-w-md mx-auto mb-8">Our reviews live on Google, where everyone can verify them. Tap the button, write your review there, then come back to this tab: we will confirm it here, and it shows on our reviews page automatically.</p>
+              <button type="button" (click)="goToGoogleDirect()" class="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-sm font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Write a Review on Google</button>
+              <p class="text-slate-600 text-[11px] leading-relaxed mt-6">Already posted it? It appears on our reviews page on its own once Google publishes it.</p>
+            </div>
+          </div>
+
+          <!-- Carousel Card (legacy website reviews only) -->
+          <div *ngIf="activeItem()?.hasReview" class="bg-[#050505] border border-white/10 rounded-2xl w-full z-10 relative overflow-hidden shadow-2xl text-left">
             <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-600 to-red-600"></div>
             
             <form (ngSubmit)="submitReview()" class="p-6 sm:p-10">
@@ -147,12 +170,8 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
               </div>
 
               <button type="submit" [disabled]="submitting()" class="w-full mt-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-600/20">
-                {{ submitting() ? 'Processing...' : (activeItem()?.hasReview ? 'Update Review' : 'Continue to Google') }}
+                {{ submitting() ? 'Processing...' : 'Update Review' }}
               </button>
-              <p *ngIf="!activeItem()?.hasReview" class="text-center text-slate-500 text-[11px] leading-relaxed mt-4">You write it here, then post it on Google in one tap. Your words are copied for you, and your review shows on our reviews page automatically once it is live on Google.</p>
-              <div *ngIf="!activeItem()?.hasReview && googleReviewUrl()" class="text-center mt-3">
-                <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" (click)="recordSkipHandoff()" class="text-slate-400 hover:text-white text-[11px] font-bold uppercase tracking-widest underline underline-offset-4 decoration-slate-600 hover:decoration-white transition-colors">Rather write it directly on Google? Skip this form</a>
-              </div>
             </form>
           </div>
         </div>
@@ -163,43 +182,13 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
           <div class="p-6 sm:p-10">
 
             <ng-container *ngIf="handoffStep() === 'waiting'">
-              <div class="text-center mb-8">
+              <div class="text-center">
                 <div class="w-20 h-20 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center mx-auto mb-6">
                   <i class="fa-brands fa-google text-4xl"></i>
                 </div>
-                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Almost Done: Post It on Google</h3>
-                <p class="text-slate-400 text-sm">Google opened in a new tab. Three quick steps there, then come back to this tab:</p>
-              </div>
-              <div class="space-y-4 max-w-md mx-auto">
-                <div class="flex items-start gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
-                  <div class="w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-black flex items-center justify-center shrink-0">1</div>
-                  <div>
-                    <p class="text-white text-sm font-bold mb-1">Tap your stars</p>
-                    <div class="flex items-center gap-1 text-orange-500 text-lg">
-                      <i *ngFor="let s of googleStarArray()" class="fa-solid fa-star"></i>
-                    </div>
-                    <p *ngIf="rating() % 1 !== 0" class="text-slate-500 text-[11px] mt-1">Google uses whole stars only, so your {{ rating() }} rounds to {{ googleStars() }}.</p>
-                  </div>
-                </div>
-                <div class="flex items-start gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
-                  <div class="w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-black flex items-center justify-center shrink-0">2</div>
-                  <div class="flex-1">
-                    <p class="text-white text-sm font-bold mb-1">Paste your words</p>
-                    <p class="text-slate-400 text-xs leading-relaxed mb-3">Your review text was copied automatically. Just paste it into the box on Google. Lost it? Copy it again:</p>
-                    <div class="p-3 bg-black/40 border border-white/10 rounded-lg text-slate-300 text-xs leading-relaxed mb-3 whitespace-pre-wrap">{{ draftText() || '(star rating only, no written review)' }}</div>
-                    <button type="button" (click)="copyDraftText()" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white text-[10px] font-bold uppercase tracking-widest">{{ copied() ? 'Copied' : 'Copy My Text' }}</button>
-                  </div>
-                </div>
-                <div class="flex items-start gap-4 p-4 bg-white/5 border border-white/10 rounded-xl">
-                  <div class="w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-black flex items-center justify-center shrink-0">3</div>
-                  <div>
-                    <p class="text-white text-sm font-bold mb-1">Add photos there if you want, then tap Post</p>
-                    <p class="text-slate-400 text-xs leading-relaxed">Photos are added with Google's own photo button in that window. When you are done, come back to this tab and we will confirm your review is live.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="text-center mt-8">
-                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-4"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Watching for your review to appear</p>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Finish on Google, Then Come Back</h3>
+                <p class="text-slate-400 text-sm leading-relaxed max-w-md mx-auto mb-8">Google opened in a new tab. Write your review there and tap Post, then come back to this tab. We check automatically, confirm it here, and it joins our reviews page on its own.</p>
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-6"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Watching for your review to appear</p>
                 <a *ngIf="googleReviewUrl()" [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Open Google Again</a>
               </div>
             </ng-container>
@@ -286,9 +275,7 @@ export class LeaveReviewComponent implements OnInit, OnDestroy {
   handoffActive = computed(() => this.handoffStep() !== 'idle');
   draftText = signal('');
   draftName = signal('');
-  copied = signal(false);
   googleStars = computed(() => Math.max(1, Math.round(this.rating())));
-  googleStarArray = computed(() => Array.from({ length: this.googleStars() }, (_, i) => i + 1));
   private watchTimer: any = null;
   private watchStartedAt = 0;
   private visibilityHandler = () => {
@@ -441,30 +428,22 @@ export class LeaveReviewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.businessName() || !this.firstName()) {
-      this.formError.set('Business Name and First Name are required.');
-      return;
-    }
-
-    this.startGoogleHandoff();
+    // New reviews are written on Google, not here.
+    this.goToGoogleDirect();
   }
 
   /**
-   * The composer flow: nothing is stored as a website review. The client's
-   * words are copied to their clipboard, Google opens, and this page watches
-   * the synced Google feed for their review to appear.
+   * The direct flow (industry standard): the button opens Google's own
+   * review form, and this page then watches the synced Google feed for the
+   * client's review to appear so it can confirm it. Nothing is stored as a
+   * website review; the handoff is only logged so the dashboard stops
+   * listing the contract as unreviewed.
    */
-  startGoogleHandoff() {
-    this.draftText.set(this.message().trim());
-    this.draftName.set(`${this.firstName()} ${this.lastName()}`.trim());
-    try {
-      sessionStorage.setItem('phoenix_review_draft', JSON.stringify({
-        name: this.draftName(),
-        rating: this.rating(),
-        text: this.draftText()
-      }));
-    } catch { /* private browsing: the in-page copy still works */ }
-    this.copyDraftText();
+  goToGoogleDirect() {
+    const user = this.api.currentUser();
+    const name = `${this.firstName() || user?.firstName || ''} ${this.lastName() || user?.lastName || ''}`.trim();
+    this.draftName.set(name);
+    this.draftText.set('');
     const url = this.googleReviewUrl();
     if (url) window.open(url, '_blank', 'noopener');
     this.postHandoff();
@@ -475,22 +454,10 @@ export class LeaveReviewComponent implements OnInit, OnDestroy {
   postHandoff() {
     const active = this.activeItem();
     if (!active) return;
-    const body: any = { rating: this.rating() };
+    const body: any = {};
     if (this.reviewToken()) body.token = this.reviewToken();
     else body.contractId = active.contractId;
     this.api.post<any>('reviews/handoff', body).subscribe({ next: () => {}, error: () => {} });
-  }
-
-  recordSkipHandoff() {
-    this.postHandoff();
-  }
-
-  copyDraftText() {
-    const text = this.draftText();
-    if (!text) return;
-    try {
-      navigator.clipboard.writeText(text).then(() => this.copied.set(true)).catch(() => {});
-    } catch { /* clipboard unavailable: the text stays visible to copy by hand */ }
   }
 
   startReturnWatch() {
@@ -539,15 +506,18 @@ export class LeaveReviewComponent implements OnInit, OnDestroy {
   }
 
   matchesDraft(r: any): boolean {
-    if (r.rating !== this.googleStars()) return false;
     const norm = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
     const gName = norm(`${r.firstName || ''} ${r.lastName || ''}`);
     const dName = norm(this.draftName());
     if (!gName || !dName || gName !== dName) return false;
-    const gText = norm(r.message);
     const dText = norm(this.draftText());
-    if (!dText && !gText) return true;
-    if (!dText || !gText) return false;
+    // Direct-to-Google flow: the review was written entirely on Google, so
+    // the author's name is the only identity signal available for the
+    // on-page confirmation. Display does not depend on this match.
+    if (!dText) return true;
+    if (r.rating !== this.googleStars()) return false;
+    const gText = norm(r.message);
+    if (!gText) return false;
     return gText === dText || gText.startsWith(dText.slice(0, 50)) || dText.startsWith(gText.slice(0, 50));
   }
 

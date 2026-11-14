@@ -106,12 +106,18 @@ import { SeoService } from '../services/seo.service';
               <div *ngFor="let review of myReviews()" class="bg-green-500/5 border border-green-500/20 rounded-2xl p-6 sm:p-8 relative group hover:border-green-500/40 transition-colors">
                 
                 <div class="absolute top-4 right-4 flex gap-2">
-                  <button *ngIf="editingReviewId() !== review._id" (click)="startEdit(review)" aria-label="Edit review" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+                  <button *ngIf="review.source !== 'google' && editingReviewId() !== review._id" (click)="startEdit(review)" aria-label="Edit review" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-pen text-xs"></i>
                   </button>
-                  <button *ngIf="editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" aria-label="Delete review" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
+                  <button *ngIf="review.source !== 'google' && editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" aria-label="Delete review" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
                     <i class="fa-solid fa-trash-can text-xs"></i>
                   </button>
+                  <a *ngIf="review.source === 'google'" [href]="googleManageUrl" target="_blank" rel="noopener noreferrer" aria-label="Edit review on Google" title="Edit on Google" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+                    <i class="fa-solid fa-pen text-xs"></i>
+                  </a>
+                  <a *ngIf="review.source === 'google'" [href]="googleManageUrl" target="_blank" rel="noopener noreferrer" aria-label="Delete review on Google" title="Delete on Google" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                  </a>
                   <button *ngIf="editingReviewId() === review._id" (click)="cancelEdit()" aria-label="Cancel editing" class="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-500 transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-xs"></i>
                   </button>
@@ -164,6 +170,8 @@ import { SeoService } from '../services/seo.service';
                     <p class="text-slate-400 text-xs">{{ review.projectName }} &bull; {{ review.createdAt | date:'MMM yyyy' }}</p>
                   </div>
                 </div>
+
+                <p *ngIf="review.source === 'google'" class="text-[11px] text-slate-500 leading-relaxed mt-5">This review lives on Google. The pencil or trash above opens Google where you can change or remove it; this page then updates automatically.</p>
 
                 <!-- Admin Comment -->
                 <div *ngIf="review.adminComment && editingReviewId() !== review._id" class="mt-6 bg-orange-500/10 border-l-2 border-orange-500 p-4 rounded-r-xl">
@@ -283,17 +291,33 @@ export class ReviewsComponent implements OnInit {
   editMessage = signal<string>('');
   saving = signal(false);
 
+  // Where Google lets a signed-in user manage (edit or delete) their own
+  // reviews. Google reviews can only be changed on Google, never from here.
+  googleManageUrl = 'https://www.google.com/maps/contrib/';
+
+  isUsersGoogleReview(r: any, user: any): boolean {
+    const norm = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+    const author = norm(`${r.firstName || ''} ${r.lastName || ''}`);
+    const mine = norm(`${user.firstName || ''} ${user.lastName || ''}`);
+    return !!author && !!mine && author === mine;
+  }
+
   myReviews = computed(() => {
     const user = this.api.currentUser();
     if (!user) return [];
-    return this.allReviews().filter(r => r.userId === user._id);
+    const mine = this.allReviews().filter(r => r.userId === user._id);
+    // Google reviews carry no account id, so the ones whose public author
+    // name matches the signed-in user's name are shown as theirs, with the
+    // edit and delete buttons routing to Google to manage them.
+    const myGoogle = this.allReviews().filter(r => r.source === 'google' && this.isUsersGoogleReview(r, user));
+    return [...mine, ...myGoogle];
   });
 
   otherReviews = computed(() => {
     const user = this.api.currentUser();
     let allOthers = this.allReviews();
     if (user) {
-      allOthers = allOthers.filter(r => r.userId !== user._id);
+      allOthers = allOthers.filter(r => r.userId !== user._id && !(r.source === 'google' && this.isUsersGoogleReview(r, user)));
     }
     
     const byBusiness = new Map<string, any[]>();
