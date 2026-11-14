@@ -216,6 +216,15 @@ router.get('/daily-renewals', async (req, res) => {
 
     console.log('[CRON] Running daily cron job for contract renewals and review requests...');
     try {
+        // 1a. GOOGLE REVIEWS CACHE (keeps the website reviews page merged
+        // with Google; no-op until the Places API key is configured)
+        try {
+            const googleReviews = require('../services/google-reviews.service');
+            await googleReviews.refreshIfStale();
+        } catch (gErr) {
+            console.error('[CRON] Google reviews refresh failed:', gErr.message);
+        }
+
         // 1b. GROUP BUY DEADLINE SWEEP (no third cron slot exists, so it
         // rides here: missed deadlines, stalled fills, expired fix windows)
         try {
@@ -313,6 +322,7 @@ router.get('/daily-renewals', async (req, res) => {
                             <div style="text-align: center; margin: 30px 0;">
                                 <a href="${reviewUrl}" style="background-color: #ea580c; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Leave a Quick Review</a>
                             </div>
+                            <p style="text-align: center;">Rather use Google? <a href="${require('../services/google-reviews.service').getReviewUrl()}" style="color: #ea580c; font-weight: bold;">Rate us on Google instead</a>. Reviews left in either place show together on our reviews page.</p>
                             <p>Thank you for choosing Phoenix!</p>
                             ${subjectWordNoticeHtml('ORDER')}
                             <br><br>

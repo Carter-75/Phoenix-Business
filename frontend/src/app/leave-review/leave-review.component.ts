@@ -39,6 +39,11 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
           </div>
           <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">All Caught Up!</h3>
           <p class="text-slate-400 text-sm mb-8">You have no pending reviews at this time. Thank you for your feedback!</p>
+          <div *ngIf="googleReviewUrl()" class="mb-8 p-5 bg-white/5 border border-white/10 rounded-xl">
+            <p class="text-white font-bold text-sm mb-1">One more thing, if you have a minute</p>
+            <p class="text-slate-400 text-xs leading-relaxed mb-4">Posting the same review on Google helps other local businesses find us. It takes about 30 seconds.</p>
+            <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Post It on Google Too</a>
+          </div>
           <a routerLink="/dashboard" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
             Return to Dashboard
           </a>
@@ -117,6 +122,11 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 {{ formSuccess() }}
               </div>
 
+              <div *ngIf="formSuccess() && googleReviewUrl()" class="mb-6 p-4 bg-white/5 border border-white/10 rounded-lg text-center">
+                <p class="text-slate-300 text-xs font-bold mb-3">Would you also post this review on Google? It really helps.</p>
+                <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-[10px] font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Post It on Google Too</a>
+              </div>
+
               <!-- Form Fields -->
               <div class="space-y-4">
                 <div *ngIf="!activeItem()?.hasReview">
@@ -189,6 +199,7 @@ export class LeaveReviewComponent implements OnInit {
   formError = signal('');
   formSuccess = signal('');
   submitting = signal(false);
+  googleReviewUrl = signal('');
 
   constructor() {
     effect(() => {
@@ -229,6 +240,11 @@ export class LeaveReviewComponent implements OnInit {
     } else {
       this.fetchStatus();
     }
+
+    this.api.get<{ reviewUrl: string }>('reviews/google').subscribe({
+      next: (res) => this.googleReviewUrl.set(res?.reviewUrl || ''),
+      error: () => {}
+    });
   }
 
   fetchTokenStatus(token: string) {

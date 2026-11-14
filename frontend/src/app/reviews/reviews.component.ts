@@ -22,6 +22,14 @@ import { SeoService } from '../services/seo.service';
           </div>
           <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase mb-6">Client <span class="text-orange-500">Ratings</span></h1>
           <p class="text-lg sm:text-xl text-slate-400 font-medium leading-relaxed mb-6">Reviews from Phoenix Websites AI customers.</p>
+          <div *ngIf="googleInfo()?.reviewUrl" class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <a [href]="googleInfo()!.reviewUrl" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest">
+              <i class="fa-brands fa-google"></i> Rate Us on Google
+            </a>
+            <span *ngIf="googleInfo()?.active" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-300 uppercase tracking-widest">
+              <i class="fa-solid fa-star text-orange-500"></i> {{ googleInfo()!.rating }} on Google &bull; {{ googleInfo()!.count }} review{{ googleInfo()!.count === 1 ? '' : 's' }}
+            </span>
+          </div>
           <div *ngIf="api.currentUser()" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <i class="fa-solid fa-user-circle text-orange-500"></i> Logged in as: {{ api.currentUser()?.firstName }} {{ api.currentUser()?.lastName }} <span *ngIf="api.currentUser()?.businessName">({{ api.currentUser()?.businessName }})</span>
           </div>
@@ -65,8 +73,9 @@ import { SeoService } from '../services/seo.service';
         <!-- Filters -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 pb-8 border-b border-white/10">
           <div class="text-white font-bold uppercase tracking-widest text-sm flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-orange-500"></i> {{ ratingSummary()?.count ?? (filteredOtherReviews().length + myReviews().length) }} Ratings
-            <span *ngIf="ratingSummary() && ratingSummary()!.count > 0" class="text-orange-500">&bull; {{ ratingSummary()!.average }} Average</span>
+            <i class="fa-solid fa-chart-line text-orange-500"></i> {{ ratingSummary()?.combined?.count ?? ratingSummary()?.count ?? (filteredOtherReviews().length + myReviews().length) }} Ratings
+            <span *ngIf="ratingSummary()?.combined" class="text-orange-500">&bull; {{ ratingSummary()!.combined!.average }} Average <span class="text-slate-500 normal-case tracking-normal">(across Google and this site)</span></span>
+            <span *ngIf="!ratingSummary()?.combined && ratingSummary() && ratingSummary()!.count > 0" class="text-orange-500">&bull; {{ ratingSummary()!.average }} Average</span>
           </div>
           <div class="flex items-center gap-4 w-full sm:w-auto">
             <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hidden sm:block whitespace-nowrap">Filter By Rating</label>
@@ -151,7 +160,7 @@ import { SeoService } from '../services/seo.service';
                     {{ review.firstName.charAt(0) }}
                   </div>
                   <div>
-                    <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }} <span *ngIf="review.businessName" class="text-slate-500 font-normal">({{ review.businessName }})</span></p>
+                    <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }} <span *ngIf="review.businessName" class="text-slate-500 font-normal">({{ review.businessName }})</span> <span *ngIf="review.source === 'google'" class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[9px] font-black uppercase tracking-widest text-slate-300 align-middle"><i class="fa-brands fa-google text-[8px]"></i> Google</span></p>
                     <p class="text-slate-400 text-xs">{{ review.projectName }} &bull; {{ review.createdAt | date:'MMM yyyy' }}</p>
                   </div>
                 </div>
@@ -190,6 +199,7 @@ import { SeoService } from '../services/seo.service';
               <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a routerLink="/services" class="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white transition-all rounded-full text-xs font-bold uppercase tracking-widest">See Packages and Prices</a>
                 <a routerLink="/" fragment="audit" class="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-all rounded-full text-xs font-bold uppercase tracking-widest">Get a Free Audit</a>
+                <a *ngIf="googleInfo()?.reviewUrl" [href]="googleInfo()!.reviewUrl" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2"><i class="fa-brands fa-google"></i> Rate on Google</a>
               </div>
             </div>
           </div>
@@ -218,7 +228,7 @@ import { SeoService } from '../services/seo.service';
                   {{ review.firstName.charAt(0) }}
                 </div>
                 <div>
-                  <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }} <span *ngIf="review.businessName" class="text-slate-500 font-normal">({{ review.businessName }})</span></p>
+                  <p class="text-white font-bold text-sm">{{ review.firstName }} {{ review.lastName }} <span *ngIf="review.businessName" class="text-slate-500 font-normal">({{ review.businessName }})</span> <span *ngIf="review.source === 'google'" class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[9px] font-black uppercase tracking-widest text-slate-300 align-middle"><i class="fa-brands fa-google text-[8px]"></i> Google</span></p>
                   <p class="text-slate-400 text-xs">{{ review.projectName }} &bull; {{ review.createdAt | date:'MMM yyyy' }}</p>
                 </div>
               </div>
@@ -258,7 +268,8 @@ export class ReviewsComponent implements OnInit {
   // Headline totals from the API. The API excludes reviews whose project was
   // archived under the Client Communication Policy from count and average;
   // those reviews still appear in the list below with their policy note.
-  ratingSummary = signal<{ count: number, average: number } | null>(null);
+  ratingSummary = signal<{ count: number, average: number, google?: { rating: number, count: number } | null, combined?: { count: number, average: number } | null } | null>(null);
+  googleInfo = signal<{ reviewUrl: string, active: boolean, rating: number, count: number } | null>(null);
   loading = signal(true);
   selectedFilter = signal<number>(0);
 
@@ -366,6 +377,11 @@ export class ReviewsComponent implements OnInit {
     this.api.get<{ count: number, average: number }>('reviews/summary').subscribe({
       next: (data) => this.ratingSummary.set(data),
       error: (err) => console.error('Failed to load review summary', err)
+    });
+
+    this.api.get<{ reviewUrl: string, active: boolean, rating: number, count: number }>('reviews/google').subscribe({
+      next: (data) => this.googleInfo.set(data),
+      error: (err) => console.error('Failed to load Google review info', err)
     });
 
     // Fetch unreviewed purchases if logged in

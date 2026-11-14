@@ -4,6 +4,7 @@ const ownerOnly = require('../middleware/growth-admin');
 const Review = require('../models/Review');
 const Contract = require('../models/Contract');
 const { RATING_TOTALS_FILTER, summarizeRatings } = require('../services/review-totals');
+const googleReviews = require('../services/google-reviews.service');
 
 // @route   GET /api/reviews/status
 // @desc    Get all contracts for the user and their review status
@@ -225,10 +226,19 @@ router.patch('/:reviewId/admin-comment', ownerOnly, async (req, res) => {
 //          searchable) with their policyNote; they are excluded from totals.
 router.get('/public', async (req, res) => {
   try {
-    const reviews = await Review.find()
+    const siteReviews = await Review.find()
       .select('_id userId projectName businessName firstName lastName rating message adminComment policyArchived policyNote createdAt')
-      .sort({ createdAt: -1 });
-    res.json(reviews);
+      .sort({ createdAt: -1 })
+      .lean();
+    const tagged = siteReviews.map(r => ({ ...r, source: 'website' }));
+    // Merge in Google reviews once the profile has at least 1 rating.
+    // Google reviews that match a website review (same person, same stars,
+    // same opening text) are dropped so nobody is shown twice.
+    googleReviews.refreshIfStale().catch(() => {});
+    const googleBlock = await googleReviews.getGoogleBlock();
+    const merged = [...tagged, ...googleReviews.mergedGoogleReviews(tagged, googleBlock)];
+    merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    res.json(merged);
   } catch (err) {
     console.error('Error fetching public reviews:', err);
     res.status(500).json([]);
@@ -244,15 +254,54 @@ router.get('/summary', async (req, res) => {
     const counted = await Review.find(RATING_TOTALS_FILTER).select('rating policyArchived');
     const totals = summarizeRatings(counted);
     const totalListed = await Review.countDocuments({});
+    const googleBlock = await googleReviews.getGoogleBlock();
+    const google = googleBlock.active
+      ? { rating: googleBlock.rating, count: googleBlock.count }
+      : null;
+    // Combined headline across both platforms, from the real totals of each.
+    // Site duplicates of a Google review cannot be detected at the aggregate
+    // level (Google only exposes its own totals), so this is a straight sum
+    // of the two platforms' published numbers, labeled as such in the UI.
+    let combined = null;
+    if (google) {
+      const combinedCount = totals.count + google.count;
+      combined = {
+        count: combinedCount,
+        average: combinedCount > 0
+          ? Math.round(((totals.total + google.rating * google.count) / combinedCount) * 100) / 100
+          : 0
+      };
+    }
     res.json({
       count: totals.count,
       total: totals.total,
       average: totals.average,
-      excludedArchived: Math.max(0, totalListed - totals.count)
+      excludedArchived: Math.max(0, totalListed - totals.count),
+      google,
+      combined
     });
   } catch (err) {
     console.error('Error fetching review summary:', err);
     res.status(500).json({ count: 0, total: 0, average: 0, excludedArchived: 0 });
+  }
+});
+
+// @route   GET /api/reviews/google
+// @desc    Public Google review link + aggregate for "Rate on Google"
+//          buttons and badges across the site.
+router.get('/google', async (req, res) => {
+  try {
+    googleReviews.refreshIfStale().catch(() => {});
+    const googleBlock = await googleReviews.getGoogleBlock();
+    res.json({
+      reviewUrl: googleBlock.reviewUrl,
+      active: googleBlock.active,
+      rating: googleBlock.rating,
+      count: googleBlock.count
+    });
+  } catch (err) {
+    console.error('Error fetching Google review info:', err);
+    res.status(500).json({ reviewUrl: googleReviews.getReviewUrl(), active: false, rating: 0, count: 0 });
   }
 });
 
