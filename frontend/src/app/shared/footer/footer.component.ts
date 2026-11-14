@@ -21,7 +21,7 @@ import { RouterLink } from '@angular/router';
 
       <nav aria-label="Phoenix community" class="flex flex-col items-center gap-3 text-sm text-white/70">
         <a href="https://www.patreon.com/PhoenixWebsites" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Support Phoenix on Patreon</a>
-        <a href="https://www.youtube.com/channel/UCfawV121RAj1CYU69Nk69Rg" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Phoenix Studio on YouTube</a>
+        <a href="https://www.youtube.com/channel/UCfawV121RAj1CYU69Nk69Rg" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Phoenix Websites AI on YouTube</a>
         <a href="https://www.patreon.com/PhoenixWebsites/posts/welcome-to-start-169470655" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Discord access for Inner Circle members</a>
       </nav>
       <div class="flex flex-col items-center gap-4">
