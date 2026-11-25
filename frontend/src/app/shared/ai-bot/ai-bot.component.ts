@@ -13,11 +13,11 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <!-- Floating Chat Button: black glass pill with a fire-orange glow ring (icon-only circle on small screens) -->
-    <button *ngIf="!isOpen()" (click)="toggleChat()" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[200] h-14 w-14 sm:w-auto sm:px-6 rounded-full bg-black/85 backdrop-blur-md border border-orange-500/60 shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_25px_rgba(255,77,0,0.35)] flex items-center justify-center gap-2.5 text-white transition-all hover:scale-105 hover:-translate-y-0.5 hover:border-orange-400 hover:shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_35px_rgba(255,77,0,0.55)]">
+    <!-- Floating Chat Button: black glass pill with a fire-orange glow ring, full pill on every screen size -->
+    <button *ngIf="!isOpen()" (click)="toggleChat()" class="fixed bottom-24 right-6 sm:bottom-8 sm:right-8 z-[200] h-14 w-auto px-6 rounded-full bg-black/85 backdrop-blur-md border border-orange-500/60 shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_25px_rgba(255,77,0,0.35)] flex items-center justify-center gap-2.5 text-white transition-all hover:scale-105 hover:-translate-y-0.5 hover:border-orange-400 hover:shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_35px_rgba(255,77,0,0.55)]">
       <i class="fa-solid fa-robot text-xl text-[#FF4D00]"></i>
-      <span class="hidden sm:inline text-sm font-bold tracking-wide">Chat with Phoenix</span>
-      <span class="hidden sm:inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+      <span class="text-sm font-bold tracking-wide">Chat with Phoenix</span>
+      <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
     </button>
 
     <!-- Chat Window -->
