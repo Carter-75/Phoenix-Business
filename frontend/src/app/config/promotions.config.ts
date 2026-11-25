@@ -98,7 +98,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'new_year',
-    name: 'New Year Launch',
+    name: 'New Year Digital Ignition',
     displayName: 'New Year',
     discountPercent: 25,
     priority: 15,
@@ -177,7 +177,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'st_patricks',
-    name: "St. Patrick's Momentum",
+    name: "St. Patrick's Emerald Acceleration",
     displayName: "St. Patrick's",
     discountPercent: 22,
     priority: 10,
@@ -216,7 +216,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'spring_easter',
-    name: 'Spring Re-Engineering',
+    name: 'Spring Digital Awakening',
     displayName: 'Spring / Easter',
     discountPercent: 25,
     priority: 10,
@@ -255,7 +255,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'memorial_day',
-    name: 'Memorial Day Scaling',
+    name: 'Memorial Honor & Early Summer',
     displayName: 'Memorial Day',
     discountPercent: 25,
     priority: 10,
@@ -294,7 +294,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'july4',
-    name: 'Independence Day',
+    name: 'Independence Freedom Sale',
     displayName: 'July 4th',
     discountPercent: 28,
     priority: 10,
@@ -333,7 +333,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'labor_day',
-    name: 'Labor Day Operations',
+    name: 'Labor Day Productivity & Automation',
     displayName: 'Labor Day',
     discountPercent: 25,
     priority: 10,
@@ -372,7 +372,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'halloween',
-    name: 'Halloween Season',
+    name: 'Halloween Spectral Night Special',
     displayName: 'Halloween',
     discountPercent: 35, // Actively configured 35% Halloween discount
     priority: 10,
@@ -411,7 +411,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'thanksgiving',
-    name: 'Thanksgiving Harvest',
+    name: 'Thanksgiving Harvest & Scaling',
     displayName: 'Thanksgiving',
     discountPercent: 30,
     priority: 5,
@@ -450,7 +450,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'black_friday',
-    name: 'Cyber Week',
+    name: 'Black Friday & Cyber Week Megasale',
     displayName: 'Black Friday / Cyber Monday',
     discountPercent: 45, // Pinnacle annual promotion (45% launch acquisition discount)
     priority: 20,
@@ -489,7 +489,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
   },
   {
     id: 'christmas_winter',
-    name: 'Winter Holiday',
+    name: 'Winter Solstice & Holiday Magic',
     displayName: 'Christmas / Winter',
     discountPercent: 30,
     priority: 10,
