@@ -1,0 +1,1820 @@
+/**
+ * Stripe billing service: checkout sessions, the webhook handler, coupon
+ * handling, receipts, and contract triggers for Phoenix Websites AI.
+ * All handlers are wired to routes in backend/routes/stripe.js.
+ */
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripe = require('stripe')(stripeSecretKey);
+const User = require('../models/user');
+const Contract = require('../models/Contract');
+const { calculateProjectPrice } = require('../services/pricing.service');
+const { SUBJECT_WORD_NOTICE, subjectWordNoticeHtml, COMMUNICATION_GUIDE_TEXT, communicationGuideHtml } = require('../services/policy-notice');
+const { createCheckoutVerification } = require('../services/checkout-verification');
+const checkoutStatus = createCheckoutVerification(stripe);
+
+/**
+ * GET /api/stripe/free-order-status
+ * Verifies a $0 (free) order by order_id (no Stripe session involved)
+ * Supports both string orderId (free_...) and MongoDB ObjectId formats
+ */
+const freeOrderStatus = async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    
+    const orderId = req.query.order_id;
+    if (!orderId || typeof orderId !== 'string') {
+        return res.status(400).json({ error: 'Invalid order reference.' });
+    }
+    
+    // Retry logic for timing issues (record may still be writing to DB)
+    const maxRetries = 3;
+    const retryDelayMs = 500;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const OrderSnapshot = require('../models/OrderSnapshot');
+            const mongoose = require('mongoose');
+            
+            // Determine if orderId is a MongoDB ObjectId or a string ID (free_...)
+            const isObjectId = mongoose.Types.ObjectId.isValid(orderId) && !orderId.startsWith('free_');
+            
+            // Check OrderSnapshot first (by orderId field for string IDs, or _id for ObjectIds)
+            let snapshot = null;
+            if (isObjectId) {
+                snapshot = await OrderSnapshot.findById(orderId);
+            } else {
+                snapshot = await OrderSnapshot.findOne({ orderId: orderId });
+            }
+            
+            if (snapshot) {
+                // Verify ownership if user is authenticated
+                if (req.isAuthenticated?.() && req.user?._id) {
+                    if (snapshot.userId && snapshot.userId.toString() !== req.user._id.toString()) {
+                        return res.status(403).json({ error: 'Order belongs to another account.' });
+                    }
+                }
+                return res.json({ confirmed: true, orderId: snapshot.orderId || snapshot._id, freeOrder: true });
+            }
+            
+            // Check Contract (by freeOrderId field for string IDs, or _id for ObjectIds)
+            let contract = null;
+            if (isObjectId) {
+                contract = await Contract.findById(orderId);
+            } else {
+                contract = await Contract.findOne({ freeOrderId: orderId });
+            }
+            
+            if (contract) {
+                // Verify ownership if user is authenticated
+                if (req.isAuthenticated?.() && req.user?._id) {
+                    if (contract.userId && contract.userId.toString() !== req.user._id.toString()) {
+                        return res.status(403).json({ error: 'Order belongs to another account.' });
+                    }
+                }
+                return res.json({ 
+                    confirmed: true, 
+                    orderId: contract.freeOrderId || contract._id, 
+                    contractType: contract.contractType,
+                    freeOrder: true 
+                });
+            }
+            
+            // If not found and we have retries left, wait and retry
+            if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+                continue;
+            }
+            
+            // All retries exhausted, order not found
+            return res.status(404).json({ error: 'Order not found.' });
+            
+        } catch (err) {
+            console.error(`[FREE ORDER] Status check error (attempt ${attempt}):`, err.message);
+            if (attempt === maxRetries) {
+                return res.status(503).json({ error: 'Cannot verify order. Please try again.' });
+            }
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+        }
+    }
+};
+
+/**
+ * Helper function to send SMS alert to admin via Email-to-SMS (Spam Evading Format)
+ */
+const sendAdminSMS = async (message) => {
+    try {
+        const phone = process.env.ADMIN_PHONE_NUMBER;
+        const gateway = process.env.ADMIN_SMS_GATEWAY;
+
+        if (!phone || !gateway) {
+            console.log('[SMS] Admin phone or SMS gateway missing. Skipping SMS alert.');
+            return;
+        }
+
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+            port: parseInt(process.env.SMTP_PORT || '465'),
+            secure: true,
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+
+        await transporter.sendMail({
+            from: `"Phnx" <${process.env.EMAIL_USER}>`,
+            to: `${phone}@${gateway}`,
+            subject: 'update',
+            text: message // Send as plain text
+        });
+        console.log(`[SMS] Alert sent via Email-to-SMS to ${phone}@${gateway} successfully.`);
+    } catch (err) {
+        console.error('[SMS] Failed to send Email-to-SMS:', err.message);
+    }
+};
+
+/**
+ * Middleware to verify Stripe configuration
+ */
+const verifyStripe = (req, res, next) => {
+    if (process.env.TEST_MODE === 'true' && !stripeSecretKey?.startsWith('sk_test_')) return res.status(503).json({ error: 'Test prices require Stripe test credentials.' });
+    if (!stripeSecretKey) {
+        console.error('STRIPE: Secret key missing in environment.');
+        return res.status(503).json({ error: 'Stripe is not configured on the server.' });
+    }
+    next();
+};
+
+/**
+ * POST /api/stripe/validate-discount
+ * Validates a dynamic discount code
+ */
+const validateDiscount = async (req, res) => {
+    try {
+        const { code, email } = req.body;
+        if (!code) return res.status(400).json({ error: 'Code is required' });
+
+        const upperCode = code.toUpperCase().trim();
+        
+        // 1. Check database-backed coupons first
+        const Coupon = require('../models/Coupon');
+        const dbCoupon = await Coupon.findOne({ code: upperCode });
+        if (dbCoupon) {
+            const check = dbCoupon.isValidNow();
+            if (!check.valid) {
+                return res.status(400).json({ error: check.reason || 'This coupon is not valid.' });
+            }
+            // Check single-use per customer if applicable
+            let user = req.user;
+            if (!user && email) {
+                const User = require('../models/user');
+                user = await User.findOne({ email: email.toLowerCase().trim() });
+            }
+            if (user && dbCoupon.perCustomerLimit > 0 && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
+                return res.status(400).json({ error: 'You have already used this single-use discount code.' });
+            }
+            // Account-bound codes (group buy discounts) belong to one buyer.
+            if (dbCoupon.issuedToUserId) {
+                if (!user) {
+                    return res.status(400).json({ error: 'This code was issued to a specific account. Sign in with that account to use it.' });
+                }
+                if (String(dbCoupon.issuedToUserId) !== String(user._id)) {
+                    return res.status(400).json({ error: 'This discount code belongs to a different account.' });
+                }
+            }
+            return res.json({ 
+                valid: true, 
+                percentage: (dbCoupon.type === 'percentage' || dbCoupon.type === 'percentage_capped' || dbCoupon.type === 'intro') ? dbCoupon.amount : 0, 
+                fixedCents: dbCoupon.type === 'fixed' ? dbCoupon.amount : 0,
+                type: dbCoupon.type,
+                capSetupCents: dbCoupon.capSetupCents || 0,
+                capMonthlyCents: dbCoupon.capMonthlyCents || 0,
+                ongoingMonthlyPercentOff: dbCoupon.ongoingMonthlyPercentOff || 0,
+                restrictToPackage: dbCoupon.restrictToPackage || '',
+                bypassFloors: dbCoupon.bypassFloors === true,
+                appliesTo: dbCoupon.appliesTo,
+                usageModel: dbCoupon.usageLimit === 1 ? 'single' : (dbCoupon.usageLimit === 0 ? 'repeatable' : 'custom'),
+                source: 'database'
+            });
+        }
+
+        // 2. Check if it's an unlimited legacy env code
+        const dcVal = process.env[`DC_${upperCode}`];
+        if (dcVal) {
+            return res.json({ valid: true, percentage: parseInt(dcVal), type: 'unlimited', source: 'env' });
+        }
+
+        // 3. Check if it's a limited legacy env code
+        const dclVal = process.env[`DCL_${upperCode}`];
+        if (dclVal) {
+            // Need to ensure the user hasn't used it
+            let user = req.user;
+            if (!user && email) {
+                 const User = require('../models/user');
+                 user = await User.findOne({ email: email.toLowerCase() });
+            }
+            if (user && user.usedDiscountCodes && user.usedDiscountCodes.includes(upperCode)) {
+                return res.status(400).json({ error: 'You have already used this discount code.' });
+            }
+            return res.json({ valid: true, percentage: parseInt(dclVal), type: 'limited', source: 'env' });
+        }
+
+        return res.status(400).json({ error: 'Invalid discount code.' });
+    } catch (err) {
+        console.error('DISCOUNT VALIDATION ERROR:', err.message);
+        res.status(500).json({ error: 'Validation failed.' });
+    }
+};
+
+/**
+ * Records a database coupon redemption after a completed checkout.
+ *
+ * Performs both bookkeeping effects exactly once per checkout session:
+ *   1. Increments the coupon's usageCount in Mongo ($inc), so usageLimit
+ *      and one-time caps are actually enforced at validation time.
+ *   2. Adds the code to the purchasing user's usedDiscountCodes, so the
+ *      per-customer one-time check in validate-discount can reject reuse.
+ *
+ * The user is resolved the same way validate-discount resolves it: by
+ * user id when known, otherwise by the email on the order/session.
+ * A marker row in ProcessedEvent (unique eventId) claims the session
+ * before any writes, so a duplicate webhook delivery for the same
+ * session (or the completed + async_payment_succeeded pair) cannot
+ * double-record. Legacy DC_/DCL_ env codes keep their existing code
+ * paths and are intentionally untouched here.
+ *
+ * Returns true when a redemption was recorded.
+ */
+async function recordDatabaseCouponRedemption({ code, userId = null, email = null, sessionId = null }) {
+    const cleanCode = String(code || '').trim().toUpperCase();
+    if (!cleanCode) return false;
+
+    const Coupon = require('../models/Coupon');
+    const coupon = await Coupon.findOne({ code: cleanCode });
+    if (!coupon) return false; // Not a database coupon (legacy env code or unknown)
+
+    // Claim this session exactly once before writing anything.
+    if (sessionId) {
+        const ProcessedEvent = require('../models/ProcessedEvent');
+        try {
+            await new ProcessedEvent({ eventId: `coupon-redeem:${sessionId}`, type: 'coupon_redemption' }).save();
+        } catch (claimErr) {
+            // Duplicate key means this session was already recorded.
+            console.log(`[STRIPE] Coupon redemption already recorded for session ${sessionId}, skipping.`);
+            return false;
+        }
+    }
+
+    await Coupon.updateOne({ _id: coupon._id }, { $inc: { usageCount: 1 } });
+
+    // Keep the in-memory pricing cache in step with the incremented count
+    try {
+        const { setDatabaseCoupon } = require('../services/pricing.service');
+        coupon.usageCount = (coupon.usageCount || 0) + 1;
+        setDatabaseCoupon(coupon);
+    } catch (cacheErr) {
+        console.warn('[STRIPE] Coupon cache sync warning:', cacheErr.message);
+    }
+
+    let purchaser = null;
+    if (userId && userId !== 'guest') {
+        purchaser = await User.findById(userId).catch(() => null);
+    }
+    if (!purchaser && email) {
+        purchaser = await User.findOne({ email: String(email).toLowerCase().trim() }).catch(() => null);
+    }
+    if (purchaser) {
+        await User.findByIdAndUpdate(purchaser._id, { $addToSet: { usedDiscountCodes: coupon.code } })
+            .catch(err => console.error('[STRIPE] Failed to record used discount code:', err));
+    }
+    return true;
+}
+
+/**
+ * POST /api/stripe/checkout
+ * Generates a dynamic Stripe Checkout session for services.
+ */
+const createServiceCheckout = async (req, res) => {
+    try {
+        const { tier, email, name, businessName, projectType, message, acceptedContract, contractTimestamp, discountCode, configuration } = req.body;
+        const user = req.user;
+
+        if (!user) return res.status(401).json({ error: 'Sign in before checkout so your contract can be saved to your account.' });
+        if (acceptedContract !== true) return res.status(400).json({ error: 'Review and accept the service terms before checkout.' });
+
+        let line_items = [];
+        let mode = 'payment';
+        let setupFee = 0;
+        let monthlyFee = 0;
+        let resolvedProjectType = projectType;
+        let appliedDiscountCode = '';
+
+        let calcResult = null;
+
+        if (tier === 'data') {
+            mode = 'payment';
+            const { getActivePromotion } = require('../services/promotion.service');
+            const activePromo = getActivePromotion();
+            const seasonalDiscount = process.env.TEST_MODE === 'true' ? 0 : (activePromo.discountPercent || 20);
+            const dataBasePrice = parseInt(process.env.PRICE_DATA || '24900', 10);
+            const dataDiscount = Math.round(dataBasePrice * (seasonalDiscount / 100));
+            const dataPrice = Math.max(100, dataBasePrice - dataDiscount);
+            const cartItems = req.body.cartItems || [];
+            const dataQty = Math.max(1, cartItems.length);
+            
+            line_items.push({
+                price_data: {
+                    currency: 'usd',
+                    product_data: { 
+                        name: 'Data Intelligence Block', 
+                        description: `AI-enriched public data — ${dataQty} block(s). One-time purchase, non-refundable.`, 
+                        tax_code: 'txcd_10103100' 
+                    },
+                    unit_amount: dataPrice,
+                },
+                quantity: dataQty,
+            });
+            setupFee = dataPrice * dataQty;
+            monthlyFee = 0;
+            resolvedProjectType = 'Data Cleanup & Organization';
+        } else {
+            // UNIFIED WEBSITE TIERS & CONFIGURATOR PATH
+            const calcInput = (configuration && typeof configuration === 'object')
+                ? { ...configuration, discountCode }
+                : { tier: tier || projectType || 'business', discountCode };
+
+            let dbCoupon = null;
+            if (discountCode) {
+                const Coupon = require('../models/Coupon');
+                dbCoupon = await Coupon.findOne({ code: String(discountCode).trim().toUpperCase(), enabled: true });
+            }
+
+            // Account-bound codes (group buy discounts) redeem only for
+            // the account they were issued to.
+            if (dbCoupon && dbCoupon.issuedToUserId && String(dbCoupon.issuedToUserId) !== String(user._id)) {
+                return res.status(403).json({ error: 'This discount code belongs to a different account.' });
+            }
+
+            calcResult = calculateProjectPrice(calcInput, { coupon: dbCoupon });
+            setupFee = calcResult.finalPrices.dueToday;
+            monthlyFee = calcResult.finalPrices.monthlyRecurring;
+            resolvedProjectType = projectType || calcResult.tier.name;
+            appliedDiscountCode = calcResult.discounts.coupon.code || discountCode || '';
+
+            // A code that cannot apply to this cart (for example an
+            // intro code on the wrong tier) stops the checkout with
+            // the reason instead of silently charging full price.
+            if (discountCode && calcResult.couponError) {
+                return res.status(400).json({ error: calcResult.couponError });
+            }
+
+            // Handle $0 orders (100% discount): skip Stripe, record order directly
+            if (setupFee === 0 && monthlyFee === 0) {
+                const orderId = `free_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                // Record OrderSnapshot
+                try {
+                    const OrderSnapshot = require('../models/OrderSnapshot');
+                    await OrderSnapshot.create({
+                        orderId: orderId,
+                        stripeSessionId: null,
+                        userId: user ? user._id : undefined,
+                        customerEmail: email || (user ? user.email : 'guest@checkout.local'),
+                        customerName: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
+                        customerPhone: req.body.phone || (user ? user.phone : ''),
+                        businessName: businessName || (user ? user.businessName : ''),
+                        tierId: calcResult.tier.id,
+                        tierName: calcResult.tier.name,
+                        projectType: resolvedProjectType,
+                        totalPages: calcResult.scope.totalPages,
+                        extraPages: calcResult.scope.extraPages,
+                        baseSetupCents: calcResult.normalPrices.baseSetup,
+                        baseMonthlyCents: calcResult.normalPrices.baseMonthly,
+                        extraPagesSetupCents: calcResult.scope.extraPagesSetupPrice,
+                        selectedAddons: calcResult.addons.map(a => ({
+                            id: a.id,
+                            name: a.name,
+                            category: a.category,
+                            billingType: a.billingType,
+                            setupCents: a.setupPrice,
+                            monthlyCents: a.monthlyPrice,
+                            includedInBase: !!a.includedInBase
+                        })),
+                        addonsSetupSubtotalCents: calcResult.normalPrices.addonsSetup,
+                        addonsMonthlySubtotalCents: calcResult.normalPrices.addonsMonthly,
+                        supportAddon: calcResult.support ? {
+                            id: calcResult.support.id,
+                            name: calcResult.support.name,
+                            durationMonths: calcResult.support.durationMonths,
+                            standardMonthlyCents: calcResult.support.standardMonthlyPrice,
+                            discountedMonthlyCents: calcResult.support.discountedMonthlyPrice,
+                            monthlyCents: 0,
+                            promotionPercentage: 100,
+                            totalCommitmentStandardCents: calcResult.support.totalCommitmentStandard,
+                            totalCommitmentDiscountedCents: 0,
+                            setupCents: 0,
+                            startDate: new Date(calcResult.support.startDate),
+                            endDate: new Date(calcResult.support.endDate),
+                            autoRenew: false
+                        } : null,
+                        bundleDiscountPercent: calcResult.discounts.bundle.percent,
+                        bundleDiscountSetupCents: calcResult.discounts.bundle.setupSavings,
+                        bundleDiscountMonthlyCents: calcResult.discounts.bundle.monthlySavings,
+                        promotionId: calcResult.discounts.promotion.id,
+                        promotionName: calcResult.discounts.promotion.name,
+                        promotionDiscountPercent: calcResult.discounts.promotion.percent,
+                        promotionDiscountSetupCents: calcResult.discounts.promotion.setupSavings,
+                        promotionDiscountMonthlyCents: calcResult.discounts.promotion.monthlySavings,
+                        couponCode: calcResult.discounts.coupon.code,
+                        couponDiscountSetupCents: calcResult.discounts.coupon.setupSavings,
+                        couponDiscountMonthlyCents: calcResult.discounts.coupon.monthlySavings,
+                        finalSetupCents: 0,
+                        finalMonthlyCents: 0,
+                        baseMonthlyRecurringCents: 0,
+                        supportMonthlyRecurringCents: 0,
+                        dueTodayCents: 0,
+                        firstMonthlyBillingDate: new Date(calcResult.schedule.firstMonthlyBillingDate),
+                        commitmentMonths: calcResult.schedule.commitmentMonths,
+                        termsVersion: 'v4-wisconsin-hardened-free',
+                        contractSnapshotText: calcResult.projectBrief + '\n[100% DISCOUNT - FREE ORDER]'
+                    });
+                } catch (snapErr) {
+                    console.warn('OrderSnapshot save warning (free order):', snapErr.message);
+                }
+
+                // Record the database coupon redemption (usage count + per-customer use)
+                if (dbCoupon && calcResult.discounts.coupon.code === dbCoupon.code &&
+                    String(calcResult.discounts.coupon.source || '').startsWith('DATABASE')) {
+                    await recordDatabaseCouponRedemption({
+                        code: dbCoupon.code,
+                        userId: user ? user._id : null,
+                        email: email || (user ? user.email : null),
+                        sessionId: orderId
+                    }).catch(err => console.error('[STRIPE] Failed to record free-order coupon redemption:', err));
+                }
+
+                // Create Contract record
+                if (user) {
+                    user.hasAcceptedContract = true;
+                    user.contractAcceptedAt = new Date(contractTimestamp);
+                    user.subscriptionStatus = calcResult.tier.id;
+                    await user.save();
+
+                    const legalService = require('../services/legal.service');
+                    const pdfBuffer = await legalService.generateMergedLegalPDF({
+                        tier: calcResult.tier.id,
+                        setupFee: 0,
+                        monthlyFee: 0
+                    });
+
+                    const crypto = require('crypto');
+                    const newContract = new Contract({
+                        userId: user._id,
+                        contractType: `Free Order Agreement - ${calcResult.tier.name}`,
+                        projectName: resolvedProjectType,
+                        stripeSubscriptionId: null,
+                        tier: calcResult.tier.id,
+                        setupFeePaid: 0,
+                        monthlyFee: 0,
+                        acceptedAt: new Date(contractTimestamp),
+                        status: 'active',
+                        expiresAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                        pdfSnapshot: pdfBuffer,
+                        reviewToken: crypto.randomUUID(),
+                        freeOrderId: orderId
+                    });
+                    await newContract.save();
+
+                    // Send confirmation email
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                        port: parseInt(process.env.SMTP_PORT || '465'),
+                        secure: true,
+                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                    });
+
+                    await transporter.sendMail({
+                        from: `"Phoenix" <${process.env.EMAIL_USER}>`,
+                        to: user.email,
+                        subject: 'Free Order Confirmation — Phoenix Websites AI',
+                        html: `
+                            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px;">
+                                <h2 style="color: #ea580c;">Your Free Order is Confirmed!</h2>
+                                <p>Hi ${user.firstName || 'there'},</p>
+                                <p>Your order for <strong>${calcResult.tier.name}</strong> has been confirmed at $0.00 (100% discount applied).</p>
+                                <p><strong>Project:</strong> ${resolvedProjectType}</p>
+                                <p><strong>Amount Due:</strong> $0.00</p>
+                                <p>We'll be in touch shortly to begin your project.</p>
+                                <!-- Free orders are exempt from the Client Communication Policy, so this confirmation intentionally carries no subject-word notice. -->
+                            </div>
+                        `,
+                        attachments: pdfBuffer ? [{ filename: 'Phoenix_Free_Order_Agreement.pdf', content: pdfBuffer }] : []
+                    }).catch(err => console.error('Free order email failed:', err));
+
+                    // Send admin SMS
+                    const smsMessage = `FREE order from ${user.firstName} (${user.businessName || 'N/A'}) - ${calcResult.tier.name} [100% discount]`;
+                    await sendAdminSMS(smsMessage);
+                }
+
+                const baseUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
+                return res.json({ 
+                    url: `${baseUrl}/checkout-success?free_order=true&order_id=${orderId}`,
+                    freeOrder: true 
+                });
+            }
+
+            mode = monthlyFee > 0 ? 'subscription' : 'payment';
+
+            // 1. One-time Setup/Build Fee (Charged Today)
+            line_items.push({
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: `${calcResult.tier.name} — Initial Build & Setup`,
+                        description: `${calcResult.projectBrief.slice(0, 400)} | Due Today: $${(setupFee / 100).toFixed(2)}`,
+                        tax_code: 'txcd_10103100'
+                    },
+                    unit_amount: setupFee
+                },
+                quantity: 1
+            });
+
+            // 2. Monthly Care & Maintenance (Billed Monthly starting after 30 days)
+            const baseMonthly = (calcResult.finalPrices && calcResult.finalPrices.baseMonthlyRecurring !== undefined)
+                ? calcResult.finalPrices.baseMonthlyRecurring
+                : monthlyFee;
+            const supportMonthly = (calcResult.finalPrices && calcResult.finalPrices.supportMonthlyRecurring) || 0;
+
+            if (baseMonthly > 0) {
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `${calcResult.tier.name} — Monthly Managed Care & Hosting`,
+                            description: `12-month commitment. First recurring charge begins after the 30-day subscription trial ($${(baseMonthly / 100).toFixed(2)}/mo). Includes Price Lock Guarantee.`,
+                            tax_code: 'txcd_10103100'
+                        },
+                        unit_amount: baseMonthly,
+                        recurring: { interval: 'month' }
+                    },
+                    quantity: 1
+                });
+            }
+
+            if (supportMonthly > 0 && calcResult.support) {
+                line_items.push({
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `${calcResult.support.name} — Optional Support Add-On (${calcResult.support.durationMonths} Mos)`,
+                            description: `Locked rate: $${(supportMonthly / 100).toFixed(2)}/mo. Commitment: ${calcResult.support.durationMonths} months. No auto-renewal.`,
+                            tax_code: 'txcd_10103100'
+                        },
+                        unit_amount: supportMonthly,
+                        recurring: { interval: 'month' }
+                    },
+                    quantity: 1
+                });
+            }
+        }
+
+        const isDataTier = tier === 'data';
+        const baseUrl = process.env.PROD_FRONTEND_URL || 'http://localhost:4200';
+
+        const sessionConfig = {
+            line_items: line_items,
+            mode: mode,
+            success_url: isDataTier 
+                ? `${baseUrl}/data?purchase=success` 
+                : `${baseUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: isDataTier 
+                ? `${baseUrl}/data?canceled=true` 
+                : `${baseUrl}/services?canceled=true`,
+            customer_email: email || (user ? user.email : undefined),
+            metadata: {
+                tier: tier || (configuration ? `configured_${configuration.projectType || 'custom'}` : 'custom'),
+                setupFee: setupFee.toString(),
+                monthlyFee: monthlyFee.toString(),
+                customer_name: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
+                business_name: businessName || (user ? user.businessName : ''),
+                project_type: resolvedProjectType || projectType || 'Custom Website',
+                initial_message: message || '',
+                userId: user ? user._id.toString() : 'guest',
+                acceptedContract: acceptedContract ? 'true' : 'false',
+                contractTimestamp: contractTimestamp || new Date().toISOString(),
+                discountCode: appliedDiscountCode || ''
+            },
+        };
+
+        if (mode === 'subscription') {
+            sessionConfig.subscription_data = {
+                // Intro offers (outreach first-5) run a 60-day trial
+                // so the first monthly cycle is the free month; the
+                // subscription itself is priced at the ongoing rate.
+                trial_period_days: (calcResult && calcResult.schedule && calcResult.schedule.trialDays) || 30
+            };
+        }
+
+        const session = await stripe.checkout.sessions.create(sessionConfig);
+
+        if (calcResult) {
+            try {
+                const OrderSnapshot = require('../models/OrderSnapshot');
+                await OrderSnapshot.create({
+                    orderId: session.id,
+                    stripeSessionId: session.id,
+                    userId: user ? user._id : undefined,
+                    customerEmail: email || (user ? user.email : 'guest@checkout.local'),
+                    customerName: name || (user ? `${user.firstName} ${user.lastName}` : 'Guest'),
+                    customerPhone: req.body.phone || (user ? user.phone : ''),
+                    businessName: businessName || (user ? user.businessName : ''),
+                    tierId: calcResult.tier.id,
+                    tierName: calcResult.tier.name,
+                    projectType: resolvedProjectType,
+                    totalPages: calcResult.scope.totalPages,
+                    extraPages: calcResult.scope.extraPages,
+                    baseSetupCents: calcResult.normalPrices.baseSetup,
+                    baseMonthlyCents: calcResult.normalPrices.baseMonthly,
+                    extraPagesSetupCents: calcResult.scope.extraPagesSetupPrice,
+                    selectedAddons: calcResult.addons.map(a => ({
+                        id: a.id,
+                        name: a.name,
+                        category: a.category,
+                        billingType: a.billingType,
+                        setupCents: a.setupPrice,
+                        monthlyCents: a.monthlyPrice,
+                        includedInBase: !!a.includedInBase
+                    })),
+                    addonsSetupSubtotalCents: calcResult.normalPrices.addonsSetup,
+                    addonsMonthlySubtotalCents: calcResult.normalPrices.addonsMonthly,
+                    supportAddon: calcResult.support ? {
+                        id: calcResult.support.id,
+                        name: calcResult.support.name,
+                        durationMonths: calcResult.support.durationMonths,
+                        standardMonthlyCents: calcResult.support.standardMonthlyPrice,
+                        discountedMonthlyCents: calcResult.support.discountedMonthlyPrice,
+                        monthlyCents: calcResult.support.discountedMonthlyPrice,
+                        promotionPercentage: calcResult.support.discountPercent,
+                        totalCommitmentStandardCents: calcResult.support.totalCommitmentStandard,
+                        totalCommitmentDiscountedCents: calcResult.support.totalCommitmentDiscounted,
+                        setupCents: calcResult.support.setupPrice,
+                        startDate: new Date(calcResult.support.startDate),
+                        endDate: new Date(calcResult.support.endDate),
+                        autoRenew: false,
+                        monthlyRequestsIncluded: calcResult.support.monthlyRequestsIncluded,
+                        maxHoursPerRequest: calcResult.support.maxHoursPerRequest,
+                        requestsRollOver: false,
+                        slaInitialResponse: calcResult.support.slaInitialResponse,
+                        transitionSupportRule: calcResult.support.transitionSupportRule,
+                        coverageStartRule: calcResult.support.coverageStartRule,
+                        billingStartRule: calcResult.support.billingStartRule,
+                        inclusions: calcResult.support.inclusions,
+                        exclusions: calcResult.support.exclusions
+                    } : null,
+                    bundleDiscountPercent: calcResult.discounts.bundle.percent,
+                    bundleDiscountSetupCents: calcResult.discounts.bundle.setupSavings,
+                    bundleDiscountMonthlyCents: calcResult.discounts.bundle.monthlySavings,
+                    promotionId: calcResult.discounts.promotion.id,
+                    promotionName: calcResult.discounts.promotion.name,
+                    promotionDiscountPercent: calcResult.discounts.promotion.percent,
+                    promotionDiscountSetupCents: calcResult.discounts.promotion.setupSavings,
+                    promotionDiscountMonthlyCents: calcResult.discounts.promotion.monthlySavings,
+                    couponCode: calcResult.discounts.coupon.code,
+                    couponDiscountSetupCents: calcResult.discounts.coupon.setupSavings,
+                    couponDiscountMonthlyCents: calcResult.discounts.coupon.monthlySavings,
+                    finalSetupCents: setupFee,
+                    finalMonthlyCents: monthlyFee,
+                    baseMonthlyRecurringCents: (calcResult.finalPrices && calcResult.finalPrices.baseMonthlyRecurring) || monthlyFee,
+                    supportMonthlyRecurringCents: (calcResult.finalPrices && calcResult.finalPrices.supportMonthlyRecurring) || 0,
+                    dueTodayCents: setupFee,
+                    firstMonthlyBillingDate: new Date(calcResult.schedule.firstMonthlyBillingDate),
+                    commitmentMonths: calcResult.schedule.commitmentMonths,
+                    termsVersion: 'v4-wisconsin-hardened',
+                    contractSnapshotText: calcResult.projectBrief
+                });
+            } catch (snapErr) {
+                console.warn('OrderSnapshot save warning:', snapErr.message);
+            }
+        }
+
+        res.json({ url: session.url });
+
+    } catch (err) {
+        console.error('STRIPE ERROR:', err.message);
+        res.status(500).json({ error: 'Failed to initialize checkout session.' });
+    }
+};
+
+/**
+ * POST /api/stripe/unified-checkout
+ * Handles mixed carts: data blocks + service tiers in one Stripe session.
+ * Uses subscription mode if any service tiers are present (data becomes one-time add-on).
+ * Uses payment mode if only data blocks.
+ */
+const unifiedCheckout = async (req, res) => {
+    const items = req.body.cartItems;
+    if (!Array.isArray(items) || items.length !== 1 || items[0].type !== 'service') {
+        return res.status(400).json({ error: 'Check out one website plan at a time. Each project has its own contract.' });
+    }
+    req.body = { ...req.body, tier: items[0].tierId, projectType: items[0].projectType || items[0].tierName };
+    return createServiceCheckout(req, res);
+};
+
+/**
+ * GET /api/stripe/cancellation-quote/:contractId
+ * Calculate early termination and buyout quotes for a specific contract
+ */
+const cancellationQuote = async (req, res) => {
+    try {
+        const { contractId } = req.params;
+        const Contract = require('../models/Contract');
+
+        const contract = await Contract.findById(contractId).populate('userId');
+        if (!contract) return res.status(404).json({ error: 'Contract not found' });
+
+        const user = contract.userId;
+
+        // Handle FREE orders (100% discount, $0 checkout) - no Stripe subscription
+        const isFreeOrder = !contract.stripeSubscriptionId && 
+                           (contract.setupFeePaid === 0 || !contract.setupFeePaid) &&
+                           (contract.monthlyFee === 0 || !contract.monthlyFee);
+        
+        if (isFreeOrder || (contract.contractType && contract.contractType.toLowerCase().includes('free'))) {
+            // Free orders have no fees, no subscriptions, essentially a promotional gift
+            return res.json({
+                isFreeOrder: true,
+                windowStatus: 'free-order',
+                monthsLeft: 0,
+                daysUntilExpiration: contract.expiresAt ? Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 365,
+                earlyTerminationFee: 0,
+                buyoutFeeOnly: 0,
+                totalBuyoutCost: 0,
+                subscriptionId: null,
+                contractType: contract.contractType,
+                projectName: contract.projectName,
+                status: contract.status,
+                message: 'This is a free promotional order. No subscription fees or termination costs apply.'
+            });
+        }
+
+        if (!contract.stripeSubscriptionId) {
+            return res.status(400).json({ error: 'This contract does not have a linked Stripe subscription.' });
+        }
+
+        const activeSub = await stripe.subscriptions.retrieve(contract.stripeSubscriptionId, {
+            expand: ['plan.product']
+        });
+
+        if (activeSub.status === 'canceled') {
+            return res.status(400).json({ error: 'This subscription is already canceled.' });
+        }
+
+        const daysUntilExpiration = Math.ceil((contract.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        const monthsLeft = Math.max(0, Math.ceil(daysUntilExpiration / 30.44));
+
+        const monthlyFeeInCents = contract.monthlyFee || activeSub.plan.amount;
+        let earlyTerminationFeeInCents = 0;
+        let windowStatus = 'in-window';
+
+        if (daysUntilExpiration > 30) {
+            // Early Termination prior to non-renewal deadline: 50% of remaining months (Wassenaar v. Panos)
+            windowStatus = 'early-termination';
+            earlyTerminationFeeInCents = Math.round((monthsLeft * monthlyFeeInCents) * 0.50);
+        } else {
+            // Within 30 days of term expiration: ordinary contract expiration / non-renewal
+            windowStatus = 'in-window';
+            earlyTerminationFeeInCents = 0;
+        }
+
+        const tier = contract.tier || activeSub.metadata.tier || (activeSub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'essential');
+
+        
+        let setupFeeInCents = contract.setupFeePaid;
+        
+        // Fallback for legacy contracts without setupFeePaid populated
+        if (!setupFeeInCents && setupFeeInCents !== 0) {
+            const discountPercentage = parseInt(process.env.DISCOUNT_PERCENTAGE || '0');
+            const applyDiscount = (amount) => Math.round(amount * (1 - (discountPercentage / 100)));
+            if (process.env.TEST_MODE === 'true') {
+                setupFeeInCents = tier === 'enterprise' ? 400 : tier === 'professional' ? 300 : tier === 'simple' ? 100 : 200;
+            } else {
+                if (tier === 'enterprise') {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ENTERPRISE_SETUP || '1499900'));
+                } else if (tier === 'professional') {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_PROFESSIONAL_SETUP || '799900'));
+                } else if (tier === 'essential') {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_ESSENTIAL_SETUP || '349900'));
+                } else {
+                    setupFeeInCents = applyDiscount(parseInt(process.env.PRICE_SIMPLE_SETUP || '149900'));
+                }
+            }
+        }
+
+        const buyoutFeeInCents = Math.round(setupFeeInCents / 2);
+        const totalBuyoutCost = buyoutFeeInCents + earlyTerminationFeeInCents;
+
+        res.json({
+            windowStatus,
+            monthsLeft,
+            daysUntilExpiration,
+            earlyTerminationFee: earlyTerminationFeeInCents / 100,
+            buyoutFeeOnly: buyoutFeeInCents / 100,
+            totalBuyoutCost: totalBuyoutCost / 100,
+            subscriptionId: activeSub.id
+        });
+    } catch (err) {
+        console.error('QUOTE ERROR:', err);
+        res.status(500).json({ error: 'Failed to generate quote' });
+    }
+};
+
+// Create Stripe Checkout Session for Cancellation or Buyout
+const checkoutCancellation = async (req, res) => {
+    try {
+        const { email, type, amount, subscriptionId } = req.body;
+        const User = require('../models/user');
+        const user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // If the amount is 0 (e.g. they cancel in the notice window, no fees apply)
+        if (amount === 0) {
+            await stripe.subscriptions.cancel(subscriptionId);
+            const Contract = require('../models/Contract');
+            const finalStatus = type === 'buyout' ? 'bought-out' : 'cancelled';
+            await Contract.updateMany({ userId: user._id, status: 'active' }, { status: finalStatus });
+            return res.json({ url: '/dashboard?success=true', zeroDollar: true });
+        }
+
+        const session = await stripe.checkout.sessions.create({
+            customer: user.stripeCustomerId,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: type === 'buyout' ? 'Website Buyout & Early Termination' : 'Early Termination Fee',
+                            description: type === 'buyout' ? 'Purchase full rights to your website.' : '50% of remaining 12-month contract.'
+                        },
+                        unit_amount: Math.round(amount * 100)
+                    },
+                    quantity: 1
+                }
+            ],
+            mode: 'payment',
+            metadata: {
+                action: 'cancellation_payment',
+                type: type,
+                subscriptionId: subscriptionId,
+                userId: user._id.toString()
+            },
+            success_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?cancellation_success=true`,
+            cancel_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/dashboard?canceled=true`
+        });
+
+        res.json({ url: session.url });
+    } catch (err) {
+        console.error('CANCELLATION CHECKOUT ERROR:', err);
+        res.status(500).json({ error: 'Failed to create checkout session' });
+    }
+};
+
+/**
+ * POST /api/stripe/create-portal-session
+ */
+const createPortalSession = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email is required.' });
+
+        let customerId;
+        const user = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
+        if (user && user.stripeCustomerId) {
+            customerId = user.stripeCustomerId;
+        } else {
+            let customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
+            if (customers.data.length === 0 && email !== email.toLowerCase()) {
+                customers = await stripe.customers.list({ email: email, limit: 1 });
+            }
+            if (customers.data.length > 0) {
+                customerId = customers.data[0].id;
+            }
+        }
+
+        if (!customerId) {
+            return res.status(404).json({ error: 'No subscription found with this email.' });
+        }
+
+        const portalSession = await stripe.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: `${process.env.PROD_FRONTEND_URL || 'http://localhost:4200'}/services`,
+        });
+
+        res.json({ url: portalSession.url });
+    } catch (err) {
+        console.error('STRIPE PORTAL ERROR:', err.message);
+        res.status(500).json({ error: 'Failed to initialize portal.' });
+    }
+};
+
+/**
+ * GET /api/stripe/subscriptions/:email
+ */
+const subscriptionsByEmail = async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        let customerId;
+        const user = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
+        if (user && user.stripeCustomerId) {
+            customerId = user.stripeCustomerId;
+        } else {
+            let customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
+            if (customers.data.length === 0 && email !== email.toLowerCase()) {
+                customers = await stripe.customers.list({ email: email, limit: 1 });
+            }
+            if (customers.data.length > 0) {
+                customerId = customers.data[0].id;
+            }
+        }
+
+        if (!customerId) return res.json({ subscriptions: {} });
+
+        const subscriptions = await stripe.subscriptions.list({
+            customer: customerId,
+            status: 'all',
+            expand: ['data.plan.product']
+        });
+
+        const grouped = { simple: [], essential: [], professional: [] };
+        subscriptions.data.forEach(sub => {
+            if (sub.status === 'canceled') return;
+            const tier = sub.metadata.tier || (sub.plan.product.name.toLowerCase().includes('essential') ? 'essential' :
+                sub.plan.product.name.toLowerCase().includes('professional') ? 'professional' : 'simple');
+            if (grouped[tier]) {
+                grouped[tier].push({
+                    id: sub.id,
+                    status: sub.status,
+                    current_period_end: sub.current_period_end,
+                    product_name: sub.plan.product.name
+                });
+            }
+        });
+        res.json({ subscriptions: grouped });
+    } catch (err) {
+        console.error('FETCH SUBSCRIPTIONS ERROR:', err.message);
+        res.status(500).json({ error: 'Failed to fetch status.' });
+    }
+};
+
+/**
+ * Helper function to send receipt email via Zoho using authoritative OrderSnapshot
+ */
+const sendReceiptEmail = async (userEmail, userName, amountTotal, projectType, pdfBuffer, snapshot = null) => {
+    try {
+        const { generateCustomerReceiptEmail, formatCents } = require('../services/order-email.service');
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+            port: parseInt(process.env.SMTP_PORT || '465'),
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        let emailContent;
+        if (snapshot) {
+            emailContent = generateCustomerReceiptEmail(snapshot, { amount_total: amountTotal, customer_details: { email: userEmail, name: userName } });
+        } else {
+            emailContent = {
+                subject: 'Payment Receipt & Legal Agreements — Phoenix Websites AI',
+                html: `
+                    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                        <h2 style="color: #ea580c;">Phoenix Payment Receipt</h2>
+                        <p>Hi ${userName || 'there'},</p>
+                        <p>Thank you for your payment. Your transaction has been successfully processed.</p>
+                        <h3>Transaction Details:</h3>
+                        <ul>
+                            <li><strong>Service:</strong> ${projectType || 'Phoenix Digital Services'}</li>
+                            <li><strong>Amount Paid:</strong> $${(amountTotal / 100).toFixed(2)}</li>
+                            <li><strong>Date:</strong> ${new Date().toLocaleDateString()}</li>
+                        </ul>
+                        <p>A copy of your signed Master Service Agreement and our legal policies are attached to this email for your records.</p>
+                        <p><strong>Notice on Cancellations (Wis. Stat. § 134.49):</strong> Written notice of non-renewal must be provided between 60 and 30 days prior to your annual renewal date via client portal or email.</p>
+                        <p>If you have any questions, reply to this email or reach us at hello@phoenixwebsites.ai.</p>
+                        ${communicationGuideHtml()}
+                    </div>
+                `,
+                text: `Payment Receipt: ${formatCents(amountTotal)} received for ${projectType}. Agreement attached.\n\n${COMMUNICATION_GUIDE_TEXT}`
+            };
+        }
+
+        await transporter.sendMail({
+            from: `"Phoenix" <${process.env.EMAIL_USER}>`,
+            to: userEmail,
+            subject: emailContent.subject,
+            html: emailContent.html,
+            text: emailContent.text,
+            attachments: pdfBuffer ? [{ filename: 'Phoenix_Master_Service_Agreement.pdf', content: pdfBuffer }] : []
+        });
+        console.log('Receipt email sent to', userEmail);
+    } catch (err) {
+        console.error('Failed to send receipt email:', err);
+    }
+};
+
+/**
+ * Webhook handler to record contracts
+ */
+const stripeWebhook = async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+    try {
+        // Use the raw body captured in app.js
+        event = stripe.webhooks.constructEvent(req.rawBody || req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    const ProcessedEvent = require('../models/ProcessedEvent');
+    try {
+        const existingEvent = await ProcessedEvent.findOne({ eventId: event.id });
+        if (existingEvent) {
+            console.log(`[STRIPE] Ignoring duplicate event ${event.id}`);
+            return res.json({ received: true });
+        }
+    } catch (err) {
+        console.error('Failed to check for processed event:', err.message);
+        return res.status(503).json({ error: 'Payment processing is temporarily unavailable.' });
+    }
+
+    // Best Practice for long running servers is returning early, BUT on Vercel Serverless, 
+    // returning early kills the function before async tasks finish. We must wait.
+    
+    // Process the event
+    try {
+        // Group buy: a saved card can complete a join even if the buyer
+        // closed the tab before the browser called back.
+        if (event.type === 'setup_intent.succeeded') {
+            try {
+                const intent = event.data.object;
+                if (intent.metadata && intent.metadata.eventId && intent.metadata.userId) {
+                    const User = require('../models/user');
+                    const gbUser = await User.findById(intent.metadata.userId);
+                    if (gbUser) {
+                        const { completeJoin } = require('../services/group-buy.service');
+                        await completeJoin(gbUser, intent.id);
+                    }
+                }
+            } catch (gbErr) {
+                console.error('[STRIPE] Group buy setup_intent handling failed:', gbErr.message);
+            }
+            return res.json({ received: true });
+        }
+
+        if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+            const session = event.data.object;
+            // Delayed payment methods can complete checkout before money is paid.
+            if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') return res.json({ received: true, pending: true });
+
+            // Group buy fix-window payment: issue the buyer's discount.
+            if (session.metadata && session.metadata.purpose === 'group_buy_fix') {
+                try {
+                    const User = require('../models/user');
+                    const gbUser = await User.findById(session.metadata.userId);
+                    if (gbUser) {
+                        const { completeFixPayment } = require('../services/group-buy.service');
+                        await completeFixPayment(gbUser, session.metadata.entryId, session.id);
+                    }
+                } catch (gbErr) {
+                    console.error('[STRIPE] Group buy fix payment handling failed:', gbErr.message);
+                }
+                return res.json({ received: true });
+            }
+
+            // Post-purchase add-on payment: apply the frozen purchase
+            // to the customer's order and subscription.
+            if (session.metadata && session.metadata.purpose === 'addon_purchase') {
+                try {
+                    const { applyAddonPurchase } = require('../services/addons.service');
+                    await applyAddonPurchase(stripe, session.metadata.purchaseId);
+                } catch (addonErr) {
+                    console.error('[STRIPE] Addon purchase handling failed:', addonErr.message);
+                }
+                return res.json({ received: true });
+            }
+
+            if (session.metadata && session.metadata.action === 'cancellation_payment') {
+                try {
+                    const subId = session.metadata.subscriptionId;
+                    await stripe.subscriptions.cancel(subId);
+                    const Contract = require('../models/Contract');
+
+                    const finalStatus = session.metadata.type === 'buyout' ? 'bought-out' : 'cancelled';
+
+                    await Contract.updateMany({ userId: session.metadata.userId, status: 'active' }, { status: finalStatus });
+                    console.log(`[STRIPE] Cancellation processed. Status updated to ${finalStatus}`);
+
+                    const amountPaid = (session.amount_total / 100).toFixed(0);
+                    const paymentType = session.metadata.type === 'buyout' ? 'buyout' : 'cncl';
+                    
+                    const User = require('../models/user');
+                    const user = await User.findById(session.metadata.userId);
+                    const userName = user ? `${user.firstName}`.trim() : 'Unk';
+                    const businessName = user ? user.businessName : 'Unk';
+
+                    const smsMessage = `+${amountPaid} from ${userName} (${businessName}) for ${paymentType}`;
+                    await sendAdminSMS(smsMessage);
+
+                    return res.json({ received: true }); // Respond after processing
+                } catch (err) {
+                    console.error('Failed to process cancellation payment:', err);
+                    return res.status(500).json({ error: 'Failed' });
+                }
+            }
+
+            const { userId, tier, acceptedContract, contractTimestamp, setupFee, monthlyFee, discountCode } = session.metadata || {};
+
+            // If a limited discount code was used, save it to the user so they can't use it again
+            if (discountCode && discountCode.startsWith('DCL_') && userId !== 'guest') {
+                const actualCode = discountCode.replace('DCL_', '');
+                const User = require('../models/user');
+                await User.findByIdAndUpdate(userId, {
+                    $addToSet: { usedDiscountCodes: actualCode }
+                }).catch(err => console.error('[STRIPE] Failed to add used discount code:', err));
+            }
+
+            // Record database coupon redemptions (usage count + per-customer use), once per session
+            if (discountCode && !discountCode.startsWith('DCL_')) {
+                await recordDatabaseCouponRedemption({
+                    code: discountCode,
+                    userId: userId || null,
+                    email: (session.customer_details && session.customer_details.email) || session.customer_email || null,
+                    sessionId: session.id
+                }).catch(err => console.error('[STRIPE] Failed to record coupon redemption:', err));
+            }
+
+            // Automate 12-month subscription schedule if a subscription exists
+            if (session.subscription) {
+                try {
+                    const schedule = await stripe.subscriptionSchedules.create({
+                        from_subscription: session.subscription,
+                    });
+
+                    const subscription = await stripe.subscriptions.retrieve(session.subscription);
+
+                    const items = subscription.items.data.map(item => ({
+                        price: item.price.id,
+                        quantity: item.quantity
+                    }));
+
+                    await stripe.subscriptionSchedules.update(schedule.id, {
+                        end_behavior: 'release',
+                        phases: [
+                            {
+                                items: items,
+                                iterations: 12,
+                            }
+                        ]
+                    });
+                } catch (err) {
+                    console.error('Failed to create subscription schedule:', err.message);
+                }
+            }
+
+            let pdfBuffer = null;
+            let userToEmail = null;
+
+            if (acceptedContract === 'true' && userId !== 'guest') {
+                const user = await User.findById(userId);
+                if (user) {
+                    userToEmail = user;
+                    user.hasAcceptedContract = true;
+                    user.contractAcceptedAt = new Date(contractTimestamp);
+                    user.stripeCustomerId = session.customer;
+                    user.subscriptionStatus = tier === 'simple' ? 'simple-build' : tier;
+                    await user.save();
+
+                    const legalService = require('../services/legal.service');
+                    pdfBuffer = await legalService.generateMergedLegalPDF({
+                        tier,
+                        setupFee: parseInt(setupFee || '0'),
+                        monthlyFee: parseInt(monthlyFee || '0')
+                    });
+
+                    const isDataTier = tier === 'data';
+                    const contractType = isDataTier 
+                        ? 'Data Intelligence Purchase' 
+                        : (tier === 'simple' ? 'Yearly Service Agreement - Simple' : `Yearly Service Agreement - ${tier}`);
+                    const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
+
+                    // Data tiers: no expiration (perpetual access). Website tiers: 1 year.
+                    let expiresAt = isDataTier ? null : new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+
+                    const newContract = new Contract({
+                        userId: user._id,
+                        contractType: contractType,
+                        projectName: projectType,
+                        stripeSubscriptionId: session.subscription || null,
+                        tier: tier,
+                        setupFeePaid: parseInt(setupFee || '0'),
+                        monthlyFee: parseInt(monthlyFee || '0'),
+                        acceptedAt: new Date(contractTimestamp),
+                        status: 'active',
+                        expiresAt: expiresAt,
+                        pdfSnapshot: pdfBuffer,
+                        reviewToken: require('crypto').randomUUID()
+                    });
+                    await newContract.save();
+
+                    // --- DATA TIER: Create DataPurchase records + deliver data via email ---
+                    if (isDataTier && user) {
+                        try {
+                            const DataPurchase = require('../models/DataPurchase');
+                            let DataRecord;
+                            try { DataRecord = require('mongoose').model('DataRecord'); } catch(e) { DataRecord = null; }
+
+                            const cartBlocks = user.cart || [];
+                            
+                            if (cartBlocks.length > 0 && DataRecord) {
+                                // Collect ALL record IDs across all cart blocks
+                                const allRecordIds = [];
+                                const purchases = [];
+
+                                for (const block of cartBlocks) {
+                                    const purchase = new DataPurchase({
+                                        userId: user._id,
+                                        recordIds: block.recordIds || [],
+                                        searchQuery: block.searchQuery || '',
+                                        filters: block.filters || {},
+                                        status: 'paid',
+                                        stripeSessionId: session.id,
+                                        paidAt: new Date(),
+                                        deliveryEmail: user.email,
+                                        totalRecords: (block.recordIds || []).length,
+                                        amountPaid: parseInt(process.env.PRICE_DATA || '24900'),
+                                        blockLabel: block.blockLabel || 'Data Block'
+                                    });
+                                    await purchase.save();
+                                    purchases.push(purchase);
+                                    allRecordIds.push(...(block.recordIds || []));
+                                }
+
+                                // Fetch full records with contact info
+                                const uniqueIds = [...new Set(allRecordIds.map(id => id.toString()))];
+                                const fullRecords = await DataRecord.find({ 
+                                    _id: { $in: uniqueIds } 
+                                }).select('-raw').lean();
+
+                                // Build CSV
+                                const csvHeader = 'Company,Project Type,Budget,City,State,Contact Name,Email,Phone,Summary';
+                                const csvRows = fullRecords.map(r => {
+                                    const s = r.structured || {};
+                                    const loc = s.location || {};
+                                    const c = s.contactInfo || {};
+                                    return [
+                                        `"${(s.companyName || '').replace(/"/g, '""')}"`,
+                                        `"${(s.projectType || '').replace(/"/g, '""')}"`,
+                                        s.estimatedBudget || 0,
+                                        `"${(loc.city || '').replace(/"/g, '""')}"`,
+                                        `"${(loc.state || '').replace(/"/g, '""')}"`,
+                                        `"${(c.name || '').replace(/"/g, '""')}"`,
+                                        `"${(c.email || '').replace(/"/g, '""')}"`,
+                                        `"${(c.phone || '').replace(/"/g, '""')}"`,
+                                        `"${(s.executiveSummary || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+                                    ].join(',');
+                                });
+                                const csvContent = [csvHeader, ...csvRows].join('\n');
+
+                                // Build HTML email
+                                const outreachService = require('../services/outreach.service');
+                                
+                                // Generate AI summary paragraph using persona from DB
+                                let aiParagraph = '';
+                                try {
+                                    aiParagraph = await outreachService.generateDataDeliverySummary(fullRecords, user.firstName);
+                                } catch (aiErr) {
+                                    console.error('[DATA DELIVERY] AI paragraph failed:', aiErr.message);
+                                }
+
+                                const persona = await outreachService.getPersona();
+                                const portalBase = process.env.PROD_FRONTEND_URL || 'https://phoenixwebsites.ai';
+
+                                // Generate HMAC tokens for per-record direct links
+                                const crypto = require('crypto');
+                                const tokenSecret = process.env.JWT_SECRET || 'phoenix-data-secret';
+
+                                const recordTableRows = fullRecords.slice(0, 50).map(r => {
+                                    const s = r.structured || {};
+                                    const loc = s.location || {};
+                                    const c = s.contactInfo || {};
+                                    const budget = s.estimatedBudget >= 1000000 
+                                        ? `$${(s.estimatedBudget / 1000000).toFixed(1)}M`
+                                        : s.estimatedBudget >= 1000 
+                                            ? `$${(s.estimatedBudget / 1000).toFixed(0)}K`
+                                            : `$${s.estimatedBudget || 0}`;
+                                    const viewToken = crypto.createHmac('sha256', tokenSecret).update(r._id.toString()).digest('hex').substring(0, 24);
+                                    const viewLink = `${portalBase}/data/${r._id}?token=${viewToken}`;
+                                    return `<tr>
+                                        <td style="padding:10px;border-bottom:1px solid #333"><a href="${viewLink}" style="color:#fff;text-decoration:none;font-weight:bold">${s.companyName || 'N/A'}</a></td>
+                                        <td style="padding:10px;border-bottom:1px solid #333">${s.projectType || 'N/A'}</td>
+                                        <td style="padding:10px;border-bottom:1px solid #333;color:#10b981;font-weight:bold">${budget}</td>
+                                        <td style="padding:10px;border-bottom:1px solid #333">${loc.city || ''}${loc.state ? ', ' + loc.state : ''}</td>
+                                        <td style="padding:10px;border-bottom:1px solid #333">${c.name || '—'}<br><a href="mailto:${c.email}" style="color:#ea580c">${c.email || '—'}</a><br>${c.phone || '—'}</td>
+                                    </tr>`;
+                                }).join('');
+
+                                const deliveryHtml = `
+                                <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:800px;margin:0 auto;background:#0a0a0a;color:#fff;border-radius:16px;overflow:hidden">
+                                    <div style="background:linear-gradient(135deg,#ea580c 0%,#eab308 100%);padding:40px;text-align:center">
+                                        <h1 style="margin:0;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:2px">Your Data Is Ready</h1>
+                                        <p style="margin:10px 0 0;opacity:0.9;font-size:14px">${fullRecords.length} records • ${purchases.length} block(s) • Purchased ${new Date().toLocaleDateString()}</p>
+                                    </div>
+                                    <div style="padding:30px">
+                                        <p style="color:#ccc;font-size:14px;line-height:1.8;margin-bottom:24px">${aiParagraph.replace(/\n/g, '<br>')}</p>
+                                        
+                                        <div style="overflow-x:auto;margin:24px 0">
+                                            <table style="width:100%;border-collapse:collapse;font-size:13px;color:#ddd">
+                                                <thead>
+                                                    <tr style="background:#1a1a1a">
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Company</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Project</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Budget</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Location</th>
+                                                        <th style="padding:12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ea580c">Contact</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>${recordTableRows}</tbody>
+                                            </table>
+                                        </div>
+                                        ${fullRecords.length > 50 ? '<p style="color:#666;font-size:12px;text-align:center">Showing first 50 records. Full data in attached CSV.</p>' : ''}
+                                        
+                                        <div style="text-align:center;margin:30px 0">
+                                            <a href="${portalBase}/data" style="display:inline-block;padding:16px 40px;border-radius:14px;background:linear-gradient(135deg,#ea580c,#d97706);color:white;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:2px;text-decoration:none">View All Records on Portal</a>
+                                        </div>
+
+                                        <div style="background:#1a1a1a;border-radius:12px;padding:20px;margin-top:24px;text-align:center">
+                                            <p style="color:#999;font-size:12px;margin:0">Click any company name above to view the full unlocked record, or visit</p>
+                                            <a href="${portalBase}/data" style="color:#ea580c;font-size:14px;font-weight:bold;text-decoration:none">${portalBase}/data</a>
+                                            <p style="color:#666;font-size:11px;margin:10px 0 0">Your Library tab shows all your purchases with full contact info.</p>
+                                        </div>
+                                        
+                                        <p style="color:#666;font-size:11px;margin-top:30px;text-align:center">This purchase is non-refundable. All data sourced from public records under FOIA.</p>
+                                        <p style="color:#444;font-size:11px;text-align:center;margin-top:8px">— ${persona.senderName}, ${persona.companyName}</p>
+                                        ${subjectWordNoticeHtml('ORDER', 'color:#666;font-size:11px;text-align:center;margin-top:12px;line-height:1.5;')}
+                                    </div>
+                                </div>`;
+
+                                // Send delivery email
+                                const nodemailer = require('nodemailer');
+                                const deliveryTransporter = nodemailer.createTransport({
+                                    host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                                    port: parseInt(process.env.SMTP_PORT || '465'),
+                                    secure: true,
+                                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                                });
+
+                                await deliveryTransporter.sendMail({
+                                    from: `"${persona.companyName} Data Intelligence" <${process.env.EMAIL_USER}>`,
+                                    to: user.email,
+                                    subject: `Your ${persona.companyName} Data Intelligence — ${fullRecords.length} Records Ready`,
+                                    html: deliveryHtml,
+                                    attachments: [{
+                                        filename: `${persona.companyName.toLowerCase().replace(/\s+/g, '-')}-data-${new Date().toISOString().slice(0,10)}.csv`,
+                                        content: csvContent,
+                                        contentType: 'text/csv'
+                                    }]
+                                });
+
+                                // Mark purchases as delivered
+                                for (const p of purchases) {
+                                    p.status = 'delivered';
+                                    p.deliveredAt = new Date();
+                                    await p.save();
+                                }
+
+                                // Clear the user's cart
+                                user.cart = [];
+                                await user.save();
+
+                                console.log(`[DATA DELIVERY] ${fullRecords.length} records sent to ${user.email} (${purchases.length} blocks)`);
+
+                                // --- INVENTORY: Mark records as sold + fetch replacements ---
+                                try {
+                                    // Atomically mark all purchased records as sold
+                                    await DataRecord.updateMany(
+                                        { _id: { $in: uniqueIds } },
+                                        { $set: { soldAt: new Date(), status: 'sold', reservedBy: null, reservedUntil: null } }
+                                    );
+                                    console.log(`[INVENTORY] Marked ${uniqueIds.length} records as sold.`);
+
+                                    // Fetch one random real replacement for each sold record
+                                    const dataFetcherService = require('../services/data-fetcher.service');
+                                    const inventoryService = require('../services/inventory.service');
+                                    
+                                    for (let i = 0; i < Math.min(uniqueIds.length, 10); i++) {
+                                        dataFetcherService.fetchRandom().catch(err =>
+                                            console.error('[INVENTORY] Replacement fetch failed:', err.message)
+                                        );
+                                    }
+
+                                    // Run pruning after replacements
+                                    inventoryService.prune(0).catch(err =>
+                                        console.error('[INVENTORY] Post-purchase prune failed:', err.message)
+                                    );
+                                } catch (invErr) {
+                                    console.error('[INVENTORY] Post-purchase inventory update failed:', invErr.message);
+                                }
+                            }
+                        } catch (dataErr) {
+                            console.error('[DATA DELIVERY] Failed to deliver data:', dataErr.message);
+                        }
+                    }
+                }
+            }
+
+            if (userToEmail || session.customer_details?.email) {
+                const emailTarget = userToEmail?.email || session.customer_details?.email;
+                const userName = userToEmail ? `${userToEmail.firstName} ${userToEmail.lastName}`.trim() : session.metadata?.customer_name;
+                const businessName = userToEmail?.businessName || session.metadata?.business_name || 'Not Provided';
+                const projectType = session.metadata?.project_type || 'Phoenix Digital Services';
+
+                // Update the Stripe Customer object with Business Name and Name
+                try {
+                    await stripe.customers.update(session.customer, {
+                        name: businessName !== 'Not Provided' ? businessName : userName,
+                        description: `Contact: ${userName}`,
+                        metadata: {
+                            individual_name: userName,
+                            business_name: businessName,
+                            tier: tier || 'Unknown'
+                        }
+                    });
+                    console.log(`[STRIPE] Customer ${session.customer} updated with name/business_name.`);
+                } catch (err) {
+                    console.error('[STRIPE] Failed to update customer name:', err.message);
+                }
+
+                // Retrieve the authoritative OrderSnapshot
+                const OrderSnapshot = require('../models/OrderSnapshot');
+                let orderSnapshot = null;
+                try {
+                    orderSnapshot = await OrderSnapshot.findOne({
+                        $or: [{ stripeSessionId: session.id }, { orderId: session.id }]
+                    });
+                } catch (snapErr) {
+                    console.warn('[STRIPE] Could not query OrderSnapshot:', snapErr.message);
+                }
+
+                // If not found in DB (e.g. edge case or direct Stripe session), construct an authoritative fallback
+                if (!orderSnapshot) {
+                    const { calculateProjectPrice } = require('../services/pricing.service');
+                    const fallbackCalc = calculateProjectPrice({
+                        tier: tier || 'business',
+                        discountCode: session.metadata ? session.metadata.discountCode : undefined
+                    });
+                    orderSnapshot = {
+                        orderId: session.id,
+                        customerName: userName,
+                        customerEmail: emailTarget,
+                        businessName: businessName,
+                        tierId: fallbackCalc.tier.id,
+                        tierName: fallbackCalc.tier.name,
+                        totalPages: fallbackCalc.scope.totalPages,
+                        extraPages: fallbackCalc.scope.extraPages,
+                        baseSetupCents: fallbackCalc.normalPrices.baseSetup,
+                        baseMonthlyCents: fallbackCalc.normalPrices.baseMonthly,
+                        extraPagesSetupCents: fallbackCalc.scope.extraPagesSetupPrice,
+                        selectedAddons: fallbackCalc.addons,
+                        addonsSetupSubtotalCents: fallbackCalc.normalPrices.addonsSetup,
+                        addonsMonthlySubtotalCents: fallbackCalc.normalPrices.addonsMonthly,
+                        supportAddon: fallbackCalc.support,
+                        bundleDiscountPercent: fallbackCalc.discounts.bundle.percent,
+                        bundleDiscountSetupCents: fallbackCalc.discounts.bundle.setupSavings,
+                        bundleDiscountMonthlyCents: fallbackCalc.discounts.bundle.monthlySavings,
+                        promotionName: fallbackCalc.discounts.promotion.name,
+                        promotionDiscountPercent: fallbackCalc.discounts.promotion.percent,
+                        promotionDiscountSetupCents: fallbackCalc.discounts.promotion.setupSavings,
+                        promotionDiscountMonthlyCents: fallbackCalc.discounts.promotion.monthlySavings,
+                        finalSetupCents: session.amount_total,
+                        finalMonthlyCents: fallbackCalc.finalPrices.monthlyRecurring,
+                        dueTodayCents: session.amount_total,
+                        firstMonthlyBillingDate: new Date(fallbackCalc.schedule.firstMonthlyBillingDate),
+                        commitmentMonths: 12,
+                        termsVersion: 'v4-wisconsin-hardened',
+                        createdAt: new Date()
+                    };
+                }
+
+                // Initialize Production ContractLifecycle Record (Wis. Stat. § 134.49)
+                try {
+                    let supportItemId = null;
+                    if (session.subscription && typeof stripe.subscriptions?.retrieve === 'function') {
+                        try {
+                            const sub = await stripe.subscriptions.retrieve(session.subscription);
+                            if (sub && sub.items && sub.items.data.length > 1) {
+                                const suppMonthly = orderSnapshot.supportAddon 
+                                    ? (orderSnapshot.supportAddon.discountedMonthlyCents || orderSnapshot.supportAddon.monthlyCents)
+                                    : null;
+                                const suppItem = sub.items.data.find(it => 
+                                    (suppMonthly && it.price?.unit_amount === suppMonthly) ||
+                                    (it.price?.product_data?.name?.includes('Support'))
+                                );
+                                if (suppItem) supportItemId = suppItem.id;
+                            }
+                        } catch (subErr) {
+                            console.warn('[STRIPE] Could not query subscription items:', subErr.message);
+                        }
+                    }
+
+                    const { initializeContractFromOrder } = require('../services/contract-lifecycle.service');
+                    await initializeContractFromOrder(orderSnapshot, { ...session, supportItemId });
+                    console.log(`[STRIPE] ContractLifecycle initialized for order ${orderSnapshot.orderId}`);
+                } catch (lifecycleErr) {
+                    console.warn('[STRIPE] ContractLifecycle initialization warning:', lifecycleErr.message);
+                }
+
+                // 1. Send Authoritative Receipt to Client
+                sendReceiptEmail(emailTarget, userName, session.amount_total, projectType, pdfBuffer, orderSnapshot)
+                    .catch(err => console.error('Background customer receipt failed:', err));
+
+
+                // 2. Send Structured Authoritative Alert to Admin (Carter)
+                try {
+                    const { generateOwnerOrderEmail } = require('../services/order-email.service');
+                    const ownerEmailContent = generateOwnerOrderEmail(orderSnapshot, session);
+
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                        port: parseInt(process.env.SMTP_PORT || '465'),
+                        secure: true,
+                        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                    });
+
+                    transporter.sendMail({
+                        from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                        to: process.env.EMAIL_USER,
+                        subject: ownerEmailContent.subject,
+                        html: ownerEmailContent.html,
+                        text: ownerEmailContent.text
+                    }).catch(err => console.error('Admin alert email failed:', err));
+                } catch (err) {
+                    console.error('Admin alert error:', err);
+                }
+
+                // 3. Send SMS Alert to Admin
+                const amountPaid = (session.amount_total / 100).toFixed(0);
+                let paymentType = 'new sub';
+                if (tier === 'simple') paymentType = 'new site';
+                
+                const shortTier = tier ? tier.substring(0, 4) : 'unk';
+                const smsMessage = `+${amountPaid} from ${userName || 'Unk'} for ${paymentType} [${shortTier}]`;
+                await sendAdminSMS(smsMessage);
+            }
+        } else if (event.type === 'subscription_schedule.released') {
+            const schedule = event.data.object;
+            const subscriptionId = schedule.subscription;
+
+            if (subscriptionId) {
+                try {
+                    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+                    const customerId = subscription.customer;
+                    const user = await User.findOne({ stripeCustomerId: customerId });
+
+                    if (user) {
+                        // Create a NEW 12-month schedule for the next cycle
+                        const items = subscription.items.data.map(item => ({
+                            price: item.price.id,
+                            quantity: item.quantity
+                        }));
+
+                        const newSchedule = await stripe.subscriptionSchedules.create({
+                            from_subscription: subscriptionId,
+                        });
+
+                        await stripe.subscriptionSchedules.update(newSchedule.id, {
+                            end_behavior: 'release',
+                            phases: [{ items: items, iterations: 12 }]
+                        });
+
+                        // Extend the contract in DB by 1 year and update PDF snapshot
+                        const contract = await Contract.findOne({ userId: user._id, status: 'active' }).sort({ expiresAt: -1 });
+                        if (contract && contract.expiresAt) {
+                            const legalService = require('../services/legal.service');
+                            const pdfBuffer = await legalService.generateMergedLegalPDF({
+                                tier: contract.tier,
+                                setupFee: contract.setupFeePaid,
+                                monthlyFee: contract.monthlyFee
+                            });
+
+                            contract.expiresAt = new Date(new Date(contract.expiresAt).setFullYear(new Date(contract.expiresAt).getFullYear() + 1));
+                            contract.pdfSnapshot = pdfBuffer;
+                            await contract.save();
+                        }
+
+                        // Advance Production ContractLifecycle (Wis. Stat. § 134.49)
+                        try {
+                            const ContractLifecycle = require('../models/ContractLifecycle');
+                            const lifecycleContract = await ContractLifecycle.findOne({
+                                $or: [{ stripeSubscriptionId: subscriptionId }, { stripeCustomerId: customerId }]
+                            });
+                            if (lifecycleContract) {
+                                const { advanceContractRenewal } = require('../services/contract-lifecycle.service');
+                                await advanceContractRenewal(lifecycleContract.contractId);
+                                console.log(`[STRIPE] ContractLifecycle ${lifecycleContract.contractId} advanced to Term ${lifecycleContract.currentTermNumber}`);
+                            }
+                        } catch (advErr) {
+                            console.warn('[STRIPE] ContractLifecycle renewal advance warning:', advErr.message);
+                        }
+
+
+                        // Send renewal confirmation email
+                        const nodemailer = require('nodemailer');
+                        const transporter = nodemailer.createTransport({
+                            host: process.env.SMTP_HOST || 'mail.privateemail.com',
+                            port: parseInt(process.env.SMTP_PORT || '465'),
+                            secure: true,
+                            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                        });
+
+                        await transporter.sendMail({
+                            from: `"Carter Moyer" <${process.env.EMAIL_USER}>`,
+                            to: user.email,
+                            subject: 'Your Annual Contract has Renewed',
+                            html: `
+                            <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                                <h2 style="color: #2563eb;">Contract Renewed</h2>
+                                <p>Hi ${user.firstName || user.name || 'there'},</p>
+                                <p>Your 12-month service contract has successfully auto-renewed for another year.</p>
+                                <p>Your continued partnership ensures uninterrupted access to hosting, maintenance, and support.</p>
+                                <p>If you have any questions or need anything, just reply to this email!</p>
+                                ${subjectWordNoticeHtml('ORDER')}
+                                <br><br>
+                                ${process.env.EMAIL_SIGNATURE || ''}
+                            </div>
+                        `
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error handling subscription schedule release (renewal):', err);
+                }
+            }
+        } else if (event.type === 'invoice.payment_failed') {
+            const invoice = event.data.object;
+
+            try {
+                const customerId = invoice.customer;
+                const User = require('../models/user');
+                const user = await User.findOne({ stripeCustomerId: customerId });
+
+                const customerEmail = user?.email || invoice.customer_email || 'Unknown Email';
+                const customerName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Customer';
+                const amountDue = (invoice.amount_due / 100).toFixed(2);
+
+                // Email the Admin (Carter)
+                const nodemailer = require('nodemailer');
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                    port: parseInt(process.env.SMTP_PORT || '465'),
+                    secure: true,
+                    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                });
+
+                await transporter.sendMail({
+                    from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                    to: process.env.EMAIL_USER, // Send to Carter
+                    subject: `URGENT: Payment Failed - ${customerName}`,
+                    html: `
+                    <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px; border-left: 5px solid #ef4444;">
+                        <h2 style="color: #ef4444;">Payment Failure Alert</h2>
+                        <p>A recurring subscription payment has failed.</p>
+                        <ul>
+                            <li><strong>Client:</strong> ${customerName}</li>
+                            <li><strong>Email:</strong> ${customerEmail}</li>
+                            <li><strong>Amount Due:</strong> $${amountDue}</li>
+                            <li><strong>Invoice URL:</strong> <a href="${invoice.hosted_invoice_url}">View Stripe Invoice</a></li>
+                        </ul>
+                        <p>Stripe will automatically attempt to retry this payment based on your retry schedule settings. If it continues to fail, you may need to suspend their website services or take further collection action.</p>
+                    </div>
+                `
+                });
+
+                // Suspend the client's website (Kill Switch Trigger)
+                if (user) {
+                    const Contract = require('../models/Contract');
+                    await Contract.updateMany({ userId: user._id, status: 'active' }, { status: 'breached' });
+                }
+
+            } catch (err) {
+                console.error('Failed to process invoice.payment_failed event:', err);
+            }
+        } else if (event.type === 'invoice.payment_succeeded') {
+            const invoice = event.data.object;
+
+            // If this is a subscription payment and it succeeded, ensure their status is restored to active
+            if (invoice.subscription) {
+                try {
+                    const User = require('../models/user');
+                    const Contract = require('../models/Contract');
+                    const user = await User.findOne({ stripeCustomerId: invoice.customer });
+
+                    if (user) {
+                        // Restore website access (Kill Switch Untrigger)
+                        await Contract.updateMany({ userId: user._id, status: 'breached' }, { status: 'active' });
+
+                        const amountPaid = (invoice.amount_paid / 100).toFixed(0);
+                        if (amountPaid > 0) {
+                            const userName = `${user.firstName}`.trim();
+                            const smsMessage = `+${amountPaid} from ${userName} (sub rnwl)`;
+                            await sendAdminSMS(smsMessage);
+                        }
+                    } else {
+                        const amountPaid = (invoice.amount_paid / 100).toFixed(0);
+                        if (amountPaid > 0) {
+                            const smsMessage = `+${amountPaid} from Unk (sub rnwl)`;
+                            await sendAdminSMS(smsMessage);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Failed to process invoice.payment_succeeded event:', err);
+                }
+            }
+        } else if (event.type === 'customer.subscription.deleted') {
+            const subscription = event.data.object;
+            try {
+                const User = require('../models/user');
+                const Contract = require('../models/Contract');
+                const user = await User.findOne({ stripeCustomerId: subscription.customer });
+
+                if (user) {
+                    // Permanently suspend site when subscription is fully deleted/cancelled
+                    await Contract.updateMany({ userId: user._id, status: { $in: ['active', 'breached'] } }, { status: 'cancelled' });
+                }
+            } catch (err) {
+                console.error('Failed to process customer.subscription.deleted event:', err);
+            }
+        } else if (event.type === 'charge.dispute.created') {
+            const dispute = event.data.object;
+            try {
+                const chargeId = dispute.charge;
+                const charge = await stripe.charges.retrieve(chargeId);
+                if (charge && charge.customer) {
+                    const User = require('../models/user');
+                    const Contract = require('../models/Contract');
+                    const user = await User.findOne({ stripeCustomerId: charge.customer });
+                    if (user) {
+                        // If they did a chargeback on ANY payment (including a Buyout), instantly breach their contract
+                        await Contract.updateMany({ userId: user._id }, { status: 'breached' });
+
+                        const nodemailer = require('nodemailer');
+                        const transporter = nodemailer.createTransport({
+                            host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+                            port: parseInt(process.env.SMTP_PORT || '465'),
+                            secure: true,
+                            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+                        });
+
+                        await transporter.sendMail({
+                            from: `"Phoenix System Alerts" <${process.env.EMAIL_USER}>`,
+                            to: process.env.EMAIL_USER,
+                            subject: `URGENT: Chargeback / Dispute Received!`,
+                            html: `<p>A chargeback was filed by customer email: ${user.email}. Their contract has been marked as breached and the Kill Switch has been activated.</p>`
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to process charge.dispute.created event:', err);
+            }
+        }
+
+        try {
+            await new ProcessedEvent({ eventId: event.id, type: event.type }).save();
+        } catch (err) {
+            console.error('Failed to save processed event:', err.message);
+        }
+
+        // Return 200 OK to Stripe AFTER all processing is done so Vercel doesn't kill the function early
+        res.json({ received: true });
+    } catch (err) {
+        console.error('Webhook processing error:', err);
+        if (!res.headersSent) res.status(500).send('Webhook processing failed');
+    }
+};
+
+module.exports = {
+  checkoutStatus,
+  freeOrderStatus,
+  validateDiscount,
+  verifyStripe,
+  createServiceCheckout,
+  unifiedCheckout,
+  cancellationQuote,
+  checkoutCancellation,
+  createPortalSession,
+  subscriptionsByEmail,
+  stripeWebhook,
+  // Also re-exported by routes/stripe.js for the coupon redemption verification harness
+  recordDatabaseCouponRedemption
+};
