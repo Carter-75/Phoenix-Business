@@ -92,6 +92,14 @@
   @media (min-width: 640px) {
     .fluid-h2 { @apply text-[clamp(2.5rem,10vw,6rem)] leading-[0.9] tracking-[-0.04em]; }
   }
+  /* Method section heading: its longest word (DEVELOPMENT, 11 chars) clipped at
+     fluid-h2 sizes on phones, so below sm it uses a fixed size that always fits. */
+  .method-h2 {
+    @apply text-[1.9rem] leading-[1] tracking-[-0.02em];
+  }
+  @media (min-width: 640px) {
+    .method-h2 { @apply text-[clamp(2.5rem,10vw,6rem)] leading-[0.9] tracking-[-0.04em]; }
+  }
   .fluid-h3 { 
     @apply text-[clamp(1.25rem,4vw,3rem)] leading-snug tracking-[-0.01em] break-words;
   }
