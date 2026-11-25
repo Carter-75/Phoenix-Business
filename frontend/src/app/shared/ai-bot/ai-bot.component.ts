@@ -13,19 +13,21 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <!-- Floating Chat Button -->
-    <button *ngIf="!isOpen()" (click)="toggleChat()" class="fixed bottom-6 right-6 z-[200] w-14 h-14 bg-orange-600 hover:bg-orange-500 rounded-full shadow-2xl flex items-center justify-center text-white transition-all hover:scale-110 hover:-translate-y-1">
-      <i class="fa-solid fa-robot text-2xl"></i>
+    <!-- Floating Chat Button: black glass pill with a fire-orange glow ring (icon-only circle on small screens) -->
+    <button *ngIf="!isOpen()" (click)="toggleChat()" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[200] h-14 w-14 sm:w-auto sm:px-6 rounded-full bg-black/85 backdrop-blur-md border border-orange-500/60 shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_25px_rgba(255,77,0,0.35)] flex items-center justify-center gap-2.5 text-white transition-all hover:scale-105 hover:-translate-y-0.5 hover:border-orange-400 hover:shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_35px_rgba(255,77,0,0.55)]">
+      <i class="fa-solid fa-robot text-xl text-[#FF4D00]"></i>
+      <span class="hidden sm:inline text-sm font-bold tracking-wide">Chat with Phoenix</span>
+      <span class="hidden sm:inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
     </button>
 
     <!-- Chat Window -->
-    <div *ngIf="isOpen()" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[200] w-[calc(100vw-3rem)] sm:w-[400px] h-[550px] max-h-[calc(100vh-6rem)] bg-[#050505] border border-orange-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all animate-fade-in">
+    <div *ngIf="isOpen()" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[200] w-[calc(100vw-3rem)] sm:w-[400px] h-[550px] max-h-[calc(100vh-6rem)] bg-[#050505]/95 backdrop-blur-xl border border-orange-500/30 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.7),0_0_35px_rgba(255,77,0,0.12)] flex flex-col overflow-hidden transition-all animate-fade-in">
       
       <!-- Header -->
-      <div class="p-4 bg-orange-600/10 border-b border-orange-500/20 flex items-center justify-between shrink-0">
+      <div class="p-4 bg-gradient-to-r from-orange-600/15 via-transparent to-orange-600/10 border-b border-orange-500/20 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white shrink-0 shadow-[0_0_15px_rgba(234,88,12,0.5)]">
-            <i class="fa-solid fa-robot"></i>
+          <div class="w-10 h-10 rounded-full bg-black/60 border border-orange-500/50 flex items-center justify-center text-[#FF4D00] shrink-0 shadow-[0_0_15px_rgba(255,77,0,0.35)]">
+            <i class="fa-solid fa-fire"></i>
           </div>
           <div>
             <h3 class="text-white font-black uppercase tracking-widest text-xs">Phoenix AI</h3>
@@ -42,22 +44,29 @@ interface ChatMessage {
         
         <!-- Welcome Message -->
         <div class="flex flex-col gap-1 items-start">
-          <div class="bg-white/10 text-white border border-white/5 p-3 rounded-2xl rounded-tl-sm text-sm shadow-sm max-w-[85%]">
+          <div class="bg-orange-500/[0.07] text-white border border-orange-500/15 p-3 rounded-2xl rounded-tl-sm text-sm shadow-sm max-w-[85%]">
             Hello! I am Phoenix, the official AI assistant for Phoenix Websites AI. How can I help you with your custom web development or software infrastructure needs today?
           </div>
+        </div>
+
+        <!-- Quick Questions (shown until the first message is sent) -->
+        <div *ngIf="messages().length === 0" class="flex flex-wrap gap-2">
+          <button (click)="askQuick('What packages do you offer and what do they cost?')" class="text-xs font-semibold text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 rounded-full px-3.5 py-2 transition-colors">Packages and pricing</button>
+          <button (click)="askQuick('I would like a free website audit.')" class="text-xs font-semibold text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 rounded-full px-3.5 py-2 transition-colors">Free website audit</button>
+          <button (click)="askQuick('How do you build websites?')" class="text-xs font-semibold text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 rounded-full px-3.5 py-2 transition-colors">How do you build?</button>
         </div>
 
         <ng-container *ngFor="let msg of messages()">
           <!-- User Message -->
           <div *ngIf="msg.role === 'user'" class="flex flex-col gap-1 items-end">
-            <div class="bg-orange-600 text-white p-3 rounded-2xl rounded-tr-sm text-sm shadow-sm max-w-[85%] leading-relaxed">
+            <div class="bg-gradient-to-br from-[#FF4D00] to-[#EA580C] text-white p-3 rounded-2xl rounded-tr-sm text-sm shadow-sm max-w-[85%] leading-relaxed">
               {{ msg.content }}
             </div>
           </div>
 
           <!-- Bot Message -->
           <div *ngIf="msg.role === 'assistant'" class="flex flex-col gap-1 items-start">
-            <div class="bg-white/10 text-white border border-white/5 p-3 rounded-2xl rounded-tl-sm text-sm shadow-sm max-w-[85%] leading-relaxed whitespace-pre-wrap">
+            <div class="bg-orange-500/[0.07] text-white border border-orange-500/15 p-3 rounded-2xl rounded-tl-sm text-sm shadow-sm max-w-[85%] leading-relaxed whitespace-pre-wrap">
               {{ msg.content }}
             </div>
           </div>
@@ -94,7 +103,7 @@ interface ChatMessage {
           <button 
             type="submit" 
             [disabled]="!currentInput.trim() || isTyping()"
-            class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:hover:bg-orange-600 rounded-full text-white transition-colors"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-gradient-to-br from-[#FF4D00] to-[#EA580C] hover:brightness-110 disabled:opacity-50 rounded-full text-white transition-all"
           >
             <i class="fa-solid fa-paper-plane text-[10px] ml-[-1px]"></i>
           </button>
@@ -142,11 +151,21 @@ export class AiBotComponent implements AfterViewChecked {
   }
 
   sendMessage() {
-    if (!this.currentInput.trim() || this.isTyping()) return;
-
-    const userMessage: ChatMessage = { role: 'user', content: this.currentInput.trim() };
-    this.messages.update(m => [...m, userMessage]);
+    const text = this.currentInput.trim();
+    if (!text) return;
     this.currentInput = '';
+    this.submitMessage(text);
+  }
+
+  askQuick(question: string) {
+    this.submitMessage(question);
+  }
+
+  private submitMessage(text: string) {
+    if (!text || this.isTyping()) return;
+
+    const userMessage: ChatMessage = { role: 'user', content: text };
+    this.messages.update(m => [...m, userMessage]);
     this.isTyping.set(true);
     this.errorMsg.set('');
 
