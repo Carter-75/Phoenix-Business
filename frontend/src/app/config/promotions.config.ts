@@ -235,22 +235,22 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
       name: 'Spring Bloom',
       displayName: 'Spring / Easter',
       colors: {
-        primary: '#06b6d4',
-        secondary: '#34d399',
-        tertiary: '#f472b6'
+        primary: '#f472b6',
+        secondary: '#7dd3fc',
+        tertiary: '#34d399'
       },
       phoenixColors: {
-        bird1: '#06b6d4',
-        bird2: '#34d399',
-        bird3: '#f472b6'
+        bird1: '#f472b6',
+        bird2: '#7dd3fc',
+        bird3: '#34d399'
       },
       phoenixes: {
-        phoenix1: { name: 'Blossom Phoenix', color: '#06b6d4' },
-        phoenix2: { name: 'Zephyr Phoenix', color: '#34d399' },
-        phoenix3: { name: 'Verdant Phoenix', color: '#f472b6' }
+        phoenix1: { name: 'Blossom Phoenix', color: '#f472b6' },
+        phoenix2: { name: 'Zephyr Phoenix', color: '#7dd3fc' },
+        phoenix3: { name: 'Verdant Phoenix', color: '#34d399' }
       },
-      accentGlow: 'rgba(6, 182, 212, 0.25)',
-      description: 'Fresh spring cyan, mint flora, and pastel orchid highlights.'
+      accentGlow: 'rgba(244, 114, 182, 0.25)',
+      description: 'Soft spring pastels: blossom pink, pastel sky blue, and mint green.'
     }
   },
   {
@@ -315,20 +315,20 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
       colors: {
         primary: '#ef4444',
         secondary: '#2563eb',
-        tertiary: '#f59e0b'
+        tertiary: '#f8fafc'
       },
       phoenixColors: {
         bird1: '#ef4444',
         bird2: '#3b82f6',
-        bird3: '#fbbf24'
+        bird3: '#e2e8f0'
       },
       phoenixes: {
         phoenix1: { name: 'Liberty Phoenix', color: '#ef4444' },
         phoenix2: { name: 'Patriot Phoenix', color: '#3b82f6' },
-        phoenix3: { name: 'Sparkler Phoenix', color: '#fbbf24' }
+        phoenix3: { name: 'Sparkler Phoenix', color: '#e2e8f0' }
       },
       accentGlow: 'rgba(239, 68, 68, 0.25)',
-      description: 'Dynamic freedom red, rich navy blue, and warm sparkler amber.'
+      description: 'Dynamic freedom red, rich navy blue, and bright sparkler white.'
     }
   },
   {
@@ -445,7 +445,7 @@ export const HOLIDAY_CAMPAIGNS: HolidayCampaign[] = [
         phoenix3: { name: 'Timber Phoenix', color: '#ea580c' }
       },
       accentGlow: 'rgba(217, 119, 6, 0.25)',
-      description: 'Rich harvest amber, russet bronze, and warm cranberry hues.'
+      description: 'Rich harvest amber, russet bronze, and warm ember orange.'
     }
   },
   {
