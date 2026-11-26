@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ConnectPanelComponent } from '../connect-panel/connect-panel.component';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ConnectPanelComponent],
   template: `
     <footer class="py-20 px-8 sm:px-16 lg:px-32 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12 bg-[#050505]">
       <div class="flex items-center gap-4">
@@ -19,11 +20,7 @@ import { RouterLink } from '@angular/router';
         <a routerLink="/refunds" class="hover:text-white transition-colors">Refunds</a>
       </div>
 
-      <nav aria-label="Phoenix community" class="flex flex-col items-center gap-3 text-sm text-white/70">
-        <a href="https://www.patreon.com/PhoenixWebsites" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Support Phoenix on Patreon</a>
-        <a href="https://www.youtube.com/channel/UCfawV121RAj1CYU69Nk69Rg" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Phoenix Websites AI on YouTube</a>
-        <a href="https://www.patreon.com/PhoenixWebsites/posts/welcome-to-start-169470655" target="_blank" rel="noopener noreferrer" class="hover:text-orange-400">Discord access for Inner Circle members</a>
-      </nav>
+      <app-connect-panel></app-connect-panel>
       <div class="flex flex-col items-center gap-4">
         <div class="text-[10px] font-black uppercase tracking-[0.4em] text-white/20 text-center">
           © 2026 PHOENIX WEBSITES AI | BASED IN WISCONSIN, USA
