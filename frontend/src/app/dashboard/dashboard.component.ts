@@ -13,7 +13,7 @@ import { environment } from '../../environments/environment';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent, AddonsCardComponent],
   template: `
-    <section class="min-h-screen pt-32 sm:pt-48 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
+    <section class="min-h-screen pt-32 sm:pt-48 pb-24 px-4 sm:px-6 bg-[#020205] relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
       
       <div class="max-w-2xl w-full relative z-10 text-center">

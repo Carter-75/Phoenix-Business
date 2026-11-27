@@ -11,7 +11,7 @@ import { SeoService } from '../services/seo.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent],
   template: `
-    <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 bg-slate-950 relative flex flex-col items-center justify-start">
+    <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 bg-[#020205] relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
       
       <div class="max-w-[1400px] w-full relative z-10">
@@ -80,11 +80,11 @@ import { SeoService } from '../services/seo.service';
           <div class="flex items-center gap-4 w-full sm:w-auto">
             <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hidden sm:block whitespace-nowrap">Filter By Rating</label>
             <select [ngModel]="selectedFilter()" (ngModelChange)="selectedFilter.set($event)" class="bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest outline-none focus:border-orange-500 transition-colors w-full sm:w-auto cursor-pointer">
-              <option [ngValue]="0" class="bg-slate-950 text-white">All Ratings</option>
-              <option [ngValue]="5" class="bg-slate-950 text-white">5.0 Stars</option>
-              <option [ngValue]="4.5" class="bg-slate-950 text-white">4.5+ Stars</option>
-              <option [ngValue]="4" class="bg-slate-950 text-white">4.0+ Stars</option>
-              <option [ngValue]="3" class="bg-slate-950 text-white">3.0+ Stars</option>
+              <option [ngValue]="0" class="bg-[#020205] text-white">All Ratings</option>
+              <option [ngValue]="5" class="bg-[#020205] text-white">5.0 Stars</option>
+              <option [ngValue]="4.5" class="bg-[#020205] text-white">4.5+ Stars</option>
+              <option [ngValue]="4" class="bg-[#020205] text-white">4.0+ Stars</option>
+              <option [ngValue]="3" class="bg-[#020205] text-white">3.0+ Stars</option>
             </select>
           </div>
         </div>
