@@ -24,6 +24,8 @@ export class VoiceCallService {
   private ws: WebSocket | null = null;
   private audioContext: AudioContext | null = null;
   private mediaStream: MediaStream | null = null;
+  private micSource: MediaStreamAudioSourceNode | null = null;
+  private micProcessor: ScriptProcessorNode | null = null;
   private timerInterval: any = null;
   private nextPlayTime = 0;
 
@@ -102,17 +104,60 @@ export class VoiceCallService {
   private async initMicrophone() {
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!this.audioContext) return;
+      // Stream mic audio to the agent as PCM16 24kHz input_audio_buffer
+      // appends. Without this the agent could never hear the caller.
+      this.micSource = this.audioContext.createMediaStreamSource(this.mediaStream);
+      this.micProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
+      const inputRate = this.audioContext.sampleRate;
+      this.micProcessor.onaudioprocess = (e) => {
+        if (this.isMuted() || !this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+        const input = e.inputBuffer.getChannelData(0);
+        const pcm = this.encodePcm16(this.downsample(input, inputRate, 24000));
+        this.sendEvent({ type: 'input_audio_buffer.append', audio: pcm });
+      };
+      this.micSource.connect(this.micProcessor);
+      this.micProcessor.connect(this.audioContext.destination);
     } catch (err: any) {
       console.warn('Microphone permission denied or not available:', err);
       this.lastTranscript.set('(Microphone access muted, listening to assistant)');
     }
   }
 
+  private downsample(input: Float32Array, fromRate: number, toRate: number): Float32Array {
+    if (fromRate === toRate) return input;
+    const ratio = fromRate / toRate;
+    const outLength = Math.floor(input.length / ratio);
+    const out = new Float32Array(outLength);
+    for (let i = 0; i < outLength; i++) {
+      out[i] = input[Math.floor(i * ratio)];
+    }
+    return out;
+  }
+
+  private encodePcm16(samples: Float32Array): string {
+    const buffer = new ArrayBuffer(samples.length * 2);
+    const view = new DataView(buffer);
+    for (let i = 0; i < samples.length; i++) {
+      const s = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    }
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
   private handleServerEvent(event: MessageEvent) {
     try {
       const data = JSON.parse(event.data);
 
-      if (data.type === 'response.output_audio_transcript.delta') {
+      if (data.type === 'error') {
+        console.error('xAI realtime error:', data);
+        this.errorMessage.set(data.error?.message || 'The voice agent returned an error.');
+      } else if (data.type === 'response.output_audio_transcript.delta') {
         if (data.delta) {
           this.lastTranscript.update(t => (t + data.delta).slice(-150));
         }
@@ -189,6 +234,17 @@ export class VoiceCallService {
     if (this.ws) {
       this.ws.close();
       this.ws = null;
+    }
+
+    if (this.micProcessor) {
+      this.micProcessor.disconnect();
+      this.micProcessor.onaudioprocess = null;
+      this.micProcessor = null;
+    }
+
+    if (this.micSource) {
+      this.micSource.disconnect();
+      this.micSource = null;
     }
 
     if (this.mediaStream) {

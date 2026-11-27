@@ -173,9 +173,22 @@ router.get('/realtime-session', async (req, res) => {
 
     const data = await response.json();
 
+    // xAI returns the ephemeral token flat as { value, expires_at }.
+    // Reading data.client_secret (the old guess) yielded undefined, so the
+    // browser built the subprotocol "xai-client-secret.undefined" and the
+    // WebSocket handshake was rejected: the Call AI button never connected.
+    const clientSecret = data.value
+      || (data.client_secret && typeof data.client_secret === 'object' ? data.client_secret.value : data.client_secret)
+      || null;
+
+    if (!clientSecret) {
+      console.error('xAI client_secrets returned no token value:', JSON.stringify(data).slice(0, 200));
+      return res.status(502).json({ error: 'Failed to generate xAI voice session token.' });
+    }
+
     res.json({
       agentId,
-      clientSecret: data.client_secret,
+      clientSecret,
       wssUrl: `wss://api.x.ai/v1/realtime?agent_id=${agentId}`
     });
   } catch (err) {
