@@ -95,6 +95,18 @@
       font-size: clamp(2rem, calc((100cqi - 10rem) / 13.6), 10rem);
     }
   }
+  /* Page-hero variant: smaller, and words never split mid-word (the
+     Services and About H1s broke inside words at desktop width). */
+  .fluid-h1-page {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  @media (min-width: 640px) {
+    .fluid-h1-page {
+      font-size: clamp(2rem, calc((100vw - 14rem) / 19), 6.5rem);
+      font-size: clamp(2rem, calc((100cqi - 10rem) / 19), 6.5rem);
+    }
+  }
   .fluid-h2 { 
     @apply text-[clamp(1.75rem,8vw,6rem)] leading-[1] tracking-[-0.02em];
   }

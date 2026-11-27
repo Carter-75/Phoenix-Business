@@ -16,7 +16,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             <div class="w-8 sm:w-12 h-[1px] bg-[#FF4D00] flex-shrink-0"></div>
             <span class="text-[#FF4D00] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] sm:text-xs">Our Approach</span>
           </div>
-          <h1 class="fluid-h1 font-black mb-8 sm:mb-12">
+          <h1 class="fluid-h1 fluid-h1-page font-black mb-8 sm:mb-12">
             OUR<br>
             <span class="text-white/20">APPROACH</span>
           </h1>

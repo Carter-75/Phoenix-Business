@@ -28,15 +28,15 @@ import { VoiceCallService } from '../../services/voice-call.service';
             </a>
 
             <!-- Desktop links -->
-            <div class="hidden lg:flex items-center gap-4 xl:gap-7">
-              <a href="/" (click)="navGo($event, '/')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/'">Home</a>
-              <a href="/about" (click)="navGo($event, '/about')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/about'">About</a>
-              <a href="/services" (click)="navGo($event, '/services')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/services'">Services</a>
-              <a href="/data-cleanup" (click)="navGo($event, '/data-cleanup')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/data-cleanup'">Data Cleanup</a>
-              <a href="/reviews" (click)="navGo($event, '/reviews')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/reviews'">Reviews</a>
-              <a *ngIf="api.currentUser()" href="/dashboard" (click)="navGo($event, '/dashboard')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/dashboard'">Dashboard</a>
-              <a *ngIf="isOwner()" href="/owner" (click)="navGo($event, '/owner')" class="nav-link !py-2" [class.nav-on]="currentPath() === '/owner'">Owner</a>
-              <a href="https://carter-portfolio.fyi" target="_blank" class="nav-link !py-2 !text-orange-500/80 hover:!text-orange-500">Portfolio</a>
+            <div class="hidden lg:flex items-center gap-3 xl:gap-5">
+              <a href="/" (click)="navGo($event, '/')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/'">Home</a>
+              <a href="/about" (click)="navGo($event, '/about')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/about'">About</a>
+              <a href="/services" (click)="navGo($event, '/services')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/services'">Services</a>
+              <a href="/data-cleanup" (click)="navGo($event, '/data-cleanup')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/data-cleanup'">Data Cleanup</a>
+              <a href="/reviews" (click)="navGo($event, '/reviews')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/reviews'">Reviews</a>
+              <a *ngIf="api.currentUser()" href="/dashboard" (click)="navGo($event, '/dashboard')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/dashboard'">Dashboard</a>
+              <a *ngIf="isOwner()" href="/owner" (click)="navGo($event, '/owner')" class="nav-link !py-2 !px-1.5 !tracking-[0.28em]" [class.nav-on]="currentPath() === '/owner'">Owner</a>
+              <a href="https://carter-portfolio.fyi" target="_blank" class="nav-link !py-2 !px-1.5 !tracking-[0.28em] !text-orange-500/80 hover:!text-orange-500">Portfolio</a>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -58,7 +58,7 @@ import { VoiceCallService } from '../../services/voice-call.service';
               <div *ngIf="api.currentUser()" class="relative group hidden lg:block cursor-pointer">
                 <div tabindex="0" role="button" aria-haspopup="true" aria-label="Account menu" class="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-slate-300 uppercase tracking-widest hover:bg-white/10 transition-colors">
                   <i class="fa-solid fa-user-circle text-orange-500" aria-hidden="true"></i>
-                  <span class="max-w-[130px] truncate lowercase">{{ api.currentUser()?.email }}</span>
+                  <span class="max-w-[100px] truncate lowercase">{{ api.currentUser()?.email }}</span>
                   <i class="fa-solid fa-chevron-down text-[8px] ml-1 transition-transform group-hover:rotate-180"></i>
                 </div>
                 <div class="absolute right-0 top-full mt-2 w-64 bg-[#05050A] border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible group-focus-within:scale-100 transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 overflow-hidden z-[120]">
