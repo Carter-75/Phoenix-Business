@@ -3,6 +3,7 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const { OpenAI } = require('openai');
+const nodemailer = require('nodemailer');
 
 // Initialize OpenAI
 const openai = new OpenAI({
@@ -142,6 +143,112 @@ router.post('/chat', botRateLimiter, async (req, res) => {
     } else {
        res.status(500).json({ error: 'Failed to process request.' });
     }
+  }
+});
+
+// @route   POST /api/bot/call-summary
+// @desc    Email Carter a summary and the full transcript of a website voice
+//          call, as a NEW lead email his inbox schedule already works.
+const callSummaryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many call summaries.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+let callMailTransporter = null;
+function getCallMailTransporter() {
+  if (!callMailTransporter) {
+    // Mirrors the proven transport in welcome.service.js exactly (Zoho,
+    // port 465 with secure tied to the port). Do not improvise here.
+    callMailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtppro.zoho.com',
+      port: parseInt(process.env.SMTP_PORT || '465', 10),
+      secure: parseInt(process.env.SMTP_PORT || '465', 10) === 465,
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    });
+  }
+  return callMailTransporter;
+}
+
+router.post('/call-summary', callSummaryLimiter, async (req, res) => {
+  try {
+    const { transcript, durationSeconds, page } = req.body || {};
+    if (!Array.isArray(transcript)) {
+      return res.status(400).json({ error: 'A transcript array is required.' });
+    }
+    const turns = transcript
+      .filter(t => t && typeof t.text === 'string' && t.text.trim())
+      .slice(0, 200)
+      .map(t => ({ role: t.role === 'caller' ? 'caller' : 'phoenix', text: t.text.trim().slice(0, 2000) }));
+    if (!turns.length || !turns.some(t => t.role === 'caller')) {
+      return res.status(400).json({ error: 'No caller conversation to summarize.' });
+    }
+
+    const transcriptText = turns.map(t => `${t.role === 'caller' ? 'Caller' : 'Phoenix'}: ${t.text}`).join('\n');
+
+    // Extract the lead details and a short summary from the transcript.
+    let details = { name: '', email: '', phone: '', business: '', need: '', summary: '' };
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        temperature: 0.2,
+        max_tokens: 400,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'system',
+            content: 'You extract lead details from a transcript of a sales call for Phoenix Websites AI. Reply with ONLY a JSON object with these string fields: name, email, phone, business, need (what the caller wants, one sentence), summary (what happened on the call, 3 to 5 sentences). Use an empty string for anything the caller did not provide. Never invent details.'
+          },
+          { role: 'user', content: transcriptText }
+        ]
+      });
+      const parsed = JSON.parse(completion.choices[0].message.content || '{}');
+      for (const key of Object.keys(details)) {
+        if (typeof parsed[key] === 'string') details[key] = parsed[key].trim();
+      }
+    } catch (extractErr) {
+      console.error('Call summary extraction failed, sending transcript only:', extractErr.message);
+    }
+
+    const when = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'full', timeStyle: 'short' });
+    const duration = Number.isFinite(durationSeconds) && durationSeconds > 0
+      ? `${Math.floor(durationSeconds / 60)}m ${Math.round(durationSeconds % 60)}s`
+      : 'unknown';
+    const field = (label, value) => `${label}: ${value || 'not captured'}`;
+    const text = [
+      'A visitor just finished a voice call with Phoenix on phoenixwebsites.ai.',
+      '',
+      field('When', when),
+      field('Duration', duration),
+      field('Page', typeof page === 'string' ? page.slice(0, 200) : ''),
+      '',
+      'CALLER DETAILS',
+      field('Name', details.name),
+      field('Email', details.email),
+      field('Phone', details.phone),
+      field('Business', details.business),
+      field('What they want', details.need),
+      '',
+      'SUMMARY',
+      details.summary || 'Summary unavailable, see the transcript below.',
+      '',
+      'FULL TRANSCRIPT',
+      transcriptText
+    ].join('\n');
+
+    await getCallMailTransporter().sendMail({
+      from: `"Phoenix Websites AI" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      subject: `NEW Voice call summary - ${details.name || 'Website caller'}`,
+      text
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Call summary error:', err);
+    res.status(500).json({ error: 'Failed to send the call summary.' });
   }
 });
 

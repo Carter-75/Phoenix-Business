@@ -24,6 +24,8 @@ export class VoiceCallService {
   private ws: WebSocket | null = null;
   private audioContext: AudioContext | null = null;
   private mediaStream: MediaStream | null = null;
+  private transcriptTurns: { role: 'caller' | 'phoenix'; text: string }[] = [];
+  private summarySent = false;
   private micSource: MediaStreamAudioSourceNode | null = null;
   private micProcessor: ScriptProcessorNode | null = null;
   private timerInterval: any = null;
@@ -34,6 +36,8 @@ export class VoiceCallService {
 
     this.errorMessage.set(null);
     this.isConnecting.set(true);
+    this.transcriptTurns = [];
+    this.summarySent = false;
 
     this.api.get<VoiceCallSession>('bot/realtime-session').subscribe({
       next: (session) => {
@@ -157,6 +161,18 @@ export class VoiceCallService {
       if (data.type === 'error') {
         console.error('xAI realtime error:', data);
         this.errorMessage.set(data.error?.message || 'The voice agent returned an error.');
+      } else if (data.type === 'response.output_audio_transcript.done') {
+        if (data.transcript) {
+          this.transcriptTurns.push({ role: 'phoenix', text: data.transcript });
+        }
+      } else if (data.type === 'conversation.item.input_audio_transcription.completed') {
+        if (data.transcript) this.addCallerTurn(data.transcript);
+      } else if (data.type === 'conversation.item.added' && data.item?.content) {
+        for (const part of data.item.content) {
+          if (part?.type === 'input_audio' && part.transcript) {
+            this.addCallerTurn(part.transcript);
+          }
+        }
       } else if (data.type === 'response.output_audio_transcript.delta') {
         if (data.delta) {
           this.lastTranscript.update(t => (t + data.delta).slice(-150));
@@ -172,6 +188,25 @@ export class VoiceCallService {
     } catch (e) {
       // Ignore non-json frames
     }
+  }
+
+  private addCallerTurn(text: string) {
+    const clean = text.trim();
+    if (!clean) return;
+    const last = this.transcriptTurns[this.transcriptTurns.length - 1];
+    if (last && last.role === 'caller' && last.text === clean) return;
+    this.transcriptTurns.push({ role: 'caller', text: clean });
+  }
+
+  private sendCallSummary(durationSeconds: number) {
+    if (this.summarySent) return;
+    if (!this.transcriptTurns.some(t => t.role === 'caller')) return;
+    this.summarySent = true;
+    this.api.post('bot/call-summary', {
+      transcript: this.transcriptTurns,
+      durationSeconds,
+      page: window.location.pathname
+    }).subscribe({ next: () => {}, error: () => {} });
   }
 
   private playAudioChunk(base64Pcm: string) {
@@ -222,6 +257,9 @@ export class VoiceCallService {
   }
 
   endCall() {
+    if (this.isCallActive()) {
+      this.sendCallSummary(this.callDuration());
+    }
     this.isCallActive.set(false);
     this.isConnecting.set(false);
     this.isSpeaking.set(false);
