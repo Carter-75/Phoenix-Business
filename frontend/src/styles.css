@@ -199,7 +199,10 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--theme-glow, rgba(255, 77, 0, 0.25)), transparent 65%);
+  /* Brand fire orange always. Never the seasonal theme color: during the
+     Black Friday "Cyber Neon" theme the theme glow is cyan, which reads
+     as an off-brand blue band on the site (Carter, Nov 26, 2026). */
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 77, 0, 0.22), transparent 65%);
   opacity: 0;
   transition: opacity var(--dur-med) ease;
   pointer-events: none;
@@ -260,14 +263,17 @@
   content: '';
   position: absolute;
   inset: -20%;
-  background: linear-gradient(115deg, transparent 42%, var(--theme-glow, rgba(255, 77, 0, 0.18)) 50%, transparent 58%);
+  /* Brand fire orange always, never the seasonal theme color (see
+     .light-card above: the Black Friday theme glow is cyan blue). */
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 77, 0, 0.16) 50%, transparent 58%);
   transform: translateX(-70%);
-  animation: sweep 7s var(--ease-out-expo) infinite;
+  animation: sweep 6s var(--ease-out-expo) infinite;
   pointer-events: none;
+  will-change: transform;
 }
 @keyframes sweep {
-  0%, 55% { transform: translateX(-70%); }
-  85%, 100% { transform: translateX(70%); }
+  0% { transform: translateX(-70%); }
+  45%, 100% { transform: translateX(70%); }
 }
 
 /* Animations */
