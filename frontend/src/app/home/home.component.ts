@@ -7,6 +7,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from '../shared/pipes/safe.pipe';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
+import { LightTrackDirective, TiltCardDirective } from '../shared/directives/motion.directives';
 import { VoiceCallService } from '../services/voice-call.service';
 import { SeoService } from '../services/seo.service';
 import { GroupBuyStripComponent } from '../shared/group-buy-strip/group-buy-strip.component';
@@ -16,7 +17,7 @@ gsap.registerPlugin(ScrollTrigger);
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule, ScrollRevealDirective, SafePipe, GroupBuyStripComponent],
+  imports: [RouterLink, CommonModule, ScrollRevealDirective, LightTrackDirective, TiltCardDirective, SafePipe, GroupBuyStripComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {

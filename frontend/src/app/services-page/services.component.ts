@@ -6,6 +6,7 @@ import { Meta } from '@angular/platform-browser';
 import { SeoService } from '../services/seo.service';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.directive';
+import { LightTrackDirective, TiltCardDirective } from '../shared/directives/motion.directives';
 import { environment } from '../../environments/environment';
 import { ApiService } from '../services/api.service';
 import { PricingService } from '../services/pricing.service';
@@ -31,7 +32,7 @@ import { GroupBuyStripComponent } from '../shared/group-buy-strip/group-buy-stri
   selector: 'app-services',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ScrollRevealDirective, FormsModule, RouterLink, ProjectConfiguratorComponent, GroupBuyStripComponent],
+  imports: [CommonModule, ScrollRevealDirective, LightTrackDirective, TiltCardDirective, FormsModule, RouterLink, ProjectConfiguratorComponent, GroupBuyStripComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './services.component.html',
   styles: [`

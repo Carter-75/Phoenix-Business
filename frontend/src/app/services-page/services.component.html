@@ -56,7 +56,7 @@
         <p class="text-sm text-white/50 mt-3 max-w-3xl">Standard prices, shown in full. Tap Start on the package you want and the builder right below loads it for you. The current promotion and any discount code you have apply there, and you see the exact total before you pay anything.</p>
       </div>
       <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Starter Launch Website</h3>
           <p class="text-3xl font-black text-white mt-3">$1,499 <span class="text-sm font-bold text-white/40">setup</span></p>
           <p class="text-orange-400 font-black text-lg">+ $99/mo</p>
@@ -66,9 +66,9 @@
             <li>Managed hosting, SSL, daily backups</li>
             <li>Lead capture and contact forms</li>
           </ul>
-          <button (click)="startWithPackage('starter')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Starter</button>
+          <button (click)="startWithPackage('starter')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Starter</button>
         </div>
-        <div class="p-6 rounded-2xl bg-orange-600/[0.06] border border-orange-500/40 flex flex-col relative">
+        <div class="p-6 rounded-2xl bg-orange-600/[0.06] border border-orange-500/40 flex flex-col light-card tilt-card relative" lightTrack tiltCard>
           <span class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em]">Most Popular</span>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Custom Business Website</h3>
           <p class="text-3xl font-black text-white mt-3">$2,499 <span class="text-sm font-bold text-white/40">setup</span></p>
@@ -79,9 +79,9 @@
             <li>Hosting, 24/7 monitoring, security updates</li>
             <li>2 hours of custom edits every month</li>
           </ul>
-          <button (click)="startWithPackage('business')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Custom Business</button>
+          <button (click)="startWithPackage('business')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Custom Business</button>
         </div>
-        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">E-Commerce Storefront</h3>
           <p class="text-3xl font-black text-white mt-3">$3,499 <span class="text-sm font-bold text-white/40">setup</span></p>
           <p class="text-orange-400 font-black text-lg">+ $299/mo</p>
@@ -91,9 +91,9 @@
             <li>Product catalog, cart, and checkout included</li>
             <li>3 hours of custom edits every month</li>
           </ul>
-          <button (click)="startWithPackage('ecommerce')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With E-Commerce</button>
+          <button (click)="startWithPackage('ecommerce')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With E-Commerce</button>
         </div>
-        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Full-Stack Web App / SaaS MVP</h3>
           <p class="text-3xl font-black text-white mt-3">$4,999 <span class="text-sm font-bold text-white/40">setup</span></p>
           <p class="text-orange-400 font-black text-lg">+ $399/mo</p>
@@ -103,9 +103,9 @@
             <li>User accounts, database, and client dashboard included</li>
             <li>5 hours of engineering every month</li>
           </ul>
-          <button (click)="startWithPackage('webapp')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Web App</button>
+          <button (click)="startWithPackage('webapp')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Web App</button>
         </div>
-        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Enterprise Custom Platform</h3>
           <p class="text-3xl font-black text-white mt-3">$14,999 <span class="text-sm font-bold text-white/40">setup</span></p>
           <p class="text-orange-400 font-black text-lg">+ $999/mo</p>
@@ -115,9 +115,9 @@
             <li>Multi-role permissions and dedicated support</li>
             <li>10+ hours of dedicated engineering every month</li>
           </ul>
-          <button (click)="startWithPackage('enterprise')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all">Start With Enterprise</button>
+          <button (click)="startWithPackage('enterprise')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Enterprise</button>
         </div>
-        <div class="p-6 rounded-2xl bg-white/[0.02] border border-dashed border-white/15 flex flex-col justify-center">
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-dashed border-white/15 flex flex-col light-card tilt-card justify-center" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Not Sure Which Fits?</h3>
           <p class="text-sm text-white/60 mt-3 flex-1">Get the free website audit. You will get three specific fixes and a straight recommendation, including if the honest answer is the smallest package or no package at all.</p>
           <a routerLink="/" fragment="audit" class="mt-4 text-[11px] font-black uppercase tracking-[0.25em] text-orange-400 hover:text-orange-300 transition-colors">Get the free audit &rarr;</a>

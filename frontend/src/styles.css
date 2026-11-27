@@ -208,10 +208,6 @@
 .light-card:hover::before {
   opacity: 1;
 }
-.light-card > * {
-  position: relative;
-  z-index: 1;
-}
 
 /* Tilt card: rotateX / rotateY arrive as --rx / --ry degrees from the tilt
    directive; the spring-soft transition makes the settle elastic. */
@@ -231,20 +227,6 @@
 }
 .premium-btn:active {
   transform: scale(0.97);
-}
-
-/* Heading and block reveal: rises once when it enters the viewport. The
-   hidden state only exists under .motion-ready, which the reveal directive
-   sets on <html> when it initializes, so no-JS or a failed script can never
-   leave content invisible. */
-.motion-ready .reveal-up {
-  opacity: 0;
-  transform: translateY(26px);
-}
-.motion-ready .reveal-up.in {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--dur-slow) var(--ease-out-expo), transform var(--dur-slow) var(--ease-out-expo);
 }
 
 /* Skeleton shimmer: loading placeholders sweep light instead of spinning. */
