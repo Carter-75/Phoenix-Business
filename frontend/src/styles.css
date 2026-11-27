@@ -159,6 +159,14 @@
     @apply w-full;
   }
 
+  .nav-link.nav-on {
+    @apply text-white;
+  }
+
+  .nav-link.nav-on::after {
+    @apply w-full;
+  }
+
   .section-padding {
     @apply py-16 px-4 sm:py-32 sm:px-16 lg:py-56 lg:px-32;
   }
