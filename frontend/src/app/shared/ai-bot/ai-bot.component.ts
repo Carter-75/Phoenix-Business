@@ -137,8 +137,29 @@ export class AiBotComponent implements AfterViewChecked {
   isTyping = signal(false);
   errorMsg = signal('');
 
+  private summarySentFor = '';
+
   toggleChat() {
+    const wasOpen = this.isOpen();
     this.isOpen.update(v => !v);
+    if (wasOpen) this.maybeSendChatSummary();
+  }
+
+  // When a chat that captured the visitor's contact details closes, send the
+  // conversation to the backend, which emails Carter a summary + transcript
+  // as a NEW lead email (same flow as the voice call summaries).
+  private maybeSendChatSummary() {
+    const msgs = this.messages();
+    const userText = msgs.filter(m => m.role === 'user').map(m => m.content).join(' ');
+    const contact = userText.match(/[\w.+-]+@[\w-]+\.[\w.]+/)?.[0]
+      || userText.match(/(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/)?.[0]
+      || '';
+    if (!contact || contact === this.summarySentFor) return;
+    this.summarySentFor = contact;
+    this.api.post('bot/chat-summary', {
+      messages: msgs.map(m => ({ role: m.role, text: m.content })),
+      page: window.location.pathname
+    }).subscribe({ next: () => {}, error: () => {} });
   }
 
   ngAfterViewChecked() {
