@@ -10,7 +10,7 @@ import { SeoService } from '../services/seo.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <main class="min-h-screen bg-[#020205] text-white px-6 pt-40 pb-24">
+    <main class="min-h-screen text-white px-6 pt-40 pb-24">
       <div class="max-w-4xl mx-auto">
         <p class="text-orange-500 uppercase tracking-widest text-sm mb-5">Data cleanup & organization</p>
         <h1 class="text-4xl sm:text-6xl font-bold leading-tight mb-6">Put your files to work.</h1>
