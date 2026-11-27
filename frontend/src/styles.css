@@ -27,6 +27,15 @@
     
     --font-main: 'Inter', sans-serif;
     --font-display: 'Syne', sans-serif;
+
+    /* Motion tokens (UI remodel, Nov 26, 2026): one spring system for the
+       whole site. Every animated element uses these, never one-off curves. */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-spring-soft: cubic-bezier(0.22, 1.4, 0.36, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --dur-fast: 160ms;
+    --dur-med: 320ms;
+    --dur-slow: 560ms;
   }
 
   html {
@@ -173,6 +182,110 @@
   .theme-glow-box {
     box-shadow: 0 0 40px -10px var(--theme-glow, rgba(255, 77, 0, 0.3));
   }
+}
+
+/* Motion system (UI remodel, Nov 26, 2026): flowing light, tilt, springs.
+   All effects use transform and opacity only, and the reduced-motion block
+   in @layer base neutralizes every one of them automatically. */
+
+/* Flowing light: a soft brand glow that follows the pointer. The pointer
+   position arrives as --mx / --my percentages (set by the light-track
+   directive); without JS the glow rests centered as a gentle ambient. */
+.light-card {
+  position: relative;
+}
+.light-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--theme-glow, rgba(255, 77, 0, 0.25)), transparent 65%);
+  opacity: 0;
+  transition: opacity var(--dur-med) ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.light-card:hover::before {
+  opacity: 1;
+}
+.light-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tilt card: rotateX / rotateY arrive as --rx / --ry degrees from the tilt
+   directive; the spring-soft transition makes the settle elastic. */
+.tilt-card {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform var(--dur-med) var(--ease-spring-soft);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Press spring: controls compress on press and settle back elastically. */
+.press-spring {
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+.press-spring:active {
+  transform: scale(0.96);
+}
+.premium-btn:active {
+  transform: scale(0.97);
+}
+
+/* Heading and block reveal: rises once when it enters the viewport. The
+   hidden state only exists under .motion-ready, which the reveal directive
+   sets on <html> when it initializes, so no-JS or a failed script can never
+   leave content invisible. */
+.motion-ready .reveal-up {
+  opacity: 0;
+  transform: translateY(26px);
+}
+.motion-ready .reveal-up.in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--dur-slow) var(--ease-out-expo), transform var(--dur-slow) var(--ease-out-expo);
+}
+
+/* Skeleton shimmer: loading placeholders sweep light instead of spinning. */
+.skeleton-shimmer {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04) 40%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.04) 60%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+  from { background-position: 120% 0; }
+  to { background-position: -80% 0; }
+}
+
+/* Badge pop: a count change lands with one elastic pulse. */
+.badge-pop {
+  animation: badgePop 0.45s var(--ease-spring);
+}
+@keyframes badgePop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+/* Ambient light sweep: a slow diagonal pass of brand light across a hero
+   surface, for touch devices where no pointer moves. */
+.light-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.light-sweep::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 42%, var(--theme-glow, rgba(255, 77, 0, 0.18)) 50%, transparent 58%);
+  transform: translateX(-70%);
+  animation: sweep 7s var(--ease-out-expo) infinite;
+  pointer-events: none;
+}
+@keyframes sweep {
+  0%, 55% { transform: translateX(-70%); }
+  85%, 100% { transform: translateX(70%); }
 }
 
 /* Animations */
