@@ -253,27 +253,22 @@
   100% { transform: scale(1); }
 }
 
-/* Ambient light sweep: a slow diagonal pass of brand light across a hero
-   surface, for touch devices where no pointer moves. */
-.light-sweep {
-  position: relative;
-  overflow: hidden;
+/* Page transitions (Carter, Nov 26, 2026): no more full-screen sweep.
+   Motion lives on buttons (press-spring) and on page changes: the exit
+   animation finishes before the router moves (see app.ts), then the new
+   page springs in. The global reduced-motion rule above already
+   neutralizes these animations. */
+body.page-exit main {
+  animation: pageOut 240ms var(--ease-out-expo) forwards;
 }
-.light-sweep::after {
-  content: '';
-  position: absolute;
-  inset: -20%;
-  /* Brand fire orange always, never the seasonal theme color (see
-     .light-card above: the Black Friday theme glow is cyan blue). */
-  background: linear-gradient(115deg, transparent 42%, rgba(255, 77, 0, 0.16) 50%, transparent 58%);
-  transform: translateX(-70%);
-  animation: sweep 6s var(--ease-out-expo) infinite;
-  pointer-events: none;
-  will-change: transform;
+@keyframes pageOut {
+  to { opacity: 0; transform: translateY(-10px); }
 }
-@keyframes sweep {
-  0% { transform: translateX(-70%); }
-  45%, 100% { transform: translateX(70%); }
+main.page-enter {
+  animation: pageIn var(--dur-med) var(--ease-spring-soft) both;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(14px); }
 }
 
 /* Animations */

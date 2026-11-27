@@ -1,6 +1,6 @@
 <div class="min-h-screen relative overflow-hidden">
   <!-- Hero Section -->
-  <section class="min-h-screen flex flex-col justify-center section-padding relative overflow-hidden light-sweep">
+  <section class="min-h-screen flex flex-col justify-center section-padding relative overflow-hidden">
     <div class="glow-orb top-[-10%] left-[-10%] w-[800px] h-[800px]"></div>
     <!-- Mobile clearance for the fixed navbar so the eyebrow never slides under it -->
     <div class="h-16 sm:h-0 shrink-0" aria-hidden="true"></div>
@@ -32,8 +32,8 @@
             <div class="flex items-center gap-2"><span class="text-orange-500 font-bold">✓</span> Monthly rate locked, never goes up</div>
           </div>
           <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-            <button (click)="scrollToAudit()" class="px-12 py-6 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.3em] text-[10px] transition-all text-center shadow-lg shadow-orange-600/30">Get a Free Website Audit</button>
-            <a routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center">See Packages and Prices</a>
+            <button (click)="scrollToAudit()" class="press-spring px-12 py-6 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.3em] text-[10px] transition-all text-center shadow-lg shadow-orange-600/30">Get a Free Website Audit</button>
+            <a routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center press-spring">See Packages and Prices</a>
           </div>
         </div>
 
@@ -512,8 +512,8 @@
 
   <!-- Sticky mobile call to action: the two moves that matter, always in reach on a phone -->
   <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-[#050505]/95 backdrop-blur border-t border-white/10 px-4 py-3 flex gap-3">
-    <button (click)="scrollToAudit()" class="flex-1 py-3 rounded-full bg-orange-600 text-white text-[11px] font-black uppercase tracking-[0.2em]">Free Audit</button>
-    <a routerLink="/services" class="flex-1 py-3 rounded-full bg-white/10 border border-white/15 text-white text-[11px] font-black uppercase tracking-[0.2em] text-center">Packages</a>
+    <button (click)="scrollToAudit()" class="press-spring flex-1 py-3 rounded-full bg-orange-600 text-white text-[11px] font-black uppercase tracking-[0.2em]">Free Audit</button>
+    <a routerLink="/services" class="press-spring flex-1 py-3 rounded-full bg-white/10 border border-white/15 text-white text-[11px] font-black uppercase tracking-[0.2em] text-center">Packages</a>
   </div>
 </div>
 
