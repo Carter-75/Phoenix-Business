@@ -11,7 +11,7 @@ import { SeoService } from '../services/seo.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, SkeletonComponent],
   template: `
-    <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 bg-[#020205] relative flex flex-col items-center justify-start">
+    <section class="min-h-screen pt-32 pb-24 px-4 sm:px-6 relative flex flex-col items-center justify-start">
       <div class="blur-glow w-[500px] h-[500px] bg-orange-600/5 top-[-10%] right-[-10%] absolute pointer-events-none"></div>
       
       <div class="max-w-[1400px] w-full relative z-10">
