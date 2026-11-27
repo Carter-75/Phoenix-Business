@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
  * Content-shaped loading placeholders (YouTube-style). Shown only
  * while a page or section is fetching its data; the real content
  * replaces them in place, so the layout never jumps. Pure CSS
- * pulse, no images or extra requests.
+ * shimmer, no images or extra requests.
  *
  * Variants:
  * - 'hero':  big title lines, a paragraph, and a button block
@@ -18,29 +18,29 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="animate-pulse" aria-hidden="true">
+    <div aria-hidden="true">
       <ng-container *ngIf="variant === 'hero' || variant === 'page'">
-        <div class="h-3 w-40 bg-white/10 rounded mb-6"></div>
-        <div class="h-10 sm:h-14 w-3/4 bg-white/10 rounded-lg mb-4"></div>
-        <div class="h-10 sm:h-14 w-1/2 bg-white/10 rounded-lg mb-8"></div>
-        <div class="h-4 w-2/3 bg-white/[0.07] rounded mb-3"></div>
-        <div class="h-4 w-1/2 bg-white/[0.07] rounded mb-10"></div>
-        <div class="h-12 w-48 bg-white/10 rounded-full"></div>
+        <div class="h-3 w-40 bg-white/10 rounded skeleton-shimmer mb-6"></div>
+        <div class="h-10 sm:h-14 w-3/4 bg-white/10 rounded skeleton-shimmer-lg mb-4"></div>
+        <div class="h-10 sm:h-14 w-1/2 bg-white/10 rounded skeleton-shimmer-lg mb-8"></div>
+        <div class="h-4 w-2/3 bg-white/[0.07] rounded skeleton-shimmer mb-3"></div>
+        <div class="h-4 w-1/2 bg-white/[0.07] rounded skeleton-shimmer mb-10"></div>
+        <div class="h-12 w-48 bg-white/10 rounded skeleton-shimmer-full"></div>
       </ng-container>
 
       <ng-container *ngIf="variant === 'lines'">
-        <div *ngFor="let w of lineWidths" class="h-4 bg-white/[0.07] rounded mb-3" [style.width]="w"></div>
+        <div *ngFor="let w of lineWidths" class="h-4 bg-white/[0.07] rounded skeleton-shimmer mb-3" [style.width]="w"></div>
       </ng-container>
 
       <ng-container *ngIf="variant === 'cards' || variant === 'page'">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" [class.mt-12]="variant === 'page'">
           <div *ngFor="let c of cardSlots" class="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
-            <div class="h-5 w-1/2 bg-white/10 rounded mb-4"></div>
-            <div class="h-8 w-2/3 bg-white/10 rounded mb-5"></div>
-            <div class="h-3 w-full bg-white/[0.07] rounded mb-2.5"></div>
-            <div class="h-3 w-5/6 bg-white/[0.07] rounded mb-2.5"></div>
-            <div class="h-3 w-4/6 bg-white/[0.07] rounded mb-6"></div>
-            <div class="h-10 w-full bg-white/10 rounded-lg"></div>
+            <div class="h-5 w-1/2 bg-white/10 rounded skeleton-shimmer mb-4"></div>
+            <div class="h-8 w-2/3 bg-white/10 rounded skeleton-shimmer mb-5"></div>
+            <div class="h-3 w-full bg-white/[0.07] rounded skeleton-shimmer mb-2.5"></div>
+            <div class="h-3 w-5/6 bg-white/[0.07] rounded skeleton-shimmer mb-2.5"></div>
+            <div class="h-3 w-4/6 bg-white/[0.07] rounded skeleton-shimmer mb-6"></div>
+            <div class="h-10 w-full bg-white/10 rounded skeleton-shimmer-lg"></div>
           </div>
         </div>
       </ng-container>
@@ -48,10 +48,10 @@ import { CommonModule } from '@angular/common';
       <ng-container *ngIf="variant === 'table'">
         <div *ngFor="let r of cardSlots" class="flex items-center justify-between gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/10 mb-3">
           <div class="flex-1">
-            <div class="h-4 w-1/3 bg-white/10 rounded mb-2"></div>
-            <div class="h-3 w-1/2 bg-white/[0.07] rounded"></div>
+            <div class="h-4 w-1/3 bg-white/10 rounded skeleton-shimmer mb-2"></div>
+            <div class="h-3 w-1/2 bg-white/[0.07] rounded skeleton-shimmer"></div>
           </div>
-          <div class="h-8 w-24 bg-white/10 rounded-lg"></div>
+          <div class="h-8 w-24 bg-white/10 rounded skeleton-shimmer-lg"></div>
         </div>
       </ng-container>
     </div>

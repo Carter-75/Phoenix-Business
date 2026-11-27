@@ -67,7 +67,7 @@ interface ConnectLink {
       border-left: 1px solid rgba(255, 255, 255, 0.1);
       z-index: 250;
       transform: translateX(100%);
-      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform var(--dur-med) var(--ease-spring-soft);
       display: flex;
       flex-direction: column;
       text-align: left;

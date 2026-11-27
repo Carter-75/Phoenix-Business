@@ -85,7 +85,7 @@ import { ApiService, CartItem } from '../../services/api.service';
       display: flex;
       flex-direction: column;
       transform: translateX(100%);
-      transition: transform 0.3s ease;
+      transition: transform var(--dur-med) var(--ease-spring-soft);
     }
     .cart-panel.open {
       transform: translateX(0);

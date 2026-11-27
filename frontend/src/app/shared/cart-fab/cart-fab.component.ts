@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 
@@ -15,7 +15,7 @@ import { ApiService } from '../../services/api.service';
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
       </svg>
       <!-- Badge -->
-      <span class="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-black px-1 shadow-lg shadow-orange-500/40">
+      <span [class.badge-pop]="pop()" class="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-black px-1 shadow-lg shadow-orange-500/40">
         {{ cartCount() }}
       </span>
     </button>
@@ -25,4 +25,22 @@ export class CartFabComponent {
   api = inject(ApiService);
 
   cartCount = computed(() => this.api.getCartItemCount());
+
+  /** One elastic pulse on the badge whenever the count changes. */
+  pop = signal(false);
+  private firstCount = true;
+
+  constructor() {
+    effect(() => {
+      const count = this.cartCount();
+      if (this.firstCount) {
+        this.firstCount = false;
+        return;
+      }
+      if (count > 0) {
+        this.pop.set(false);
+        setTimeout(() => this.pop.set(true), 30);
+      }
+    });
+  }
 }
