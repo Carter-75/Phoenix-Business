@@ -39,7 +39,7 @@ import { SeoService } from '../services/seo.service';
         <div *ngIf="api.currentUser() && unreviewedOrders().length > 0 && !loading()" class="mb-10">
           <button (click)="dropdownOpen.set(!dropdownOpen())" class="w-full flex items-center justify-between gap-4 px-6 py-4 bg-orange-600/5 border border-orange-500/20 hover:border-orange-500/40 rounded-2xl transition-all group cursor-pointer">
             <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-xl bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-full bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-pen-to-square text-sm"></i>
               </div>
               <div class="text-left">
@@ -54,7 +54,7 @@ import { SeoService } from '../services/seo.service';
             <div class="divide-y divide-white/5">
               <div *ngFor="let order of unreviewedOrders()" class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-white/[0.03] transition-colors">
                 <div class="flex items-center gap-4 min-w-0">
-                  <div class="w-9 h-9 rounded-lg bg-white/5 text-slate-400 flex items-center justify-center shrink-0">
+                  <div class="w-9 h-9 rounded-full bg-white/5 text-slate-400 flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-box-open text-xs"></i>
                   </div>
                   <div class="min-w-0">
@@ -106,19 +106,19 @@ import { SeoService } from '../services/seo.service';
               <div *ngFor="let review of myReviews()" class="bg-green-500/5 border border-green-500/20 rounded-2xl p-6 sm:p-8 relative group hover:border-green-500/40 transition-colors">
                 
                 <div class="absolute top-4 right-4 flex gap-2">
-                  <button *ngIf="review.source !== 'google' && editingReviewId() !== review._id" (click)="startEdit(review)" aria-label="Edit review" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+                  <button *ngIf="review.source !== 'google' && editingReviewId() !== review._id" (click)="startEdit(review)" aria-label="Edit review" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-pen text-xs"></i>
                   </button>
-                  <button *ngIf="review.source !== 'google' && editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" aria-label="Delete review" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
+                  <button *ngIf="review.source !== 'google' && editingReviewId() !== review._id" (click)="deleteReview(review._id)" [disabled]="saving()" aria-label="Delete review" class="w-8 h-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center disabled:opacity-50">
                     <i class="fa-solid fa-trash-can text-xs"></i>
                   </button>
-                  <a *ngIf="review.source === 'google'" [href]="googleManageUrl" target="_blank" rel="noopener noreferrer" aria-label="Edit review on Google" title="Edit on Google" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+                  <a *ngIf="review.source === 'google'" [href]="googleManageUrl" target="_blank" rel="noopener noreferrer" aria-label="Edit review on Google" title="Edit on Google" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-pen text-xs"></i>
                   </a>
-                  <a *ngIf="review.source === 'google'" [href]="googleManageUrl" target="_blank" rel="noopener noreferrer" aria-label="Delete review on Google" title="Delete on Google" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center">
+                  <a *ngIf="review.source === 'google'" [href]="googleManageUrl" target="_blank" rel="noopener noreferrer" aria-label="Delete review on Google" title="Delete on Google" class="w-8 h-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-trash-can text-xs"></i>
                   </a>
-                  <button *ngIf="editingReviewId() === review._id" (click)="cancelEdit()" aria-label="Cancel editing" class="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-500 transition-colors flex items-center justify-center">
+                  <button *ngIf="editingReviewId() === review._id" (click)="cancelEdit()" aria-label="Cancel editing" class="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 text-red-500 transition-colors flex items-center justify-center">
                     <i class="fa-solid fa-xmark text-xs"></i>
                   </button>
                 </div>
@@ -156,7 +156,7 @@ import { SeoService } from '../services/seo.service';
 
                 <ng-container *ngIf="editingReviewId() === review._id">
                   <textarea [ngModel]="editMessage()" (ngModelChange)="editMessage.set($event)" rows="3" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm mb-6 outline-none focus:border-orange-500 resize-none"></textarea>
-                  <button (click)="saveEdit(review._id)" [disabled]="saving()" class="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors mb-8 disabled:opacity-50">
+                  <button (click)="saveEdit(review._id)" [disabled]="saving()" class="btn-fire press-spring w-full mb-8 disabled:opacity-50">
                     {{ saving() ? 'Saving...' : 'Update Review' }}
                   </button>
                 </ng-container>
@@ -198,28 +198,28 @@ import { SeoService } from '../services/seo.service';
             <div class="w-full h-[1px] bg-white/5 flex-grow"></div>
           </div>
 
-          <div *ngIf="filteredOtherReviews().length === 0 && (ratingSummary()?.count ?? 0) === 0 && myReviews().length === 0" class="py-16 px-6 sm:px-12 bg-white/5 rounded-2xl border border-white/10">
+          <div *ngIf="filteredOtherReviews().length === 0 && (ratingSummary()?.count ?? 0) === 0 && myReviews().length === 0" class="py-16 px-6 sm:px-12 glass-panel rounded-2xl border border-white/10">
             <div class="max-w-2xl mx-auto text-center">
               <i class="fa-solid fa-shield-halved text-4xl text-orange-500 mb-4"></i>
               <h3 class="text-xl font-bold text-white mb-3">No Reviews Yet, On Purpose</h3>
               <p class="text-slate-400 text-sm leading-relaxed mb-4">Reviews on this page come only from verified customers, through a private link sent after their project is delivered. Phoenix Websites AI is a young studio and its first projects are being built now, so this page is honestly empty rather than stocked with examples or borrowed praise.</p>
               <p class="text-slate-400 text-sm leading-relaxed mb-8">Until the first reviews land, judge us by the protections in writing instead: a written agreement on every project, a refund if we completely fail to deliver the core service you bought, a monthly rate that never increases while your plan stays active, and a 30-day trial before monthly billing starts.</p>
               <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a routerLink="/services" class="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white transition-all rounded-full text-xs font-bold uppercase tracking-widest">See Packages and Prices</a>
-                <a routerLink="/" fragment="audit" class="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-all rounded-full text-xs font-bold uppercase tracking-widest">Get a Free Audit</a>
+                <a routerLink="/services" class="btn-fire press-spring">See Packages and Prices</a>
+                <a routerLink="/" fragment="audit" class="btn-ghost press-spring">Get a Free Audit</a>
                 <a *ngIf="googleInfo()?.reviewUrl" [href]="googleInfo()!.reviewUrl" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2"><i class="fa-brands fa-google"></i> Rate on Google</a>
               </div>
             </div>
           </div>
 
-          <div *ngIf="filteredOtherReviews().length === 0 && ((ratingSummary()?.count ?? 0) > 0 || myReviews().length > 0)" class="text-center py-24 bg-white/5 rounded-2xl border border-white/10">
+          <div *ngIf="filteredOtherReviews().length === 0 && ((ratingSummary()?.count ?? 0) > 0 || myReviews().length > 0)" class="text-center py-24 glass-panel rounded-2xl border border-white/10">
             <i class="fa-solid fa-comment-slash text-4xl text-slate-600 mb-4"></i>
             <h3 class="text-xl font-bold text-white mb-2">No Ratings Found</h3>
             <p class="text-slate-400 text-sm">No reviews match your current filter.</p>
           </div>
 
           <div class="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-            <div *ngFor="let review of filteredOtherReviews()" class="bg-white/5 border border-white/10 hover:border-white/20 transition-colors rounded-2xl p-6 sm:p-8 break-inside-avoid">
+            <div *ngFor="let review of filteredOtherReviews()" class="glass-panel border border-white/10 hover:border-white/20 transition-colors rounded-2xl p-6 sm:p-8 break-inside-avoid">
               
               <div class="flex gap-1 mb-6">
                  <ng-container *ngFor="let star of [1,2,3,4,5]">

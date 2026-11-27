@@ -36,10 +36,10 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             Custom web applications, SaaS MVPs, customer dashboards, and the backend pipelines behind them. AI speeds up the coding; a senior engineer designs the system so it holds up as you grow.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
-            <a href="#configurator" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20">
+            <a href="#configurator" class="btn-fire press-spring">
               Configure Web App
             </a>
-            <a routerLink="/" fragment="audit" class="px-8 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+            <a routerLink="/" fragment="audit" class="btn-ghost press-spring">
               Request Technical Review
             </a>
           </div>
@@ -71,7 +71,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
         </section>
 
         <!-- Architectural Standards -->
-        <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-white/10">
+        <section class="mb-24 p-8 sm:p-12 rounded-3xl glass-panel border border-white/10">
           <div class="max-w-3xl mb-8">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Engineering Principles</span>
             <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight mb-4">Zero-Latency Architecture</h2>

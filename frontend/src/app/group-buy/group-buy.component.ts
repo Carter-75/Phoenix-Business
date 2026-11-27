@@ -43,7 +43,7 @@ declare global {
         at the normal checkout with your code.
       </p>
 
-      <div class="border border-white/15 rounded-xl p-6 mb-8 bg-white/5">
+      <div class="glass-panel p-6 mb-8">
         <p class="text-lg">
           <strong>{{ event().joinedCount }} of {{ event().slotsNeeded }}</strong> joined
         </p>
@@ -78,7 +78,7 @@ declare global {
               group reaches {{ event().slotsNeeded }} by {{ deadlineText() }}. If it does not fill,
               your card is never charged.
             </p>
-            <button (click)="cancelEntry()" [disabled]="busy()" class="mt-4 px-4 py-2 rounded-lg border border-white/30 hover:bg-white/10 disabled:opacity-50 cursor-pointer">
+            <button (click)="cancelEntry()" [disabled]="busy()" class="mt-4 btn-ghost press-spring disabled:opacity-50 cursor-pointer">
               Leave the group (free)
             </button>
           } @else if (entry.status === 'charged') {
@@ -94,7 +94,7 @@ declare global {
               Pay the {{ money(entry.joinPriceCents) }} join price with a working card by
               {{ fixDeadlineText() }} to keep your {{ event().percentOff }}% discount.
             </p>
-            <button (click)="fixPayment()" [disabled]="busy()" class="mt-4 px-5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-400 font-semibold disabled:opacity-50 cursor-pointer">
+            <button (click)="fixPayment()" [disabled]="busy()" class="mt-4 btn-fire press-spring disabled:opacity-50 cursor-pointer">
               Pay now and keep my discount
             </button>
           } @else if (entry.status === 'not_charged') {
@@ -120,12 +120,12 @@ declare global {
         </div>
 
         @if (!user()) {
-          <button (click)="signIn()" class="px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-400 font-semibold cursor-pointer">
+          <button (click)="signIn()" class="btn-fire press-spring cursor-pointer">
             Sign in to join
           </button>
           <p class="text-white/60 text-sm mt-3">An account is needed so your discount code can be tied to you.</p>
         } @else if (!showCardForm()) {
-          <button (click)="startJoin()" [disabled]="busy()" class="px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-400 font-semibold disabled:opacity-50 cursor-pointer">
+          <button (click)="startJoin()" [disabled]="busy()" class="btn-fire press-spring disabled:opacity-50 cursor-pointer">
             Join for {{ money(event().joinPriceCents) }} if the group fills
           </button>
         } @else {
@@ -138,7 +138,7 @@ declare global {
             </p>
             <label class="block text-xs font-bold uppercase tracking-widest text-white/50 mb-2">Card details</label>
       <div id="gb-card-element" role="group" aria-label="Card details" class="p-3 rounded-lg bg-white text-black"></div>
-            <button (click)="confirmJoin()" [disabled]="busy()" class="mt-4 px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-400 font-semibold disabled:opacity-50 cursor-pointer">
+            <button (click)="confirmJoin()" [disabled]="busy()" class="mt-4 btn-fire press-spring disabled:opacity-50 cursor-pointer">
               {{ busy() ? 'Saving your card...' : 'Save card and join' }}
             </button>
           </div>

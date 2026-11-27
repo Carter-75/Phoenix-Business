@@ -36,11 +36,11 @@ import { VoiceCallService } from '../services/voice-call.service';
             Equip your business with 24/7 client response. We build purpose-driven AI web voice assistants, grounded inquiry chatbots, and intelligent workflow tools with strict factual guardrails.
           </p>
           <div class="flex flex-wrap items-center gap-4 sm:gap-6 pt-4">
-            <button (click)="voiceCall.startCall()" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20 flex items-center gap-3">
+            <button (click)="voiceCall.startCall()" class="btn-fire press-spring flex items-center gap-3">
               <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
               Test Live Web Call Demo
             </button>
-            <a routerLink="/" fragment="audit" class="px-8 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+            <a routerLink="/" fragment="audit" class="btn-ghost press-spring">
               Request AI Solution Quote
             </a>
           </div>
@@ -55,7 +55,7 @@ import { VoiceCallService } from '../services/voice-call.service';
               Our site features a live conversational voice assistant running directly in your browser. It answers client questions about Phoenix Websites AI, explains service tiers, and handles inquiries in natural spoken dialogue.
             </p>
           </div>
-          <button (click)="voiceCall.startCall()" class="shrink-0 px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+          <button (click)="voiceCall.startCall()" class="shrink-0 btn-fire press-spring">
             Launch Voice Call Now
           </button>
         </section>
@@ -92,7 +92,7 @@ import { VoiceCallService } from '../services/voice-call.service';
         </section>
 
         <!-- Safety & Guardrails -->
-        <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-white/10">
+        <section class="mb-24 p-8 sm:p-12 rounded-3xl glass-panel border border-white/10">
           <div class="max-w-3xl mb-8">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Engineering Standards</span>
             <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight mb-4">Grounded In Verified Business Facts</h2>
@@ -147,7 +147,7 @@ import { VoiceCallService } from '../services/voice-call.service';
         </section>
 
         <!-- Pricing & Inclusion -->
-        <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-orange-500/30">
+        <section class="mb-24 p-8 sm:p-12 rounded-3xl glass-panel border border-orange-500/30">
           <div class="max-w-3xl">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Pricing &amp; Plans</span>
             <h2 class="text-3xl font-black uppercase tracking-tight mb-4">Add It to Any Website Package</h2>
@@ -155,10 +155,10 @@ import { VoiceCallService } from '../services/voice-call.service';
               The AI Assistant is an add-on available on any website package: $900 setup and $50/mo at standard pricing, with the current promotion applied in the configurator, and it can also be added later from your client dashboard. Standalone AI voice assistants and custom enterprise integrations are quoted based on expected conversation volume and custom system integration requirements.
             </p>
             <div class="flex flex-wrap gap-4">
-              <a routerLink="/services" class="px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+              <a routerLink="/services" class="btn-fire press-spring">
                 See Website Packages
               </a>
-              <a routerLink="/" fragment="audit" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+              <a routerLink="/" fragment="audit" class="btn-ghost press-spring">
                 Request Custom AI Scope
               </a>
             </div>

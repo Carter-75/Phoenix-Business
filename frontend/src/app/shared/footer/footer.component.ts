@@ -7,10 +7,13 @@ import { ConnectPanelComponent } from '../connect-panel/connect-panel.component'
   standalone: true,
   imports: [RouterLink, ConnectPanelComponent],
   template: `
-    <footer class="py-20 px-8 sm:px-16 lg:px-32 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12 bg-[#050505]">
-      <div class="flex items-center gap-4">
-        <div class="w-8 h-[1px] bg-orange-600"></div>
-        <span class="text-white font-black uppercase tracking-[0.8em] text-xs">Phoenix</span>
+    <footer class="px-3 sm:px-6 pb-3 sm:pb-4 pt-6">
+      <div class="glass-panel max-w-[1400px] mx-auto px-8 sm:px-12 py-10 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12">
+      <div class="flex items-center gap-2.5">
+        <span class="flex items-center justify-center w-8 h-8 rounded-full bg-[#FF4D00]/15 border border-[#FF4D00]/30">
+          <i class="fa-solid fa-fire text-[#FF4D00] text-sm" aria-hidden="true"></i>
+        </span>
+        <span class="text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-white">Phoenix <span class="text-[#FF4D00]">Websites AI</span></span>
       </div>
 
       <div class="flex flex-wrap justify-center gap-6 sm:gap-12 text-[10px] font-black uppercase tracking-[0.4em] text-white/30">
@@ -29,6 +32,7 @@ import { ConnectPanelComponent } from '../connect-panel/connect-panel.component'
           Developed by Carter
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
         </a>
+      </div>
       </div>
     </footer>
   `

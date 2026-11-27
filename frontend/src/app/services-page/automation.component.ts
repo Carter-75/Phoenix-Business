@@ -35,10 +35,10 @@ import { SeoService } from '../services/seo.service';
             Stop losing leads to slow follow-up, and hours to copy-paste work. We connect your website, email, SMS alerts, and internal systems so the information moves on its own, and a person only touches it when a person should.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
-            <a routerLink="/" fragment="audit" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20">
+            <a routerLink="/" fragment="audit" class="btn-fire press-spring">
               Request Automation Review
             </a>
-            <a routerLink="/services" class="px-8 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+            <a routerLink="/services" class="btn-ghost press-spring">
               View Website Plans
             </a>
           </div>
@@ -76,7 +76,7 @@ import { SeoService } from '../services/seo.service';
         </section>
 
         <!-- Who It Helps -->
-        <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-white/10">
+        <section class="mb-24 p-8 sm:p-12 rounded-3xl glass-panel border border-white/10">
           <div class="max-w-3xl mb-8">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Who We Help</span>
             <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight mb-4">Eliminate Manual Bottlenecks</h2>
@@ -128,7 +128,7 @@ import { SeoService } from '../services/seo.service';
 
         <!-- Deliverables & Responsibilities -->
         <section class="mb-24 grid md:grid-cols-2 gap-8">
-          <div class="p-8 sm:p-10 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6">
+          <div class="p-8 sm:p-10 rounded-3xl glass-panel border border-white/10 space-y-6">
             <h2 class="text-2xl font-black uppercase tracking-tight text-white flex items-center gap-3">
               <span class="w-3 h-3 rounded-full bg-emerald-500"></span> Deliverables
             </h2>
@@ -140,7 +140,7 @@ import { SeoService } from '../services/seo.service';
             </ul>
           </div>
 
-          <div class="p-8 sm:p-10 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6">
+          <div class="p-8 sm:p-10 rounded-3xl glass-panel border border-white/10 space-y-6">
             <h2 class="text-2xl font-black uppercase tracking-tight text-white flex items-center gap-3">
               <span class="w-3 h-3 rounded-full bg-orange-500"></span> Customer Responsibilities
             </h2>
@@ -153,14 +153,14 @@ import { SeoService } from '../services/seo.service';
         </section>
 
         <!-- Pricing & Quote Information -->
-        <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-orange-500/30">
+        <section class="mb-24 p-8 sm:p-12 rounded-3xl glass-panel border border-orange-500/30">
           <div class="max-w-3xl">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 block">Pricing Model</span>
             <h2 class="text-3xl font-black uppercase tracking-tight mb-4">Quote-Based &amp; Plan Inclusion</h2>
             <p class="text-sm text-white/70 leading-relaxed mb-6">
               Standard lead capture and routing automations are included in our managed website plans. Standalone automation projects and custom API integrations are quoted transparently based on the specific services being connected and data complexity.
             </p>
-            <a routerLink="/" fragment="audit" class="inline-block px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+            <a routerLink="/" fragment="audit" class="btn-fire press-spring">
               Request An Automation Quote
             </a>
           </div>

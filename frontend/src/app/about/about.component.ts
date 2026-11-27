@@ -46,7 +46,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           </div>
           
           <div class="space-y-8 sm:space-y-12">
-            <div class="glass-card !p-5 sm:!p-12 border-white/5">
+            <div class="glass-card rounded-[1.75rem] !p-5 sm:!p-12 border-white/5">
               <h3 class="fluid-h3 text-white mb-6 sm:mb-8 uppercase tracking-tighter">Our Promise</h3>
               <ul class="space-y-5 sm:space-y-8 text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-white/40">
                 <li class="flex items-center gap-4 sm:gap-6"><div class="w-6 sm:w-8 h-[1px] bg-[#FF4D00] flex-shrink-0"></div> Fast loading for every visitor</li>
@@ -54,7 +54,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
                 <li class="flex items-center gap-4 sm:gap-6"><div class="w-6 sm:w-8 h-[1px] bg-[#FF4D00] flex-shrink-0"></div> Code you can own outright</li>
               </ul>
             </div>
-            <div class="aspect-video bg-white/[0.02] border border-white/5 flex items-center justify-center group relative overflow-hidden">
+            <div class="aspect-video glass-panel border border-white/5 flex items-center justify-center group relative overflow-hidden">
                <div class="absolute inset-0 bg-gradient-to-br from-[#FF4D00]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
                <div class="text-center space-y-3 px-6">
                  <p class="text-sm font-bold text-white/70">Custom code. No templates.</p>
@@ -69,22 +69,22 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
           <span class="text-[#FF4D00] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] block mb-4">How a Project Runs</span>
           <h2 class="fluid-h2 mb-10 sm:mb-14">WHAT WORKING<br><span class="text-white/20">WITH ME LOOKS LIKE</span></h2>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="glass-card !bg-transparent">
+            <div class="glass-card rounded-[1.75rem] !bg-transparent">
               <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] block mb-3">Step 1</span>
               <h3 class="text-lg font-bold text-white mb-2">The Free Audit</h3>
               <p class="text-white/40 text-sm leading-relaxed">We start with your current site, or your plans if you do not have one. You get three specific fixes and a straight recommendation on scope.</p>
             </div>
-            <div class="glass-card !bg-transparent">
+            <div class="glass-card rounded-[1.75rem] !bg-transparent">
               <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] block mb-3">Step 2</span>
               <h3 class="text-lg font-bold text-white mb-2">The Build</h3>
               <p class="text-white/40 text-sm leading-relaxed">I design and build your site, asking for what I need from you about a day at a time, never in a last-minute pile. Most packages are built in 2 to 5 weeks.</p>
             </div>
-            <div class="glass-card !bg-transparent">
+            <div class="glass-card rounded-[1.75rem] !bg-transparent">
               <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] block mb-3">Step 3</span>
               <h3 class="text-lg font-bold text-white mb-2">Your Review</h3>
               <p class="text-white/40 text-sm leading-relaxed">You see the site before it launches and send one consolidated round of notes. I would rather take the extra days and hand you something finished than rush a reveal.</p>
             </div>
-            <div class="glass-card !bg-transparent">
+            <div class="glass-card rounded-[1.75rem] !bg-transparent">
               <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] block mb-3">Step 4</span>
               <h3 class="text-lg font-bold text-white mb-2">Launch and Care</h3>
               <p class="text-white/40 text-sm leading-relaxed">The site goes live on managed hosting. Your monthly plan covers hosting, backups, monitoring, and your edit hours, and you can add features later from your dashboard.</p>
@@ -93,7 +93,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
         </div>
 
         <div class="border-t border-white/5 mt-16 sm:mt-24 pt-12 sm:pt-24 grid md:grid-cols-2 gap-4">
-          <div class="glass-card !bg-transparent">
+          <div class="glass-card rounded-[1.75rem] !bg-transparent">
             <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] block mb-4">What AI Does Here</span>
             <ul class="space-y-2.5 text-sm text-white/50">
               <li>Scaffolding, boilerplate, and repetitive code</li>
@@ -101,7 +101,7 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
               <li>Automated testing passes and consistency checks</li>
             </ul>
           </div>
-          <div class="glass-card !bg-transparent">
+          <div class="glass-card rounded-[1.75rem] !bg-transparent">
             <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF4D00] block mb-4">What I Do Myself</span>
             <ul class="space-y-2.5 text-sm text-white/50">
               <li>The design, and whether it sounds like your business</li>
@@ -118,8 +118,8 @@ import { ScrollRevealDirective } from '../shared/directives/scroll-reveal.direct
             <p class="text-white/50 text-sm leading-relaxed max-w-xl">Phoenix Websites AI is based in La Crosse, Wisconsin and works with businesses anywhere. Email <a href="mailto:hello@phoenixwebsites.ai" class="text-orange-400 underline">hello@phoenixwebsites.ai</a> or call <a href="tel:+17603347874" class="text-orange-400 underline">+1 (760) 334-7874</a>.</p>
           </div>
           <div class="flex flex-col sm:flex-row gap-4 shrink-0">
-            <a routerLink="/" fragment="audit" class="px-12 py-6 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.3em] text-[10px] transition-all text-center shadow-lg shadow-orange-600/30">Get a Free Website Audit</a>
-            <a routerLink="/services" class="text-xs font-black uppercase tracking-[0.3em] py-6 px-6 hover:text-orange-600 transition-all border-b border-white/10 text-center">See Packages and Prices</a>
+            <a routerLink="/" fragment="audit" class="btn-fire press-spring text-center">Get a Free Website Audit</a>
+            <a routerLink="/services" class="btn-ghost press-spring text-center">See Packages and Prices</a>
           </div>
         </div>
       </div>

@@ -122,8 +122,8 @@
   }
 
   .glass-card {
-    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.05] p-5 sm:p-12 lg:p-20 relative overflow-hidden;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    @apply backdrop-blur-3xl bg-white/[0.02] border border-white/[0.08] p-5 sm:p-12 lg:p-20 relative overflow-hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
   }
 
   .glass-card::after {
@@ -260,6 +260,53 @@
   40% { transform: scale(1.45); }
   100% { transform: scale(1); }
 }
+
+/* Nav design language, site-wide (Carter, Nov 26, 2026): the floating
+   glass pill system from the redesigned navbar, as reusable utilities. */
+.glass-panel {
+  background: rgb(5 5 8 / 0.72);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1.75rem;
+  box-shadow: 0 24px 55px rgb(0 0 0 / 0.55);
+}
+.btn-fire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: #ff4d00;
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 10px;
+  padding: 0.8rem 1.6rem;
+  box-shadow: 0 8px 24px rgb(255 77 0 / 0.35);
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-spring);
+}
+.btn-fire:hover { background: #f97316; }
+.btn-fire:active { transform: scale(0.96); }
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 10px;
+  padding: 0.8rem 1.6rem;
+  transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-spring);
+}
+.btn-ghost:hover { background: rgb(255 255 255 / 0.1); border-color: rgb(255 255 255 / 0.25); }
+.btn-ghost:active { transform: scale(0.96); }
 
 /* Page transitions (Carter, Nov 26, 2026): no more full-screen sweep.
    Motion lives on buttons (press-spring) and on page changes: the exit

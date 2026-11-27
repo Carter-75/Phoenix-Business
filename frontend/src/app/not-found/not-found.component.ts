@@ -13,10 +13,10 @@ import { Meta } from '@angular/platform-browser';
         <h1 class="text-4xl font-black uppercase tracking-tighter mb-4">Page Not Found</h1>
         <p class="text-slate-400 mb-8">The page you're looking for doesn't exist or has been moved.</p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a routerLink="/" class="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-widest text-sm rounded-lg transition-colors">
+          <a routerLink="/" class="btn-fire press-spring">
             Go to Homepage
           </a>
-          <a routerLink="/services" class="px-6 py-3 border border-white/20 hover:border-white/40 text-white font-bold uppercase tracking-widest text-sm rounded-lg transition-colors">
+          <a routerLink="/services" class="btn-ghost press-spring">
             View Services
           </a>
         </div>

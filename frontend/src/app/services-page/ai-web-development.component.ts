@@ -36,17 +36,17 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             Phoenix Websites AI builds complete custom websites and digital platforms for clients. We use AI to accelerate the coding process while our senior engineers oversee every line of architecture, security, and quality assurance.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-6 pt-4">
-            <a href="#configurator" class="px-8 py-5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all shadow-lg shadow-orange-600/20">
+            <a href="#configurator" class="btn-fire press-spring">
               Configure Your Website
             </a>
-            <a routerLink="/" fragment="audit" class="px-8 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl transition-all">
+            <a routerLink="/" fragment="audit" class="btn-ghost press-spring">
               Request Free Audit
             </a>
           </div>
         </header>
 
         <!-- Key Distinction: Agency vs DIY Builder -->
-        <section class="mb-24 p-8 sm:p-12 rounded-3xl bg-white/[0.02] border border-orange-500/20 relative overflow-hidden">
+        <section class="mb-24 p-8 sm:p-12 rounded-3xl glass-panel border border-orange-500/20 relative overflow-hidden">
           <div class="max-w-3xl">
             <span class="text-orange-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">The AI-Native Model</span>
             <h2 class="text-2xl sm:text-4xl font-black uppercase tracking-tight mb-6">We Build It For You, Not a DIY Tool</h2>
@@ -74,7 +74,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
             <h2 class="text-3xl sm:text-5xl font-black uppercase tracking-tight">How AI &amp; Humans Work Together</h2>
           </div>
           <div class="grid md:grid-cols-2 gap-8">
-            <div class="p-8 sm:p-10 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6">
+            <div class="p-8 sm:p-10 rounded-3xl glass-panel border border-white/10 space-y-6">
               <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-orange-500"></span>
                 <h3 class="text-xl font-bold uppercase tracking-tight text-white">What AI Accelerates</h3>
@@ -87,7 +87,7 @@ import { ProjectConfiguratorComponent } from '../shared/components/configurator/
               </ul>
             </div>
 
-            <div class="p-8 sm:p-10 rounded-3xl bg-white/[0.02] border border-white/10 space-y-6">
+            <div class="p-8 sm:p-10 rounded-3xl glass-panel border border-white/10 space-y-6">
               <div class="flex items-center gap-3">
                 <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
                 <h3 class="text-xl font-bold uppercase tracking-tight text-white">What Human Engineers Oversee</h3>

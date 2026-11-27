@@ -6,7 +6,7 @@ import { ApiService } from '../services/api.service';
 <section class="section-padding max-w-5xl mx-auto"><h1 class="text-3xl font-bold">Project requests</h1>
 <p class="my-4">Latest 100 requests. No automated prospect sending is enabled here.</p>
 <p role="status">{{ notice() }}</p><button class="premium-btn my-4" (click)="load()">Refresh</button>
-<article *ngFor="let item of items()" class="border border-white/20 p-6 my-4">
+<article *ngFor="let item of items()" class="border border-white/20 rounded-[1.75rem] p-6 my-4">
 <h2 class="text-xl">{{ item.businessName || item.name }}</h2><p>{{ item.email }} · {{ item.createdAt | date:'short' }}</p>
 <p class="my-2">{{ item.website }}</p><p class="whitespace-pre-wrap">{{ item.message }}</p>
 <p class="my-2">Owner notification: {{ item.notification }}. Source: {{ item.attribution?.utm_source || 'unknown' }}</p>

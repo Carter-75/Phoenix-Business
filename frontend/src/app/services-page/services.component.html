@@ -66,7 +66,7 @@
             <li>Managed hosting, SSL, daily backups</li>
             <li>Lead capture and contact forms</li>
           </ul>
-          <button (click)="startWithPackage('starter')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Starter</button>
+          <button (click)="startWithPackage('starter')" class="mt-6 w-full btn-fire press-spring">Start With Starter</button>
         </div>
         <div class="p-6 rounded-2xl bg-orange-600/[0.06] border border-orange-500/40 flex flex-col light-card tilt-card relative" lightTrack tiltCard>
           <span class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em]">Most Popular</span>
@@ -79,7 +79,7 @@
             <li>Hosting, 24/7 monitoring, security updates</li>
             <li>2 hours of custom edits every month</li>
           </ul>
-          <button (click)="startWithPackage('business')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Custom Business</button>
+          <button (click)="startWithPackage('business')" class="mt-6 w-full btn-fire press-spring">Start With Custom Business</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">E-Commerce Storefront</h3>
@@ -91,7 +91,7 @@
             <li>Product catalog, cart, and checkout included</li>
             <li>3 hours of custom edits every month</li>
           </ul>
-          <button (click)="startWithPackage('ecommerce')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With E-Commerce</button>
+          <button (click)="startWithPackage('ecommerce')" class="mt-6 w-full btn-fire press-spring">Start With E-Commerce</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Full-Stack Web App / SaaS MVP</h3>
@@ -103,7 +103,7 @@
             <li>User accounts, database, and client dashboard included</li>
             <li>5 hours of engineering every month</li>
           </ul>
-          <button (click)="startWithPackage('webapp')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Web App</button>
+          <button (click)="startWithPackage('webapp')" class="mt-6 w-full btn-fire press-spring">Start With Web App</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col light-card tilt-card" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Enterprise Custom Platform</h3>
@@ -115,7 +115,7 @@
             <li>Multi-role permissions and dedicated support</li>
             <li>10+ hours of dedicated engineering every month</li>
           </ul>
-          <button (click)="startWithPackage('enterprise')" class="mt-6 w-full py-3.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-[11px] font-black uppercase tracking-[0.25em] transition-all press-spring">Start With Enterprise</button>
+          <button (click)="startWithPackage('enterprise')" class="mt-6 w-full btn-fire press-spring">Start With Enterprise</button>
         </div>
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-dashed border-white/15 flex flex-col light-card tilt-card justify-center" lightTrack tiltCard>
           <h3 class="text-lg font-black text-white uppercase tracking-tight">Not Sure Which Fits?</h3>
@@ -186,7 +186,7 @@
     <!-- Contract & Onboarding Modal -->
     <div *ngIf="showContract()" class="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
       <div class="absolute inset-0 bg-[#020205]/95 backdrop-blur-3xl" (click)="closeContract()"></div>
-      <div class="glass-card !bg-[#050505] max-w-[800px] w-full z-10 p-6 sm:p-12 lg:p-24 border-orange-600/20 relative">
+      <div class="glass-card rounded-[1.75rem] !bg-[#050505] max-w-[800px] w-full z-10 p-6 sm:p-12 lg:p-24 border-orange-600/20 relative">
         
         <button (click)="closeContract()" class="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/20 hover:text-white transition-all">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -272,10 +272,10 @@
                 <p *ngIf="authError()" class="text-red-500 text-[10px] font-black uppercase tracking-widest text-center">{{authError()}}</p>
 
                 <div class="flex gap-3">
-                  <button (click)="sendResetCode()" [disabled]="resetLoading()" class="flex-1 py-4 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all disabled:opacity-50">
+                  <button (click)="sendResetCode()" [disabled]="resetLoading()" class="flex-1 btn-fire press-spring disabled:opacity-50">
                     {{ resetLoading() ? 'Sending Code...' : 'Send Verification Code' }}
                   </button>
-                  <button type="button" (click)="backToLogin()" class="px-5 py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all">
+                  <button type="button" (click)="backToLogin()" class="btn-ghost press-spring">
                     Cancel
                   </button>
                 </div>
@@ -312,13 +312,13 @@
                 <p *ngIf="authSuccessMsg()" class="text-emerald-400 text-[10px] font-black uppercase tracking-widest text-center">{{authSuccessMsg()}}</p>
 
                 <div class="flex gap-3">
-                  <button (click)="submitPasswordReset()" [disabled]="resetLoading()" class="flex-1 py-4 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all disabled:opacity-50">
+                  <button (click)="submitPasswordReset()" [disabled]="resetLoading()" class="flex-1 btn-fire press-spring disabled:opacity-50">
                     {{ resetLoading() ? 'Updating Password...' : 'Reset Password & Continue' }}
                   </button>
-                  <button type="button" (click)="sendResetCode()" [disabled]="resetLoading()" class="px-4 py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all" title="Resend Code">
+                  <button type="button" (click)="sendResetCode()" [disabled]="resetLoading()" class="btn-ghost press-spring" title="Resend Code">
                     Resend
                   </button>
-                  <button type="button" (click)="backToLogin()" class="px-4 py-4 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all">
+                  <button type="button" (click)="backToLogin()" class="btn-ghost press-spring">
                     Back
                   </button>
                 </div>
@@ -387,7 +387,7 @@
 
   <!-- Discount applied confirmation -->
   <div *ngIf="isAnimatingDiscount()" class="fixed inset-0 z-[300] flex items-center justify-center bg-[#020205]/90 px-4">
-    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-[#0a0a0f] p-8 text-center shadow-2xl">
+    <div class="w-full max-w-md glass-panel p-8 text-center">
       <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-4" aria-hidden="true"></i>
       <h2 class="text-2xl font-black text-white mb-2">Code applied</h2>
       <p class="text-sm text-white/60 leading-relaxed">Your {{appliedDiscountPercentage()}}% discount is in. The prices on this page now include it.</p>

@@ -22,18 +22,18 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
         </div>
 
         <!-- Token Invalid State -->
-        <div *ngIf="!loading() && reviewToken() && rawItems().length === 0" class="bg-white/5 border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
+        <div *ngIf="!loading() && reviewToken() && rawItems().length === 0" class="glass-panel border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
           <div class="w-20 h-20 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6">
             <i class="fa-solid fa-xmark text-4xl"></i>
           </div>
           <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Invalid Link</h3>
           <p class="text-slate-400 text-sm mb-8">{{ formError() || 'This review link is invalid or has already been used.' }}</p>
-          <a routerLink="/" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
+          <a routerLink="/" class="btn-ghost press-spring">
             Return to Home
           </a>
         </div>
 
-        <div *ngIf="!loading() && !reviewToken() && reviewItems().length === 0" class="bg-white/5 border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
+        <div *ngIf="!loading() && !reviewToken() && reviewItems().length === 0" class="glass-panel border border-white/10 rounded-2xl p-12 backdrop-blur-sm">
           <div class="w-20 h-20 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-6">
             <i class="fa-solid fa-check text-4xl"></i>
           </div>
@@ -44,7 +44,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
             <p class="text-slate-400 text-xs leading-relaxed mb-4">You can still review us directly on Google. It takes about 30 seconds, and it shows on our reviews page automatically.</p>
             <a [href]="googleReviewUrl()" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-200 text-slate-900 transition-all rounded-full text-xs font-bold uppercase tracking-widest"><i class="fa-brands fa-google"></i> Review Us on Google</a>
           </div>
-          <a routerLink="/dashboard" class="inline-block px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">
+          <a routerLink="/dashboard" class="btn-ghost press-spring">
             Return to Dashboard
           </a>
         </div>
@@ -67,7 +67,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
             <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-orange-600 to-red-600"></div>
             <div class="p-6 sm:p-10 text-center">
               <div class="mb-8 p-4 bg-orange-600/5 border border-orange-500/20 rounded-xl flex items-center gap-4 text-left">
-                <div class="w-12 h-12 rounded-lg bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
+                <div class="w-12 h-12 rounded-full bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
                   <i class="fa-solid fa-box-open text-xl"></i>
                 </div>
                 <div>
@@ -93,7 +93,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
               
               <!-- Header Info -->
               <div class="mb-8 p-4 bg-orange-600/5 border border-orange-500/20 rounded-xl flex items-center gap-4">
-                <div class="w-12 h-12 rounded-lg bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
+                <div class="w-12 h-12 rounded-full bg-orange-600/20 text-orange-500 flex items-center justify-center shrink-0">
                   <i class="fa-solid fa-box-open text-xl"></i>
                 </div>
                 <div>
@@ -169,7 +169,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 </div>
               </div>
 
-              <button type="submit" [disabled]="submitting()" class="w-full mt-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-600/20">
+              <button type="submit" [disabled]="submitting()" class="btn-fire press-spring w-full mt-8 disabled:opacity-50 disabled:cursor-not-allowed">
                 {{ submitting() ? 'Processing...' : 'Update Review' }}
               </button>
             </form>
@@ -201,8 +201,8 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Your Review Is Live</h3>
                 <p class="text-slate-400 text-sm mb-8">It is posted on Google and now shows on our reviews page too. Thank you!</p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <a routerLink="/reviews" class="px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">See It on Our Reviews Page</a>
-                  <a routerLink="/" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">Back to Home</a>
+                  <a routerLink="/reviews" class="btn-fire press-spring">See It on Our Reviews Page</a>
+                  <a routerLink="/" class="btn-ghost press-spring">Back to Home</a>
                 </div>
               </div>
             </ng-container>
@@ -215,8 +215,8 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
                 <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Google Is Still Publishing It</h3>
                 <p class="text-slate-400 text-sm mb-8">Google sometimes takes a while to show a new review. Nothing more for you to do: it will appear on our reviews page automatically as soon as Google makes it public.</p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <a routerLink="/reviews" class="px-8 py-4 bg-orange-600 hover:bg-orange-500 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">Go to Reviews Page</a>
-                  <a routerLink="/" class="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-full text-white font-bold uppercase tracking-widest text-sm">Back to Home</a>
+                  <a routerLink="/reviews" class="btn-fire press-spring">Go to Reviews Page</a>
+                  <a routerLink="/" class="btn-ghost press-spring">Back to Home</a>
                 </div>
               </div>
             </ng-container>

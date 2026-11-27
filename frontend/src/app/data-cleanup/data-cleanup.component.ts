@@ -30,7 +30,7 @@ import { SeoService } from '../services/seo.service';
             <div><label for="cleanup-business" class="block mb-2">Business name (optional)</label><input id="cleanup-business" name="businessName" maxlength="200" autocomplete="organization" class="w-full bg-black border border-white/30 rounded-lg p-3"></div>
             <div><label for="cleanup-message" class="block mb-2">What do you need help with?</label><textarea id="cleanup-message" name="message" required maxlength="1800" rows="5" placeholder="File type, approximate size, current problem, and the result you need." class="w-full bg-black border border-white/30 rounded-lg p-3"></textarea></div>
             <p class="text-sm text-white/60">Your contact details are used to respond to this request. <a routerLink="/privacy" class="underline">Privacy policy</a></p>
-            <button type="submit" [disabled]="busy()" class="bg-orange-600 rounded-lg px-6 py-4 font-bold disabled:opacity-50">{{busy() ? 'Saving…' : 'Request a Quote'}}</button>
+            <button type="submit" [disabled]="busy()" class="btn-fire press-spring disabled:opacity-50">{{busy() ? 'Saving…' : 'Request a Quote'}}</button>
             <p *ngIf="saved()" role="status" class="text-green-400">Your request is saved. We will follow up by email.</p>
             <p *ngIf="error()" role="alert" class="text-red-400">{{error()}}</p>
           </form>
