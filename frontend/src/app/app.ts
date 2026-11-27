@@ -86,6 +86,10 @@ export class App implements OnInit {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const anchor = (event.target as HTMLElement).closest?.('a');
       if (!anchor) return;
+      // The navbar owns its own clicks (its mobile menu links carry close
+      // handlers that this interceptor would swallow, which forced a
+      // second tap). Nav links navigate normally in one tap.
+      if (anchor.closest('app-navbar')) return;
       const href = anchor.getAttribute('href');
       if (!href || !href.startsWith('/') || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
       const url = new URL(href, window.location.origin);
