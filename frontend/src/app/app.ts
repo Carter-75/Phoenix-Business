@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 import { BackgroundAnimationComponent } from './shared/background-animation/background-animation.component';
+import { PhoenixBirdsComponent } from './shared/phoenix-birds/phoenix-birds.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { ReviewPopupComponent } from './shared/review-popup/review-popup.component';
 import { AiBotComponent } from './shared/ai-bot/ai-bot.component';
@@ -22,6 +23,7 @@ import { TermsGateComponent } from './shared/components/terms-gate/terms-gate.co
     RouterOutlet,
     NavbarComponent,
     BackgroundAnimationComponent,
+    PhoenixBirdsComponent,
     FooterComponent,
     ReviewPopupComponent,
     AiBotComponent,
@@ -36,6 +38,7 @@ import { TermsGateComponent } from './shared/components/terms-gate/terms-gate.co
     <app-terms-gate></app-terms-gate>
     @defer (on idle) {
       <app-background-animation></app-background-animation>
+      <app-phoenix-birds></app-phoenix-birds>
     }
     <div class="fire-container">
       <div class="fire-bar" style="left: 10%; animation-delay: 0s;"></div>
