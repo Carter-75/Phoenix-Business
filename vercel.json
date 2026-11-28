@@ -62,6 +62,7 @@
     { "source": "/images/:path*", "destination": { "service": "frontend" } },
     { "source": "/404.html", "destination": { "service": "frontend" } },
     { "source": "/:path*.js", "destination": { "service": "frontend" } },
+    { "source": "/:path*.json", "destination": { "service": "frontend" } },
     { "source": "/:path*.css", "destination": { "service": "frontend" } },
     { "source": "/:path*.woff2", "destination": { "service": "frontend" } },
     { "source": "/:path*.png", "destination": { "service": "frontend" } },
