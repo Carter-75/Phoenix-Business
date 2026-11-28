@@ -2,6 +2,7 @@ import { Component, inject, signal, effect, ElementRef, ViewChild, AfterViewChec
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+import { LottiePlayerComponent } from '../lottie/lottie-player.component';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -11,7 +12,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-ai-bot',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LottiePlayerComponent],
   template: `
     <!-- Floating Chat Button: dark glass pill in the nav language, flame mark, full pill on every screen size -->
     <button *ngIf="!isOpen()" (click)="toggleChat()" class="press-spring fixed bottom-24 right-6 sm:bottom-8 sm:right-8 z-[200] h-14 w-auto pl-3 pr-6 rounded-full bg-[#050508]/70 backdrop-blur-2xl border border-white/10 shadow-[0_24px_55px_rgba(0,0,0,0.55),0_0_25px_rgba(255,77,0,0.25)] flex items-center justify-center gap-3 text-white hover:border-[#FF4D00]/40 hover:shadow-[0_24px_55px_rgba(0,0,0,0.55),0_0_35px_rgba(255,77,0,0.45)]">
@@ -28,8 +29,9 @@ interface ChatMessage {
       <!-- Header -->
       <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-full bg-[#FF4D00]/15 border border-[#FF4D00]/40 flex items-center justify-center text-[#FF4D00] shrink-0">
+          <div class="relative w-11 h-11 rounded-full bg-[#FF4D00]/15 border border-[#FF4D00]/40 flex items-center justify-center text-[#FF4D00] shrink-0 overflow-hidden">
             <i class="fa-solid fa-fire text-lg"></i>
+            <app-lottie-player src="/lottie/flame.json" [loop]="true" class="absolute inset-0 m-auto w-8 h-8 pointer-events-none"></app-lottie-player>
           </div>
           <div>
             <h3 class="text-white font-black tracking-wide text-sm leading-tight">Phoenix</h3>

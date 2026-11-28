@@ -11,13 +11,14 @@ import { LightTrackDirective, TiltCardDirective } from '../shared/directives/mot
 import { VoiceCallService } from '../services/voice-call.service';
 import { SeoService } from '../services/seo.service';
 import { GroupBuyStripComponent } from '../shared/group-buy-strip/group-buy-strip.component';
+import { LottiePlayerComponent } from '../shared/lottie/lottie-player.component';
 
 gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule, ScrollRevealDirective, LightTrackDirective, TiltCardDirective, SafePipe, GroupBuyStripComponent],
+  imports: [RouterLink, CommonModule, ScrollRevealDirective, LightTrackDirective, TiltCardDirective, SafePipe, GroupBuyStripComponent, LottiePlayerComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, OnDestroy {

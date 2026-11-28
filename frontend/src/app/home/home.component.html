@@ -430,9 +430,12 @@
         
         <p class="mt-6 text-sm text-white/80">We use these details to answer your request. This does not subscribe you to marketing emails. <a routerLink="/privacy" class="underline">Privacy policy</a></p>
         <p *ngIf="errorMessage()" role="alert" class="mt-6 text-red-300">{{ errorMessage() }}</p>
-        <p *ngIf="success()" role="status" aria-live="polite" class="mt-8 text-orange-600 text-xs font-black uppercase tracking-[0.4em]">
-          Your request is saved. Carter will review it and contact you.
-        </p>
+        <div *ngIf="success()" class="mt-8 flex flex-col items-start gap-3">
+          <app-lottie-player src="/lottie/checkmark.json" class="w-14 h-14"></app-lottie-player>
+          <p role="status" aria-live="polite" class="text-orange-600 text-xs font-black uppercase tracking-[0.4em]">
+            Your request is saved. Carter will review it and contact you.
+          </p>
+        </div>
       </div>
     </div>
   </section>
